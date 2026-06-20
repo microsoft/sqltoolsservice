@@ -22,6 +22,7 @@ using Microsoft.SqlServer.Management.SqlParser.Common;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlServer.Management.SqlParser.SqlCodeDom;
+using DacModel = Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.AutoParameterizaition;
@@ -125,6 +126,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         private readonly ConcurrentDictionary<string, DateTime> extAssemblyLastUpdateTime = new();
         private readonly ConcurrentDictionary<string, AsyncLock> uriAsyncLocks = new();
         private CancellationTokenSource completionRequestCancellation;
+
+        // Debounce state for project IntelliSense model updates (one CTS per file URI).
+        private readonly ConcurrentDictionary<string, CancellationTokenSource> _intelliSenseUpdateDebounce = new(StringComparer.OrdinalIgnoreCase);
+        private const int IntelliSenseUpdateDebounceMs = 500;
+
+        // Serializes DacFx model mutations per project so that concurrent edits across multiple
+        // files in the same project do not race when updating shared model/provider state.
+        private readonly ConcurrentDictionary<string, AsyncLock> projectModelUpdateLocks = new(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Gets a mapping dictionary for SQL file URIs to ScriptParseInfo objects
@@ -266,6 +275,20 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // Returns all locations where the symbol under the cursor is referenced (currently supported for SQL project files only; returns empty for connected files).
             // Parallel safe: the cursor file is re-parsed under a per-ScriptParseInfo lock when needed; token scanning across candidate files is read-only.
             serviceHost.SetRequestHandler(ReferencesRequest.Type, HandleReferencesRequest, isParallelProcessingSupported: true);
+
+            // Renames all occurrences of the symbol under the cursor across the project (SQL project files only).
+            // Returns element metadata so the client can append a .refactorlog entry after the user confirms.
+            // Parallel safe: shares FindProjectSymbolLocations which is read-only after parse.
+            serviceHost.SetRequestHandler(SqlSymbolRenameRequest.Type, HandleSqlRenameRequest, isParallelProcessingSupported: true);
+
+            // Moves the schema-owned object under the cursor to a different schema across the project.
+            // Returns reference edits plus the full .refactorlog content for the client to write.
+            // Parallel safe: shares FindProjectSymbolLocations which is read-only after parse.
+            serviceHost.SetRequestHandler(SqlMoveToSchemaRequest.Type, HandleMoveToSchemaRequest, isParallelProcessingSupported: true);
+
+            // Lists the schemas defined in the SQL project that owns the document (for the move-to-schema picker).
+            // Parallel safe: reads the DacFx model only.
+            serviceHost.SetRequestHandler(ListProjectSchemasRequest.Type, HandleListSchemasRequest, isParallelProcessingSupported: true);
 
             // Returns signature help for the current cursor position.
             // Parallel safe because stateful metadata work stays serialized by ScriptParseInfo locks and the binding queue.
@@ -664,6 +687,18 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             try
             {
+                // Keep the DacFx TSqlModel in sync with in-memory edits so that
+                // Find All References and rename results reflect unsaved changes.
+                // Deduplicate by URI: a single didChange message can carry multiple incremental
+                // edits for the same file (e.g. paste, multi-cursor). All edits are already
+                // applied to ScriptFile.Contents by the time we get here, so one model update
+                // per unique file with the final content is sufficient.
+                foreach (var file in changedFiles.GroupBy(f => f.ClientUri).Select(g => g.Last()))
+                {
+                    if (TryGetProjectUriForSqlFile(file.ClientUri, out string projectUri))
+                        ScheduleDebouncedIntelliSenseUpdate(file.ClientUri, projectUri, file.Contents);
+                }
+
                 if (CurrentWorkspaceSettings.IsDiagnosticsEnabled)
                 {
                     // Only process files that are MSSQL flavor
@@ -677,6 +712,54 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 Logger.Error("Unknown error " + ex.ToString());
                 // TODO: need mechanism return errors from event handlers
             }
+        }
+
+        /// <summary>
+        /// Schedules a debounced DacFx TSqlModel update for the given file.
+        /// Any previously pending update for the same URI is cancelled so that rapid
+        /// keystrokes collapse into a single model rebuild fired after
+        /// <see cref="IntelliSenseUpdateDebounceMs"/> of inactivity.
+        /// </summary>
+        private void ScheduleDebouncedIntelliSenseUpdate(string fileUri, string projectUri, string contents)
+        {
+            var newCts = new CancellationTokenSource();
+            if (_intelliSenseUpdateDebounce.TryRemove(fileUri, out var oldCts))
+            {
+                oldCts.Cancel();
+                oldCts.Dispose();
+            }
+            _intelliSenseUpdateDebounce[fileUri] = newCts;
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await Task.Delay(IntelliSenseUpdateDebounceMs, newCts.Token);
+
+                    // Serialize model mutations for this project so concurrent edits across
+                    // multiple files don't race when updating shared model/provider state.
+                    AsyncLock projectLock = projectModelUpdateLocks.GetOrAdd(projectUri, _ => new AsyncLock());
+                    using (await projectLock.LockAsync())
+                    {
+                        await SqlProjectsService.Instance.UpdateProjectIntelliSenseAsync(
+                            projectUri, fileUri, deleted: false, sqlTextOverride: contents);
+                    }
+                }
+                catch (OperationCanceledException) { /* superseded by a newer edit — expected */ }
+                catch (Exception ex) { Logger.Error($"IntelliSense model update failed for {fileUri}: {ex}"); }
+                finally
+                {
+                    // Only remove and dispose if this task's CTS is still the current entry.
+                    // Using TryGetValue + ReferenceEquals avoids accidentally evicting a newer
+                    // CTS that a concurrent edit has already stored for the same file.
+                    if (_intelliSenseUpdateDebounce.TryGetValue(fileUri, out var currentCts)
+                        && ReferenceEquals(currentCts, newCts))
+                    {
+                        _intelliSenseUpdateDebounce.TryRemove(fileUri, out _);
+                        newCts.Dispose();
+                    }
+                }
+            });
         }
 
         /// <summary>
@@ -722,31 +805,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             try
             {
-                // Only process .sql files — saving the .sqlproj itself (or any other non-SQL file)
-                // must not feed non-SQL content into TSqlModel.AddOrUpdateObjects.
-                if (!string.Equals(Path.GetExtension(uri), ".sql", StringComparison.OrdinalIgnoreCase))
-                {
+                if (!TryGetProjectUriForSqlFile(uri, out string projectUri))
                     return;
-                }
 
-                ScriptParseInfo parseInfo = GetScriptParseInfo(uri, createIfNotExists: false);
-                if (parseInfo == null || !parseInfo.IsProject)
-                {
-                    return;
-                }
-
-                string contextKey = parseInfo.ConnectionKey;                
-                if (contextKey == null || !contextKey.StartsWith(ProjectContextKeyPrefix, StringComparison.Ordinal)) 
-                {
-                    return;
-                }
-
-                // Guard: the .sqlproj URI itself is stamped as a project file; skip it explicitly.
-                string projectUri = contextKey.Substring(ProjectContextKeyPrefix.Length);
-                if (string.Equals(uri, projectUri, StringComparison.OrdinalIgnoreCase)) 
-                {
-                    return;
-                }
                 await SqlProjectsService.Instance.UpdateProjectIntelliSenseAsync(projectUri, uri, deleted: false);
 
                 // After the model update, re-run diagnostics on ALL open project files
@@ -772,6 +833,39 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 Logger.Error("Unknown error " + ex.ToString());
             }
+        }
+
+        /// <summary>
+        /// Returns the project URI for a given SQL file URI if the file belongs to a SQL project,
+        /// or <c>false</c> if the file should be skipped (not a .sql file, not a project file,
+        /// or the URI is the .sqlproj itself).
+        /// </summary>
+        private bool TryGetProjectUriForSqlFile(string fileUri, out string projectUri)
+        {
+            projectUri = null;
+
+            if (!string.Equals(Path.GetExtension(fileUri), ".sql", StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            ScriptParseInfo parseInfo = GetScriptParseInfo(fileUri, createIfNotExists: false);
+            if (parseInfo == null || !parseInfo.IsProject)
+                return false;
+
+            string contextKey = parseInfo.ConnectionKey;
+            if (contextKey == null || !contextKey.StartsWith(ProjectContextKeyPrefix, StringComparison.Ordinal))
+                return false;
+
+            projectUri = contextKey.Substring(ProjectContextKeyPrefix.Length);
+
+            // Skip the .sqlproj URI itself — it is stamped as a project file but must not be fed
+            // into TSqlModel.AddOrUpdateObjects.
+            if (string.Equals(fileUri, projectUri, StringComparison.OrdinalIgnoreCase))
+            {
+                projectUri = null;
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -1605,14 +1699,39 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             return result;
         }
 
+        #region Rename Refactor
+
+        // Rename / Find-All-References support for SQL project files.
+        //
+        // The feature splits into two concerns:
+        //   1. DacFx answers the semantic question "which files reference this object?" via the
+        //      dependency graph exposed by TSqlModelMetadataProvider.
+        //   2. ScriptDom answers the syntactic question "where, exactly, does the name appear in
+        //      each file?" by walking a real T-SQL abstract syntax tree.
+        //
+        // The ScriptDom parsing/visitor logic lives in RenameScriptDomHelper; the request handlers
+        // below stay here because they need the LanguageService workspace and binding state.
+
         /// <summary>
-        /// Core resolution logic for <see cref="HandleReferencesRequest"/>.  Resolves every <see cref="Location"/> in the project
-        /// that matches the symbol at the given cursor position.
+        /// Core resolution logic for <see cref="HandleReferencesRequest"/> and
+        /// <see cref="HandleSqlRenameRequest"/>.  Resolves every <see cref="Location"/> in the
+        /// project that matches the symbol at the given cursor position.
         /// Returns <c>null</c> when IntelliSense is disabled, the file is not found, or it is not a
         /// project file.  Returns an empty array when the symbol could not be resolved.
         /// </summary>
-        internal Location[] FindProjectSymbolLocations(string fileUri, int line0, int col0)
+        /// <param name="qualifiedNameOut">The resolved schema-qualified name (e.g. "dbo.Customers") used for refactorlog lookup; null on failure.</param>
+        /// <param name="providerOut">The <see cref="TSqlModelMetadataProvider"/> resolved for the project; null on failure.</param>
+        /// <param name="tokenTextOut">The bare (unbracketed) token text at the cursor; null on failure.</param>
+        internal Location[] FindProjectSymbolLocations(
+            string fileUri, int line0, int col0,
+            out string qualifiedNameOut,
+            out TSqlModelMetadataProvider providerOut,
+            out string tokenTextOut)
         {
+            qualifiedNameOut = null;
+            providerOut      = null;
+            tokenTextOut     = null;
+
             if (ShouldSkipIntellisense(fileUri))
                 return null;
 
@@ -1629,10 +1748,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 scriptParseInfo.ParseResult = ParseAndBind(scriptFile, null).GetAwaiter().GetResult();
             }
 
-            // LSP positions are 0-based; SqlParser expects 1-based
-            int parserLine = line0 + 1;
-            int parserCol  = col0 + 1;
-
             // Resolve the project URI from the context key so we can access the provider directly.
             // Going through the binding queue would cause empty results when a concurrent save
             // (which calls AddProjectContext and rebuilds the context) holds the binding lock.
@@ -1647,32 +1762,20 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 connBindCtx.MetadataProvider is not TSqlModelMetadataProvider provider)
                 return Array.Empty<Location>();
 
-            // Step 1: get token at cursor
-            int tokenIndex = scriptParseInfo.ParseResult?.Script?.TokenManager?.FindToken(parserLine, parserCol) ?? -1;
-            if (tokenIndex < 0)
+            // Step 1+2: resolve the clicked name (and any schema-qualified prefix) from the editor
+            // buffer using the ScriptDom token stream.
+            if (!RenameScriptDomHelper.TryResolveCursorName(scriptFile.Contents, line0, col0, out string tokenText, out string qualifiedName)
+                || string.IsNullOrWhiteSpace(tokenText))
                 return Array.Empty<Location>();
-
-            var token = scriptParseInfo.ParseResult.Script.TokenManager.GetToken(tokenIndex);
-            if (token == null || !token.IsSignificant)
-                return Array.Empty<Location>();
-
-            string tokenText = TextUtilities.RemoveSquareBracketSyntax(token.Text);
-            if (string.IsNullOrWhiteSpace(tokenText))
-                return Array.Empty<Location>();
-
-            // Step 2: reconstruct schema-qualified name from any preceding dot-separated segments.
-            string schemaPrefix = GetPrecedingSchemaPrefix(
-                scriptParseInfo.ParseResult.Script.TokenManager, tokenIndex);
-            string qualifiedName = schemaPrefix != null
-                ? $"{schemaPrefix}.{tokenText}"
-                : null;
 
             // Normalize schema-qualified names: strip leading db-prefix segments until
             // the model recognises the name (handles 3-part names like MyDb.dbo.Customers → dbo.Customers).
+            // CanResolveName matches both top-level objects and columns, so a column reference
+            // such as dbo.Table.Column is preserved instead of being stripped away.
             if (qualifiedName != null)
             {
-                string? normalized = qualifiedName;
-                while (!string.IsNullOrEmpty(normalized) && !provider.TryGetSourceInformation(normalized, out _))
+                string normalized = qualifiedName;
+                while (!string.IsNullOrEmpty(normalized) && !provider.CanResolveName(normalized))
                 {
                     int dot = normalized.IndexOf('.');
                     if (dot < 0) { normalized = null; break; }
@@ -1688,29 +1791,53 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             // Step 3: collect candidate files via DacFx dependency graph
             var candidateFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            
+            string defFile;
             try
             {
-                if (provider.TryGetSourceInformation(qualifiedName, out var defInfo) &&
-                    defInfo?.SourceName != null)
-                    candidateFiles.Add(defInfo.SourceName);
-                foreach (string path in provider.GetReferencingFilePaths(qualifiedName))
-                    candidateFiles.Add(path);
+                defFile = provider.GetDefiningFilePath(qualifiedName);
             }
             catch (Exception ex)
             {
-                Logger.Error($"FindProjectSymbolLocations error: {ex}");
+                Logger.Error($"FindProjectSymbolLocations: GetDefiningFilePath failed: {ex}");
                 return Array.Empty<Location>();
+            }
+            
+            // Only add files if we can successfully get ALL references.
+            // If getting references fails, the model is corrupted - return empty instead of partial results.
+            if (defFile != null)
+            {
+                try
+                {
+                    foreach (string path in provider.GetReferencingFilePaths(qualifiedName))
+                        candidateFiles.Add(path);
+                    
+                    // Only add defining file after successfully getting all references
+                    candidateFiles.Add(defFile);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error($"FindProjectSymbolLocations: GetReferencingFilePaths failed: {ex}");
+                    return Array.Empty<Location>();
+                }
             }
 
             var results = new List<Location>();
             foreach (string filePath in candidateFiles)
             {
-                try { results.AddRange(FindTokenLocationsInFile(filePath, tokenText)); }
+                try { results.AddRange(RenameScriptDomHelper.FindNameLocationsInFile(filePath, tokenText)); }
                 catch (Exception ex) { Logger.Verbose($"FindProjectSymbolLocations: error scanning '{filePath}': {ex.Message}"); }
             }
 
+            qualifiedNameOut = qualifiedName;
+            providerOut      = provider;
+            tokenTextOut     = tokenText;
             return results.ToArray();
         }
+
+        // Overload for callers that only need the locations (references handler, tests).
+        internal Location[] FindProjectSymbolLocations(string fileUri, int line0, int col0)
+            => FindProjectSymbolLocations(fileUri, line0, col0, out _, out _, out _);
 
         /// <summary>
         /// Handles LSP <c>textDocument/references</c> — returns all locations where the SQL object
@@ -1728,64 +1855,320 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
-        /// Returns a <see cref="Location"/> for every significant token in <paramref name="filePath"/>
-        /// whose bare text (brackets stripped) matches <paramref name="objectName"/> case-insensitively.
-        /// Uses the cached <see cref="ScriptParseInfo"/>; performs an on-demand lightweight parse (no binding)
-        /// if the file has never been opened and its <see cref="ScriptParseInfo.ParseResult"/> is null.
+        /// Handles <c>sql/rename</c> — finds all occurrences of the symbol at the cursor
+        /// using <see cref="FindProjectSymbolLocations"/>, returns a <see cref="SqlSymbolRenameResponse"/>
+        /// with both the WorkspaceEdit and the element name so the client can append a
+        /// <c>.refactorlog</c> entry after the user confirms the preview.
         /// </summary>
-        private IEnumerable<Location> FindTokenLocationsInFile(string filePath, string objectName)
+        internal async Task HandleSqlRenameRequest(
+            SqlSymbolRenameParams renameParams,
+            RequestContext<SqlSymbolRenameResponse> requestContext)
         {
-            // Convert the file path to the URI key used by ScriptParseInfoMap.
-            string fileUri = new Uri(filePath).AbsoluteUri;
-            var parseInfo = GetScriptParseInfo(fileUri);
+            var locations = FindProjectSymbolLocations(
+                renameParams.TextDocument.Uri,
+                renameParams.Position.Line,
+                renameParams.Position.Character,
+                out string qualifiedName,
+                out TSqlModelMetadataProvider provider,
+                out string tokenText);
 
-            // If the file has never been parsed, parse it on demand (no binding needed — only
-            // token text and positions are required).  Prefer workspace content so that unsaved
-            // in-editor edits are reflected; fall back to reading the real disk file for project
-            // files that have never been opened in an editor.
-            // Guard with BuildingMetadataLock to avoid racing with concurrent ParseAndBind calls.
-            if (parseInfo != null && parseInfo.ParseResult == null)
+            if (locations == null || locations.Length == 0)
             {
-                var sf = CurrentWorkspace.GetFile(fileUri);
-                string? sqlText = sf?.Contents ?? (File.Exists(filePath) ? File.ReadAllText(filePath) : null);
-                if (sqlText != null && Monitor.TryEnter(parseInfo.BuildingMetadataLock, LanguageService.BindingTimeout))
+                await requestContext.SendResult(null);
+                return;
+            }
+
+            // Resolve element metadata. Rename is only supported for level-1 objects (tables, views, procs, etc.)
+            // and level-2 objects (columns, parameters, etc.). Schema objects themselves cannot be renamed.
+            if (provider != null && qualifiedName != null)
+            {
+                if (provider.TryGetRefactorInfo(
+                        qualifiedName, tokenText,
+                        out _, out string elementType,
+                        out _, out _)
+                    && elementType == "SqlSchema")
                 {
-                    try
-                    {
-                        parseInfo.ParseResult ??= Parser.Parse(sqlText, this.DefaultParseOptions);
-                    }
-                    finally
-                    {
-                        Monitor.Exit(parseInfo.BuildingMetadataLock);
-                    }
+                    // Reject rename for schema objects
+                    await requestContext.SendResult(null);
+                    return;
                 }
             }
 
-            if (parseInfo?.ParseResult?.Script?.Tokens == null)
-                yield break;
+            var changes = new Dictionary<string, List<TextEdit>>(StringComparer.OrdinalIgnoreCase);
 
-            foreach (Token token in parseInfo.ParseResult.Script.Tokens)
+            // Cache line lookups so each candidate file is read at most once, regardless of how
+            // many occurrences it contains.
+            var lineCache = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase);
+            foreach (var loc in locations)
             {
-                // token.IsSignificant is false for whitespace and comments — skip them.
-                if (!token.IsSignificant)
-                    continue;
+                if (!changes.TryGetValue(loc.Uri, out var edits))
+                    changes[loc.Uri] = edits = new List<TextEdit>();
 
-                string bare = TextUtilities.RemoveSquareBracketSyntax(token.Text);
-                if (!string.Equals(bare, objectName, StringComparison.OrdinalIgnoreCase))
-                    continue;
-
-                // StartLocation is 1-based; LSP Position is 0-based.
-                yield return new Location
+                // Preserve bracket-quoting style: if the original span was bracket-quoted,
+                // wrap the new name in brackets too.  Extended-property names sit inside string
+                // literals (the neighbouring characters are quotes, not brackets) so they are
+                // rewritten verbatim.  Works for both open files (workspace buffer) and project
+                // files discovered via the dependency graph that are not open (read from disk).
+                string newText = renameParams.NewName;
+                try
                 {
-                    Uri = fileUri,
-                    Range = new Range
-                    {
-                        Start = new Position { Line = token.StartLocation.LineNumber - 1, Character = token.StartLocation.ColumnNumber - 1 },
-                        End   = new Position { Line = token.StartLocation.LineNumber - 1, Character = token.StartLocation.ColumnNumber - 1 + (token.Text?.Length ?? 0) }
-                    }
-                };
+                    string lineText = GetSourceLine(loc.Uri, loc.Range.Start.Line, lineCache);
+                    newText = TextUtilities.ApplyBracketQuoting(
+                        lineText,
+                        loc.Range.Start.Character,
+                        loc.Range.End.Character,
+                        renameParams.NewName);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Verbose($"HandleSqlRenameRequest: bracket-quoting detection failed for '{loc.Uri}': {ex.Message}");
+                    /* fall through — use unbracketed newText */
+                }
+
+                edits.Add(new TextEdit { Range = loc.Range, NewText = newText });
             }
+
+            // Resolve refactorlog metadata using the qualifiedName and provider already resolved
+            // during the location scan — no extra model round-trip needed — then build the full
+            // .refactorlog document so the client only has to write the returned content.
+            string refactorElementName = null, refactorElementType = null;
+            string refactorParentName  = null, refactorParentType  = null;
+            if (provider != null && qualifiedName != null)
+            {
+                provider.TryGetRefactorInfo(
+                    qualifiedName, tokenText,
+                    out refactorElementName, out refactorElementType,
+                    out refactorParentName,  out refactorParentType);
+            }
+
+            // Only objects with a resolved element type (table, column, etc.) need a refactorlog entry.
+            string refactorLogContent = null;
+            if (refactorElementType != null)
+            {
+                refactorLogContent = RefactorLogGenerator.GenerateRenameDocument(
+                    renameParams.ExistingRefactorLogContent,
+                    refactorElementName,
+                    refactorElementType,
+                    refactorParentName,
+                    refactorParentType,
+                    renameParams.NewName);
+            }
+
+            await requestContext.SendResult(new SqlSymbolRenameResponse
+            {
+                Changes            = changes,
+                RefactorLogContent = refactorLogContent,
+                NewName            = renameParams.NewName
+            });
         }
+
+        /// <summary>
+        /// Handles <c>sql/moveToSchema</c> — rewrites every schema-qualified (or unqualified)
+        /// reference to the object under the cursor so it points at the target schema, and returns
+        /// the full <c>.refactorlog</c> content with a <c>Move Schema</c> entry appended.
+        /// </summary>
+        internal async Task HandleMoveToSchemaRequest(
+            SqlMoveToSchemaParams moveParams,
+            RequestContext<SqlMoveToSchemaResponse> requestContext)
+        {
+            var locations = FindProjectSymbolLocations(
+                moveParams.TextDocument.Uri,
+                moveParams.Position.Line,
+                moveParams.Position.Character,
+                out string qualifiedName,
+                out TSqlModelMetadataProvider provider,
+                out string tokenText);
+
+            if (locations == null || locations.Length == 0 || provider == null || qualifiedName == null)
+            {
+                await requestContext.SendResult(null);
+                return;
+            }
+
+            // Resolve element metadata. Move to schema only applies to schema-level objects
+            // (tables, views, procs, functions) — i.e. those whose parent is a schema. Columns and
+            // unresolved symbols are rejected.
+            if (!provider.TryGetRefactorInfo(
+                    qualifiedName, tokenText,
+                    out string elementName, out string elementType,
+                    out string parentElementName, out string parentElementType)
+                || parentElementType != "SqlSchema")
+            {
+                await requestContext.SendResult(null);
+                return;
+            }
+
+            string oldSchema = TextUtilities.RemoveSquareBracketSyntax(parentElementName);
+            if (string.Equals(oldSchema, moveParams.TargetSchema, StringComparison.OrdinalIgnoreCase))
+            {
+                // Already in the target schema — nothing to do.
+                await requestContext.SendResult(null);
+                return;
+            }
+
+            // Validate memory-optimized tables cannot be moved
+            // (ALTER SCHEMA TRANSFER does not support them).
+            DacModel.TSqlObject obj = provider.FindObject(qualifiedName);
+            if (obj != null && obj.ObjectType == DacModel.ModelSchema.Table)
+            {
+                bool isMemoryOptimized = obj.GetProperty<bool>(DacModel.Table.MemoryOptimized);
+                if (isMemoryOptimized)
+                {
+                    await requestContext.SendResult(null);
+                    return;
+                }
+            }
+
+            // Check for name collision: reject if an object with the same name already exists in
+            // the target schema.
+            string unqualifiedName = TextUtilities.RemoveSquareBracketSyntax(elementName.Split('.').Last());
+            string targetQualifiedName = $"{moveParams.TargetSchema}.{unqualifiedName}";
+            DacModel.TSqlObject existingObject = provider.FindObject(targetQualifiedName);
+            if (existingObject != null)
+            {
+                await requestContext.SendResult(null);
+                return;
+            }
+
+            // Re-scan each file that references the object and compute the schema-qualifier edits.
+            // We use both the identifier-reference locations AND the defining file, because the
+            // defining file may contain sp_addextendedproperty calls that reference the object only
+            // as string literals — those won't appear in `locations` (which tracks SQL identifiers),
+            // but FindSchemaMoveEditsInFile handles them via the AST ExecuteStatement visitor.
+            var changes = new Dictionary<string, List<TextEdit>>(StringComparer.OrdinalIgnoreCase);
+            var scannedFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            var filesToScan = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var loc in locations)
+                filesToScan.Add(new Uri(loc.Uri).LocalPath);
+            string definingFile = null;
+            try
+            {
+                definingFile = provider.GetDefiningFilePath(qualifiedName);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"HandleMoveToSchemaRequest: GetDefiningFilePath failed: {ex}");
+            }
+            if (definingFile != null)
+                filesToScan.Add(definingFile);
+
+            foreach (string localPath in filesToScan)
+            {
+                string fileUri = new Uri(localPath).AbsoluteUri;
+                if (!scannedFiles.Add(fileUri))
+                    continue;
+
+                foreach (var edit in RenameScriptDomHelper.FindSchemaMoveEditsInFile(
+                             localPath, tokenText, oldSchema, moveParams.TargetSchema))
+                {
+                    if (!changes.TryGetValue(edit.Location.Uri, out var edits))
+                        changes[edit.Location.Uri] = edits = new List<TextEdit>();
+                    edits.Add(new TextEdit { Range = edit.Location.Range, NewText = edit.NewText });
+                }
+            }
+
+            string refactorLogContent = RefactorLogGenerator.GenerateMoveSchemaDocument(
+                moveParams.ExistingRefactorLogContent,
+                elementName,
+                elementType,
+                moveParams.TargetSchema);
+
+            await requestContext.SendResult(new SqlMoveToSchemaResponse
+            {
+                Changes            = changes,
+                RefactorLogContent = refactorLogContent,
+                TargetSchema       = moveParams.TargetSchema
+            });
+        }
+
+        /// <summary>
+        /// Handles <c>sql/listSchemas</c> — returns the schemas defined in the SQL project that owns
+        /// the given document, for the move-to-schema target picker.
+        /// </summary>
+        internal async Task HandleListSchemasRequest(
+            ListProjectSchemasParams listParams,
+            RequestContext<ListProjectSchemasResponse> requestContext)
+        {
+            string[] schemas = TryGetProjectMetadataProvider(listParams.TextDocument?.Uri, out var provider)
+                ? provider.GetSchemaNames().ToArray()
+                : Array.Empty<string>();
+
+            await requestContext.SendResult(new ListProjectSchemasResponse { Schemas = schemas });
+        }
+
+        /// <summary>
+        /// Resolves the <see cref="TSqlModelMetadataProvider"/> for the SQL project that owns
+        /// <paramref name="fileUri"/>. Returns false when the file is not a project file or the
+        /// provider is not available.
+        /// </summary>
+        private bool TryGetProjectMetadataProvider(string fileUri, out TSqlModelMetadataProvider provider)
+        {
+            provider = null;
+            if (string.IsNullOrEmpty(fileUri) || ShouldSkipIntellisense(fileUri))
+                return false;
+
+            var scriptFile = CurrentWorkspace.GetFile(fileUri);
+            if (scriptFile == null)
+                return false;
+
+            ScriptParseInfo scriptParseInfo = GetScriptParseInfo(scriptFile.ClientUri);
+            if (scriptParseInfo == null || !scriptParseInfo.IsProject)
+                return false;
+
+            string contextKey = scriptParseInfo.ConnectionKey;
+            if (contextKey == null ||
+                !this.BindingQueue.BindingContextMap.TryGetValue(contextKey, out var bindCtx) ||
+                bindCtx is not ConnectedBindingContext connBindCtx ||
+                connBindCtx.MetadataProvider is not TSqlModelMetadataProvider resolved)
+                return false;
+
+            provider = resolved;
+            return true;
+        }
+
+        /// <summary>
+        /// Returns the source text of a single 0-based line for the given file URI.  Prefers the
+        /// in-memory workspace buffer (so unsaved edits are honoured) and falls back to reading the
+        /// file from disk for project files that are not open in the editor.  Results are cached in
+        /// <paramref name="lineCache"/> so each file is read at most once per request.
+        /// </summary>
+        private string GetSourceLine(string fileUri, int line0, Dictionary<string, string[]> lineCache)
+        {
+            if (!lineCache.TryGetValue(fileUri, out string[] lines))
+            {
+                string contents = CurrentWorkspace.GetFile(fileUri)?.Contents;
+                if (contents != null)
+                {
+                    lines = contents.Split('\n');
+                }
+                else
+                {
+                    string localPath = new Uri(fileUri).LocalPath;
+                    lines = File.Exists(localPath) ? File.ReadAllLines(localPath) : Array.Empty<string>();
+                }
+                lineCache[fileUri] = lines;
+            }
+
+            return (line0 >= 0 && line0 < lines.Length) ? lines[line0].TrimEnd('\r') : null;
+        }
+
+        /// <summary>
+        /// Extracts the bare name (brackets/quotes stripped) of the symbol at the given 0-based
+        /// line/column position. Returns <c>null</c> if the position does not resolve to a name.
+        /// </summary>
+        private string GetTokenTextAtPosition(string fileUri, int line0, int col0)
+        {
+            var scriptFile = CurrentWorkspace.GetFile(fileUri);
+            if (scriptFile == null)
+                return null;
+
+            return RenameScriptDomHelper.TryResolveCursorName(scriptFile.Contents, line0, col0, out string tokenText, out _)
+                ? tokenText
+                : null;
+        }
+
+        #endregion
 
         private DefinitionResult GetDefinitionFromTokenList(TextDocumentPosition textDocumentPosition, List<Token> tokenList,
                 ScriptParseInfo scriptParseInfo, ScriptFile scriptFile, ConnectionInfo connInfo)
@@ -2392,6 +2775,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="parseResult"></param>
         public async Task<bool> CheckForNonTSqlLanguage(string uri, ParseResult parseResult)
         {
+            if (parseResult?.Script == null)
+            {
+                return false;
+            }
+
             if (parseResult.Errors.Count() >= TSqlDetectionConstants.SqlFileErrorLimit)
             {
                 await ServiceHostInstance.SendEvent(
