@@ -68,6 +68,13 @@
     <PackageReference Update="StreamJsonRpc" Version="2.25.28" />
     <PackageReference Update="YamlDotNet" Version="18.0.0" />
     <PackageReference Update="Microsoft.Data.Sqlite" Version="10.0.9" />
+    <!-- Security override (CVE-2025-6965 / GHSA-2m69-gcr7-jv3q, CVSS 7.2): Microsoft.Data.Sqlite
+         10.0.9 (latest stable) pins SQLitePCLRaw.lib.e_sqlite3 2.1.11, whose NATIVE lib bundles
+         SQLite < 3.50.2. Only the native-lib package tracks the SQLite version, so pin just it to
+         3.50.3 (SQLite 3.50.3 > 3.50.2 = patched, and outside the flagged <= 2.1.11 range); core
+         and the bundle keep Microsoft.Data.Sqlite's pinned versions (their >= 2.1.11 native
+         dependency is satisfied by 3.50.3). Drop once a patched Microsoft.Data.Sqlite ships. -->
+    <PackageReference Update="SQLitePCLRaw.lib.e_sqlite3" Version="3.50.3" />
     <PackageReference Update="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="4.14.0" />
     <PackageReference Update="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="4.14.0" />
   </ItemGroup>

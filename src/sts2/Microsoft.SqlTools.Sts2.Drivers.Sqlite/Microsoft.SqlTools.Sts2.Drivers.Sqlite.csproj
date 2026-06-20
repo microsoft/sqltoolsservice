@@ -6,5 +6,9 @@
     <ProjectReference Include="..\Microsoft.SqlTools.Sts2.Abstractions\Microsoft.SqlTools.Sts2.Abstractions.csproj" />
     <ProjectReference Include="..\Microsoft.SqlTools.Sts2.Contracts\Microsoft.SqlTools.Sts2.Contracts.csproj" />
     <PackageReference Include="Microsoft.Data.Sqlite" />
+    <!-- Force the patched SQLitePCLRaw native lib over the vulnerable 2.1.11 that
+         Microsoft.Data.Sqlite pins transitively (CVE-2025-6965). This override propagates to
+         every consumer (Bootstrap -> legacy ServiceLayer -> tests). Version in Packages.props. -->
+    <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" />
   </ItemGroup>
 </Project>

@@ -43,7 +43,7 @@ Production driver adapter over Microsoft.Data.SqlClient.
 Portable real-I/O driver adapter over Microsoft.Data.Sqlite.
 
 - Project references: Microsoft.SqlTools.Sts2.Abstractions, Microsoft.SqlTools.Sts2.Contracts
-- Package references: Microsoft.Data.Sqlite
+- Package references: Microsoft.Data.Sqlite, SQLitePCLRaw.lib.e_sqlite3
 
 ## Microsoft.SqlTools.Sts2.Hosting
 
