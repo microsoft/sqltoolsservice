@@ -2055,7 +2055,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             foreach (string localPath in filesToScan)
             {
-                string fileUri = new Uri(localPath).AbsoluteUri;
+                string fileUri = Utility.FileUtilities.LocalPathToFileUri(localPath);
                 if (!scannedFiles.Add(fileUri))
                     continue;
 
@@ -2346,7 +2346,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         if (sourceInfo?.SourceName == null)
                             return CreateErrorResult(SR.PeekDefinitionNoResultsError);
 
-                        string fileUri = new Uri(sourceInfo.SourceName).AbsoluteUri;
+                        string fileUri = Utility.FileUtilities.LocalPathToFileUri(sourceInfo.SourceName);
                         return new DefinitionResult
                         {
                             Locations = new[]
