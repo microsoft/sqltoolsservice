@@ -13,7 +13,7 @@ using Microsoft.SqlTools.LanguageService.Formatter;
 using Microsoft.SqlTools.ServiceLayer.Formatter;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Microsoft.SqlTools.LanguageService.Workspace;
 using Moq;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter

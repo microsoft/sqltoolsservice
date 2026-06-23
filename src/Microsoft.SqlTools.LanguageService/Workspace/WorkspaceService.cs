@@ -10,14 +10,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.Hosting.Contracts;
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.Hosting;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using Microsoft.SqlTools.Utility;
 using Range = Microsoft.SqlTools.LanguageService.Workspace.Contracts.Range;
 
-namespace Microsoft.SqlTools.ServiceLayer.Workspace
+namespace Microsoft.SqlTools.LanguageService.Workspace
 {
     /// <summary>
     /// Class for handling requests/events that deal with the state of the workspace, including the
@@ -137,7 +136,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
 
         #region Public Methods
 
-        public void InitializeService(ServiceHost serviceHost)
+        public void InitializeService(IProtocolEndpoint serviceHost)
         {
             // Create a workspace that will handle state for the session
             Workspace = new Workspace();
@@ -149,33 +148,39 @@ namespace Microsoft.SqlTools.ServiceLayer.Workspace
             serviceHost.SetEventHandler(DidCloseTextDocumentNotification.Type, HandleDidCloseTextDocumentNotification);
             serviceHost.SetEventHandler(DidSaveTextDocumentNotification.Type, HandleDidSaveTextDocumentNotification);
             serviceHost.SetEventHandler(DidChangeConfigurationNotification<TConfig>.Type, HandleDidChangeConfigurationNotification);
+        }
 
-            // Register an initialization handler that sets the workspace path
-            serviceHost.RegisterInitializeTask((parameters, context) =>
+        /// <summary>
+        /// Initialization handler that sets the workspace path. Wired up by the host
+        /// (e.g. via <c>ServiceHost.RegisterInitializeTask</c>) which owns the lifecycle callbacks.
+        /// </summary>
+        public Task HandleInitialize(InitializeRequest parameters, RequestContext<InitializeResult> context)
+        {
+            Logger.Verbose("Initializing workspace service");
+
+            if (Workspace != null)
             {
-                Logger.Verbose("Initializing workspace service");
+                Workspace.WorkspacePath = parameters.RootPath;
+            }
 
-                if (Workspace != null)
-                {
-                    Workspace.WorkspacePath = parameters.RootPath;
-                }
+            return Task.CompletedTask;
+        }
 
-                return Task.CompletedTask;
-            });
+        /// <summary>
+        /// Shutdown handler that disposes the workspace. Wired up by the host
+        /// (e.g. via <c>ServiceHost.RegisterShutdownTask</c>) which owns the lifecycle callbacks.
+        /// </summary>
+        public Task HandleShutdown(object parameters, RequestContext<object> context)
+        {
+            Logger.Verbose("Shutting down workspace service");
 
-            // Register a shutdown request that disposes the workspace
-            serviceHost.RegisterShutdownTask((parameters, context) =>
+            if (Workspace != null)
             {
-                Logger.Verbose("Shutting down workspace service");
+                Workspace.Dispose();
+                Workspace = null;
+            }
 
-                if (Workspace != null)
-                {
-                    Workspace.Dispose();
-                    Workspace = null;
-                }
-
-                return Task.CompletedTask;
-            });
+            return Task.CompletedTask;
         }
 
         /// <summary>

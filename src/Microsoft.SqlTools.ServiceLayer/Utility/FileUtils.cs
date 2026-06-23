@@ -186,25 +186,5 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
                          char.IsLetter(localPath[1]) && localPath[2] == ':') ? 1 : 0;
             return localPath.Substring(start);
         }
-
-        /// <summary>
-        /// Attempts to resolve the given filePath to an absolute path to a file on disk, 
-        /// defaulting to the original filePath if that fails. 
-        /// </summary>
-        /// <param name="filePath">The file path to resolve</param>
-        /// <param name="clientUri">The full file path URI used by the client</param>
-        /// <returns></returns>
-        internal static ResolvedFile TryGetFullPath(string filePath, string clientUri)
-        {
-            try
-            {
-                return new ResolvedFile(Path.GetFullPath(filePath), clientUri, true);
-            }
-            catch(NotSupportedException)
-            {
-                // This is not a standard path. 
-                return new ResolvedFile(filePath, clientUri, false);
-            }
-        }
     }
 }

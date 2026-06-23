@@ -37,8 +37,7 @@ using Microsoft.SqlTools.ServiceLayer.Scripting;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.SqlProjects;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using Microsoft.SqlTools.ServiceLayer.Workspace;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.LanguageService.Workspace;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.SqlCore.IntelliSense;
@@ -245,7 +244,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Gets the current workspace instance
         /// </summary>
-        internal Workspace.Workspace CurrentWorkspace
+        internal Workspace CurrentWorkspace
         {
             get { return WorkspaceServiceInstance.Workspace; }
         }

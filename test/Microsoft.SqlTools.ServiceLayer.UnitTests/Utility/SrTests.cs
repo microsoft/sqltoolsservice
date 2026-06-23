@@ -85,8 +85,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             Assert.NotNull(ServiceLayerSr.QueryServiceSubsetBatchOutOfRange);
             Assert.NotNull(ServiceLayerSr.QueryServiceSubsetResultSetOutOfRange);
             Assert.NotNull(ServiceLayerSr.TestLocalizationConstant);
-            Assert.NotNull(ServiceLayerSr.WorkspaceServicePositionColumnOutOfRange(0));
-            Assert.NotNull(ServiceLayerSr.WorkspaceServicePositionLineOutOfRange);
         }
     }
 }
