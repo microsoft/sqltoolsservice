@@ -32,8 +32,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 #region Test helpers    
         private static readonly DateTimeOffset FarFuture = DateTimeOffset.UtcNow.AddHours(1);
 
-        private static Func<Task<(string token, DateTimeOffset expiresOn)>> MakeFetcher(string token = "fake-token")
-            => () => Task.FromResult((token, FarFuture));
+        private static Func<string, Task<(string token, DateTimeOffset expiresOn)>> MakeFetcher(string token = "fake-token")
+            => _ => Task.FromResult((token, FarFuture));
 
         /// <summary>
         /// Factory that creates real ReliableSqlConnections and exposes the last one created,
@@ -104,10 +104,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             ConnectionService.Instance.EnableSqlAuthenticationProvider = false;
             ConnectionService.Instance.RequestMfaTokenFromClient = false;
         }
-
-        // ---------------------------------------------------------------
-        // Category 3 — TryOpenConnection
-        // ---------------------------------------------------------------
 
         [Test]
         public async Task TryOpenConnectionSetsAccessTokenCallbackWhenFlagTrue()
@@ -267,25 +263,62 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         }
 
         [Test]
-        public void ConfigureSqlConnectionAuthSetsAccessTokenCallbackWhenFetcherSet()
+        public void ConfigureSqlConnectionAuthSetsAccessTokenCallbackFromFetcherForDirectSqlConnection()
         {
             var connInfo = TestObjects.GetTestConnectionInfo();
             connInfo.ConnectionDetails.AuthenticationType = AzureMFA;
-            connInfo.AzureTokenFetcher = MakeFetcher();
+            int fetchCount = 0;
+            connInfo.AzureTokenFetcher = _ =>
+            {
+                fetchCount++;
+                return Task.FromResult(("prefetched-token", FarFuture));
+            };
 
             var sqlConn = new SqlConnection("Server=fake;");
             ConnectionService.ConfigureSqlConnectionAuth(sqlConn, connInfo);
 
-            Assert.That(sqlConn.AccessTokenCallback, Is.Not.Null,
-                "AccessTokenCallback should be set when AzureTokenFetcher is present");
-            Assert.That(sqlConn.AccessToken, Is.Null,
-                "static AccessToken should remain null when using the callback path");
+            Assert.Multiple(() =>
+            {
+                Assert.That(sqlConn.AccessToken, Is.Null,
+                    "AccessToken should remain null when using the callback path");
+                Assert.That(sqlConn.AccessTokenCallback, Is.Not.Null,
+                    "Direct SqlConnection callers should keep AccessTokenCallback so SqlClient can refresh tokens");
+                Assert.That(fetchCount, Is.EqualTo(0),
+                    "Fetcher should not be called until SqlClient invokes the callback");
+            });
+        }
+
+        [Test]
+        public void ConfigureSqlConnectionAuthSetsStaticTokenFromFetcherForServerConnection()
+        {
+            var connInfo = TestObjects.GetTestConnectionInfo();
+            connInfo.ConnectionDetails.AuthenticationType = AzureMFA;
+            connInfo.AzureResourceUri = "https://database.windows.net/";
+            int fetchCount = 0;
+            connInfo.AzureTokenFetcher = _ =>
+            {
+                fetchCount++;
+                return Task.FromResult(("prefetched-token", FarFuture));
+            };
+
+            var sqlConn = new SqlConnection("Server=fake;");
+            ConnectionService.ConfigureSqlConnectionAuth(sqlConn, connInfo, isSmoServerConnection: true);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(sqlConn.AccessToken, Is.EqualTo("prefetched-token"),
+                    "SMO-bound SqlConnections need a pre-fetched static token");
+                Assert.That(sqlConn.AccessTokenCallback, Is.Null,
+                    "SMO refresh writes AccessToken, which cannot be combined with AccessTokenCallback");
+                Assert.That(fetchCount, Is.EqualTo(1),
+                    "Fetcher should be called exactly once to pre-fetch the initial token");
+            });
         }
 
         [Test]
         public void ConfigureSqlConnectionAuthSetsAccessTokenWhenFetcherNullAndTokenSet()
         {
-            const string token = "static-tok";
+            const string token = "static-token";
             var connInfo = TestObjects.GetTestConnectionInfo();
             connInfo.ConnectionDetails.AuthenticationType = AzureMFA;
             connInfo.ConnectionDetails.AzureAccountToken = token;
@@ -334,7 +367,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         {
             var connInfo = TestObjects.GetTestConnectionInfo();
             connInfo.ConnectionDetails.AuthenticationType = AzureMFA;
-            connInfo.ConnectionDetails.AzureAccountToken = "static-tok";
+            connInfo.ConnectionDetails.AzureAccountToken = "static-token";
             connInfo.AzureTokenFetcher = null;
 
             var sqlConn = new SqlConnection("Server=fake;");
@@ -342,6 +375,35 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
             Assert.That(serverConn.AccessToken, Is.InstanceOf<AzureAccessToken>(),
                 "ServerConnection should use AzureAccessToken when only a static token is available");
+        }
+
+        [Test]
+        public void CreateServerConnectionRequestsTokenForLastResourceRequested()
+        {
+            string requestedResource = null;
+            var connInfo = TestObjects.GetTestConnectionInfo();
+            connInfo.ConnectionDetails.AuthenticationType = AzureMFA;
+            connInfo.AzureTokenFetcher = resource =>
+            {
+                requestedResource = resource;
+                return Task.FromResult(("dataverse-token", FarFuture));
+            };
+            connInfo.AzureResourceUri = "https://orgABCDEFG.crm.dynamics.com/";
+
+            var sqlConn = new SqlConnection("Server=fake;");
+            ServerConnection serverConn = ConnectionService.CreateServerConnection(sqlConn, connInfo);
+
+            var renewable = serverConn.AccessToken as CallbackAzureAccessToken;
+            Assert.That(renewable, Is.Not.Null);
+
+            string token = renewable.GetAccessToken();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(token, Is.EqualTo("dataverse-token"));
+                Assert.That(requestedResource, Is.EqualTo("https://orgABCDEFG.crm.dynamics.com/"),
+                    "SMO IRenewableToken path must request a token for the resource the SqlClient FedAuth handshake last captured, not the SQL default");
+            });
         }
 
         [Test]
@@ -356,6 +418,55 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
             Assert.That(serverConn.AccessToken, Is.Null,
                 "ServerConnection should have no IRenewableToken when no Azure token is configured");
+        }
+
+        [Test]
+        public void TryUpdateAccessTokenNoOpsWhenAzureTokenFetcherIsSet()
+        {
+            var connInfo = TestObjects.GetTestConnectionInfo();
+            connInfo.ConnectionDetails.AuthenticationType = AzureMFA;
+            connInfo.ConnectionDetails.AzureAccountToken = "initial-token";
+            connInfo.ConnectionDetails.ExpiresOn = (int)DateTimeOffset.UtcNow.AddMinutes(-5).ToUnixTimeSeconds();
+            connInfo.AzureTokenFetcher = MakeFetcher();
+
+            bool updated = connInfo.TryUpdateAccessToken(new Microsoft.SqlTools.SqlCore.Connection.SecurityToken
+            {
+                Token = "client-supplied-token",
+                ExpiresOn = (int)DateTimeOffset.UtcNow.AddHours(1).ToUnixTimeSeconds()
+            });
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(updated, Is.False,
+                    "TryUpdateAccessToken should no-op in RequestMfaTokenFromClient mode");
+                Assert.That(connInfo.ConnectionDetails.AzureAccountToken, Is.EqualTo("initial-token"),
+                    "AzureAccountToken should not be overwritten with the client-supplied static token in callback mode");
+            });
+        }
+
+        [Test]
+        public void TryUpdateAccessTokenStillUpdatesWhenAzureTokenFetcherIsNull()
+        {
+            var connInfo = TestObjects.GetTestConnectionInfo();
+            connInfo.ConnectionDetails.AuthenticationType = AzureMFA;
+            connInfo.ConnectionDetails.AzureAccountToken = "stale-token";
+            connInfo.ConnectionDetails.ExpiresOn = (int)DateTimeOffset.UtcNow.AddMinutes(-5).ToUnixTimeSeconds();
+            connInfo.IsAzureAuth = true;
+            connInfo.AzureTokenFetcher = null;
+
+            int newExpiry = (int)DateTimeOffset.UtcNow.AddHours(1).ToUnixTimeSeconds();
+            bool updated = connInfo.TryUpdateAccessToken(new Microsoft.SqlTools.SqlCore.Connection.SecurityToken
+            {
+                Token = "fresh-token",
+                ExpiresOn = newExpiry
+            });
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(updated, Is.True);
+                Assert.That(connInfo.ConnectionDetails.AzureAccountToken, Is.EqualTo("fresh-token"));
+                Assert.That(connInfo.ConnectionDetails.ExpiresOn, Is.EqualTo(newExpiry));
+            });
         }
     }
 }

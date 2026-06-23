@@ -123,7 +123,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                         if (connInfo.AzureTokenFetcher != null)
                         {
                             scriptingServerConnection = ConnectionServiceInstance.OpenServerConnectionInternal(connInfo);
-                            (accessToken, _) = connInfo.AzureTokenFetcher().GetAwaiter().GetResult();
+                            (accessToken, _) = connInfo.AzureTokenFetcher(connInfo.AzureResourceUri).GetAwaiter().GetResult();
                         }
                         else
                         {
