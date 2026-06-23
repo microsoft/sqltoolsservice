@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 
-namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
+namespace Microsoft.SqlTools.LanguageService.LanguageServices
 {
     /// <summary>
     /// Identifies what kind of binding context backs a SQL file.

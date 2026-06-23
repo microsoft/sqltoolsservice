@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer
+namespace Microsoft.SqlTools.LanguageService.LanguageServices
 {
     /// <summary>
     /// A class to calculate the value for the metrics using the given bucket

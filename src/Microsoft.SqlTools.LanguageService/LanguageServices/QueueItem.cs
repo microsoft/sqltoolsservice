@@ -7,7 +7,7 @@
 using System;
 using System.Threading;
 
-namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
+namespace Microsoft.SqlTools.LanguageService.LanguageServices
 {
     /// <summary>
     /// Class that stores the state of a binding queue request item

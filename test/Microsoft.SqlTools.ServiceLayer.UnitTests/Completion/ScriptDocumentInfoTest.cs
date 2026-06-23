@@ -5,8 +5,8 @@
 
 #nullable disable
 
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
+using Microsoft.SqlTools.LanguageService.LanguageServices;
+using Microsoft.SqlTools.LanguageService.LanguageServices.Completion;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using NUnit.Framework;
 

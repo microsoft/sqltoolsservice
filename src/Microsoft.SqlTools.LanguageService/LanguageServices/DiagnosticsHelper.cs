@@ -14,7 +14,7 @@ using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using Microsoft.SqlTools.Utility;
 using Range = Microsoft.SqlTools.LanguageService.Workspace.Contracts.Range;
 
-namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
+namespace Microsoft.SqlTools.LanguageService.LanguageServices
 {
     /// <summary>
     /// Main class for Language Service functionality including anything that reqires knowledge of

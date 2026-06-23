@@ -11,7 +11,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
+using Microsoft.SqlTools.LanguageService.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.Scripting;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Moq;

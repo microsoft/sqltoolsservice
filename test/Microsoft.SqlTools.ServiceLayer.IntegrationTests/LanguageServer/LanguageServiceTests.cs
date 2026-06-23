@@ -13,7 +13,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
+using Microsoft.SqlTools.LanguageService.LanguageServices;
 using Microsoft.SqlTools.LanguageService.Formatter;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Completion.Extension;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;

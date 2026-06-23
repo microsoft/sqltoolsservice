@@ -16,6 +16,7 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.LanguageService.Workspace;
+using Microsoft.SqlTools.LanguageService.LanguageServices;
 using Microsoft.SqlTools.Utility;
 using System.Threading;
 using System.Linq;
