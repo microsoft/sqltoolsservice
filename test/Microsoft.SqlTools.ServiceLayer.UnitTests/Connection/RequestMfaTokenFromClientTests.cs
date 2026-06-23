@@ -302,7 +302,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             };
 
             var sqlConn = new SqlConnection("Server=fake;");
-            ConnectionService.ConfigureSqlConnectionAuth(sqlConn, connInfo, configureForServerConnection: true);
+            ConnectionService.ConfigureSqlConnectionAuth(sqlConn, connInfo, isSmoServerConnection: true);
 
             Assert.Multiple(() =>
             {
