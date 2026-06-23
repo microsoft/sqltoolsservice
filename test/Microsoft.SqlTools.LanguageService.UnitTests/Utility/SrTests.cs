@@ -20,6 +20,7 @@ namespace Microsoft.SqlTools.LanguageService.UnitTests.Utility
             LanguageServiceSr.Culture = CultureInfo.CurrentCulture;
 
             Assert.NotNull(LanguageServiceSr.Culture);
+            Assert.NotNull(LanguageServiceSr.ErrorEmptyStringReplacement);
             Assert.NotNull(LanguageServiceSr.WorkspaceServiceBufferPositionOutOfOrder(0, 0, 0, 0));
         }
     }

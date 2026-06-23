@@ -22,7 +22,8 @@ namespace Microsoft.SqlTools.Extensibility
             "microsofsqltoolscredentials.dll",
             "microsoft.sqltools.hosting.dll",
             "microsoftsqltoolsservicelayer.dll",
-            "microsoft.sqltools.sqlcore.dll"
+            "microsoft.sqltools.sqlcore.dll",
+            "microsoft.sqltools.languageservice.dll"
         };
 
         private Func<ConventionBuilder, ContainerConfiguration> config;

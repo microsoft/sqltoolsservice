@@ -1,12 +1,13 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
 #nullable disable
 
+using Microsoft.SqlTools.LanguageService.Formatter;
+using Microsoft.SqlTools.LanguageService.Formatter.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Formatter;
-using Microsoft.SqlTools.ServiceLayer.Formatter.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;

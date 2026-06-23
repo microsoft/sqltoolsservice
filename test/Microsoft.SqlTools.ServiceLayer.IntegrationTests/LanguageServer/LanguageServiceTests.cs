@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices;
+using Microsoft.SqlTools.LanguageService.Formatter;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Completion.Extension;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
@@ -747,8 +748,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             langService.CurrentWorkspaceSettings.SqlTools.IntelliSense.EnableIntellisense = true;
             langService.CurrentWorkspaceSettings.SqlTools.Format.KeywordCasing = 
                 lowerCaseSuggestions ?
-                Formatter.CasingOptions.Lowercase :
-                Formatter.CasingOptions.Uppercase;
+                CasingOptions.Lowercase :
+                CasingOptions.Uppercase;
             createdLanguageServices.Add(langService);
             return langService;
         }

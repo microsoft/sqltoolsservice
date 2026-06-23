@@ -122,4 +122,8 @@
     <comment>.
  Parameters: 0 - sLine (int), 1 - sCol (int), 2 - eLine (int), 3 - eCol (int) </comment>
   </data>
+  <data name="ErrorEmptyStringReplacement" xml:space="preserve">
+    <value>Replacement of an empty string by an empty string.</value>
+    <comment></comment>
+  </data>
 </root>

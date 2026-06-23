@@ -47,7 +47,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             Assert.NotNull(ServiceLayerSr.ConnectionServiceDbErrorDefaultNotConnected(""));
             Assert.NotNull(ServiceLayerSr.ConnectionServiceListDbErrorNotConnected(""));
             Assert.NotNull(ServiceLayerSr.ConnectionServiceListDbErrorNullOwnerUri);
-            Assert.NotNull(ServiceLayerSr.ErrorEmptyStringReplacement);
             Assert.NotNull(ServiceLayerSr.PeekDefinitionAzureError(""));
             Assert.NotNull(ServiceLayerSr.PeekDefinitionDatabaseError);
             Assert.NotNull(ServiceLayerSr.PeekDefinitionError(""));

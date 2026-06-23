@@ -225,8 +225,6 @@ PeekDefinitionTimedoutError = Operation timed out.
 
 PeekDefinitionTypeNotSupportedError = This object type is currently not supported by this feature.
 
-ErrorEmptyStringReplacement = Replacement of an empty string by an empty string.
-
 StarExpansionLabel(string starExpression) = Expand {0}
 
 StarExpansionDescription(string starExpression, string columnCount, string columnPreview) = Replace {0} with {1} columns: {2}
