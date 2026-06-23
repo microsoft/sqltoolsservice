@@ -19,9 +19,8 @@ using Microsoft.SqlTools.LanguageService.LanguageServices.Completion.Extension;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Microsoft.SqlTools.LanguageService.Workspace;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
@@ -741,7 +740,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             {
                 WorkspaceServiceInstance = new WorkspaceService<SqlToolsSettings>()
                 {
-                    Workspace = new ServiceLayer.Workspace.Workspace()
+                    Workspace = new Microsoft.SqlTools.LanguageService.Workspace.Workspace()
                 }
             };
             langService.CurrentWorkspace.GetFile(scriptFile.ClientUri);

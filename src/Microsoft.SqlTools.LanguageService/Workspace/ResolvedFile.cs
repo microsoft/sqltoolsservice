@@ -6,7 +6,7 @@
 #nullable disable
 
 
-namespace Microsoft.SqlTools.ServiceLayer.Utility
+namespace Microsoft.SqlTools.LanguageService.Workspace
 {
     /// <summary>
     /// Utility object holding a result of a file resolve action.
@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
     /// To mitigate this a ResolvedFile object has an additional flag indicating
     /// if the file can be read from disk.
     /// </summary>
-    internal class ResolvedFile
+    internal sealed class ResolvedFile
     {
         public ResolvedFile(string filePath, string clientUri, bool canReadFromDisk)
         {

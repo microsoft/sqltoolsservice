@@ -22,7 +22,7 @@ using System.Globalization;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.BatchParser;
 using Microsoft.SqlTools.ServiceLayer.AutoParameterizaition;
-using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Microsoft.SqlTools.LanguageService.Workspace;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution

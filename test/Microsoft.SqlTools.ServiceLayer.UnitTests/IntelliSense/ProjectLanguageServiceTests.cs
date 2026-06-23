@@ -21,7 +21,7 @@ using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.SqlProjects;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.SqlProjects;
-using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Microsoft.SqlTools.LanguageService.Workspace;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.SqlCore.IntelliSense;
@@ -104,7 +104,7 @@ END
 
             // Set up workspace service
             _workspaceService = new WorkspaceService<SqlToolsSettings>();
-            _workspaceService.Workspace = new ServiceLayer.Workspace.Workspace();
+            _workspaceService.Workspace = new Microsoft.SqlTools.LanguageService.Workspace.Workspace();
             _langService.WorkspaceServiceInstance = _workspaceService;
 
             // Set up project context
@@ -333,7 +333,7 @@ END
 
                 var langService = new LangService();
                 var workspaceService = new WorkspaceService<SqlToolsSettings>();
-                workspaceService.Workspace = new ServiceLayer.Workspace.Workspace();
+                workspaceService.Workspace = new Microsoft.SqlTools.LanguageService.Workspace.Workspace();
                 langService.WorkspaceServiceInstance = workspaceService;
 
                 string projectUri = new Uri(projectPath).AbsoluteUri;
@@ -1231,7 +1231,7 @@ END
 
             _langService = new LangService();
             _workspaceService = new WorkspaceService<SqlToolsSettings>();
-            _workspaceService.Workspace = new ServiceLayer.Workspace.Workspace();
+            _workspaceService.Workspace = new Microsoft.SqlTools.LanguageService.Workspace.Workspace();
             _langService.WorkspaceServiceInstance = _workspaceService;
 
             _projectUri = new Uri(_projectPath).AbsoluteUri;
@@ -1619,7 +1619,7 @@ END
 
             _langService = new LangService();
             _workspaceService = new WorkspaceService<SqlToolsSettings>();
-            _workspaceService.Workspace = new ServiceLayer.Workspace.Workspace();
+            _workspaceService.Workspace = new Microsoft.SqlTools.LanguageService.Workspace.Workspace();
             _langService.WorkspaceServiceInstance = _workspaceService;
 
             _projectUri = new Uri(_projectPath).AbsoluteUri;

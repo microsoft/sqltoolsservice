@@ -9,7 +9,6 @@ using System;
 using System.Linq;
 using System.IO;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using NUnit.Framework;
 

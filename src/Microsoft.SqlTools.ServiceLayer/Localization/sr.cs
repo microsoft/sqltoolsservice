@@ -511,14 +511,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string WorkspaceServicePositionLineOutOfRange
-        {
-            get
-            {
-                return Keys.GetString(Keys.WorkspaceServicePositionLineOutOfRange);
-            }
-        }
-
         public static string EditDataObjectNotFound
         {
             get
@@ -10936,11 +10928,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.StarExpansionDescription, starExpression, columnCount, columnPreview);
         }
 
-        public static string WorkspaceServicePositionColumnOutOfRange(int line)
-        {
-            return Keys.GetString(Keys.WorkspaceServicePositionColumnOutOfRange, line);
-        }
-
         public static string EditDataUnsupportedObjectType(string typeName)
         {
             return Keys.GetString(Keys.EditDataUnsupportedObjectType, typeName);
@@ -11409,12 +11396,6 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string StarExpansionDescription = "StarExpansionDescription";
-
-
-            public const string WorkspaceServicePositionLineOutOfRange = "WorkspaceServicePositionLineOutOfRange";
-
-
-            public const string WorkspaceServicePositionColumnOutOfRange = "WorkspaceServicePositionColumnOutOfRange";
 
 
             public const string EditDataObjectNotFound = "EditDataObjectNotFound";

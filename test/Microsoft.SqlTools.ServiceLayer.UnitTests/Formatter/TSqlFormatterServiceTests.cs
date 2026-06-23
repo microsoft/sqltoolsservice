@@ -15,7 +15,6 @@ using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using Moq;
 using NUnit.Framework;
@@ -25,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
 {
     public class TSqlFormatterServiceTests : FormatterUnitTestsBase
     {
-        private Mock<ServiceLayer.Workspace.Workspace> workspaceMock;
+        private Mock<Microsoft.SqlTools.LanguageService.Workspace.Workspace> workspaceMock;
         private TextDocumentIdentifier textDocument;
         DocumentFormattingParams docFormatParams;
         DocumentRangeFormattingParams rangeFormatParams;
@@ -34,7 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
         public void InitTSqlFormatterServiceTests()
         {
             InitFormatterUnitTestsBase();
-            workspaceMock = new Mock<ServiceLayer.Workspace.Workspace>();
+            workspaceMock = new Mock<Microsoft.SqlTools.LanguageService.Workspace.Workspace>();
             textDocument = new TextDocumentIdentifier
             {
                 Uri = "script file"

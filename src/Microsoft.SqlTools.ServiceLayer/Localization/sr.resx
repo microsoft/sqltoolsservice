@@ -502,15 +502,6 @@
     <comment>.
  Parameters: 0 - starExpression (string), 1 - columnCount (string), 2 - columnPreview (string) </comment>
   </data>
-  <data name="WorkspaceServicePositionLineOutOfRange" xml:space="preserve">
-    <value>Position is outside of file line range</value>
-    <comment></comment>
-  </data>
-  <data name="WorkspaceServicePositionColumnOutOfRange" xml:space="preserve">
-    <value>Position is outside of column range for line {0}</value>
-    <comment>.
- Parameters: 0 - line (int) </comment>
-  </data>
   <data name="EditDataObjectNotFound" xml:space="preserve">
     <value>Table or view requested for edit could not be found</value>
     <comment></comment>

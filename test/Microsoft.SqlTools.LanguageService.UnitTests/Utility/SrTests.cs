@@ -22,6 +22,8 @@ namespace Microsoft.SqlTools.LanguageService.UnitTests.Utility
             Assert.NotNull(LanguageServiceSr.Culture);
             Assert.NotNull(LanguageServiceSr.ErrorEmptyStringReplacement);
             Assert.NotNull(LanguageServiceSr.WorkspaceServiceBufferPositionOutOfOrder(0, 0, 0, 0));
+            Assert.NotNull(LanguageServiceSr.WorkspaceServicePositionLineOutOfRange);
+            Assert.NotNull(LanguageServiceSr.WorkspaceServicePositionColumnOutOfRange(0));
         }
     }
 }

@@ -5,9 +5,7 @@
 
 #nullable disable
 
-using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
-
-namespace Microsoft.SqlTools.ServiceLayer.Workspace.Contracts
+namespace Microsoft.SqlTools.LanguageService.Workspace.Contracts
 {
     /// <summary>
     /// Provides details and operations for a buffer position in a
