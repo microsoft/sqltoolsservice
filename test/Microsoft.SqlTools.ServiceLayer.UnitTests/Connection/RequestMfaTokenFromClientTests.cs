@@ -263,7 +263,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         }
 
         [Test]
-        public void ConfigureSqlConnectionAuthSetsStaticTokenFromFetcherWhenFetcherSet()
+        public void ConfigureSqlConnectionAuthSetsAccessTokenCallbackFromFetcherForDirectSqlConnection()
         {
             var connInfo = TestObjects.GetTestConnectionInfo();
             connInfo.ConnectionDetails.AuthenticationType = AzureMFA;
@@ -279,10 +279,37 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
             Assert.Multiple(() =>
             {
+                Assert.That(sqlConn.AccessToken, Is.Null,
+                    "AccessToken should remain null when using the callback path");
+                Assert.That(sqlConn.AccessTokenCallback, Is.Not.Null,
+                    "Direct SqlConnection callers should keep AccessTokenCallback so SqlClient can refresh tokens");
+                Assert.That(fetchCount, Is.EqualTo(0),
+                    "Fetcher should not be called until SqlClient invokes the callback");
+            });
+        }
+
+        [Test]
+        public void ConfigureSqlConnectionAuthSetsStaticTokenFromFetcherForServerConnection()
+        {
+            var connInfo = TestObjects.GetTestConnectionInfo();
+            connInfo.ConnectionDetails.AuthenticationType = AzureMFA;
+            connInfo.AzureResourceUri = "https://database.windows.net/";
+            int fetchCount = 0;
+            connInfo.AzureTokenFetcher = _ =>
+            {
+                fetchCount++;
+                return Task.FromResult(("prefetched-token", FarFuture));
+            };
+
+            var sqlConn = new SqlConnection("Server=fake;");
+            ConnectionService.ConfigureSqlConnectionAuth(sqlConn, connInfo, configureForServerConnection: true);
+
+            Assert.Multiple(() =>
+            {
                 Assert.That(sqlConn.AccessToken, Is.EqualTo("prefetched-token"),
-                    "AccessToken should be set to a pre-fetched token in callback mode");
+                    "SMO-bound SqlConnections need a pre-fetched static token");
                 Assert.That(sqlConn.AccessTokenCallback, Is.Null,
-                    "AccessTokenCallback must NOT be set when the SqlConnection will be wrapped in SMO ServerConnection — otherwise SMO's refresh path triggers an MDS exception.");
+                    "SMO refresh writes AccessToken, which cannot be combined with AccessTokenCallback");
                 Assert.That(fetchCount, Is.EqualTo(1),
                     "Fetcher should be called exactly once to pre-fetch the initial token");
             });

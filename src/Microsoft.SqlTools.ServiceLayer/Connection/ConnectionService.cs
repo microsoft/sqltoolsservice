@@ -2159,6 +2159,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <returns>A SqlConnection created with the given connection info</returns>
         /// <exception cref="Exception">When an error occurs.</exception>
         public static SqlConnection OpenSqlConnection(ConnectionInfo connInfo, string featureName = null)
+            => OpenSqlConnection(connInfo, featureName, isSmoServerConnection: false);
+
+        private static SqlConnection OpenSqlConnection(ConnectionInfo connInfo, string featureName, bool isSmoServerConnection)
         {
             try
             {
@@ -2191,7 +2194,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 // open a dedicated binding server connection
                 SqlConnection sqlConn = new SqlConnection(connectionString);
                 sqlConn.RetryLogicProvider = SqlRetryProviders.ServerlessDBRetryProvider();
-                ConfigureSqlConnectionAuth(sqlConn, connInfo);
+                ConfigureSqlConnectionAuth(sqlConn, connInfo, isSmoServerConnection);
                 sqlConn.Open();
                 return sqlConn;
             }
@@ -2229,7 +2232,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// </summary>
         internal virtual ServerConnection OpenServerConnectionInternal(ConnectionInfo connInfo, string featureName = null)
         {
-            SqlConnection sqlConnection = OpenSqlConnection(connInfo, featureName);
+            SqlConnection sqlConnection = OpenSqlConnection(connInfo, featureName, isSmoServerConnection: true);
             return CreateServerConnection(sqlConnection, connInfo);
         }
 
@@ -2259,13 +2262,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         /// Sets the Azure auth token or callback on a <see cref="SqlConnection"/> based on whether
         /// <see cref="ConnectionInfo.AzureTokenFetcher"/> or <see cref="ConnectionDetails.AzureAccountToken"/> is present.
+        /// Direct <see cref="OpenSqlConnection"/> callers keep <see cref="SqlConnection.AccessTokenCallback"/>
+        /// so SqlClient can refresh tokens. SMO-bound connections use a pre-fetched static token because
+        /// SMO refreshes through <see cref="IRenewableToken"/> and then writes <see cref="SqlConnection.AccessToken"/>.
         /// </summary>
-        internal static void ConfigureSqlConnectionAuth(SqlConnection sqlConn, ConnectionInfo connInfo)
+        internal static void ConfigureSqlConnectionAuth(SqlConnection sqlConn, ConnectionInfo connInfo, bool isSmoServerConnection = false)
         {
             if (connInfo.AzureTokenFetcher != null && connInfo.ConnectionDetails.AuthenticationType == AzureMFA)
             {
-                var (token, _) = connInfo.AzureTokenFetcher(connInfo.AzureResourceUri).GetAwaiter().GetResult();
-                sqlConn.AccessToken = token;
+                if (isSmoServerConnection)
+                {
+                    var (token, _) = connInfo.AzureTokenFetcher(connInfo.AzureResourceUri).GetAwaiter().GetResult();
+                    sqlConn.AccessToken = token;
+                }
+                else
+                {
+                    sqlConn.AccessTokenCallback = ToSqlAccessTokenCallback(connInfo.AzureTokenFetcher, connInfo);
+                }
             }
             else if (connInfo.ConnectionDetails.AzureAccountToken != null && connInfo.ConnectionDetails.AuthenticationType == AzureMFA)
             {
