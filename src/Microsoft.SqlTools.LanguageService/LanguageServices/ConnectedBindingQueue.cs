@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
     {
         void CloseConnections(string serverName, string databaseName, int millisecondsTimeout);
         void OpenConnections(string serverName, string databaseName, int millisecondsTimeout);
-        string AddConnectionContext(IConnectionInfo connInfo, string featureName = null, bool overwrite = false);
+        string AddConnectionContext(ConnectionInfoBase connInfo, string featureName = null, bool overwrite = false);
         void Dispose();
         QueueItem QueueBindingOperation(
             string key,
@@ -37,12 +37,12 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// Factory used to create a server connection for a given connection info. Wired up by the
         /// hosting service layer so the language service library does not depend on the connection service.
         /// </summary>
-        public static Func<IConnectionInfo, string, ServerConnection> ServerConnectionFactory { get; set; }
+        public static Func<ConnectionInfoBase, string, ServerConnection> ServerConnectionFactory { get; set; }
 
         /// <summary>
         /// Virtual method used to support mocking and testing
         /// </summary>
-        public virtual ServerConnection OpenServerConnection(IConnectionInfo connInfo, string featureName)
+        public virtual ServerConnection OpenServerConnection(ConnectionInfoBase connInfo, string featureName)
         {
             return ServerConnectionFactory(connInfo, featureName);
         }
@@ -137,7 +137,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             }
         }
 
-        public void RemoveBindigContext(IConnectionInfo connInfo)
+        public void RemoveBindigContext(ConnectionInfoBase connInfo)
         {
             string connectionKey = connInfo.ConnectionContextKey;
             if (BindingContextExists(connectionKey))
@@ -194,7 +194,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// </summary>
         /// <param name="connInfo">Connection info used to create binding context</param>   
         /// <param name="overwrite">Overwrite existing context</param>      
-        public virtual string AddConnectionContext(IConnectionInfo connInfo, string featureName = null, bool overwrite = false)
+        public virtual string AddConnectionContext(ConnectionInfoBase connInfo, string featureName = null, bool overwrite = false)
         {
             if (connInfo == null)
             {

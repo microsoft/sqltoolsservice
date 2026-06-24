@@ -52,7 +52,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices.Completion
         /// Creates a completion list given connection and document info
         /// </summary>
         public AutoCompletionResult CreateCompletions(
-            IConnectionInfo connInfo,
+            ConnectionInfoBase connInfo,
             ScriptDocumentInfo scriptDocumentInfo,
             bool useLowerCaseSuggestions)
         {
@@ -87,7 +87,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices.Completion
         }
 
         private QueueItem AddToQueue(
-            IConnectionInfo connInfo,
+            ConnectionInfoBase connInfo,
             ScriptParseInfo scriptParseInfo,
             ScriptDocumentInfo scriptDocumentInfo,
             bool useLowerCaseSuggestions)
@@ -138,7 +138,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices.Completion
         }
 
         private AutoCompletionResult CreateCompletionsFromSqlParser(
-            IConnectionInfo connInfo,
+            ConnectionInfoBase connInfo,
             ScriptParseInfo scriptParseInfo,
             ScriptDocumentInfo scriptDocumentInfo,
             MetadataDisplayInfoProvider metadataDisplayInfoProvider)

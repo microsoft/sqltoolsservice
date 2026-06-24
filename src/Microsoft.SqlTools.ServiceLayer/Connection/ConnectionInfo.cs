@@ -10,10 +10,8 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlTools.LanguageService.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.SqlCore.Connection;
 using Microsoft.SqlTools.Utility;
@@ -23,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
     /// <summary>
     /// Information pertaining to a unique connection instance.
     /// </summary>
-    public class ConnectionInfo : IConnectionInfo
+    public class ConnectionInfo : Microsoft.SqlTools.LanguageService.LanguageServices.ConnectionInfoBase
     {
         private static readonly DateTime UnixEpochUtc = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
 
@@ -31,12 +29,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// Constructor
         /// </summary>
         public ConnectionInfo(ISqlConnectionFactory factory, string ownerUri, ConnectionDetails details)
+            : base(ownerUri, details)
         {
             Factory = factory;
-            OwnerUri = ownerUri;
-            ConnectionDetails = details;
             ConnectionId = Guid.NewGuid();
-            IntellisenseMetrics = new InteractionMetrics<double>(new int[] { 50, 100, 200, 500, 1000, 2000 });
         }
 
         /// <summary>
@@ -45,19 +41,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public Guid ConnectionId { get; private set; }
 
         /// <summary>
-        /// URI identifying the owner/user of the connection. Could be a file, service, resource, etc.
-        /// </summary>
-        public string OwnerUri { get; set; }
-
-        /// <summary>
         /// Factory used for creating the SQL connection associated with the connection info.
         /// </summary>
         public ISqlConnectionFactory Factory { get; private set; }
-
-        /// <summary>
-        /// Properties used for creating/opening the SQL connection.
-        /// </summary>
-        public ConnectionDetails ConnectionDetails { get; set; }
 
         /// <summary>
         /// A map containing all connections to the database that are associated with 
@@ -66,91 +52,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// </summary>
         internal readonly ConcurrentDictionary<string, DbConnection> ConnectionTypeToConnectionMap =
             new ConcurrentDictionary<string, DbConnection>();
-
-        /// <summary>
-        /// Intellisense Metrics
-        /// </summary>
-        public InteractionMetrics<double> IntellisenseMetrics { get; private set; }
-
-        /// <summary>
-        /// Gets a unique key describing this connection, used to look up the binding context.
-        /// </summary>
-        public string ConnectionContextKey => GetConnectionContextKey(this.ConnectionDetails);
-
-        /// <summary>
-        /// Generate a unique key based on the ConnectionDetails object
-        /// </summary>
-        public static string GetConnectionContextKey(ConnectionDetails details)
-        {
-            string key = string.Format("{0}_{1}_{2}_{3}",
-                details.ServerName ?? "NULL",
-                details.DatabaseName ?? "NULL",
-                details.UserName ?? "NULL",
-                details.AuthenticationType ?? "NULL"
-            );
-
-            if (!string.IsNullOrEmpty(details.Id))
-            {
-                key += "_" + details.Id;
-            }
-
-            if (!string.IsNullOrEmpty(details.DatabaseDisplayName))
-            {
-                key += "_" + details.DatabaseDisplayName;
-            }
-
-            if (!string.IsNullOrEmpty(details.GroupId))
-            {
-                key += "_" + details.GroupId;
-            }
-
-            if (!string.IsNullOrEmpty(details.ConnectionName))
-            {
-                key += "_" + details.ConnectionName;
-            }
-
-            // Additional properties that are used to distinguish the connection (besides password)
-            // These are so that multiple connections can connect to the same target, with different settings.
-            foreach (KeyValuePair<string, object> entry in details.Options.OrderBy(entry => entry.Key))
-            {
-                // Filter out properties we already have or don't want (password)
-                if (
-                    // Exclude properties that are already used above
-                    entry.Key != "server" &&
-                    entry.Key != "database" &&
-                    entry.Key != "user" &&
-                    entry.Key != "authenticationType" &&
-                    entry.Key != "databaseDisplayName" &&
-                    // Exclude strictly-organizational properties that have no bearing on the connection
-                    entry.Key != "connectionName" &&
-                    entry.Key != "groupId" &&
-                    // Exclude secrets/credentials that should never be logged or stored in plaintext
-                    entry.Key != "password" && 
-                    entry.Key != "azureAccountToken")
-                {
-                    // Boolean values are explicitly labeled true or false instead of undefined.
-                    if (entry.Value is bool v)
-                    {
-                        if (v)
-                        {
-                            key += "_" + entry.Key + ":true";
-                        }
-                        else
-                        {
-                            key += "_" + entry.Key + ":false";
-                        }
-                    }
-                    else if (!string.IsNullOrEmpty(entry.Value as String))
-                    {
-                        key += "_" + entry.Key + ":" + entry.Value;
-                    }
-                }
-            }
-
-#pragma warning disable SYSLIB0013 // we don't want to escape the ":" characters in our key-value options pairs because it's more readable
-            return Uri.EscapeUriString(key);
-#pragma warning restore SYSLIB0013
-        }
 
         /// <summary>
         /// Returns true if the db connection is to any cloud instance
