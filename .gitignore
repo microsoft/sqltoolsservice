@@ -10,9 +10,6 @@ CoverageReport
 # Project.json lock file
 project.lock.json
 
-# Tool Runtime Dir
-/[Tt]ools/
-
 # User-specific files
 *.suo
 *.user
