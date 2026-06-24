@@ -21,7 +21,7 @@ using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Moq;
 using Moq.Protected;
 using NUnit.Framework;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
+using Microsoft.SqlTools.LanguageService.LanguageServices;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Microsoft.SqlTools.Utility;

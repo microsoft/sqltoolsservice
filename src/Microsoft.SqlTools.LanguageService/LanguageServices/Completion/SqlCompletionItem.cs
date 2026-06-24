@@ -14,15 +14,14 @@ using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using System.Collections.Generic;
 
-namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
+namespace Microsoft.SqlTools.LanguageService.LanguageServices.Completion
 {
     /// <summary>
     /// Creates a completion item from SQL parser declaration item
     /// </summary>
-    public partial class SqlCompletionItem
+    public class SqlCompletionItem
     {
-        [GeneratedRegex("^[\\p{L}_@#][\\p{L}\\p{N}@$#_]{0,127}$")]
-        private static partial Regex GetValidSqlNameRegex();
+        private static readonly Regex ValidSqlNameRegex = new Regex("^[\\p{L}_@#][\\p{L}\\p{N}@$#_]{0,127}$");
         private static DelimitedIdentifier BracketedIdentifiers = new DelimitedIdentifier { Start = "[", End = "]" };
         private static DelimitedIdentifier SnippetFunctionPostfix = new DelimitedIdentifier { Start = "", End = "($0)" };
         private bool _isSnippet;
@@ -81,7 +80,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
                     case DeclarationType.Schema:
                         // Only quote if we need to - i.e. if this isn't a valid name (has characters that need escaping such as [) 
                         // or if it's a reserved word
-                        if (!GetValidSqlNameRegex().IsMatch(DeclarationTitle) || AutoCompleteHelper.IsReservedWord(InsertText))
+                        if (!ValidSqlNameRegex.IsMatch(DeclarationTitle) || AutoCompleteHelper.IsReservedWord(InsertText))
                         {
                             InsertText = WithDelimitedIdentifier(BracketedIdentifiers, DeclarationTitle);
                         }
@@ -260,7 +259,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
         }
     }
 
-    internal class DelimitedIdentifier
+    internal sealed class DelimitedIdentifier
     {
         public string Start { get; set; }
         public string End { get; set; }

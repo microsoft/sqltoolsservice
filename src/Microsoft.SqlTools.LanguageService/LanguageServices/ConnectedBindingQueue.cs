@@ -6,28 +6,21 @@
 #nullable disable
 
 using System;
-using System.Collections.Generic;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SmoMetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Microsoft.SqlTools.LanguageService.LanguageServices;
-using Microsoft.SqlTools.LanguageService.Workspace;
 using Microsoft.SqlTools.Utility;
 using System.Threading;
-using System.Linq;
 
-namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
+namespace Microsoft.SqlTools.LanguageService.LanguageServices
 {
     public interface IConnectedBindingQueue
     {
         void CloseConnections(string serverName, string databaseName, int millisecondsTimeout);
         void OpenConnections(string serverName, string databaseName, int millisecondsTimeout);
-        string AddConnectionContext(ConnectionInfo connInfo, string featureName = null, bool overwrite = false);
+        string AddConnectionContext(IConnectionInfo connInfo, string featureName = null, bool overwrite = false);
         void Dispose();
         QueueItem QueueBindingOperation(
             string key,
@@ -41,11 +34,17 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     public class SqlConnectionOpener
     {
         /// <summary>
+        /// Factory used to create a server connection for a given connection info. Wired up by the
+        /// hosting service layer so the language service library does not depend on the connection service.
+        /// </summary>
+        public static Func<IConnectionInfo, string, ServerConnection> ServerConnectionFactory { get; set; }
+
+        /// <summary>
         /// Virtual method used to support mocking and testing
         /// </summary>
-        public virtual ServerConnection OpenServerConnection(ConnectionInfo connInfo, string featureName)
+        public virtual ServerConnection OpenServerConnection(IConnectionInfo connInfo, string featureName)
         {
-            return ConnectionService.OpenServerConnection(connInfo, featureName);
+            return ServerConnectionFactory(connInfo, featureName);
         }
     }
 
@@ -54,9 +53,20 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     /// </summary>
     public class ConnectedBindingQueue : BindingQueue<ConnectedBindingContext>, IConnectedBindingQueue
     {
+        /// <summary>
+        /// Default binding operation timeout in milliseconds.
+        /// </summary>
+        public const int BindingTimeout = 500;
+
         internal const int DefaultBindingTimeout = 500;
 
         internal const int DefaultMinimumConnectionTimeout = 30;
+
+        /// <summary>
+        /// Provider used to resolve the built-in keyword casing to apply to metadata display info.
+        /// Wired up by the hosting service layer to read the current formatting settings; defaults to uppercase.
+        /// </summary>
+        internal static Func<bool> UseLowercaseKeywordCasingProvider { get; set; } = () => false;
 
         /// <summary>
         /// flag determing if the connection queue requires online metadata objects
@@ -64,14 +74,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         private bool needsMetadata;
         private SqlConnectionOpener connectionOpener;
-
-        /// <summary>
-        /// Gets the current settings
-        /// </summary>
-        internal SqlToolsSettings CurrentSettings
-        {
-            get { return WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings; }
-        }
 
         public ConnectedBindingQueue()
             : this(true)
@@ -88,82 +90,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         internal void SetConnectionOpener(SqlConnectionOpener opener)
         {
             this.connectionOpener = opener;
-        }
-
-        /// <summary>
-        /// Generate a unique key based on the ConnectionDetails object
-        /// </summary>
-        /// <param name="connInfo"></param>
-        internal static string GetConnectionContextKey(ConnectionDetails details)
-        {            
-            string key = string.Format("{0}_{1}_{2}_{3}",
-                details.ServerName ?? "NULL",
-                details.DatabaseName ?? "NULL",
-                details.UserName ?? "NULL",
-                details.AuthenticationType ?? "NULL"
-            );
-
-            if (!string.IsNullOrEmpty(details.Id))
-            {
-                key += "_" + details.Id;
-            }
-
-            if (!string.IsNullOrEmpty(details.DatabaseDisplayName))
-            {
-                key += "_" + details.DatabaseDisplayName;
-            }
-
-            if (!string.IsNullOrEmpty(details.GroupId))
-            {
-                key += "_" + details.GroupId;
-            }
-
-            if (!string.IsNullOrEmpty(details.ConnectionName))
-            {
-                key += "_" + details.ConnectionName;
-            }
-
-            // Additional properties that are used to distinguish the connection (besides password)
-            // These are so that multiple connections can connect to the same target, with different settings.
-            foreach (KeyValuePair<string, object> entry in details.Options.OrderBy(entry => entry.Key))
-            {
-                // Filter out properties we already have or don't want (password)
-                if (
-                    // Exclude properties that are already used above
-                    entry.Key != "server" &&
-                    entry.Key != "database" &&
-                    entry.Key != "user" &&
-                    entry.Key != "authenticationType" &&
-                    entry.Key != "databaseDisplayName" &&
-                    // Exclude strictly-organizational properties that have no bearing on the connection
-                    entry.Key != "connectionName" &&
-                    entry.Key != "groupId" &&
-                    // Exclude secrets/credentials that should never be logged or stored in plaintext
-                    entry.Key != "password" && 
-                    entry.Key != "azureAccountToken")
-                {
-                    // Boolean values are explicitly labeled true or false instead of undefined.
-                    if (entry.Value is bool v)
-                    {
-                        if (v)
-                        {
-                            key += "_" + entry.Key + ":true";
-                        }
-                        else
-                        {
-                            key += "_" + entry.Key + ":false";
-                        }
-                    }
-                    else if (!string.IsNullOrEmpty(entry.Value as String))
-                    {
-                        key += "_" + entry.Key + ":" + entry.Value;
-                    }
-                }
-            }
-
-#pragma warning disable SYSLIB0013 // we don't want to escape the ":" characters in our key-value options pairs because it's more readable
-            return Uri.EscapeUriString(key);
-#pragma warning restore SYSLIB0013
         }
 
         /// <summary>
@@ -211,9 +137,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
 
-        public void RemoveBindigContext(ConnectionInfo connInfo)
+        public void RemoveBindigContext(IConnectionInfo connInfo)
         {
-            string connectionKey = GetConnectionContextKey(connInfo.ConnectionDetails);
+            string connectionKey = connInfo.ConnectionContextKey;
             if (BindingContextExists(connectionKey))
             {
                 RemoveBindingContext(connectionKey);
@@ -268,7 +194,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         /// <param name="connInfo">Connection info used to create binding context</param>   
         /// <param name="overwrite">Overwrite existing context</param>      
-        public virtual string AddConnectionContext(ConnectionInfo connInfo, string featureName = null, bool overwrite = false)
+        public virtual string AddConnectionContext(IConnectionInfo connInfo, string featureName = null, bool overwrite = false)
         {
             if (connInfo == null)
             {
@@ -276,7 +202,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
 
             // lookup the current binding context
-            string connectionKey = GetConnectionContextKey(connInfo.ConnectionDetails);
+            string connectionKey = connInfo.ConnectionContextKey;
             if (BindingContextExists(connectionKey))
             {
                 if (overwrite)
@@ -304,9 +230,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     {
                         bindingContext.SmoMetadataProvider = SmoMetadataProvider.CreateConnectedProvider(bindingContext.ServerConnection);
                         bindingContext.MetadataDisplayInfoProvider = new MetadataDisplayInfoProvider();
-                        bindingContext.MetadataDisplayInfoProvider.BuiltInCasing =
-                            this.CurrentSettings.SqlTools.Format.KeywordCasing == Microsoft.SqlTools.LanguageService.Formatter.CasingOptions.Lowercase
-                                ? CasingStyle.Lowercase : CasingStyle.Uppercase;
+                        bindingContext.MetadataDisplayInfoProvider.BuiltInCasing = UseLowercaseKeywordCasingProvider() ? CasingStyle.Lowercase : CasingStyle.Uppercase;
                             bindingContext.Binder = BinderProvider.CreateBinder(bindingContext.SmoMetadataProvider);
                         }
             

@@ -21,8 +21,9 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
+using Microsoft.SqlTools.LanguageService.LanguageServices;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;
+using Microsoft.SqlTools.LanguageService.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using static Microsoft.SqlTools.Utility.SqlConstants;
@@ -154,6 +155,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 { SqlColumnEncryptionAzureKeyVaultProvider.ProviderName, sqlColumnEncryptionAzureKeyVaultProvider }
             });
+
+            // Wire up the language service library seams that depend on the connection service so the
+            // library does not take a dependency on this assembly. This runs before any binding context
+            // is created because the connection service type is touched first.
+            SqlConnectionOpener.ServerConnectionFactory =
+                (connInfo, featureName) => OpenServerConnection((ConnectionInfo)connInfo, featureName);
+
+            ConnectedBindingQueue.UseLowercaseKeywordCasingProvider = () =>
+                WorkspaceService<SqlContext.SqlToolsSettings>.Instance.CurrentSettings.SqlTools.Format.KeywordCasing
+                    == Microsoft.SqlTools.LanguageService.Formatter.CasingOptions.Lowercase;
         }
 
 

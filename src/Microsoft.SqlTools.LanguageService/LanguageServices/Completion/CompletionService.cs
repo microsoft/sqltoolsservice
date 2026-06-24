@@ -10,18 +10,15 @@ using System.Threading;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.LanguageService.LanguageServices;
-using Microsoft.SqlTools.LanguageService.LanguageServices.Completion;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
+namespace Microsoft.SqlTools.LanguageService.LanguageServices.Completion
 {
     /// <summary>
     /// A service to create auto complete list for given script document 
     /// </summary>
-    internal class CompletionService
+    internal sealed class CompletionService
     {
         private ConnectedBindingQueue BindingQueue { get; set; }
 
@@ -55,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
         /// Creates a completion list given connection and document info
         /// </summary>
         public AutoCompletionResult CreateCompletions(
-            ConnectionInfo connInfo,
+            IConnectionInfo connInfo,
             ScriptDocumentInfo scriptDocumentInfo,
             bool useLowerCaseSuggestions)
         {
@@ -90,7 +87,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
         }
 
         private QueueItem AddToQueue(
-            ConnectionInfo connInfo,
+            IConnectionInfo connInfo,
             ScriptParseInfo scriptParseInfo,
             ScriptDocumentInfo scriptDocumentInfo,
             bool useLowerCaseSuggestions)
@@ -98,7 +95,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
             // queue the completion task with the binding queue    
             QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
                 key: scriptParseInfo.ConnectionKey,
-                bindingTimeout: LanguageService.BindingTimeout,
+                bindingTimeout: ConnectedBindingQueue.BindingTimeout,
                 bindOperation: (bindingContext, cancelToken) =>
                 {
                     return CreateCompletionsFromSqlParser(connInfo, scriptParseInfo, scriptDocumentInfo, bindingContext.MetadataDisplayInfoProvider);
@@ -141,7 +138,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
         }
 
         private AutoCompletionResult CreateCompletionsFromSqlParser(
-            ConnectionInfo connInfo,
+            IConnectionInfo connInfo,
             ScriptParseInfo scriptParseInfo,
             ScriptDocumentInfo scriptDocumentInfo,
             MetadataDisplayInfoProvider metadataDisplayInfoProvider)
@@ -170,7 +167,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
             CompletionItem[] starExpansionSuggestion = AutoCompleteHelper.ExpandSqlStarExpression(scriptDocumentInfo);
             if (starExpansionSuggestion != null)
             {
-                completionList = [.. starExpansionSuggestion, .. completionList];
+                var combined = new CompletionItem[starExpansionSuggestion.Length + completionList.Length];
+                starExpansionSuggestion.CopyTo(combined, 0);
+                completionList.CopyTo(combined, starExpansionSuggestion.Length);
+                completionList = combined;
             }
 
             result.CompleteResult(completionList);
