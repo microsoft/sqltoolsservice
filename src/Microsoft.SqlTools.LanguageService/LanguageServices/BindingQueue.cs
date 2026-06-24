@@ -16,7 +16,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
+namespace Microsoft.SqlTools.LanguageService.LanguageServices
 {
     /// <summary>
     /// Main class for the Binding Queue
@@ -29,11 +29,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         private ManualResetEvent itemQueuedEvent = new ManualResetEvent(initialState: false);
 
-        private Lock bindingQueueLock = new();
+        private object bindingQueueLock = new();
 
         private LinkedList<QueueItem> bindingQueue = new LinkedList<QueueItem>();
 
-        private Lock bindingContextLock = new();
+        private object bindingContextLock = new();
 
         private Task queueProcessorTask;
 
