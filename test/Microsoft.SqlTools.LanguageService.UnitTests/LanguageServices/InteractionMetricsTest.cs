@@ -7,9 +7,10 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.SqlTools.LanguageService.LanguageServices;
 using NUnit.Framework;
 
-namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
+namespace Microsoft.SqlTools.LanguageService.UnitTests.LanguageServices
 {
     public class InteractionMetricsTest
     {

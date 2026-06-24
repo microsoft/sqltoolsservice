@@ -11,7 +11,7 @@ using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using System.Collections.Generic;
 
-namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
+namespace Microsoft.SqlTools.LanguageService.LanguageServices.Completion
 {
     /// <summary>
     /// A class to calculate the numbers used by SQL parser using the text positions and content

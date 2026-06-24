@@ -5,7 +5,7 @@
 
 #nullable disable
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
-namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
+namespace Microsoft.SqlTools.LanguageService.LanguageServices
 {
     /// <summary>
     /// /// Result object for PeekDefinition
