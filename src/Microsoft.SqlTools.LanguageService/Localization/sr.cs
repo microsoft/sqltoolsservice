@@ -31,9 +31,30 @@ namespace Microsoft.SqlTools.LanguageService
         }
 
 
+        public static string WorkspaceServicePositionLineOutOfRange
+        {
+            get
+            {
+                return Keys.GetString(Keys.WorkspaceServicePositionLineOutOfRange);
+            }
+        }
+
+        public static string ErrorEmptyStringReplacement
+        {
+            get
+            {
+                return Keys.GetString(Keys.ErrorEmptyStringReplacement);
+            }
+        }
+
         public static string WorkspaceServiceBufferPositionOutOfOrder(int sLine, int sCol, int eLine, int eCol)
         {
             return Keys.GetString(Keys.WorkspaceServiceBufferPositionOutOfOrder, sLine, sCol, eLine, eCol);
+        }
+
+        public static string WorkspaceServicePositionColumnOutOfRange(int line)
+        {
+            return Keys.GetString(Keys.WorkspaceServicePositionColumnOutOfRange, line);
         }
 
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
@@ -45,6 +66,15 @@ namespace Microsoft.SqlTools.LanguageService
 
 
             public const string WorkspaceServiceBufferPositionOutOfOrder = "WorkspaceServiceBufferPositionOutOfOrder";
+
+
+            public const string WorkspaceServicePositionLineOutOfRange = "WorkspaceServicePositionLineOutOfRange";
+
+
+            public const string WorkspaceServicePositionColumnOutOfRange = "WorkspaceServicePositionColumnOutOfRange";
+
+
+            public const string ErrorEmptyStringReplacement = "ErrorEmptyStringReplacement";
 
 
             private Keys()
@@ -65,6 +95,12 @@ namespace Microsoft.SqlTools.LanguageService
             public static string GetString(string key)
             {
                 return resourceManager.GetString(key, _culture);
+            }
+
+
+            public static string GetString(string key, object arg0)
+            {
+                return string.Format(global::System.Globalization.CultureInfo.CurrentCulture, resourceManager.GetString(key, _culture), arg0);
             }
 
 

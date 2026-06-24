@@ -46,7 +46,7 @@ using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.SqlProjects;
 using Microsoft.SqlTools.ServiceLayer.TableDesigner;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Microsoft.SqlTools.LanguageService.Workspace;
 
 namespace Microsoft.SqlTools.ServiceLayer
 {
@@ -89,7 +89,8 @@ namespace Microsoft.SqlTools.ServiceLayer
                 "microsofsqltoolscredentials.dll",
                 "microsoft.sqltools.hosting.dll",
                 "microsoftsqltoolsservicelayer.dll",
-                "microsoft.sqltools.sqlcore.dll"
+                "microsoft.sqltools.sqlcore.dll",
+                "microsoft.sqltools.languageservice.dll"
             });
             serviceProvider.RegisterSingleService(sqlToolsContext);
             serviceProvider.RegisterSingleService(serviceHost);
@@ -98,6 +99,10 @@ namespace Microsoft.SqlTools.ServiceLayer
             // could be updated to be IComposableServices, which would avoid the requirement to define a singleton instance
             // and instead have MEF handle discovery & loading
             WorkspaceService<SqlToolsSettings>.Instance.InitializeService(serviceHost);
+            // Wire the workspace lifecycle callbacks here since the LanguageService project cannot
+            // reference the concrete ServiceHost (inverted control).
+            serviceHost.RegisterInitializeTask(WorkspaceService<SqlToolsSettings>.Instance.HandleInitialize);
+            serviceHost.RegisterShutdownTask(WorkspaceService<SqlToolsSettings>.Instance.HandleShutdown);
             serviceProvider.RegisterSingleService(WorkspaceService<SqlToolsSettings>.Instance);
 
             LanguageServices.LanguageService.Instance.InitializeService(serviceHost, sqlToolsContext);

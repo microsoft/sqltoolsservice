@@ -492,10 +492,6 @@
     <value>This object type is currently not supported by this feature.</value>
     <comment></comment>
   </data>
-  <data name="ErrorEmptyStringReplacement" xml:space="preserve">
-    <value>Replacement of an empty string by an empty string.</value>
-    <comment></comment>
-  </data>
   <data name="StarExpansionLabel" xml:space="preserve">
     <value>Expand {0}</value>
     <comment>.
@@ -505,15 +501,6 @@
     <value>Replace {0} with {1} columns: {2}</value>
     <comment>.
  Parameters: 0 - starExpression (string), 1 - columnCount (string), 2 - columnPreview (string) </comment>
-  </data>
-  <data name="WorkspaceServicePositionLineOutOfRange" xml:space="preserve">
-    <value>Position is outside of file line range</value>
-    <comment></comment>
-  </data>
-  <data name="WorkspaceServicePositionColumnOutOfRange" xml:space="preserve">
-    <value>Position is outside of column range for line {0}</value>
-    <comment>.
- Parameters: 0 - line (int) </comment>
   </data>
   <data name="EditDataObjectNotFound" xml:space="preserve">
     <value>Table or view requested for edit could not be found</value>

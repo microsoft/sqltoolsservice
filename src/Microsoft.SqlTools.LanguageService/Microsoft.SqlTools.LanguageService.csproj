@@ -13,7 +13,7 @@
     <DelaySign>True</DelaySign>
     <SignAssembly Condition="'$(TargetFramework)' == '$(SsmsDotNetVersion)'">True</SignAssembly>
     <AssemblyOriginatorKeyFile>$(RootDir)\SQL2003.snk</AssemblyOriginatorKeyFile>
-    <TargetFrameworks>$(SsmsDotNetVersion);$(SqlCoreDotNetVersion)</TargetFrameworks>
+    <TargetFrameworks>$(SsmsDotNetVersion);$(SqlCoreDotNetVersion);$(SqlToolsServiceDotNetVersion)</TargetFrameworks>
     <LangVersion>9.0</LangVersion>
   </PropertyGroup>
   <ItemGroup>
@@ -26,7 +26,15 @@
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SqlServer.Management.SqlParser" />
+  </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' != '$(SsmsDotNetVersion)'">
     <InternalsVisibleTo Include="Microsoft.SqlTools.LanguageService.UnitTests" />
+    <InternalsVisibleTo Include="MicrosoftSqlToolsServiceLayer" />
+    <InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.UnitTests" />
+    <InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.IntegrationTests" />
+    <InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.Test.Common" />
+    <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
   </ItemGroup>
 </Project>

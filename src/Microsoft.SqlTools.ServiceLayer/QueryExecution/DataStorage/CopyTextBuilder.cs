@@ -12,7 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Microsoft.SqlTools.LanguageService.Workspace;
 using Range = Microsoft.SqlTools.ServiceLayer.QueryExecution.QueryExecutionService.Range;
 
 namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage

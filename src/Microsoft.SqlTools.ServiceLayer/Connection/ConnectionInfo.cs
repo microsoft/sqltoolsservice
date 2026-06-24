@@ -91,10 +91,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public bool IsAzureAuth { get; set; }
 
         /// <summary>
-        /// Delegate to fetches a fresh Azure access token from the client via <c>account/securityTokenRequest</c>.
+        /// Delegate to fetch a fresh Azure access token from the client via <c>account/securityTokenRequest</c>
+        /// for a given target resource.
         /// Only used when RequestMfaTokenFromClient is enabled.
         /// </summary>
-        public Func<Task<(string token, DateTimeOffset expiresOn)>> AzureTokenFetcher { get; set; }
+        public Func<string, Task<(string token, DateTimeOffset expiresOn)>> AzureTokenFetcher { get; set; }
+
+        /// <summary>
+        /// The Entra resource URI for this connection
+        /// (e.g. <c>https://database.windows.net/</c> for Azure SQL or
+        /// <c>https://[org].crm.dynamics.com/</c> for a Dataverse TDS endpoint).
+        ///
+        /// Captured because SMO's <c>IRenewableToken.GetAccessToken()</c> has no per-call resource parameter.
+        /// The SqlClient handshake on connection open populates this with the resource the server requires,
+        /// so SMO can request a fresh token for the correct resource later. Set with the first AccessTokenCallback invocation.
+        /// </summary>
+        public string AzureResourceUri { get; set; }
 
         /// <summary>
         /// Returns the connection Engine Edition
@@ -192,10 +204,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         }
 
         /// <summary>
-        /// Updates the Auth Token and Expires On fields
+        /// Updates the Auth Token and Expires On fields when <see cref="AzureTokenFetcher"/> is not set.
         /// </summary>
         public bool TryUpdateAccessToken(SecurityToken? securityToken)
         {
+            if (AzureTokenFetcher != null)
+            {
+                return false;
+            }
+
             if (securityToken != null && !string.IsNullOrEmpty(securityToken.Token) && IsAzureAuth && IsAccessTokenExpired)
             {
                 ConnectionDetails.AzureAccountToken = securityToken.Token;

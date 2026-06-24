@@ -37,8 +37,7 @@ using Microsoft.SqlTools.ServiceLayer.Scripting;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.SqlProjects;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using Microsoft.SqlTools.ServiceLayer.Workspace;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.LanguageService.Workspace;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.SqlCore.IntelliSense;
@@ -245,7 +244,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Gets the current workspace instance
         /// </summary>
-        internal Workspace.Workspace CurrentWorkspace
+        internal Workspace CurrentWorkspace
         {
             get { return WorkspaceServiceInstance.Workspace; }
         }
@@ -2055,7 +2054,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             foreach (string localPath in filesToScan)
             {
-                string fileUri = new Uri(localPath).AbsoluteUri;
+                string fileUri = Utility.FileUtilities.LocalPathToFileUri(localPath);
                 if (!scannedFiles.Add(fileUri))
                     continue;
 
@@ -2346,7 +2345,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         if (sourceInfo?.SourceName == null)
                             return CreateErrorResult(SR.PeekDefinitionNoResultsError);
 
-                        string fileUri = new Uri(sourceInfo.SourceName).AbsoluteUri;
+                        string fileUri = Utility.FileUtilities.LocalPathToFileUri(sourceInfo.SourceName);
                         return new DefinitionResult
                         {
                             Locations = new[]
@@ -2665,7 +2664,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             this.currentCompletionParseInfo = null;
             CompletionItem[] resultCompletionItems = null;
             CompletionService completionService = new CompletionService(BindingQueue);
-            bool useLowerCaseSuggestions = this.CurrentWorkspaceSettings.SqlTools.Format.KeywordCasing == Formatter.CasingOptions.Lowercase;
+            bool useLowerCaseSuggestions = this.CurrentWorkspaceSettings.SqlTools.Format.KeywordCasing == Microsoft.SqlTools.LanguageService.Formatter.CasingOptions.Lowercase;
 
             // get the current script parse info object
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(scriptFile.ClientUri);

@@ -149,23 +149,42 @@ namespace Microsoft.SqlTools.ServiceLayer.Utility
         }
 
         /// <summary>
-        /// Attempts to resolve the given filePath to an absolute path to a file on disk, 
-        /// defaulting to the original filePath if that fails. 
+        /// Converts an OS-native absolute path to a <c>file://</c> URI string, normalising
+        /// Windows-style backslash separators first. Works correctly on all platforms:
+        /// Windows paths (<c>C:\path\file.sql</c>) and Unix paths (<c>/home/user/file.sql</c>)
+        /// both produce well-formed <c>file:///...</c> URIs.
+        /// <para>
+        /// Do not use <c>new Uri(osPath).AbsoluteUri</c> as a replacement: on Linux/macOS a
+        /// bare path without a scheme creates a relative <see cref="Uri"/>, and calling
+        /// <c>.AbsoluteUri</c> on a relative URI throws <see cref="InvalidOperationException"/>.
+        /// </para>
         /// </summary>
-        /// <param name="filePath">The file path to resolve</param>
-        /// <param name="clientUri">The full file path URI used by the client</param>
-        /// <returns></returns>
-        internal static ResolvedFile TryGetFullPath(string filePath, string clientUri)
+        internal static string LocalPathToFileUri(string localPath)
         {
-            try
-            {
-                return new ResolvedFile(Path.GetFullPath(filePath), clientUri, true);
-            }
-            catch(NotSupportedException)
-            {
-                // This is not a standard path. 
-                return new ResolvedFile(filePath, clientUri, false);
-            }
+            // Use UriBuilder so the path is percent-encoded correctly (e.g. '#' or '?' in file
+            // names become %23 / %3F rather than being treated as URI fragment/query separators).
+            // UriBuilder.Path expects a forward-slash path; normalise Windows backslashes first.
+            string p = localPath.Replace('\\', '/');
+            // Ensure a leading '/' — UriBuilder requires an absolute path.
+            // Windows paths like "c:/Users/..." become "/c:/Users/..." here.
+            if (p.Length > 0 && p[0] != '/')
+                p = "/" + p;
+            var builder = new UriBuilder { Scheme = Uri.UriSchemeFile, Host = string.Empty, Path = p };
+            return builder.Uri.AbsoluteUri;
+        }
+
+        /// <summary>
+        /// Converts a <see cref="Uri"/> with <see cref="Uri.IsFile"/> == true to an OS-native
+        /// absolute path, stripping the spurious leading '/' that some .NET runtimes return from
+        /// <see cref="Uri.LocalPath"/> on Windows (e.g. "/c:/Users/..." → "c:/Users/...").
+        /// </summary>
+        internal static string UriToLocalPath(Uri uri)
+        {
+            string localPath = uri.LocalPath;
+            // On Windows, Uri.LocalPath can start with "/c:/" — strip the leading slash.
+            int start = (localPath.Length >= 3 && localPath[0] == '/' &&
+                         char.IsLetter(localPath[1]) && localPath[2] == ':') ? 1 : 0;
+            return localPath.Substring(start);
         }
     }
 }

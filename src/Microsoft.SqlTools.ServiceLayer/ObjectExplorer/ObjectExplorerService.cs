@@ -27,7 +27,7 @@ using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.TableDesigner;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Microsoft.SqlTools.LanguageService.Workspace;
 using Microsoft.SqlTools.SqlCore.Connection;
 using Microsoft.SqlTools.SqlCore.ObjectExplorer;
 using Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes;
@@ -417,7 +417,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                             // when the static AzureAccountToken on ConnectionDetails has become stale.
                             if (session.ConnectionInfo.AzureTokenFetcher != null)
                             {
-                                azureToken = session.ConnectionInfo.AzureTokenFetcher().GetAwaiter().GetResult().token;
+                                azureToken = session.ConnectionInfo.AzureTokenFetcher(session.ConnectionInfo.AzureResourceUri).GetAwaiter().GetResult().token;
                             }
                             else
                             {

@@ -15,7 +15,7 @@ using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Microsoft.SqlTools.LanguageService.Workspace;
 using Microsoft.SqlTools.Utility;
 using System.Threading;
 using System.Linq;
@@ -304,7 +304,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         bindingContext.SmoMetadataProvider = SmoMetadataProvider.CreateConnectedProvider(bindingContext.ServerConnection);
                         bindingContext.MetadataDisplayInfoProvider = new MetadataDisplayInfoProvider();
                         bindingContext.MetadataDisplayInfoProvider.BuiltInCasing =
-                            this.CurrentSettings.SqlTools.Format.KeywordCasing == Formatter.CasingOptions.Lowercase
+                            this.CurrentSettings.SqlTools.Format.KeywordCasing == Microsoft.SqlTools.LanguageService.Formatter.CasingOptions.Lowercase
                                 ? CasingStyle.Lowercase : CasingStyle.Uppercase;
                             bindingContext.Binder = BinderProvider.CreateBinder(bindingContext.SmoMetadataProvider);
                         }
