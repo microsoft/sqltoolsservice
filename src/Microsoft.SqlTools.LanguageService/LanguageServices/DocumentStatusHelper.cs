@@ -11,7 +11,7 @@ using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
+namespace Microsoft.SqlTools.LanguageService.LanguageServices
 {
     /// <summary>
     /// Helper class to send events to the client

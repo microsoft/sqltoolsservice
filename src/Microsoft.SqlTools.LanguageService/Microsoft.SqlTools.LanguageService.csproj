@@ -27,7 +27,9 @@
     <ProjectReference Include="..\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.SqlServer.Management.SmoMetadataProvider" />
     <PackageReference Include="Microsoft.SqlServer.Management.SqlParser" />
+    <PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' != '$(SsmsDotNetVersion)'">
     <InternalsVisibleTo Include="Microsoft.SqlTools.LanguageService.UnitTests" />
