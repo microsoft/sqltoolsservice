@@ -8,7 +8,7 @@
 
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+namespace Microsoft.SqlTools.LanguageService.Connection.Contracts
 {
     /// <summary>
     /// Message format for the initial connection request

@@ -8,6 +8,7 @@
 using System.Linq;
 using Microsoft.SqlTools.Hosting.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.LanguageService.Connection.Contracts;
 using NUnit.Framework;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 

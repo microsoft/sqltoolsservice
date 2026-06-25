@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.LanguageService.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.FlatFile.Contracts;
 using Microsoft.SqlTools.Utility;
 using Prose = Microsoft.SqlServer.Prose.Import;
