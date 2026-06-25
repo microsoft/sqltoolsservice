@@ -1904,17 +1904,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// Handles a request to parse a connection string into a ConnectionDetails object.
         /// If parsing fails, sends an error.
         /// </summary>
-        /// <param name="connectionString"></param>
+        /// <param name="requestParams"></param>
         /// <param name="requestContext"></param>
         /// <returns></returns>
         public async Task HandleParseConnectionStringRequest(
-            string connectionString,
+            ParseConnectionStringParams requestParams,
             RequestContext<ConnectionDetails> requestContext)
         {
             Logger.Verbose("ParseConnectionStringRequest");
             try
             {
-                await requestContext.SendResult(ParseConnectionString(connectionString));
+                await requestContext.SendResult(ParseConnectionString(requestParams.ConnectionString));
             }
             catch (Exception ex)
             {
