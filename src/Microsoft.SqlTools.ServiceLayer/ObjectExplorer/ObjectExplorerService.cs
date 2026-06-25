@@ -22,7 +22,7 @@ using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
+using Microsoft.SqlTools.LanguageService.Connection.Contracts;
 using Microsoft.SqlTools.LanguageService.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
@@ -171,7 +171,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 Validate.IsNotNull(nameof(context), context);
                 return await Task.Run(() =>
                 {
-                    string key = ConnectedBindingQueue.GetConnectionContextKey(connectionDetails);
+                    string key = ConnectionInfo.GetConnectionContextKey(connectionDetails);
                     return new GetSessionIdResponse { SessionId = key };
                 });
             };
@@ -723,7 +723,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         /// <remarks>Internal for testing purposes only</remarks>
         internal static string GenerateUri(ConnectionDetails details)
         {
-            return ConnectedBindingQueue.GetConnectionContextKey(details);
+            return ConnectionInfo.GetConnectionContextKey(details);
         }
 
         private void VerifyServicesInitialized()
@@ -817,7 +817,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 var connInfo = session.ConnectionInfo;
                 if (connInfo != null)
                 {
-                    string currentKey = ConnectedBindingQueue.GetConnectionContextKey(connInfo.ConnectionDetails);
+                    string currentKey = ConnectionInfo.GetConnectionContextKey(connInfo.ConnectionDetails);
                     if (queueKey == currentKey)
                     {
                         return session.Uri;

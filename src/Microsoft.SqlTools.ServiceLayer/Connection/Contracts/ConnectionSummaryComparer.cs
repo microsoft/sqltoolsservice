@@ -5,6 +5,7 @@
 
 #nullable disable
 
+using Microsoft.SqlTools.LanguageService.Connection.Contracts;
 using System;
 using System.Collections.Generic;
 

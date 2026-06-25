@@ -28,8 +28,8 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.AutoParameterizaition;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.LanguageService.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
 using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.Extension;
 using Microsoft.SqlTools.LanguageService.LanguageServices;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Completion;
@@ -85,8 +85,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         internal const int DiagnosticParseDelay = 750;
 
         internal const int HoverTimeout = 500;
-
-        internal const int BindingTimeout = 500;
 
         internal const int OnConnectionWaitTimeout = 300 * OneSecond;
 
@@ -1134,7 +1132,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             return Task.Run(() =>
             {
-                if (Monitor.TryEnter(parseInfo.BuildingMetadataLock, LanguageService.BindingTimeout))
+                if (Monitor.TryEnter(parseInfo.BuildingMetadataLock, ConnectedBindingQueue.BindingTimeout))
                 {
                     try
                     {
@@ -1158,7 +1156,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         {
                             QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
                                 key: parseInfo.ConnectionKey,
-                                bindingTimeout: LanguageService.BindingTimeout,
+                                bindingTimeout: ConnectedBindingQueue.BindingTimeout,
                                 bindOperation: (bindingContext, cancelToken) =>
                                 {
                                     try
@@ -1598,7 +1596,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     {
                         QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
                             key: scriptParseInfo.ConnectionKey,
-                            bindingTimeout: LanguageService.BindingTimeout,
+                            bindingTimeout: ConnectedBindingQueue.BindingTimeout,
                             bindOperation: (bindingContext, cancelToken) =>
                             {
                                 foreach (var suggestion in scriptParseInfo.CurrentSuggestions)
@@ -2601,7 +2599,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     {
                         QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
                             key: scriptParseInfo.ConnectionKey,
-                            bindingTimeout: LanguageService.BindingTimeout,
+                            bindingTimeout: ConnectedBindingQueue.BindingTimeout,
                             bindOperation: (bindingContext, cancelToken) =>
                             {
                                 // get the list of possible current methods for signature help

@@ -15,16 +15,20 @@ using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.Common;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
-using Microsoft.SqlTools.LanguageService.LanguageServices;
 using Microsoft.SqlTools.Utility;
 
-namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
+namespace Microsoft.SqlTools.LanguageService.LanguageServices
 {
     /// <summary>
     /// Class for the binding context for connected sessions
     /// </summary>
     public class ConnectedBindingContext : IBindingContext
     {
+        /// <summary>
+        /// Default batch separator used when deriving parse options for connected contexts.
+        /// </summary>
+        private const string DefaultBatchSeparator = "GO";
+
         private ParseOptions parseOptions;
 
         private ManualResetEvent bindingLock;
@@ -197,7 +201,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     return this.ProjectParseOptions;
                 }
                 this.parseOptions ??= new ParseOptions(
-                        batchSeparator: LanguageServices.LanguageService.DefaultBatchSeperator,
+                        batchSeparator: DefaultBatchSeparator,
                         isQuotedIdentifierSet: true, 
                         compatibilityLevel: DatabaseCompatibilityLevel,
                         transactSqlVersion: TransactSqlVersion);
@@ -306,7 +310,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 catch
                 {
                     // There's nothing else we can do so just default to the highest available version
-                    compatLevel = Enum.GetValues<SMO.CompatibilityLevel>().Cast<SMO.CompatibilityLevel>().Max();
+                    // Enum.GetValues<T>() is unavailable on net472, so use the non-generic overload.
+#pragma warning disable CA2263 // Prefer generic overload
+                    compatLevel = Enum.GetValues(typeof(SMO.CompatibilityLevel)).Cast<SMO.CompatibilityLevel>().Max();
+#pragma warning restore CA2263
                     Logger.Information($"Failed to get compat level for binding context from querying server - using default of {compatLevel}");
                 }
 

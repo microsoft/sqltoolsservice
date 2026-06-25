@@ -57,6 +57,16 @@ namespace Microsoft.SqlTools.LanguageService
             return Keys.GetString(Keys.WorkspaceServicePositionColumnOutOfRange, line);
         }
 
+        public static string StarExpansionLabel(string starExpression)
+        {
+            return Keys.GetString(Keys.StarExpansionLabel, starExpression);
+        }
+
+        public static string StarExpansionDescription(string starExpression, string columnCount, string columnPreview)
+        {
+            return Keys.GetString(Keys.StarExpansionDescription, starExpression, columnCount, columnPreview);
+        }
+
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class Keys
         {
@@ -75,6 +85,12 @@ namespace Microsoft.SqlTools.LanguageService
 
 
             public const string ErrorEmptyStringReplacement = "ErrorEmptyStringReplacement";
+
+
+            public const string StarExpansionLabel = "StarExpansionLabel";
+
+
+            public const string StarExpansionDescription = "StarExpansionDescription";
 
 
             private Keys()
@@ -101,6 +117,12 @@ namespace Microsoft.SqlTools.LanguageService
             public static string GetString(string key, object arg0)
             {
                 return string.Format(global::System.Globalization.CultureInfo.CurrentCulture, resourceManager.GetString(key, _culture), arg0);
+            }
+
+
+            public static string GetString(string key, object arg0, object arg1, object arg2)
+            {
+                return string.Format(global::System.Globalization.CultureInfo.CurrentCulture, resourceManager.GetString(key, _culture), arg0, arg1, arg2);
             }
 
 

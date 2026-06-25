@@ -28,3 +28,10 @@ WorkspaceServicePositionColumnOutOfRange(int line) = Position is outside of colu
 # Formatter
 
 ErrorEmptyStringReplacement = Replacement of an empty string by an empty string.
+
+############################################################################
+# Completion - Star Expansion
+
+StarExpansionLabel(string starExpression) = Expand {0}
+
+StarExpansionDescription(string starExpression, string columnCount, string columnPreview) = Replace {0} with {1} columns: {2}
