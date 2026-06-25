@@ -160,9 +160,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             // Wire up the language service library seams that depend on the connection service so the
             // library does not take a dependency on this assembly. This runs before any binding context
             // is created because the connection service type is touched first.
-            SqlConnectionOpener.ServerConnectionFactory =
-                (connInfo, featureName) => OpenServerConnection((ConnectionInfo)connInfo, featureName);
+            SqlConnectionOpener.ServerConnectionFactory = (connInfo, featureName) =>
+            {
+                if (connInfo is ConnectionInfo serviceLayerConnInfo)
+                {
+                    return OpenServerConnection(serviceLayerConnInfo, featureName);
+                }
 
+                throw new InvalidOperationException(
+                    $"Expected connection info of type '{typeof(ConnectionInfo).FullName}' but received '{connInfo?.GetType().FullName ?? "<null>"}'.");
+            };
             ConnectedBindingQueue.UseLowercaseKeywordCasingProvider = () =>
                 WorkspaceService<SqlContext.SqlToolsSettings>.Instance.CurrentSettings.SqlTools.Format.KeywordCasing
                     == Microsoft.SqlTools.LanguageService.Formatter.CasingOptions.Lowercase;
