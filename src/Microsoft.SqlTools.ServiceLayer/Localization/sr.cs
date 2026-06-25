@@ -10918,16 +10918,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.PeekDefinitionError, errorMessage);
         }
 
-        public static string StarExpansionLabel(string starExpression)
-        {
-            return Keys.GetString(Keys.StarExpansionLabel, starExpression);
-        }
-
-        public static string StarExpansionDescription(string starExpression, string columnCount, string columnPreview)
-        {
-            return Keys.GetString(Keys.StarExpansionDescription, starExpression, columnCount, columnPreview);
-        }
-
         public static string EditDataUnsupportedObjectType(string typeName)
         {
             return Keys.GetString(Keys.EditDataUnsupportedObjectType, typeName);
@@ -11390,12 +11380,6 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string PeekDefinitionTypeNotSupportedError = "PeekDefinitionTypeNotSupportedError";
-
-
-            public const string StarExpansionLabel = "StarExpansionLabel";
-
-
-            public const string StarExpansionDescription = "StarExpansionDescription";
 
 
             public const string EditDataObjectNotFound = "EditDataObjectNotFound";
