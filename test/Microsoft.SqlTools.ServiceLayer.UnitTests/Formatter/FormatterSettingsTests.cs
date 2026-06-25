@@ -7,7 +7,6 @@
 
 using Microsoft.SqlTools.LanguageService.Formatter;
 using Microsoft.SqlTools.LanguageService.Formatter.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Formatter;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;

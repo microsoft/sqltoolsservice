@@ -15,22 +15,21 @@ using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.LanguageService.Formatter.Contracts;
-using Microsoft.SqlTools.LanguageService.Formatter;
 using Microsoft.SqlTools.LanguageService.LanguageServices;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;
-using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Microsoft.SqlTools.LanguageService.Workspace;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using Microsoft.SqlTools.Utility;
 using Range = Microsoft.SqlTools.LanguageService.Workspace.Contracts.Range;
 
-namespace Microsoft.SqlTools.ServiceLayer.Formatter
+namespace Microsoft.SqlTools.LanguageService.Formatter
 {
 
     [Export(typeof(IHostedService))]
     public class TSqlFormatterService : HostedService<TSqlFormatterService>, IComposableService
     {
         private FormatterSettings settings;
+        private Func<string, ScriptFile> fileResolver;
+
         /// <summary>
         /// The default constructor is required for MEF-based composable services
         /// </summary>
@@ -39,43 +38,38 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
             settings = new FormatterSettings();
         }
 
-
-
         public override void InitializeService(IProtocolEndpoint serviceHost)
         {
             Logger.Verbose("TSqlFormatter initialized");
             serviceHost.SetRequestHandler(DocumentFormattingRequest.Type, HandleDocFormatRequest, true);
             serviceHost.SetRequestHandler(DocumentRangeFormattingRequest.Type, HandleDocRangeFormatRequest, true);
-            WorkspaceService?.RegisterConfigChangeCallback(HandleDidChangeConfigurationNotification);
         }
 
         /// <summary>
-        /// Gets the workspace service. Note: should handle case where this is null in cases where unit tests do not set this up
+        /// Gets the file filter used to determine whether a file should be skipped. Note: may be null
+        /// in cases where unit tests do not set this up.
         /// </summary>
-        private WorkspaceService<SqlToolsSettings> WorkspaceService
+        private ILanguageFileFilter FileFilter
         {
-            get { return ServiceProvider.GetService<WorkspaceService<SqlToolsSettings>>(); }
+            get { return ServiceProvider?.GetService<ILanguageFileFilter>(); }
         }
 
         /// <summary>
-        /// Gets the language service. Note: should handle case where this is null in cases where unit tests do not set this up
+        /// Sets the resolver used to look up a <see cref="ScriptFile"/> by URI. Wired by the host so the
+        /// formatter does not need to reference the concrete workspace settings type.
         /// </summary>
-        private LanguageServices.LanguageService LanguageService
+        public void SetFileResolver(Func<string, ScriptFile> resolver)
         {
-            get { return ServiceProvider.GetService<LanguageServices.LanguageService>(); }
+            fileResolver = resolver;
         }
 
         /// <summary>
-        /// Ensure formatter settings are always up to date
+        /// Ensure formatter settings are always up to date. Called by the host on configuration changes.
         /// </summary>
-        public Task HandleDidChangeConfigurationNotification(
-            SqlToolsSettings newSettings,
-            SqlToolsSettings oldSettings,
-            EventContext eventContext)
+        public void UpdateFormatterSettings(FormatterSettings newSettings)
         {
             // update the current settings to reflect any changes (assuming formatter settings exist)
-            settings = newSettings?.SqlTools?.Format ?? settings;
-            return Task.FromResult(true);
+            settings = newSettings ?? settings;
         }
 
         public async Task HandleDocFormatRequest(DocumentFormattingParams docFormatParams, RequestContext<TextEdit[]> requestContext)
@@ -135,7 +129,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
             {
                 return true;
             }
-            return (LanguageService != null && LanguageService.ShouldSkipNonMssqlFile(docFormatParams.TextDocument.Uri));
+            ILanguageFileFilter fileFilter = FileFilter;
+            return (fileFilter != null && fileFilter.ShouldSkipNonMssqlFile(docFormatParams.TextDocument.Uri));
         }
 
         private Task<TextEdit[]> FormatAndReturnEdits(DocumentFormattingParams docFormatParams)
@@ -209,7 +204,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Formatter
 
         private ScriptFile GetFile(DocumentFormattingParams docFormatParams)
         {
-            return WorkspaceService.Workspace.GetFile(docFormatParams.TextDocument.Uri);
+            return fileResolver?.Invoke(docFormatParams.TextDocument.Uri);
         }
 
         private static TextEdit PrepareEdit(ScriptFile scriptFile)
