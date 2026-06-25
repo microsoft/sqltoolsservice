@@ -13,12 +13,11 @@ using Microsoft.SqlServer.Management.SqlParser.Binder;
 using Microsoft.SqlServer.Management.SqlParser.Common;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.LanguageService.LanguageServices;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;
 using NUnit.Framework;
 
-namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
+namespace Microsoft.SqlTools.LanguageService.UnitTests.LanguageServices
 {
 
     /// <summary>

@@ -10,7 +10,7 @@ using Microsoft.SqlTools.LanguageService.LanguageServices.Completion;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using NUnit.Framework;
 
-namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Completion
+namespace Microsoft.SqlTools.LanguageService.UnitTests.LanguageServices.Completion
 {
     [TestFixture]
     public class ScriptDocumentInfoTest

@@ -8,7 +8,7 @@
 using System.Diagnostics;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion
+namespace Microsoft.SqlTools.LanguageService.LanguageServices.Completion
 {
     /// <summary>
     /// Includes the objects created by auto completion service
