@@ -18,7 +18,7 @@ using Moq;
 using NUnit.Framework;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Location = Microsoft.SqlTools.LanguageService.Workspace.Contracts.Location;
-using SR = Microsoft.SqlTools.LanguageService.SR;
+using LanguageServiceSR = Microsoft.SqlTools.LanguageService.SR;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 {
@@ -279,8 +279,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                 startCharacter: 7,
                 endCharacter: 8);
 
-            Assert.AreEqual(SR.StarExpansionLabel("*"), completionItem.Label);
-            Assert.AreEqual(SR.StarExpansionDescription("*", "4", "[BusinessEntityID], [PersonType], [NameStyle], ..."), completionItem.Detail);
+            Assert.AreEqual(LanguageServiceSR.StarExpansionLabel("*"), completionItem.Label);
+            Assert.AreEqual(LanguageServiceSR.StarExpansionDescription("*", "4", "[BusinessEntityID], [PersonType], [NameStyle], ..."), completionItem.Detail);
             Assert.AreEqual(CompletionItemKind.Snippet, completionItem.Kind);
             Assert.AreEqual("*", completionItem.FilterText);
             Assert.True(completionItem.Preselect);
