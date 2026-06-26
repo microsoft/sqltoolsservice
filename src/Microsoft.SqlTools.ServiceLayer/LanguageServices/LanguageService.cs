@@ -697,15 +697,20 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 foreach (var file in changedFiles.GroupBy(f => f.ClientUri).Select(g => g.Last()))
                 {
                     if (TryGetProjectUriForSqlFile(file.ClientUri, out string projectUri))
-                        ScheduleDebouncedIntelliSenseUpdate(file.ClientUri, projectUri, file.Contents);
+                        ScheduleDebouncedIntelliSenseUpdate(file.ClientUri, projectUri, file.Contents, eventContext);
                 }
 
                 if (CurrentWorkspaceSettings.IsDiagnosticsEnabled)
                 {
-                    // Only process files that are MSSQL flavor
-                    await this.RunScriptDiagnostics(
-                        changedFiles.ToArray(),
-                        eventContext);
+                    // For project files, diagnostics are triggered AFTER the debounced model
+                    // update completes (in ScheduleDebouncedIntelliSenseUpdate) so they reflect
+                    // the current model state. Running them here (before the model is updated)
+                    // would produce stale results and interfere with the debounced diagnostic.
+                    var nonProjectFiles = changedFiles
+                        .Where(f => !TryGetProjectUriForSqlFile(f.ClientUri, out _))
+                        .ToArray();
+                    if (nonProjectFiles.Length > 0)
+                        await this.RunScriptDiagnostics(nonProjectFiles, eventContext);
                 }
             }
             catch (Exception ex)
@@ -721,7 +726,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// keystrokes collapse into a single model rebuild fired after
         /// <see cref="IntelliSenseUpdateDebounceMs"/> of inactivity.
         /// </summary>
-        private void ScheduleDebouncedIntelliSenseUpdate(string fileUri, string projectUri, string contents)
+        private void ScheduleDebouncedIntelliSenseUpdate(string fileUri, string projectUri, string contents, EventContext eventContext)
         {
             var newCts = new CancellationTokenSource();
             if (_intelliSenseUpdateDebounce.TryRemove(fileUri, out var oldCts))
@@ -744,6 +749,22 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     {
                         await SqlProjectsService.Instance.UpdateProjectIntelliSenseAsync(
                             projectUri, fileUri, deleted: false, sqlTextOverride: contents);
+                    }
+
+                    // Re-run diagnostics on all open project files so squiggles clear/appear
+                    // immediately after a model change — not just on the next file save.
+                    if (CurrentWorkspaceSettings.IsDiagnosticsEnabled)
+                    {
+                        var changedFile = CurrentWorkspace.GetFile(fileUri);
+                        var siblingUris = SqlProjectsService.Instance.GetSiblingProjectFileUris(projectUri, fileUri);
+                        var filesToRefresh = siblingUris
+                            .Select(u => CurrentWorkspace.GetFile(u))
+                            .Where(f => f != null)
+                            .ToList();
+                        if (changedFile != null)
+                            filesToRefresh.Insert(0, changedFile);
+                        if (filesToRefresh.Count > 0)
+                            await RunScriptDiagnostics(filesToRefresh.ToArray(), eventContext);
                     }
                 }
                 catch (OperationCanceledException) { /* superseded by a newer edit — expected */ }
