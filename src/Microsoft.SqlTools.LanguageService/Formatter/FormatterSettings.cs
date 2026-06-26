@@ -5,11 +5,10 @@
 
 #nullable disable
 
-using Microsoft.SqlTools.LanguageService.Formatter;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace Microsoft.SqlTools.ServiceLayer.SqlContext
+namespace Microsoft.SqlTools.LanguageService.Formatter
 {
     /// <summary>
     /// Contract for receiving formatter-specific settings as part of workspace settings

@@ -46,6 +46,8 @@ using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.SqlProjects;
 using Microsoft.SqlTools.ServiceLayer.TableDesigner;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.LanguageService.Formatter;
+using Microsoft.SqlTools.LanguageService.LanguageServices;
 using Microsoft.SqlTools.LanguageService.Workspace;
 
 namespace Microsoft.SqlTools.ServiceLayer
@@ -107,6 +109,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
             LanguageServices.LanguageService.Instance.InitializeService(serviceHost, sqlToolsContext);
             serviceProvider.RegisterSingleService(LanguageServices.LanguageService.Instance);
+            // Register the language service under the file-filter abstraction so the formatter (which lives in
+            // the LanguageService library and cannot reference the concrete LanguageService) can resolve it.
+            serviceProvider.RegisterSingleService<ILanguageFileFilter>(LanguageServices.LanguageService.Instance);
 
             ConnectionService.Instance.InitializeService(serviceHost, commandOptions);
             serviceProvider.RegisterSingleService(ConnectionService.Instance);
@@ -182,6 +187,19 @@ namespace Microsoft.SqlTools.ServiceLayer
 
             InitializeHostedServices(serviceProvider, serviceHost);
             serviceHost.ServiceProvider = serviceProvider;
+
+            // Wire the formatter's host-specific seams here (inverted control) since the formatter lives in the
+            // LanguageService library and cannot reference the concrete SqlToolsSettings/WorkspaceService types.
+            TSqlFormatterService formatterService = serviceProvider.GetService<TSqlFormatterService>();
+            if (formatterService != null)
+            {
+                formatterService.SetFileResolver(uri => WorkspaceService<SqlToolsSettings>.Instance.Workspace?.GetFile(uri));
+                WorkspaceService<SqlToolsSettings>.Instance.RegisterConfigChangeCallback((newSettings, oldSettings, eventContext) =>
+                {
+                    formatterService.UpdateFormatterSettings(newSettings?.SqlTools?.Format);
+                    return Task.FromResult(true);
+                });
+            }
 
             ExecutionPlanService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(ExecutionPlanService.Instance);
