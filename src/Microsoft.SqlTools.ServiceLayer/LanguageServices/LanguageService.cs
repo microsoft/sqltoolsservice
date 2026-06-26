@@ -35,7 +35,7 @@ using Microsoft.SqlTools.LanguageService.LanguageServices;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Completion;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Completion.Extension;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Scripting;
+using Microsoft.SqlTools.LanguageService.Scripting;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.SqlProjects;
 using Microsoft.SqlTools.ServiceLayer.Utility;
@@ -45,6 +45,7 @@ using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.SqlCore.IntelliSense;
 using Location = Microsoft.SqlTools.LanguageService.Workspace.Contracts.Location;
 using Range = Microsoft.SqlTools.LanguageService.Workspace.Contracts.Range;
+using PeekDefSR = Microsoft.SqlTools.LanguageService.SR;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -1664,7 +1665,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     Sql4PartIdentifier identifier = this.GetFullIdentifier(scriptParseInfo, textDocumentPosition.Position);
 
                     // Script object using SMO
-                    Scripter scripter = new Scripter(bindingContext.ServerConnection, connInfo);
+                    Scripter scripter = new Scripter(bindingContext.ServerConnection, connInfo, ConnectionService.Instance.EnableSqlAuthenticationProvider, ConnectionService.EnableConnectionPooling);
                     return scripter.GetScript(
                         scriptParseInfo.ParseResult,
                         textDocumentPosition.Position,
@@ -2200,7 +2201,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         return new DefinitionResult
                         {
                             IsErrorResult = true,
-                            Message = SR.PeekDefinitionError(ex.Message),
+                            Message = PeekDefSR.PeekDefinitionError(ex.Message),
                             Locations = null
                         };
                     }
@@ -2308,12 +2309,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         // Step 1: Identify the identifier token at the cursor
                         int tokenIndex = scriptParseInfo.ParseResult?.Script?.TokenManager?.FindToken(parserLine, parserColumn) ?? -1;
                         if (tokenIndex < 0)
-                            return CreateErrorResult(SR.PeekDefinitionNoResultsError);
+                            return CreateErrorResult(PeekDefSR.PeekDefinitionNoResultsError);
 
                         var token = scriptParseInfo.ParseResult.Script.TokenManager.GetToken(tokenIndex);
                         string tokenText = token?.Text?.Trim('[', ']');
                         if (string.IsNullOrWhiteSpace(tokenText))
-                            return CreateErrorResult(SR.PeekDefinitionNoResultsError);
+                            return CreateErrorResult(PeekDefSR.PeekDefinitionNoResultsError);
 
                         Microsoft.SqlServer.Dac.SourceInformation? sourceInfo = null;
 
@@ -2343,7 +2344,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         }
 
                         if (sourceInfo?.SourceName == null)
-                            return CreateErrorResult(SR.PeekDefinitionNoResultsError);
+                            return CreateErrorResult(PeekDefSR.PeekDefinitionNoResultsError);
 
                         string fileUri = Utility.FileUtilities.LocalPathToFileUri(sourceInfo.SourceName);
                         return new DefinitionResult
@@ -2363,7 +2364,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             }
                         };
                     }
-                    return CreateErrorResult(SR.PeekDefinitionNoResultsError);
+                    return CreateErrorResult(PeekDefSR.PeekDefinitionNoResultsError);
                 },
                 timeoutOperation: (_) => new DefinitionResult
                 {
@@ -3160,9 +3161,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         internal void DeletePeekDefinitionScripts()
         {
             // Delete temp folder created to store peek definition scripts
-            if (FileUtilities.SafeDirectoryExists(FileUtilities.PeekDefinitionTempFolder))
+            if (FileUtilities.SafeDirectoryExists(PeekDefinitionTempFolder.TempFolderPath))
             {
-                FileUtilities.SafeDirectoryDelete(FileUtilities.PeekDefinitionTempFolder, true);
+                FileUtilities.SafeDirectoryDelete(PeekDefinitionTempFolder.TempFolderPath, true);
             }
         }
 

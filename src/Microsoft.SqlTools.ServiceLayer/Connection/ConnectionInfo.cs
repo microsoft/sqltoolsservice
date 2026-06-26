@@ -56,7 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         /// Returns true if the db connection is to any cloud instance
         /// </summary>
-        public bool IsCloud { get; set; }
+        public override bool IsCloud { get; set; }
 
         /// <summary>
         /// Returns true if the db connection is to a SQL db instance
@@ -147,7 +147,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <returns>true if a connection with type connectionType was located and out connection was set, 
         /// false otherwise </returns>
         /// <exception cref="ArgumentException">Thrown when connectionType is null or empty</exception>
-        public bool TryGetConnection(string connectionType, out DbConnection connection)
+        public override bool TryGetConnection(string connectionType, out DbConnection connection)
         {
             Validate.IsNotNullOrEmptyString("Connection Type", connectionType);
             return ConnectionTypeToConnectionMap.TryGetValue(connectionType, out connection);

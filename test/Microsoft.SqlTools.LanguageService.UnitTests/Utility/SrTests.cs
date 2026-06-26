@@ -24,6 +24,20 @@ namespace Microsoft.SqlTools.LanguageService.UnitTests.Utility
             Assert.NotNull(LanguageServiceSr.WorkspaceServiceBufferPositionOutOfOrder(0, 0, 0, 0));
             Assert.NotNull(LanguageServiceSr.WorkspaceServicePositionLineOutOfRange);
             Assert.NotNull(LanguageServiceSr.WorkspaceServicePositionColumnOutOfRange(0));
+            Assert.NotNull(LanguageServiceSr.ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol);
+            Assert.NotNull(LanguageServiceSr.ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl);
+            Assert.NotNull(LanguageServiceSr.ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves);
+            Assert.NotNull(LanguageServiceSr.ConnectionServiceConnStringInvalidEnclaveAttestationProtocol(""));
+            Assert.NotNull(LanguageServiceSr.ConnectionServiceConnStringInvalidColumnEncryptionSetting(""));
+            Assert.NotNull(LanguageServiceSr.ConnectionServiceConnStringInvalidSecureEnclaves(""));
+            Assert.NotNull(LanguageServiceSr.ConnectionServiceConnStringInvalidEncryptOption(""));
+            Assert.NotNull(LanguageServiceSr.ConnectionServiceConnStringInvalidAuthType(""));
+            Assert.NotNull(LanguageServiceSr.ConnectionServiceConnStringInvalidIntent(""));
+            Assert.NotNull(LanguageServiceSr.PeekDefinitionAzureError(""));
+            Assert.NotNull(LanguageServiceSr.PeekDefinitionError(""));
+            Assert.NotNull(LanguageServiceSr.PeekDefinitionNoResultsError);
+            Assert.NotNull(LanguageServiceSr.PeekDefinitionDatabaseError);
+            Assert.NotNull(LanguageServiceSr.PeekDefinitionTypeNotSupportedError);
         }
     }
 }

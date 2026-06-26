@@ -3,16 +3,16 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-namespace Microsoft.SqlTools.ServiceLayer.Scripting
+namespace Microsoft.SqlTools.LanguageService.Scripting
 {
-    internal class Sql4PartIdentifier : Sql3PartIdentifier
+    internal sealed class Sql4PartIdentifier : Sql3PartIdentifier
     {
         public string? ServerName { get; set; }
     }
 
     internal class Sql3PartIdentifier
     {
-        public required string ObjectName { get; set; }
+        public string ObjectName { get; set; } = string.Empty;
         public string? SchemaName { get; set; }
         public string? DatabaseName { get; set; }
     }
