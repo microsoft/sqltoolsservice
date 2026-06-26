@@ -27,6 +27,7 @@
     <ProjectReference Include="..\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.SqlServer.DacFx" />
     <PackageReference Include="Microsoft.SqlServer.Management.SmoMetadataProvider" />
     <PackageReference Include="Microsoft.SqlServer.Management.SqlParser" />
     <PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" />

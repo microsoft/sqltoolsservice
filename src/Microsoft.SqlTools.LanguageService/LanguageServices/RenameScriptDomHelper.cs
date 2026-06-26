@@ -14,7 +14,7 @@ using Location = Microsoft.SqlTools.LanguageService.Workspace.Contracts.Location
 using Position = Microsoft.SqlTools.LanguageService.Workspace.Contracts.Position;
 using Range = Microsoft.SqlTools.LanguageService.Workspace.Contracts.Range;
 
-namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
+namespace Microsoft.SqlTools.LanguageService.LanguageServices
 {
     /// <summary>
     /// ScriptDom-based syntactic analysis for the rename / find-all-references feature.

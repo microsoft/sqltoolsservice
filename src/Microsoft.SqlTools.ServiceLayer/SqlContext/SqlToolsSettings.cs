@@ -4,6 +4,7 @@
 //
 
 #nullable disable
+using Microsoft.SqlTools.LanguageService.LanguageServices;
 using Newtonsoft.Json;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlContext
@@ -11,7 +12,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
     /// <summary>
     /// Class for serialization and deserialization of the settings the SQL Tools Service needs.
     /// </summary>
-    public class SqlToolsSettings
+    public class SqlToolsSettings : ILanguageServiceSettings
     {
         private ISqlToolsSettingsValues sqlTools = null; 
         private SqlToolsSettingsValues mssqlTools = null; 
@@ -165,6 +166,39 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
             get
             {
                 return this.SqlTools.IntelliSense.EnableIntellisense;
+            }
+        }
+
+        /// <summary>
+        /// Gets a flag determining if error checking is enabled, or <c>null</c> if unset.
+        /// </summary>
+        public bool? IsErrorCheckingEnabled
+        {
+            get
+            {
+                return this.SqlTools.IntelliSense.EnableErrorChecking;
+            }
+        }
+
+        /// <summary>
+        /// Gets a flag determining if Always Encrypted parameterization is enabled.
+        /// </summary>
+        public bool IsAlwaysEncryptedParameterizationEnabled
+        {
+            get
+            {
+                return this.SqlTools.QueryExecutionSettings.IsAlwaysEncryptedParameterizationEnabled;
+            }
+        }
+
+        /// <summary>
+        /// Gets the keyword casing used when generating completion suggestions.
+        /// </summary>
+        public Microsoft.SqlTools.LanguageService.Formatter.CasingOptions FormatKeywordCasing
+        {
+            get
+            {
+                return this.SqlTools.Format.KeywordCasing;
             }
         }
 
