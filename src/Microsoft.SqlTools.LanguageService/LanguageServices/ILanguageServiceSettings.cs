@@ -26,8 +26,8 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// <summary>Gets a flag determining if IntelliSense is enabled.</summary>
         bool IsIntelliSenseEnabled { get; }
 
-        /// <summary>Gets a flag determining if error checking is enabled, or <c>null</c> if unset.</summary>
-        bool? IsErrorCheckingEnabled { get; }
+        /// <summary>Gets a flag determining if error checking is enabled.</summary>
+        bool IsErrorCheckingEnabled { get; }
 
         /// <summary>Gets a flag determining if Always Encrypted parameterization is enabled.</summary>
         bool IsAlwaysEncryptedParameterizationEnabled { get; }

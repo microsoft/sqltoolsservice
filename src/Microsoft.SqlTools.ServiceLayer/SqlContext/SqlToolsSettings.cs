@@ -170,13 +170,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         }
 
         /// <summary>
-        /// Gets a flag determining if error checking is enabled, or <c>null</c> if unset.
+        /// Gets a flag determining if error checking is enabled.
         /// </summary>
-        public bool? IsErrorCheckingEnabled
+        public bool IsErrorCheckingEnabled
         {
             get
             {
-                return this.SqlTools.IntelliSense.EnableErrorChecking;
+                return this.SqlTools.IntelliSense.EnableIntellisense
+                    && this.SqlTools.IntelliSense.EnableErrorChecking.Value;
             }
         }
 
