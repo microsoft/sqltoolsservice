@@ -969,17 +969,17 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             try
             {
-                bool oldEnableIntelliSense = oldSettings.SqlTools.IntelliSense.EnableIntellisense;
-                bool oldAlwaysEncryptedParameterizationEnabled = oldSettings.SqlTools.QueryExecutionSettings.IsAlwaysEncryptedParameterizationEnabled;
-                bool? oldEnableDiagnostics = oldSettings.SqlTools.IntelliSense.EnableErrorChecking;
+                bool oldEnableIntelliSense = oldSettings.IsIntelliSenseEnabled;
+                bool oldAlwaysEncryptedParameterizationEnabled = oldSettings.IsAlwaysEncryptedParameterizationEnabled;
+                bool? oldEnableDiagnostics = oldSettings.IsErrorCheckingEnabled;
 
                 // update the current settings to reflect any changes
                 CurrentWorkspaceSettings.Update(newSettings);
 
                 // if script analysis settings have changed we need to clear the current diagnostic markers
-                if (oldEnableIntelliSense != newSettings.SqlTools.IntelliSense.EnableIntellisense
-                    || oldEnableDiagnostics != newSettings.SqlTools.IntelliSense.EnableErrorChecking
-                    || oldAlwaysEncryptedParameterizationEnabled != newSettings.SqlTools.QueryExecutionSettings.IsAlwaysEncryptedParameterizationEnabled)
+                if (oldEnableIntelliSense != newSettings.IsIntelliSenseEnabled
+                    || oldEnableDiagnostics != newSettings.IsErrorCheckingEnabled
+                    || oldAlwaysEncryptedParameterizationEnabled != newSettings.IsAlwaysEncryptedParameterizationEnabled)
                 {
                     // if the user just turned off diagnostics then send an event to clear the error markers
                     if (!newSettings.IsDiagnosticsEnabled)
@@ -2664,7 +2664,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             this.currentCompletionParseInfo = null;
             CompletionItem[] resultCompletionItems = null;
             CompletionService completionService = new CompletionService(BindingQueue);
-            bool useLowerCaseSuggestions = this.CurrentWorkspaceSettings.SqlTools.Format.KeywordCasing == Microsoft.SqlTools.LanguageService.Formatter.CasingOptions.Lowercase;
+            bool useLowerCaseSuggestions = this.CurrentWorkspaceSettings.FormatKeywordCasing == Microsoft.SqlTools.LanguageService.Formatter.CasingOptions.Lowercase;
 
             // get the current script parse info object
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(scriptFile.ClientUri);
@@ -2934,7 +2934,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
             }
 
-            if (CurrentWorkspaceSettings.QueryExecutionSettings.IsAlwaysEncryptedParameterizationEnabled)
+            if (CurrentWorkspaceSettings.IsAlwaysEncryptedParameterizationEnabled)
             {
                 markers.AddRange(SqlParameterizer.CodeSense(scriptFile.Contents));
             }
