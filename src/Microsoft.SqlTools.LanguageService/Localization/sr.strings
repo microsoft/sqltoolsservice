@@ -41,7 +41,7 @@ StarExpansionDescription(string starExpression, string columnCount, string colum
 
 ConnectionServiceConnStringInvalidAuthType(string authType) = Invalid value '{0}' for AuthenticationType.  Valid values are 'Integrated' and 'SqlLogin'.
 
-ConnectionServiceConnStringInvalidColumnEncryptionSetting(string columnEncryptionSetting) = Invalid value '{0}' for ComlumEncryption. Valid values are 'Enabled' and 'Disabled'.
+ConnectionServiceConnStringInvalidColumnEncryptionSetting(string columnEncryptionSetting) = Invalid value '{0}' for Column Encryption Setting. Valid values are 'Enabled' and 'Disabled'.
 
 ConnectionServiceConnStringInvalidSecureEnclaves(string secureEnclaves) = Invalid value '{0}' for Secure enclaves. Valid values are 'Enabled' and 'Disabled'.
 
