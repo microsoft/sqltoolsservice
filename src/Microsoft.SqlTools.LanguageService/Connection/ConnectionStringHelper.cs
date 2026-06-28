@@ -37,7 +37,7 @@ namespace Microsoft.SqlTools.LanguageService.Connection
         }
 
         /// <summary>
-        /// Build a connection string builder a connection details instance
+        /// Build a connection string builder from a connection details instance
         /// </summary>
         /// <param name="connectionDetails">Connection details</param>
         /// <param name="enableSqlAuthenticationProvider">Whether the configured 'Sql Authentication Provider' for 'Active Directory Interactive' authentication mode should be used when the user chooses 'Azure MFA'.</param>
