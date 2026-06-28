@@ -58,7 +58,7 @@ namespace Microsoft.SqlTools.LanguageService.Connection
                 // add alternate port to data source property if provided
                 string dataSource = !connectionDetails.Port.HasValue
                     ? connectionDetails.ServerName
-                    : string.Format("{0},{1}", connectionDetails.ServerName, connectionDetails.Port.Value);
+                    : $"{connectionDetails.ServerName},{connectionDetails.Port.Value}";
 
                 connectionBuilder = new SqlConnectionStringBuilder
                 {
