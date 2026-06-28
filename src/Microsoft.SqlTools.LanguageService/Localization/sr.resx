@@ -151,7 +151,7 @@
  Parameters: 0 - authType (string) </comment>
   </data>
   <data name="ConnectionServiceConnStringInvalidColumnEncryptionSetting" xml:space="preserve">
-    <value>Invalid value &apos;{0}&apos; for ComlumEncryption. Valid values are &apos;Enabled&apos; and &apos;Disabled&apos;.</value>
+    <value>Invalid value &apos;{0}&apos; for Column Encryption Setting. Valid values are &apos;Enabled&apos; and &apos;Disabled&apos;.</value>
     <comment>.
  Parameters: 0 - columnEncryptionSetting (string) </comment>
   </data>
