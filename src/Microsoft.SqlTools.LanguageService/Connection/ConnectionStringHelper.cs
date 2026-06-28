@@ -19,8 +19,8 @@ namespace Microsoft.SqlTools.LanguageService.Connection
     /// <remarks>
     /// This logic lives in the language service library so that components such as the scripter
     /// can build connection strings without taking a dependency on the service layer. The runtime
-    /// configuration values (Sql Authentication Provider and connection pooling) are passed in by
-    /// callers so that the library does not need to reference the service layer.
+    /// configuration values (Sql Authentication Provider and whether to disable connection pooling)
+    /// are passed in by callers so that the library does not need to reference the service layer.
     /// </remarks>
     public static class ConnectionStringHelper
     {
@@ -29,11 +29,10 @@ namespace Microsoft.SqlTools.LanguageService.Connection
         /// </summary>
         /// <param name="connectionDetails">Connection details</param>
         /// <param name="enableSqlAuthenticationProvider">Whether the configured 'Sql Authentication Provider' for 'Active Directory Interactive' authentication mode should be used when the user chooses 'Azure MFA'.</param>
-        /// <param name="enableConnectionPooling">Whether connection pooling is enabled for all SQL connections.</param>
-        /// <param name="forceDisablePooling">Whether to disable connection pooling, defaults to true.</param>
-        public static string BuildConnectionString(ConnectionDetails connectionDetails, bool enableSqlAuthenticationProvider, bool enableConnectionPooling, bool forceDisablePooling = true)
+        /// <param name="disablePooling">Whether to disable connection pooling for the built connection string.</param>
+        public static string BuildConnectionString(ConnectionDetails connectionDetails, bool enableSqlAuthenticationProvider, bool disablePooling)
         {
-            return CreateConnectionStringBuilder(connectionDetails, enableSqlAuthenticationProvider, enableConnectionPooling, forceDisablePooling).ToString();
+            return CreateConnectionStringBuilder(connectionDetails, enableSqlAuthenticationProvider, disablePooling).ToString();
         }
 
         /// <summary>
@@ -41,9 +40,8 @@ namespace Microsoft.SqlTools.LanguageService.Connection
         /// </summary>
         /// <param name="connectionDetails">Connection details</param>
         /// <param name="enableSqlAuthenticationProvider">Whether the configured 'Sql Authentication Provider' for 'Active Directory Interactive' authentication mode should be used when the user chooses 'Azure MFA'.</param>
-        /// <param name="enableConnectionPooling">Whether connection pooling is enabled for all SQL connections.</param>
-        /// <param name="forceDisablePooling">Whether to disable connection pooling, defaults to true.</param>
-        public static SqlConnectionStringBuilder CreateConnectionStringBuilder(ConnectionDetails connectionDetails, bool enableSqlAuthenticationProvider, bool enableConnectionPooling, bool forceDisablePooling = true)
+        /// <param name="disablePooling">Whether to disable connection pooling for the built connection string.</param>
+        public static SqlConnectionStringBuilder CreateConnectionStringBuilder(ConnectionDetails connectionDetails, bool enableSqlAuthenticationProvider, bool disablePooling)
         {
             SqlConnectionStringBuilder connectionBuilder;
 
@@ -349,7 +347,7 @@ namespace Microsoft.SqlTools.LanguageService.Connection
             {
                 connectionBuilder.TypeSystemVersion = connectionDetails.TypeSystemVersion;
             }
-            if (!enableConnectionPooling && forceDisablePooling)
+            if (disablePooling)
             {
                 connectionBuilder.Pooling = false;
             }

@@ -1538,7 +1538,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <param name="forceDisablePooling">Whether to disable connection pooling, defaults to true.</param>
         public static string BuildConnectionString(ConnectionDetails connectionDetails, bool forceDisablePooling = true)
         {
-            return Microsoft.SqlTools.LanguageService.Connection.ConnectionStringHelper.BuildConnectionString(connectionDetails, Instance.EnableSqlAuthenticationProvider, EnableConnectionPooling, forceDisablePooling);
+            return Microsoft.SqlTools.LanguageService.Connection.ConnectionStringHelper.BuildConnectionString(connectionDetails, Instance.EnableSqlAuthenticationProvider, !EnableConnectionPooling && forceDisablePooling);
         }
 
         /// <summary>
@@ -1548,7 +1548,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <param name="forceDisablePooling">Whether to disable connection pooling, defaults to true.</param>
         public static SqlConnectionStringBuilder CreateConnectionStringBuilder(ConnectionDetails connectionDetails, bool forceDisablePooling = true)
         {
-            return Microsoft.SqlTools.LanguageService.Connection.ConnectionStringHelper.CreateConnectionStringBuilder(connectionDetails, Instance.EnableSqlAuthenticationProvider, EnableConnectionPooling, forceDisablePooling);
+            return Microsoft.SqlTools.LanguageService.Connection.ConnectionStringHelper.CreateConnectionStringBuilder(connectionDetails, Instance.EnableSqlAuthenticationProvider, !EnableConnectionPooling && forceDisablePooling);
         }
 
         /// <summary>

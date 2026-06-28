@@ -545,7 +545,7 @@ namespace Microsoft.SqlTools.LanguageService.Scripting
 
             ScriptingParams parameters = new ScriptingParams
             {
-                ConnectionString = ConnectionStringHelper.BuildConnectionString(this.connectionInfo.ConnectionDetails, this.enableSqlAuthenticationProvider, this.enableConnectionPooling),
+                ConnectionString = ConnectionStringHelper.BuildConnectionString(this.connectionInfo.ConnectionDetails, this.enableSqlAuthenticationProvider, disablePooling: !this.enableConnectionPooling),
                 ScriptingObjects = objectList,
                 ScriptOptions = options,
                 ScriptDestination = "ToEditor"
