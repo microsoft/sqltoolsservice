@@ -110,9 +110,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             ConnectionService.Instance.InitializeService(serviceHost, commandOptions);
             serviceProvider.RegisterSingleService(ConnectionService.Instance);
 
-            // Pass the concrete connection service into the language service so it is initialized
-            // right away and the language service resolves it through the IConnectionService abstraction
-            // without referencing the concrete type (inverted control).
             LanguageServices.LanguageService.Instance.InitializeService(serviceHost, sqlToolsContext, ConnectionService.Instance);
             serviceProvider.RegisterSingleService(LanguageServices.LanguageService.Instance);
             // Register the language service under the file-filter abstraction so the formatter (which lives in
