@@ -60,5 +60,11 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices.Contracts
         /// The new name as echoed back from the request.
         /// </summary>
         public string NewName { get; set; }
+
+        /// <summary>
+        /// When non-null, the rename was rejected for a specific reason and this message
+        /// should be displayed to the user in place of any generic fallback message.
+        /// </summary>
+        public string ErrorMessage { get; set; }
     }
 }

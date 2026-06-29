@@ -1877,6 +1877,66 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
+        /// Determines why a rename cannot proceed and returns a user-facing error message,
+        /// or <c>null</c> when the rename is allowed.
+        /// </summary>
+        /// <param name="scriptFile">The file containing the cursor, or null if unavailable.</param>
+        /// <param name="line0">0-based cursor line.</param>
+        /// <param name="col0">0-based cursor column.</param>
+        /// <param name="locations">Locations returned by <see cref="FindProjectSymbolLocations"/>.</param>
+        /// <param name="tokenText">Bare token text resolved by <see cref="FindProjectSymbolLocations"/>.</param>
+        /// <param name="qualifiedName">Qualified name resolved by <see cref="FindProjectSymbolLocations"/>.</param>
+        /// <param name="provider">Metadata provider resolved by <see cref="FindProjectSymbolLocations"/>.</param>
+        private static string GetRenameErrorMessage(
+            ScriptFile scriptFile,
+            int line0, int col0,
+            Location[] locations,
+            string tokenText,
+            string qualifiedName,
+            TSqlModelMetadataProvider provider)
+        {
+            if (locations.Length == 0)
+            {
+                bool cursorOnIdentifier = scriptFile != null
+                    && RenameScriptDomHelper.TryResolveCursorName(
+                        scriptFile.Contents, line0, col0, out _, out _)
+                    && !string.IsNullOrWhiteSpace(tokenText);
+
+                if (!cursorOnIdentifier)
+                    return "Rename is not supported for SQL keywords and syntax elements. " +
+                           "Place the cursor on an identifier to rename.";
+
+                // Cursor is on a valid identifier but no defining file was found.
+                // Schemas (e.g. "dbo") have no SQL source file — detect that case explicitly.
+                if (provider != null && qualifiedName != null
+                    && provider.TryGetRefactorInfo(
+                        qualifiedName, tokenText,
+                        out _, out string emptyLocElementType, out _, out _)
+                    && emptyLocElementType == "SqlSchema")
+                {
+                    return "Rename is not supported for schema names. " +
+                           "Use 'Move to Schema' to move objects between schemas.";
+                }
+
+                return $"The symbol '{tokenText ?? "unknown"}' could not be found in the " +
+                       "project model. Try saving the file first.";
+            }
+
+            // Locations found — still reject if the resolved element is a schema object.
+            if (provider != null && qualifiedName != null
+                && provider.TryGetRefactorInfo(
+                    qualifiedName, tokenText,
+                    out _, out string elementType, out _, out _)
+                && elementType == "SqlSchema")
+            {
+                return "Rename is not supported for schema names. " +
+                       "Use 'Move to Schema' to move objects between schemas.";
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// Handles <c>sql/rename</c> — finds all occurrences of the symbol at the cursor
         /// using <see cref="FindProjectSymbolLocations"/>, returns a <see cref="SqlSymbolRenameResponse"/>
         /// with both the WorkspaceEdit and the element name so the client can append a
@@ -1886,6 +1946,23 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             SqlSymbolRenameParams renameParams,
             RequestContext<SqlSymbolRenameResponse> requestContext)
         {
+            // Check binding context early so we can return a targeted error instead of the
+            // generic "not a project file" fallback shown by the client.
+            var scriptFile = CurrentWorkspace.GetFile(renameParams.TextDocument.Uri);
+            if (scriptFile != null)
+            {
+                var parseInfo = GetScriptParseInfo(scriptFile.ClientUri);
+                if (parseInfo != null && parseInfo.IsConnected && !parseInfo.IsProject)
+                {
+                    await requestContext.SendResult(new SqlSymbolRenameResponse
+                    {
+                        ErrorMessage = "Rename is not supported for files connected to a live server. " +
+                                       "Open the file as part of a SQL project first."
+                    });
+                    return;
+                }
+            }
+
             var locations = FindProjectSymbolLocations(
                 renameParams.TextDocument.Uri,
                 renameParams.Position.Line,
@@ -1894,26 +1971,24 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 out TSqlModelMetadataProvider provider,
                 out string tokenText);
 
-            if (locations == null || locations.Length == 0)
+            if (locations == null)
             {
+                // File is not a project file — client's prepareRename already handles this
+                // with the standard "open a project" message.
                 await requestContext.SendResult(null);
                 return;
             }
 
-            // Resolve element metadata. Rename is only supported for level-1 objects (tables, views, procs, etc.)
-            // and level-2 objects (columns, parameters, etc.). Schema objects themselves cannot be renamed.
-            if (provider != null && qualifiedName != null)
+            string errorMessage = GetRenameErrorMessage(
+                scriptFile,
+                renameParams.Position.Line,
+                renameParams.Position.Character,
+                locations, tokenText, qualifiedName, provider);
+
+            if (errorMessage != null)
             {
-                if (provider.TryGetRefactorInfo(
-                        qualifiedName, tokenText,
-                        out _, out string elementType,
-                        out _, out _)
-                    && elementType == "SqlSchema")
-                {
-                    // Reject rename for schema objects
-                    await requestContext.SendResult(null);
-                    return;
-                }
+                await requestContext.SendResult(new SqlSymbolRenameResponse { ErrorMessage = errorMessage });
+                return;
             }
 
             var changes = new Dictionary<string, List<TextEdit>>(StringComparer.OrdinalIgnoreCase);
