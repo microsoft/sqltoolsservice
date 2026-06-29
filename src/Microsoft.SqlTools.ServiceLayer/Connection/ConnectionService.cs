@@ -223,7 +223,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         /// Enables connection pooling for all SQL connections, removing feature name identifier from application name to prevent unwanted connection pools.
         /// </summary>
-        public static bool EnableConnectionPooling { get; set; }
+        public static bool EnableGlobalConnectionPooling { get; set; }
 
         /// <summary>
         /// Returns a connection queue for given type
@@ -510,7 +510,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             string appNameWithFeature = applicationName;
             // Connection Service will not set custom application name if connection pooling is enabled on service.
             // Make sure the application name does not already contain the feature name to avoid appending it multiple times.
-            if (!EnableConnectionPooling && !string.IsNullOrWhiteSpace(applicationName) && !string.IsNullOrWhiteSpace(featureName) && !applicationName.Contains(featureName))
+            if (!EnableGlobalConnectionPooling && !string.IsNullOrWhiteSpace(applicationName) && !string.IsNullOrWhiteSpace(featureName) && !applicationName.Contains(featureName))
             {
                 int appNameStartIndex = applicationName.IndexOf(ApplicationName);
                 string originalAppName = appNameStartIndex != -1
@@ -827,7 +827,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
             try
             {
-                if (!EnableConnectionPooling)
+                if (!EnableGlobalConnectionPooling)
                 {
                     connectionInfo.ConnectionDetails.Pooling = false;
                 }
@@ -1285,9 +1285,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     Logger.Information("MFA token acquisition delegated to client via account/securityTokenRequest.");
                 }
 
-                if (commandOptions.EnableConnectionPooling)
+                if (commandOptions.EnableGlobalConnectionPooling)
                 {
-                    ConnectionService.EnableConnectionPooling = true;
+                    ConnectionService.EnableGlobalConnectionPooling = true;
                     Logger.Information("Connection pooling will be enabled for all SQL connections.");
                 }
             }
@@ -1535,20 +1535,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// Build a connection string from a connection details instance
         /// </summary>
         /// <param name="connectionDetails">Connection details</param>
-        /// <param name="forceDisablePooling">Whether to disable connection pooling, defaults to true.</param>
-        public static string BuildConnectionString(ConnectionDetails connectionDetails, bool forceDisablePooling = true)
+        /// <param name="disablePoolingByDefault">Whether to disable connection pooling for this connection. Ignored when connection pooling is globally enabled via <see cref="EnableGlobalConnectionPooling"/>.</param>
+        public static string BuildConnectionString(ConnectionDetails connectionDetails, bool disablePoolingByDefault = true)
         {
-            return Microsoft.SqlTools.LanguageService.Connection.ConnectionStringHelper.BuildConnectionString(connectionDetails, Instance.EnableSqlAuthenticationProvider, !EnableConnectionPooling && forceDisablePooling);
+            return Microsoft.SqlTools.LanguageService.Connection.ConnectionStringHelper.BuildConnectionString(connectionDetails, Instance.EnableSqlAuthenticationProvider, !EnableGlobalConnectionPooling && disablePoolingByDefault);
         }
 
         /// <summary>
         /// Build a connection string builder a connection details instance
         /// </summary>
         /// <param name="connectionDetails">Connection details</param>
-        /// <param name="forceDisablePooling">Whether to disable connection pooling, defaults to true.</param>
-        public static SqlConnectionStringBuilder CreateConnectionStringBuilder(ConnectionDetails connectionDetails, bool forceDisablePooling = true)
+        /// <param name="disablePoolingByDefault">Whether to disable connection pooling for this connection. Ignored when connection pooling is globally enabled via <see cref="EnableGlobalConnectionPooling"/>.</param>
+        public static SqlConnectionStringBuilder CreateConnectionStringBuilder(ConnectionDetails connectionDetails, bool disablePoolingByDefault = true)
         {
-            return Microsoft.SqlTools.LanguageService.Connection.ConnectionStringHelper.CreateConnectionStringBuilder(connectionDetails, Instance.EnableSqlAuthenticationProvider, !EnableConnectionPooling && forceDisablePooling);
+            return Microsoft.SqlTools.LanguageService.Connection.ConnectionStringHelper.CreateConnectionStringBuilder(connectionDetails, Instance.EnableSqlAuthenticationProvider, !EnableGlobalConnectionPooling && disablePoolingByDefault);
         }
 
         /// <summary>
@@ -1880,13 +1880,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 bool? originalPooling = connInfo.ConnectionDetails.Pooling;
 
                 // allow pooling connections for language service feature to improve intellisense connection retention and performance.
-                bool shouldForceDisablePooling = !EnableConnectionPooling && featureName != Constants.LanguageServiceFeature;
+                bool shouldDisablePooling = !EnableGlobalConnectionPooling && featureName != Constants.LanguageServiceFeature;
 
                 // enable PersistSecurityInfo to handle issues in SMO where the connection context is lost in reconnections
                 connInfo.ConnectionDetails.PersistSecurityInfo = true;
 
                 // turn off connection pool to avoid hold locks on server resources after calling SqlConnection Close method
-                if (shouldForceDisablePooling)
+                if (shouldDisablePooling)
                 {
                     connInfo.ConnectionDetails.Pooling = false;
                 }
@@ -1895,7 +1895,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 connInfo.ConnectionDetails = FillInDefaultDetailsForConnections(connInfo.ConnectionDetails, featureName);
 
                 // generate connection string
-                string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails, shouldForceDisablePooling);
+                string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails, shouldDisablePooling);
 
                 // restore original values
                 connInfo.ConnectionDetails.PersistSecurityInfo = originalPersistSecurityInfo;

@@ -1665,7 +1665,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     Sql4PartIdentifier identifier = this.GetFullIdentifier(scriptParseInfo, textDocumentPosition.Position);
 
                     // Script object using SMO
-                    Scripter scripter = new Scripter(bindingContext.ServerConnection, connInfo, ConnectionService.Instance.EnableSqlAuthenticationProvider, ConnectionService.EnableConnectionPooling);
+                    Scripter scripter = new Scripter(bindingContext.ServerConnection, connInfo, ConnectionService.Instance.EnableSqlAuthenticationProvider, ConnectionService.EnableGlobalConnectionPooling);
                     return scripter.GetScript(
                         scriptParseInfo.ParseResult,
                         textDocumentPosition.Position,
