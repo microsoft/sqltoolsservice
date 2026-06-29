@@ -266,6 +266,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
         #region IConnectionService explicit implementation
 
+        bool IConnectionService.EnableConnectionPooling => EnableConnectionPooling;
+
         ConcurrentDictionary<string, bool> IConnectionService.TokenUpdateUris => TokenUpdateUris;
 
         void IConnectionService.RegisterOnConnectionTask(ConnectionHandler activity)
@@ -1551,9 +1553,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public static bool IsDedicatedAdminConnection(ConnectionDetails connectionDetails)
         {
             Validate.IsNotNull(nameof(connectionDetails), connectionDetails);
-            SqlConnectionStringBuilder builder = CreateConnectionStringBuilder(connectionDetails);
-            string serverName = builder.DataSource;
-            return serverName != null && serverName.StartsWith(AdminConnectionPrefix, StringComparison.OrdinalIgnoreCase);
+            return Microsoft.SqlTools.LanguageService.Connection.ConnectionStringHelper.IsDedicatedAdminConnection(connectionDetails, Instance.EnableSqlAuthenticationProvider, !EnableConnectionPooling);
         }
 
         /// <summary>

@@ -33,6 +33,11 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         bool EnableSqlAuthenticationProvider { get; }
 
         /// <summary>
+        /// Whether connection pooling is enabled.
+        /// </summary>
+        bool EnableConnectionPooling { get; }
+
+        /// <summary>
         /// Tracks owner URIs that have an in-flight token refresh request.
         /// </summary>
         ConcurrentDictionary<string, bool> TokenUpdateUris { get; }
