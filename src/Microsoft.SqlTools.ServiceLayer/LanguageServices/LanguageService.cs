@@ -26,7 +26,6 @@ using DacModel = Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.AutoParameterizaition;
-using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.LanguageService.Connection;
 using Microsoft.SqlTools.LanguageService.Connection.Contracts;
@@ -183,23 +182,22 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
-        /// Internal for testing purposes only
+        /// Gets or sets the connection service used by the language service.
+        /// The host sets this immediately after the language service is created
+        /// (see HostLoader) so this class does not reference the concrete ConnectionService
+        /// type directly (inverted control). Setter is also used by tests to inject a fake.
         /// </summary>
         internal IConnectionService ConnectionServiceInstance
         {
             get
             {
-                if (connectionService == null)
-                {
-                    connectionService = ConnectionService.Instance;
-                    connectionService.RegisterConnectedQueue(Constants.LanguageServiceFeature, bindingQueue);
-                }
                 return connectionService;
             }
 
             set
             {
                 connectionService = value;
+                connectionService?.RegisterConnectedQueue(Constants.LanguageServiceFeature, bindingQueue);
             }
         }
 
@@ -266,8 +264,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         /// <param name="serviceHost"></param>
         /// <param name="context"></param>
-        public void InitializeService(ServiceHost serviceHost, SqlToolsContext context)
+        /// <param name="connectionService">
+        /// The connection service the language service resolves connections through. Passed in by the
+        /// host so this class does not reference the concrete ConnectionService type (inverted control).
+        /// </param>
+        public void InitializeService(ServiceHost serviceHost, SqlToolsContext context, IConnectionService connectionService)
         {
+            // Wire up the connection service right away so it is available before any handler runs.
+            ConnectionServiceInstance = connectionService;
+
             // Register the requests that this service will handle
 
             // turn off until needed (10/28/2016)

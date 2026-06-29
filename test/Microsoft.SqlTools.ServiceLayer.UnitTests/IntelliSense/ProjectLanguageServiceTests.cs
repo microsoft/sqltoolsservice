@@ -101,6 +101,7 @@ END
 
             // Initialize language service
             _langService = new LangService();
+            _langService.ConnectionServiceInstance = ConnectionService.Instance;
 
             // Set up workspace service
             _workspaceService = new WorkspaceService<SqlToolsSettings>();
