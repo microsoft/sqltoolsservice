@@ -33,9 +33,9 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         bool EnableSqlAuthenticationProvider { get; }
 
         /// <summary>
-        /// Whether connection pooling is enabled.
+        /// Whether connection pooling is enabled globally.
         /// </summary>
-        bool EnableConnectionPooling { get; }
+        bool EnableGlobalConnectionPooling { get; }
 
         /// <summary>
         /// Tracks owner URIs that have an in-flight token refresh request.

@@ -1310,7 +1310,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="info"></param>
         public async Task UpdateLanguageServiceOnConnection(ConnectionInfoBase info)
         {
-            if (ConnectionStringHelper.IsDedicatedAdminConnection(info.ConnectionDetails, ConnectionServiceInstance.EnableSqlAuthenticationProvider, !ConnectionServiceInstance.EnableConnectionPooling))
+            if (ConnectionStringHelper.IsDedicatedAdminConnection(info.ConnectionDetails, ConnectionServiceInstance.EnableSqlAuthenticationProvider, !ConnectionServiceInstance.EnableGlobalConnectionPooling))
             {
                 // Intellisense cannot be run on these connections as only 1 SqlConnection can be opened on them at a time
                 return;
@@ -1671,7 +1671,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     Sql4PartIdentifier identifier = this.GetFullIdentifier(scriptParseInfo, textDocumentPosition.Position);
 
                     // Script object using SMO
-                    Scripter scripter = new Scripter(bindingContext.ServerConnection, connInfo, ConnectionServiceInstance.EnableSqlAuthenticationProvider, ConnectionServiceInstance.EnableConnectionPooling);
+                    Scripter scripter = new Scripter(
+                        bindingContext.ServerConnection,
+                        connInfo,
+                        enableSqlAuthenticationProvider: ConnectionServiceInstance.EnableSqlAuthenticationProvider,
+                        enableGlobalConnectionPooling: ConnectionServiceInstance.EnableGlobalConnectionPooling);
                     return scripter.GetScript(
                         scriptParseInfo.ParseResult,
                         textDocumentPosition.Position,
