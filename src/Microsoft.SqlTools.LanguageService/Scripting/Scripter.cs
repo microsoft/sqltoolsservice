@@ -9,9 +9,9 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.Common;
 
-namespace Microsoft.SqlTools.ServiceLayer.Scripting
+namespace Microsoft.SqlTools.LanguageService.Scripting
 {
-    internal partial class Scripter
+    internal sealed partial class Scripter
     {
 		private void Initialize()
         {

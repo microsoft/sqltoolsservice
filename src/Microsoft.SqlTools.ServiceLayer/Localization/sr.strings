@@ -31,26 +31,6 @@ ConnectionServiceListDbErrorNotConnected(string uri) = SpecifiedUri '{0}' does n
 
 ConnectionServiceDbErrorDefaultNotConnected(string uri) = Specified URI '{0}' does not have a default connection
 
-ConnectionServiceConnStringInvalidAuthType(string authType) = Invalid value '{0}' for AuthenticationType.  Valid values are 'Integrated' and 'SqlLogin'.
-
-ConnectionServiceConnStringInvalidColumnEncryptionSetting(string columnEncryptionSetting) = Invalid value '{0}' for ComlumEncryption. Valid values are 'Enabled' and 'Disabled'.
-
-ConnectionServiceConnStringInvalidSecureEnclaves(string secureEnclaves) = Invalid value '{0}' for Secure enclaves. Valid values are 'Enabled' and 'Disabled'.
-
-ConnectionServiceConnStringInvalidEncryptOption(string encrypt) = Invalid value '{0}' for Encrypt. Valid values are 'Optional', 'Mandatory', 'Strict', 'True', 'False', 'Yes' and 'No'.
-
-ConnectionServiceConnStringInvalidEnclaveAttestationProtocol(string enclaveAttestationProtocol) = Invalid value '{0}' for Attestation protocol. Valid values are 'AAS', 'HGS' and 'None'.
-
-ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves = Attestation protocol cannot be empty with Secure enclaves enabled.
-
-ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol = Attestation URL cannot be empty with the selected value of Attestation protocol.
-
-ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination = The Attestation protocol and Attestation URL requires Always Encrypted with Secure enclaves to be set to Enabled.
-
-ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl = The Attestation URL must not be specified with Attestation protocol 'None'. Either set appropriate Attestation protocol or remove Attestation URL from connection properties.
-
-ConnectionServiceConnStringInvalidIntent(string intent) = Invalid value '{0}' for ApplicationIntent. Valid values are 'ReadWrite' and 'ReadOnly'.
-
 ConnectionServiceConnectionCanceled = Connection canceled
 
 ### Password Change
@@ -211,19 +191,9 @@ SerializationServiceRequestNotFound (string filePath) = Cannot serialize more da
 ############################################################################
 # Language Service
 
-PeekDefinitionAzureError(string errorMessage) = This feature is currently not supported on Azure SQL DB and Data Warehouse: {0}
-
-PeekDefinitionError(string errorMessage) = An unexpected error occurred during Peek Definition execution: {0}
-
-PeekDefinitionNoResultsError = No results were found.
-
-PeekDefinitionDatabaseError = No database object was retrieved.
-
 PeekDefinitionNotConnectedError = Please connect to a server.
 
 PeekDefinitionTimedoutError = Operation timed out.
-
-PeekDefinitionTypeNotSupportedError = This object type is currently not supported by this feature.
 
 ############################################################################
 # Edit Data Service

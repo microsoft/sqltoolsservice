@@ -25,6 +25,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj" />
+    <ProjectReference Include="..\Microsoft.SqlTools.SqlCore\Microsoft.SqlTools.SqlCore.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.SqlServer.DacFx" />

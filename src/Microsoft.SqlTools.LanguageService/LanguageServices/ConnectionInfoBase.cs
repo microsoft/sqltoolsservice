@@ -7,6 +7,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using Microsoft.SqlTools.LanguageService.Connection.Contracts;
 
@@ -43,6 +44,19 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// Intellisense interaction metrics for the connection.
         /// </summary>
         public InteractionMetrics<double> IntellisenseMetrics { get; private set; }
+
+        /// <summary>
+        /// Returns true if the connection is to a cloud (Azure) instance.
+        /// </summary>
+        public abstract bool IsCloud { get; set; }
+
+        /// <summary>
+        /// Tries to get the open <see cref="DbConnection"/> associated with the given connection type.
+        /// </summary>
+        /// <param name="connectionType">The connection type (e.g. "Query", "Default").</param>
+        /// <param name="connection">The located connection, or <c>null</c> if none.</param>
+        /// <returns>True if a connection of the given type was found; false otherwise.</returns>
+        public abstract bool TryGetConnection(string connectionType, out DbConnection connection);
 
         /// <summary>
         /// Gets a unique key describing this connection, used to look up the binding context.
