@@ -40,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
     /// <summary>
     /// Main class for the Connection Management services
     /// </summary>
-    public class ConnectionService
+    public class ConnectionService : IConnectionService
     {
         public const string AdminConnectionPrefix = "ADMIN:";
         internal const string PasswordPlaceholder = "******";
@@ -263,6 +263,31 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 connectedQueues.AddOrUpdate(type, connectedQueue, (key, old) => connectedQueue);
             }
         }
+
+        #region IConnectionService explicit implementation
+
+        ConcurrentDictionary<string, bool> IConnectionService.TokenUpdateUris => TokenUpdateUris;
+
+        void IConnectionService.RegisterOnConnectionTask(ConnectionHandler activity)
+            => RegisterOnConnectionTask(info => activity(info));
+
+        void IConnectionService.RegisterOnDisconnectTask(DisconnectionHandler activity)
+            => RegisterOnDisconnectTask((summary, ownerUri) => activity(summary, ownerUri));
+
+        Task<bool> IConnectionService.TryRequestRefreshAuthToken(string ownerUri)
+            => TryRequestRefreshAuthToken(ownerUri);
+
+        bool IConnectionService.TryFindConnection(string ownerUri, out Microsoft.SqlTools.LanguageService.LanguageServices.ConnectionInfoBase connectionInfo)
+        {
+            bool found = TryFindConnection(ownerUri, out ConnectionInfo info);
+            connectionInfo = info;
+            return found;
+        }
+
+        void IConnectionService.UpdateAuthToken(string uri, string token, int expiresOn)
+            => UpdateAuthToken(new TokenRefreshedParams() { Uri = uri, Token = token, ExpiresOn = expiresOn });
+
+        #endregion
 
         /// <summary>
         /// Callback for onconnection handler

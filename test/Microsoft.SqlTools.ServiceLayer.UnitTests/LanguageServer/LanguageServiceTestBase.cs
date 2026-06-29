@@ -85,9 +85,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             langService = new LanguageServices.LanguageService();
             // inject mock instances into the Language Service
             langService.WorkspaceServiceInstance = workspaceService.Object;
-            langService.ConnectionServiceInstance = TestObjects.GetTestConnectionService();
+            ConnectionService testConnectionService = TestObjects.GetTestConnectionService();
+            langService.ConnectionServiceInstance = testConnectionService;
             ConnectionInfo connectionInfo = TestObjects.GetTestConnectionInfo();
-            langService.ConnectionServiceInstance.OwnerToConnectionMap.TryAdd(this.testScriptUri, connectionInfo);
+            testConnectionService.OwnerToConnectionMap.TryAdd(this.testScriptUri, connectionInfo);
             langService.BindingQueue = bindingQueue.Object;
 
             // setup the mock for SendResult

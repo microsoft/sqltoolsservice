@@ -11,8 +11,8 @@ using System.ComponentModel.Composition;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.Extension;
+using Microsoft.SqlTools.LanguageService.LanguageServices;
+using Microsoft.SqlTools.LanguageService.LanguageServices.Completion.Extension;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Completion;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;
 
@@ -34,7 +34,7 @@ namespace Microsoft.SqlTools.Test.CompletionExtension
         {
         }
 
-        async Task<CompletionItem[]> ICompletionExtension.HandleCompletionAsync(ConnectionInfo connInfo, ScriptDocumentInfo scriptDocumentInfo, CompletionItem[] completions, CancellationToken token)
+        async Task<CompletionItem[]> ICompletionExtension.HandleCompletionAsync(ConnectionInfoBase connInfo, ScriptDocumentInfo scriptDocumentInfo, CompletionItem[] completions, CancellationToken token)
         {
             if (completions == null || completions == null || completions.Length == 0)
             {
