@@ -41,7 +41,7 @@ namespace Microsoft.SqlTools.LanguageService.Scripting
         private Database database;
         private string tempPath;
         private bool enableSqlAuthenticationProvider;
-        private bool enableConnectionPooling;
+        private bool enableGlobalConnectionPooling;
 
         // Dictionary that holds the object name (as appears on the TSQL create statement)
         private Dictionary<DeclarationType, string> sqlObjectTypes = new Dictionary<DeclarationType, string>();
@@ -62,13 +62,13 @@ namespace Microsoft.SqlTools.LanguageService.Scripting
         /// <param name="serverConnection">SMO Server connection</param>
         /// <param name="connInfo">Connection information for the object being scripted</param>
         /// <param name="enableSqlAuthenticationProvider">Whether the configured 'Sql Authentication Provider' should be used for 'Azure MFA' connections.</param>
-        /// <param name="enableConnectionPooling">Whether connection pooling is enabled for SQL connections.</param>
-        internal Scripter(ServerConnection serverConnection, ConnectionInfoBase connInfo, bool enableSqlAuthenticationProvider = false, bool enableConnectionPooling = false)
+        /// <param name="enableGlobalConnectionPooling">Whether connection pooling is enabled for SQL connections.</param>
+        internal Scripter(ServerConnection serverConnection, ConnectionInfoBase connInfo, bool enableSqlAuthenticationProvider = false, bool enableGlobalConnectionPooling = false)
         {
             this.serverConnection = serverConnection;
             this.connectionInfo = connInfo;
             this.enableSqlAuthenticationProvider = enableSqlAuthenticationProvider;
-            this.enableConnectionPooling = enableConnectionPooling;
+            this.enableGlobalConnectionPooling = enableGlobalConnectionPooling;
             this.tempPath = PeekDefinitionTempFolder.GetTempFolder();
             Initialize();
         }
@@ -545,7 +545,7 @@ namespace Microsoft.SqlTools.LanguageService.Scripting
 
             ScriptingParams parameters = new ScriptingParams
             {
-                ConnectionString = ConnectionStringHelper.BuildConnectionString(this.connectionInfo.ConnectionDetails, this.enableSqlAuthenticationProvider, disablePooling: !this.enableConnectionPooling),
+                ConnectionString = ConnectionStringHelper.BuildConnectionString(this.connectionInfo.ConnectionDetails, this.enableSqlAuthenticationProvider, disablePooling: !this.enableGlobalConnectionPooling),
                 ScriptingObjects = objectList,
                 ScriptOptions = options,
                 ScriptDestination = "ToEditor"
