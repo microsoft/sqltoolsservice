@@ -191,12 +191,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             get
             {
-                if (connectionService == null)
-                {
-                    throw new InvalidOperationException($"{nameof(ConnectionServiceInstance)} has not been set.");
-                }
-
-                return connectionService;
+                return connectionService ?? throw new InvalidOperationException($"{nameof(ConnectionServiceInstance)} has not been set.");
             }
 
             set
@@ -518,7 +513,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             ConnectionInfoBase connInfo = null;
             // Check if we need to refresh the auth token, and if we do then don't pass in the 
             // connection so that we only show the default options until the refreshed token is returned
-            if (!await connectionService.TryRequestRefreshAuthToken(scriptFile.ClientUri))
+            if (!await ConnectionServiceInstance.TryRequestRefreshAuthToken(scriptFile.ClientUri))
             {
                 ConnectionServiceInstance.TryFindConnection(scriptFile.ClientUri, out connInfo);
             }
@@ -793,7 +788,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 // This clears the uri of the connection from the tokenUpdateUris map, which is used to track
                 // open editors that have requested a refreshed Microsoft Entra token.
-                connectionService.TokenUpdateUris.Remove(uri, out var result);
+                ConnectionServiceInstance.TokenUpdateUris.Remove(uri, out var result);
                 // if not in the preview window and diagnostics are enabled then clear diagnostics
                 if (!IsPreviewWindow(scriptFile)
                     && CurrentWorkspaceSettings.IsDiagnosticsEnabled)
