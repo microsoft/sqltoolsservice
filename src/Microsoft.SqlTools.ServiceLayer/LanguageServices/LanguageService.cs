@@ -231,8 +231,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             get
             {
-                workspaceServiceInstance ??= WorkspaceService<SqlToolsSettings>.Instance;
-                return workspaceServiceInstance;
+                return workspaceServiceInstance ?? throw new InvalidOperationException($"{nameof(WorkspaceServiceInstance)} has not been set.");
             }
             set
             {
@@ -297,7 +296,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// The SQL projects service used for project-aware IntelliSense. Passed in by the host so this
         /// class does not reference the concrete SqlProjectsService type (inverted control).
         /// </param>
-        public void InitializeService(ILanguageServiceHost serviceHost, SqlToolsContext context, IConnectionService connectionService, IProjectIntelliSenseService projectIntelliSenseService)
+        /// <param name="workspaceService">
+        /// The workspace service that tracks open files and settings. Passed in by the host so this
+        /// class does not reference the concrete WorkspaceService&lt;SqlToolsSettings&gt; type (inverted control).
+        /// </param>
+        public void InitializeService(ILanguageServiceHost serviceHost, SqlToolsContext context, IConnectionService connectionService, IProjectIntelliSenseService projectIntelliSenseService, ILanguageWorkspaceService workspaceService)
         {
             if (connectionService is null)
             {
@@ -309,10 +312,16 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 throw new ArgumentNullException(nameof(projectIntelliSenseService));
             }
 
+            if (workspaceService is null)
+            {
+                throw new ArgumentNullException(nameof(workspaceService));
+            }
+
             // Wire up the connection service right away so it is available before any handler runs.
             ConnectionServiceInstance = connectionService;
             ProjectIntelliSenseService = projectIntelliSenseService;
             ServiceHostInstance = serviceHost;
+            WorkspaceServiceInstance = workspaceService;
             // Register the requests that this service will handle
 
             // turn off until needed (10/28/2016)
