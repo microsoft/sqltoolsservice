@@ -32,7 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         public void HandleCompletionRequestDisabled()
         {
             InitializeTestObjects();
-            langService.CurrentWorkspaceSettings.SqlTools.IntelliSense.EnableIntellisense = false;
+            workspaceService.Object.CurrentSettings.SqlTools.IntelliSense.EnableIntellisense = false;
             Assert.NotNull(langService.HandleCompletionRequest(null, null));
         }
 
@@ -40,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         public void HandleCompletionResolveRequestDisabled()
         {
             InitializeTestObjects();
-            langService.CurrentWorkspaceSettings.SqlTools.IntelliSense.EnableIntellisense = false;
+            workspaceService.Object.CurrentSettings.SqlTools.IntelliSense.EnableIntellisense = false;
             Assert.NotNull(langService.HandleCompletionResolveRequest(null, null));
         }
 
@@ -48,7 +48,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         public void HandleSignatureHelpRequestDisabled()
         {
             InitializeTestObjects();
-            langService.CurrentWorkspaceSettings.SqlTools.IntelliSense.EnableIntellisense = false;
+            workspaceService.Object.CurrentSettings.SqlTools.IntelliSense.EnableIntellisense = false;
             Assert.NotNull(langService.HandleSignatureHelpRequest(null, null));
         }
 
@@ -69,7 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             signatureRequestContext.Setup(rc => rc.SendError(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>())).Returns(Task.FromResult(0));
 
 
-            langService.CurrentWorkspaceSettings.SqlTools.IntelliSense.EnableIntellisense = true;
+            workspaceService.Object.CurrentSettings.SqlTools.IntelliSense.EnableIntellisense = true;
             await langService.HandleDidChangeLanguageFlavorNotification(new LanguageFlavorChangeParams
             {
                 Uri = textDocument.TextDocument.Uri,

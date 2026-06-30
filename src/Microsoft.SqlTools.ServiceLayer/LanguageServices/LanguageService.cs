@@ -101,7 +101,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         private IProjectIntelliSenseService projectIntelliSenseService = null;
 
-        private WorkspaceService<SqlToolsSettings> workspaceServiceInstance;
+        private ILanguageWorkspaceService workspaceServiceInstance;
 
         private ILanguageServiceHost serviceHostInstance;
 
@@ -227,7 +227,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// Gets or sets the current workspace service instance
         /// Setter for internal testing purposes only
         /// </summary>
-        internal WorkspaceService<SqlToolsSettings> WorkspaceServiceInstance
+        internal ILanguageWorkspaceService WorkspaceServiceInstance
         {
             get
             {
@@ -261,7 +261,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Gets the current settings
         /// </summary>
-        internal SqlToolsSettings CurrentWorkspaceSettings
+        internal ILanguageServiceSettings CurrentWorkspaceSettings
         {
             get { return WorkspaceServiceInstance.CurrentSettings; }
         }
@@ -1008,8 +1008,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="oldSettings"></param>
         /// <param name="eventContext"></param>
         public async Task HandleDidChangeConfigurationNotification(
-            SqlToolsSettings newSettings,
-            SqlToolsSettings oldSettings,
+            ILanguageServiceSettings newSettings,
+            ILanguageServiceSettings oldSettings,
             EventContext eventContext)
         {
             try
@@ -1019,7 +1019,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 bool? oldEnableDiagnostics = oldSettings.IsErrorCheckingEnabled;
 
                 // update the current settings to reflect any changes
-                CurrentWorkspaceSettings.Update(newSettings);
+                CurrentWorkspaceSettings.UpdateFrom(newSettings);
 
                 // if script analysis settings have changed we need to clear the current diagnostic markers
                 if (oldEnableIntelliSense != newSettings.IsIntelliSenseEnabled

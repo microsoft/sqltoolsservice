@@ -1288,7 +1288,7 @@ END
         [Test]
         public async Task HandleReferencesRequest_ReturnsEmpty_WhenIntellisenseDisabled()
         {
-            _langService.CurrentWorkspaceSettings.SqlTools.IntelliSense.EnableIntellisense = false;
+            _workspaceService.CurrentSettings.SqlTools.IntelliSense.EnableIntellisense = false;
             LoadAllFilesIntoWorkspace();
 
             WsLocation[] result = null;
