@@ -258,10 +258,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <param name="connectedQueue"></param>
         public virtual void RegisterConnectedQueue(string type, IConnectedBindingQueue connectedQueue)
         {
-            if (!connectedQueues.ContainsKey(type))
-            {
-                connectedQueues.AddOrUpdate(type, connectedQueue, (key, old) => connectedQueue);
-            }
+            connectedQueues.TryAdd(type, connectedQueue);
         }
 
         #region IConnectionService explicit implementation
