@@ -1111,7 +1111,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             EventContext eventContext
         )
         {
-            connectionService.UpdateAuthToken(tokenRefreshedParams.Uri, tokenRefreshedParams.Token, tokenRefreshedParams.ExpiresOn);
+            ConnectionServiceInstance.UpdateAuthToken(tokenRefreshedParams.Uri, tokenRefreshedParams.Token, tokenRefreshedParams.ExpiresOn);
             return Task.CompletedTask;
         }
 
