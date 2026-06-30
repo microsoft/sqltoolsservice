@@ -191,6 +191,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             get
             {
+                if (connectionService == null)
+                {
+                    throw new InvalidOperationException($"{nameof(ConnectionServiceInstance)} has not been set.");
+                }
+
                 return connectionService;
             }
 
