@@ -270,9 +270,13 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </param>
         public void InitializeService(ServiceHost serviceHost, SqlToolsContext context, IConnectionService connectionService)
         {
+            if (connectionService is null)
+            {
+                throw new ArgumentNullException(nameof(connectionService));
+            }
+
             // Wire up the connection service right away so it is available before any handler runs.
             ConnectionServiceInstance = connectionService;
-
             // Register the requests that this service will handle
 
             // turn off until needed (10/28/2016)
