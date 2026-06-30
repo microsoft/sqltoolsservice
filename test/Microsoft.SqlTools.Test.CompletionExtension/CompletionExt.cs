@@ -36,7 +36,7 @@ namespace Microsoft.SqlTools.Test.CompletionExtension
 
         async Task<CompletionItem[]> ICompletionExtension.HandleCompletionAsync(ConnectionInfoBase connInfo, ScriptDocumentInfo scriptDocumentInfo, CompletionItem[] completions, CancellationToken token)
         {
-            if (completions == null || completions == null || completions.Length == 0)
+            if (completions == null || completions.Length == 0)
             {
                 return completions;
             }
