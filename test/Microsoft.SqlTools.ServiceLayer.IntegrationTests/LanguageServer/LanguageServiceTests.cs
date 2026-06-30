@@ -743,6 +743,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
                     Workspace = new Microsoft.SqlTools.LanguageService.Workspace.Workspace()
                 }
             };
+            langService.ConnectionServiceInstance = ConnectionService.Instance;
+            langService.ServiceHostInstance = Hosting.ServiceHost.Instance;
             langService.CurrentWorkspace.GetFile(scriptFile.ClientUri);
             langService.CurrentWorkspaceSettings.SqlTools.IntelliSense.EnableIntellisense = true;
             langService.CurrentWorkspaceSettings.SqlTools.Format.KeywordCasing = 

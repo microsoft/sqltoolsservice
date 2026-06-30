@@ -795,6 +795,7 @@ GO";
             service.RemoveScriptParseInfo(OwnerUri);
             service.BindingQueue = bindingQueue;
             service.ConnectionServiceInstance = ConnectionService.Instance;
+            service.ServiceHostInstance = Hosting.ServiceHost.Instance;
             await service.UpdateLanguageServiceOnConnection(connectionResult.ConnectionInfo);
 
             ScriptParseInfo scriptInfo = new ScriptParseInfo { BindingContextKind = BindingContextKindEnum.LiveConnection };

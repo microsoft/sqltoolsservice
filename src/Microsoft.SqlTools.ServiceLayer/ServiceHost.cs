@@ -19,6 +19,7 @@ using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Admin;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.LanguageService.LanguageServices;
 
 namespace Microsoft.SqlTools.ServiceLayer.Hosting
 {
@@ -27,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
     /// implementation for sending/receiving JSON requests and dispatching the requests to
     /// handlers that are registered prior to startup.
     /// </summary>
-    public sealed class ServiceHost : ServiceHostBase
+    public sealed class ServiceHost : ServiceHostBase, ILanguageServiceHost
     {
         public const string ProviderName = "MSSQL";
         private const string ProviderDescription = "Microsoft SQL Server";
@@ -127,6 +128,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
         {
             shutdownCallbacks.Add(callback);
         }
+
+        // Explicit ILanguageServiceHost implementation. Adapts the lib-side delegate to the
+        // ServiceHost-specific ShutdownCallback so the language service can register shutdown
+        // tasks through the abstraction without referencing this concrete type.
+        void ILanguageServiceHost.RegisterShutdownTask(ShutdownTaskCallback callback)
+            => RegisterShutdownTask((shutdownParams, shutdownRequestContext) => callback(shutdownParams, shutdownRequestContext));
 
         /// <summary>
         /// Add a new method to be called when the initialize request is submitted

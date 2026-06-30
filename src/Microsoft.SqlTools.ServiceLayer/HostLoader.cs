@@ -110,7 +110,7 @@ namespace Microsoft.SqlTools.ServiceLayer
             ConnectionService.Instance.InitializeService(serviceHost, commandOptions);
             serviceProvider.RegisterSingleService(ConnectionService.Instance);
 
-            LanguageServices.LanguageService.Instance.InitializeService(serviceHost, sqlToolsContext, ConnectionService.Instance);
+            LanguageServices.LanguageService.Instance.InitializeService(serviceHost, sqlToolsContext, ConnectionService.Instance, SqlProjectsService.Instance);
             serviceProvider.RegisterSingleService(LanguageServices.LanguageService.Instance);
             // Register the language service under the file-filter abstraction so the formatter (which lives in
             // the LanguageService library and cannot reference the concrete LanguageService) can resolve it.

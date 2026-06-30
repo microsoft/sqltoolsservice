@@ -16,6 +16,7 @@ using Microsoft.SqlServer.Dac.Projects;
 using Microsoft.SqlServer.Management.SqlParser.Common;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.LanguageService.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.SqlCore.IntelliSense;
 using Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts;
@@ -27,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
     /// <summary>
     /// Main class for SqlProjects service
     /// </summary>
-    public sealed class SqlProjectsService : BaseService
+    public sealed class SqlProjectsService : BaseService, IProjectIntelliSenseService
     {
         private static readonly Lazy<SqlProjectsService> instance = new Lazy<SqlProjectsService>(() => new SqlProjectsService());
         private const string RunSqlCodeAnalysisPropertyName = "RunSqlCodeAnalysis";
@@ -614,6 +615,18 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     .ToList();
             }
         }
+
+        // Explicit IProjectIntelliSenseService implementation. These forward to the existing
+        // internal members so the language service can consume the projects service through the
+        // lib-side abstraction without widening this class's public surface.
+        Task IProjectIntelliSenseService.UpdateProjectIntelliSenseAsync(string projectUri, string filePathOrUri, bool deleted, string sqlTextOverride)
+            => UpdateProjectIntelliSenseAsync(projectUri, filePathOrUri, deleted, sqlTextOverride);
+
+        bool IProjectIntelliSenseService.TryIsDuplicate(string projectUri, string name, out bool isDuplicate)
+            => TryIsDuplicate(projectUri, name, out isDuplicate);
+
+        IReadOnlyList<string> IProjectIntelliSenseService.GetSiblingProjectFileUris(string projectUri, string excludeUri)
+            => GetSiblingProjectFileUris(projectUri, excludeUri);
 
         private static string GetAbsoluteFilePath(string projectUri, string filePathOrUri)
         {
