@@ -16,7 +16,7 @@ using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using Moq;
 using NUnit.Framework;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.LanguageService.Connection.Contracts;
 using Location = Microsoft.SqlTools.LanguageService.Workspace.Contracts.Location;
 using LanguageServiceSR = Microsoft.SqlTools.LanguageService.SR;
 
