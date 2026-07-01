@@ -13,7 +13,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
+using Microsoft.SqlTools.LanguageService.LanguageServices;
 using Microsoft.SqlTools.LanguageService.Formatter;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Completion.Extension;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;
@@ -624,7 +624,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
 
                 // Add a connection to ensure the intellisense building works            
                 ConnectionInfo connectionInfo = GetLiveAutoCompleteTestObjects().ConnectionInfo;
-                langService.ConnectionServiceInstance.OwnerToConnectionMap.TryAdd(scriptFile.ClientUri, connectionInfo);
+                ((ConnectionService)langService.ConnectionServiceInstance).OwnerToConnectionMap.TryAdd(scriptFile.ClientUri, connectionInfo);
 
                 // Test SQL
                 int countOfValidationCalls = 0;

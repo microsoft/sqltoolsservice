@@ -15,8 +15,8 @@ using Microsoft.SqlServer.Dac.Projects;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlServer.Management.SqlParser.Common;
 using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
+using Microsoft.SqlTools.LanguageService.Connection.Contracts;
+using Microsoft.SqlTools.LanguageService.LanguageServices;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.SqlProjects;
@@ -101,6 +101,7 @@ END
 
             // Initialize language service
             _langService = new LangService();
+            _langService.ConnectionServiceInstance = ConnectionService.Instance;
 
             // Set up workspace service
             _workspaceService = new WorkspaceService<SqlToolsSettings>();

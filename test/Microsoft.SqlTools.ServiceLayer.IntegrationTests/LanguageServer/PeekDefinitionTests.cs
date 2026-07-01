@@ -8,8 +8,8 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
-using Microsoft.SqlTools.ServiceLayer.Scripting;
+using Microsoft.SqlTools.LanguageService.LanguageServices;
+using Microsoft.SqlTools.LanguageService.Scripting;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using Moq;
@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using System.Linq;
+using PeekDefSR = Microsoft.SqlTools.LanguageService.SR;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
 {
@@ -208,7 +209,7 @@ GO";
 
             Assert.NotNull(result);
             Assert.True(result.IsErrorResult);
-            Assert.AreEqual(SR.PeekDefinitionNoResultsError, result.Message);
+            Assert.AreEqual(PeekDefSR.PeekDefinitionNoResultsError, result.Message);
         }
 
         /// <summary>
@@ -793,6 +794,7 @@ GO";
             var service = new ServiceLayer.LanguageServices.LanguageService();
             service.RemoveScriptParseInfo(OwnerUri);
             service.BindingQueue = bindingQueue;
+            service.ConnectionServiceInstance = ConnectionService.Instance;
             await service.UpdateLanguageServiceOnConnection(connectionResult.ConnectionInfo);
 
             ScriptParseInfo scriptInfo = new ScriptParseInfo { BindingContextKind = BindingContextKindEnum.LiveConnection };

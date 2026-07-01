@@ -6,6 +6,7 @@
 #nullable disable
 
 using System;
+using Microsoft.SqlTools.LanguageService.Formatter;
 using Newtonsoft.Json;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlContext

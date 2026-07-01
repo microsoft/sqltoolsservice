@@ -11,8 +11,8 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
-using Microsoft.SqlTools.ServiceLayer.Scripting;
+using Microsoft.SqlTools.LanguageService.LanguageServices;
+using Microsoft.SqlTools.LanguageService.Scripting;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Moq;
 using NUnit.Framework;
@@ -107,9 +107,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         public void DeletePeekDefinitionScriptsTest()
         {
             Scripter peekDefinition = new Scripter(null, null);
-            Assert.True(Directory.Exists(FileUtilities.PeekDefinitionTempFolder));
+            Assert.True(Directory.Exists(PeekDefinitionTempFolder.TempFolderPath));
             LanguageServices.LanguageService.Instance.DeletePeekDefinitionScripts();
-            Assert.False(Directory.Exists(FileUtilities.PeekDefinitionTempFolder));
+            Assert.False(Directory.Exists(PeekDefinitionTempFolder.TempFolderPath));
         }
 
         /// <summary>
@@ -119,8 +119,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         public void DeletePeekDefinitionScriptsWhenFolderDoesNotExistTest()
         {
             Scripter peekDefinition = new Scripter(null, null);
-            FileUtilities.SafeDirectoryDelete(FileUtilities.PeekDefinitionTempFolder, true);
-            Assert.False(Directory.Exists(FileUtilities.PeekDefinitionTempFolder));
+            FileUtilities.SafeDirectoryDelete(PeekDefinitionTempFolder.TempFolderPath, true);
+            Assert.False(Directory.Exists(PeekDefinitionTempFolder.TempFolderPath));
             // Expected not to throw any exception
             LanguageServices.LanguageService.Instance.DeletePeekDefinitionScripts();
         }
@@ -128,26 +128,26 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         [Test]
         public async Task GetPeekDefinitionTempFolder_IsThreadSafe()
         {
-            string originalPeekDefinitionTempFolder = FileUtilities.PeekDefinitionTempFolder;
-            bool originalPeekDefinitionTempFolderCreated = FileUtilities.PeekDefinitionTempFolderCreated;
+            string originalPeekDefinitionTempFolder = PeekDefinitionTempFolder.TempFolderPath;
+            bool originalPeekDefinitionTempFolderCreated = PeekDefinitionTempFolder.TempFolderCreated;
             string testPeekDefinitionTempFolder = Path.Combine(Path.GetTempPath(), $"mssql_definition_test_{Guid.NewGuid():N}");
 
-            FileUtilities.PeekDefinitionTempFolder = testPeekDefinitionTempFolder;
-            FileUtilities.PeekDefinitionTempFolderCreated = false;
+            PeekDefinitionTempFolder.TempFolderPath = testPeekDefinitionTempFolder;
+            PeekDefinitionTempFolder.TempFolderCreated = false;
 
             try
             {
                 Task<string>[] tempFolderTasks = new Task<string>[8];
                 for (int i = 0; i < tempFolderTasks.Length; i++)
                 {
-                    tempFolderTasks[i] = Task.Run(FileUtilities.GetPeekDefinitionTempFolder);
+                    tempFolderTasks[i] = Task.Run(PeekDefinitionTempFolder.GetTempFolder);
                 }
 
                 string[] tempFolders = await Task.WhenAll(tempFolderTasks);
 
-                Assert.True(FileUtilities.PeekDefinitionTempFolderCreated);
-                Assert.True(Directory.Exists(FileUtilities.PeekDefinitionTempFolder));
-                Assert.AreEqual(tempFolders[0], FileUtilities.PeekDefinitionTempFolder);
+                Assert.True(PeekDefinitionTempFolder.TempFolderCreated);
+                Assert.True(Directory.Exists(PeekDefinitionTempFolder.TempFolderPath));
+                Assert.AreEqual(tempFolders[0], PeekDefinitionTempFolder.TempFolderPath);
                 StringAssert.StartsWith(testPeekDefinitionTempFolder + "_", tempFolders[0]);
 
                 for (int i = 1; i < tempFolders.Length; i++)
@@ -157,13 +157,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             }
             finally
             {
-                if (Directory.Exists(FileUtilities.PeekDefinitionTempFolder))
+                if (Directory.Exists(PeekDefinitionTempFolder.TempFolderPath))
                 {
-                    FileUtilities.SafeDirectoryDelete(FileUtilities.PeekDefinitionTempFolder, true);
+                    FileUtilities.SafeDirectoryDelete(PeekDefinitionTempFolder.TempFolderPath, true);
                 }
 
-                FileUtilities.PeekDefinitionTempFolder = originalPeekDefinitionTempFolder;
-                FileUtilities.PeekDefinitionTempFolderCreated = originalPeekDefinitionTempFolderCreated;
+                PeekDefinitionTempFolder.TempFolderPath = originalPeekDefinitionTempFolder;
+                PeekDefinitionTempFolder.TempFolderCreated = originalPeekDefinitionTempFolderCreated;
             }
         }
 

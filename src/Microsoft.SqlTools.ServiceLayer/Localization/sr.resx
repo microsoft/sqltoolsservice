@@ -135,52 +135,6 @@
     <comment>.
  Parameters: 0 - uri (string) </comment>
   </data>
-  <data name="ConnectionServiceConnStringInvalidAuthType" xml:space="preserve">
-    <value>Invalid value &apos;{0}&apos; for AuthenticationType.  Valid values are &apos;Integrated&apos; and &apos;SqlLogin&apos;.</value>
-    <comment>.
- Parameters: 0 - authType (string) </comment>
-  </data>
-  <data name="ConnectionServiceConnStringInvalidColumnEncryptionSetting" xml:space="preserve">
-    <value>Invalid value &apos;{0}&apos; for ComlumEncryption. Valid values are &apos;Enabled&apos; and &apos;Disabled&apos;.</value>
-    <comment>.
- Parameters: 0 - columnEncryptionSetting (string) </comment>
-  </data>
-  <data name="ConnectionServiceConnStringInvalidSecureEnclaves" xml:space="preserve">
-    <value>Invalid value &apos;{0}&apos; for Secure enclaves. Valid values are &apos;Enabled&apos; and &apos;Disabled&apos;.</value>
-    <comment>.
- Parameters: 0 - secureEnclaves (string) </comment>
-  </data>
-  <data name="ConnectionServiceConnStringInvalidEncryptOption" xml:space="preserve">
-    <value>Invalid value &apos;{0}&apos; for Encrypt. Valid values are &apos;Optional&apos;, &apos;Mandatory&apos;, &apos;Strict&apos;, &apos;True&apos;, &apos;False&apos;, &apos;Yes&apos; and &apos;No&apos;.</value>
-    <comment>.
- Parameters: 0 - encrypt (string) </comment>
-  </data>
-  <data name="ConnectionServiceConnStringInvalidEnclaveAttestationProtocol" xml:space="preserve">
-    <value>Invalid value &apos;{0}&apos; for Attestation protocol. Valid values are &apos;AAS&apos;, &apos;HGS&apos; and &apos;None&apos;.</value>
-    <comment>.
- Parameters: 0 - enclaveAttestationProtocol (string) </comment>
-  </data>
-  <data name="ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves" xml:space="preserve">
-    <value>Attestation protocol cannot be empty with Secure enclaves enabled.</value>
-    <comment></comment>
-  </data>
-  <data name="ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol" xml:space="preserve">
-    <value>Attestation URL cannot be empty with the selected value of Attestation protocol.</value>
-    <comment></comment>
-  </data>
-  <data name="ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination" xml:space="preserve">
-    <value>The Attestation protocol and Attestation URL requires Always Encrypted with Secure enclaves to be set to Enabled.</value>
-    <comment></comment>
-  </data>
-  <data name="ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl" xml:space="preserve">
-    <value>The Attestation URL must not be specified with Attestation protocol &apos;None&apos;. Either set appropriate Attestation protocol or remove Attestation URL from connection properties.</value>
-    <comment></comment>
-  </data>
-  <data name="ConnectionServiceConnStringInvalidIntent" xml:space="preserve">
-    <value>Invalid value &apos;{0}&apos; for ApplicationIntent. Valid values are &apos;ReadWrite&apos; and &apos;ReadOnly&apos;.</value>
-    <comment>.
- Parameters: 0 - intent (string) </comment>
-  </data>
   <data name="ConnectionServiceConnectionCanceled" xml:space="preserve">
     <value>Connection canceled</value>
     <comment></comment>
@@ -462,24 +416,6 @@
     <comment>.
  Parameters: 0 - filePath (string) </comment>
   </data>
-  <data name="PeekDefinitionAzureError" xml:space="preserve">
-    <value>This feature is currently not supported on Azure SQL DB and Data Warehouse: {0}</value>
-    <comment>.
- Parameters: 0 - errorMessage (string) </comment>
-  </data>
-  <data name="PeekDefinitionError" xml:space="preserve">
-    <value>An unexpected error occurred during Peek Definition execution: {0}</value>
-    <comment>.
- Parameters: 0 - errorMessage (string) </comment>
-  </data>
-  <data name="PeekDefinitionNoResultsError" xml:space="preserve">
-    <value>No results were found.</value>
-    <comment></comment>
-  </data>
-  <data name="PeekDefinitionDatabaseError" xml:space="preserve">
-    <value>No database object was retrieved.</value>
-    <comment></comment>
-  </data>
   <data name="PeekDefinitionNotConnectedError" xml:space="preserve">
     <value>Please connect to a server.</value>
     <comment></comment>
@@ -487,20 +423,6 @@
   <data name="PeekDefinitionTimedoutError" xml:space="preserve">
     <value>Operation timed out.</value>
     <comment></comment>
-  </data>
-  <data name="PeekDefinitionTypeNotSupportedError" xml:space="preserve">
-    <value>This object type is currently not supported by this feature.</value>
-    <comment></comment>
-  </data>
-  <data name="StarExpansionLabel" xml:space="preserve">
-    <value>Expand {0}</value>
-    <comment>.
- Parameters: 0 - starExpression (string) </comment>
-  </data>
-  <data name="StarExpansionDescription" xml:space="preserve">
-    <value>Replace {0} with {1} columns: {2}</value>
-    <comment>.
- Parameters: 0 - starExpression (string), 1 - columnCount (string), 2 - columnPreview (string) </comment>
   </data>
   <data name="EditDataObjectNotFound" xml:space="preserve">
     <value>Table or view requested for edit could not be found</value>

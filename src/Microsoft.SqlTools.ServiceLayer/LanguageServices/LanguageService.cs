@@ -26,14 +26,16 @@ using DacModel = Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.AutoParameterizaition;
-using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.LanguageService.Connection;
+using Microsoft.SqlTools.LanguageService.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.Extension;
+using Microsoft.SqlTools.LanguageService.LanguageServices;
+using Microsoft.SqlTools.LanguageService.LanguageServices.Completion;
+using ConnectionInfoBase = Microsoft.SqlTools.LanguageService.LanguageServices.ConnectionInfoBase;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Completion.Extension;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Scripting;
+using Microsoft.SqlTools.LanguageService.Scripting;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.SqlProjects;
 using Microsoft.SqlTools.ServiceLayer.Utility;
@@ -43,6 +45,7 @@ using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.SqlCore.IntelliSense;
 using Location = Microsoft.SqlTools.LanguageService.Workspace.Contracts.Location;
 using Range = Microsoft.SqlTools.LanguageService.Workspace.Contracts.Range;
+using PeekDefSR = Microsoft.SqlTools.LanguageService.SR;
 
 namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 {
@@ -50,7 +53,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     /// Main class for Language Service functionality including anything that requires knowledge of
     /// the language to perform, such as definitions, intellisense, etc.
     /// </summary>
-    public class LanguageService : IDisposable
+    public class LanguageService : IDisposable, ILanguageFileFilter
     {
         #region Singleton Instance Implementation
 
@@ -84,8 +87,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         internal const int HoverTimeout = 500;
 
-        internal const int BindingTimeout = 500;
-
         internal const int OnConnectionWaitTimeout = 300 * OneSecond;
 
         internal const int PeekDefinitionTimeout = 10 * OneSecond;
@@ -97,7 +98,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         // For testability only
         internal Task DelayedDiagnosticsTask = null;
 
-        private ConnectionService connectionService = null;
+        private IConnectionService connectionService = null;
 
         private WorkspaceService<SqlToolsSettings> workspaceServiceInstance;
 
@@ -181,23 +182,22 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
-        /// Internal for testing purposes only
+        /// Gets or sets the connection service used by the language service.
+        /// The host sets this immediately after the language service is created
+        /// (see HostLoader) so this class does not reference the concrete ConnectionService
+        /// type directly (inverted control). Setter is also used by tests to inject a fake.
         /// </summary>
-        internal ConnectionService ConnectionServiceInstance
+        internal IConnectionService ConnectionServiceInstance
         {
             get
             {
-                if (connectionService == null)
-                {
-                    connectionService = ConnectionService.Instance;
-                    connectionService.RegisterConnectedQueue(Constants.LanguageServiceFeature, bindingQueue);
-                }
-                return connectionService;
+                return connectionService ?? throw new InvalidOperationException($"{nameof(ConnectionServiceInstance)} has not been set.");
             }
 
             set
             {
                 connectionService = value;
+                connectionService?.RegisterConnectedQueue(Constants.LanguageServiceFeature, bindingQueue);
             }
         }
 
@@ -264,8 +264,19 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         /// <param name="serviceHost"></param>
         /// <param name="context"></param>
-        public void InitializeService(ServiceHost serviceHost, SqlToolsContext context)
+        /// <param name="connectionService">
+        /// The connection service the language service resolves connections through. Passed in by the
+        /// host so this class does not reference the concrete ConnectionService type (inverted control).
+        /// </param>
+        public void InitializeService(ServiceHost serviceHost, SqlToolsContext context, IConnectionService connectionService)
         {
+            if (connectionService is null)
+            {
+                throw new ArgumentNullException(nameof(connectionService));
+            }
+
+            // Wire up the connection service right away so it is available before any handler runs.
+            ConnectionServiceInstance = connectionService;
             // Register the requests that this service will handle
 
             // turn off until needed (10/28/2016)
@@ -499,10 +510,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // overwrite currentCompletionParseInfo after we do.
             var cts = CancelPreviousCompletionRequest();
 
-            ConnectionInfo connInfo = null;
+            ConnectionInfoBase connInfo = null;
             // Check if we need to refresh the auth token, and if we do then don't pass in the 
             // connection so that we only show the default options until the refreshed token is returned
-            if (!await connectionService.TryRequestRefreshAuthToken(scriptFile.ClientUri))
+            if (!await ConnectionServiceInstance.TryRequestRefreshAuthToken(scriptFile.ClientUri))
             {
                 ConnectionServiceInstance.TryFindConnection(scriptFile.ClientUri, out connInfo);
             }
@@ -544,7 +555,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             if (!ShouldSkipIntellisense(textDocumentPosition.TextDocument.Uri))
             {
                 // Retrieve document and connection (null for project files — handled by GetDefinition)
-                ConnectionInfo connInfo;
+                ConnectionInfoBase connInfo;
                 var scriptFile = CurrentWorkspace.GetFile(textDocumentPosition.TextDocument.Uri);
                 bool isConnected = false;
                 bool succeeded = false;
@@ -777,7 +788,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 // This clears the uri of the connection from the tokenUpdateUris map, which is used to track
                 // open editors that have requested a refreshed Microsoft Entra token.
-                connectionService.TokenUpdateUris.Remove(uri, out var result);
+                ConnectionServiceInstance.TokenUpdateUris.Remove(uri, out var result);
                 // if not in the preview window and diagnostics are enabled then clear diagnostics
                 if (!IsPreviewWindow(scriptFile)
                     && CurrentWorkspaceSettings.IsDiagnosticsEnabled)
@@ -901,7 +912,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     return;
                 }
 
-                ConnectionInfo connInfo;
+                ConnectionInfoBase connInfo;
                 ConnectionServiceInstance.TryFindConnection(
                     scriptFile.ClientUri,
                     out connInfo);
@@ -969,17 +980,17 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             try
             {
-                bool oldEnableIntelliSense = oldSettings.SqlTools.IntelliSense.EnableIntellisense;
-                bool oldAlwaysEncryptedParameterizationEnabled = oldSettings.SqlTools.QueryExecutionSettings.IsAlwaysEncryptedParameterizationEnabled;
-                bool? oldEnableDiagnostics = oldSettings.SqlTools.IntelliSense.EnableErrorChecking;
+                bool oldEnableIntelliSense = oldSettings.IsIntelliSenseEnabled;
+                bool oldAlwaysEncryptedParameterizationEnabled = oldSettings.IsAlwaysEncryptedParameterizationEnabled;
+                bool? oldEnableDiagnostics = oldSettings.IsErrorCheckingEnabled;
 
                 // update the current settings to reflect any changes
                 CurrentWorkspaceSettings.Update(newSettings);
 
                 // if script analysis settings have changed we need to clear the current diagnostic markers
-                if (oldEnableIntelliSense != newSettings.SqlTools.IntelliSense.EnableIntellisense
-                    || oldEnableDiagnostics != newSettings.SqlTools.IntelliSense.EnableErrorChecking
-                    || oldAlwaysEncryptedParameterizationEnabled != newSettings.SqlTools.QueryExecutionSettings.IsAlwaysEncryptedParameterizationEnabled)
+                if (oldEnableIntelliSense != newSettings.IsIntelliSenseEnabled
+                    || oldEnableDiagnostics != newSettings.IsErrorCheckingEnabled
+                    || oldAlwaysEncryptedParameterizationEnabled != newSettings.IsAlwaysEncryptedParameterizationEnabled)
                 {
                     // if the user just turned off diagnostics then send an event to clear the error markers
                     if (!newSettings.IsDiagnosticsEnabled)
@@ -1095,7 +1106,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             EventContext eventContext
         )
         {
-            connectionService.UpdateAuthToken(tokenRefreshedParams);
+            ConnectionServiceInstance.UpdateAuthToken(tokenRefreshedParams.Uri, tokenRefreshedParams.Token, tokenRefreshedParams.ExpiresOn);
             return Task.CompletedTask;
         }
 
@@ -1124,7 +1135,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="filePath"></param>
         /// <param name="sqlText"></param>
         /// <returns>The ParseResult instance returned from SQL Parser</returns>
-        public Task<ParseResult> ParseAndBind(ScriptFile scriptFile, ConnectionInfo connInfo)
+        public Task<ParseResult> ParseAndBind(ScriptFile scriptFile, ConnectionInfoBase connInfo)
         {
             Logger.Verbose($"ParseAndBind - {scriptFile}");
             // get or create the current parse info object
@@ -1132,7 +1143,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             return Task.Run(() =>
             {
-                if (Monitor.TryEnter(parseInfo.BuildingMetadataLock, LanguageService.BindingTimeout))
+                if (Monitor.TryEnter(parseInfo.BuildingMetadataLock, ConnectedBindingQueue.BindingTimeout))
                 {
                     try
                     {
@@ -1156,7 +1167,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         {
                             QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
                                 key: parseInfo.ConnectionKey,
-                                bindingTimeout: LanguageService.BindingTimeout,
+                                bindingTimeout: ConnectedBindingQueue.BindingTimeout,
                                 bindOperation: (bindingContext, cancelToken) =>
                                 {
                                     try
@@ -1288,7 +1299,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </summary>
         /// <param name="info">Connection Info</param>
         /// <returns></returns>
-        public Task StartUpdateLanguageServiceOnConnection(ConnectionInfo info)
+        public Task StartUpdateLanguageServiceOnConnection(ConnectionInfoBase info)
         {
             // Start task asynchronously without blocking main thread - this is by design.
             // Explanation: STS message queues are single-threaded queues, which should be unblocked as soon as possible.
@@ -1301,9 +1312,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// Starts a Task to update the autocomplete metadata provider when the user connects to a database
         /// </summary>
         /// <param name="info"></param>
-        public async Task UpdateLanguageServiceOnConnection(ConnectionInfo info)
+        public async Task UpdateLanguageServiceOnConnection(ConnectionInfoBase info)
         {
-            if (ConnectionService.IsDedicatedAdminConnection(info.ConnectionDetails))
+            if (ConnectionStringHelper.IsDedicatedAdminConnection(info.ConnectionDetails, ConnectionServiceInstance.EnableSqlAuthenticationProvider, !ConnectionServiceInstance.EnableGlobalConnectionPooling))
             {
                 // Intellisense cannot be run on these connections as only 1 SqlConnection can be opened on them at a time
                 return;
@@ -1449,7 +1460,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="info"></param>
         /// <param name="scriptInfo"></param>
         internal async Task PrepopulateCommonMetadata(
-            ConnectionInfo info,
+            ConnectionInfoBase info,
             ScriptParseInfo scriptInfo,
             ConnectedBindingQueue bindingQueue)
         {
@@ -1596,7 +1607,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     {
                         QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
                             key: scriptParseInfo.ConnectionKey,
-                            bindingTimeout: LanguageService.BindingTimeout,
+                            bindingTimeout: ConnectedBindingQueue.BindingTimeout,
                             bindOperation: (bindingContext, cancelToken) =>
                             {
                                 foreach (var suggestion in scriptParseInfo.CurrentSuggestions)
@@ -1642,7 +1653,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="tokenText"></param>
         /// <returns> Returns the result of the task as a DefinitionResult </returns>
         private DefinitionResult QueueTask(TextDocumentPosition textDocumentPosition, ScriptParseInfo scriptParseInfo,
-                                            ConnectionInfo connInfo, ScriptFile scriptFile, string tokenText)
+                                            ConnectionInfoBase connInfo, ScriptFile scriptFile, string tokenText)
         {
             // Queue the task with the binding queue
             QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
@@ -1664,7 +1675,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     Sql4PartIdentifier identifier = this.GetFullIdentifier(scriptParseInfo, textDocumentPosition.Position);
 
                     // Script object using SMO
-                    Scripter scripter = new Scripter(bindingContext.ServerConnection, connInfo);
+                    Scripter scripter = new Scripter(
+                        bindingContext.ServerConnection,
+                        connInfo,
+                        enableSqlAuthenticationProvider: ConnectionServiceInstance.EnableSqlAuthenticationProvider,
+                        enableGlobalConnectionPooling: ConnectionServiceInstance.EnableGlobalConnectionPooling);
                     return scripter.GetScript(
                         scriptParseInfo.ParseResult,
                         textDocumentPosition.Position,
@@ -2170,7 +2185,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         #endregion
 
         private DefinitionResult GetDefinitionFromTokenList(TextDocumentPosition textDocumentPosition, List<Token> tokenList,
-                ScriptParseInfo scriptParseInfo, ScriptFile scriptFile, ConnectionInfo connInfo)
+                ScriptParseInfo scriptParseInfo, ScriptFile scriptFile, ConnectionInfoBase connInfo)
         {
 
             DefinitionResult lastResult = null;
@@ -2200,7 +2215,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         return new DefinitionResult
                         {
                             IsErrorResult = true,
-                            Message = SR.PeekDefinitionError(ex.Message),
+                            Message = PeekDefSR.PeekDefinitionError(ex.Message),
                             Locations = null
                         };
                     }
@@ -2224,7 +2239,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="scriptFile"></param>
         /// <param name="connInfo"></param>
         /// <returns> Location with the URI of the script file</returns>
-        internal virtual DefinitionResult GetDefinition(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile, ConnectionInfo connInfo)
+        internal virtual DefinitionResult GetDefinition(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile, ConnectionInfoBase connInfo)
         {
             // Parse sql
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(scriptFile.ClientUri);
@@ -2308,12 +2323,12 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         // Step 1: Identify the identifier token at the cursor
                         int tokenIndex = scriptParseInfo.ParseResult?.Script?.TokenManager?.FindToken(parserLine, parserColumn) ?? -1;
                         if (tokenIndex < 0)
-                            return CreateErrorResult(SR.PeekDefinitionNoResultsError);
+                            return CreateErrorResult(PeekDefSR.PeekDefinitionNoResultsError);
 
                         var token = scriptParseInfo.ParseResult.Script.TokenManager.GetToken(tokenIndex);
                         string tokenText = token?.Text?.Trim('[', ']');
                         if (string.IsNullOrWhiteSpace(tokenText))
-                            return CreateErrorResult(SR.PeekDefinitionNoResultsError);
+                            return CreateErrorResult(PeekDefSR.PeekDefinitionNoResultsError);
 
                         Microsoft.SqlServer.Dac.SourceInformation? sourceInfo = null;
 
@@ -2343,7 +2358,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         }
 
                         if (sourceInfo?.SourceName == null)
-                            return CreateErrorResult(SR.PeekDefinitionNoResultsError);
+                            return CreateErrorResult(PeekDefSR.PeekDefinitionNoResultsError);
 
                         string fileUri = Utility.FileUtilities.LocalPathToFileUri(sourceInfo.SourceName);
                         return new DefinitionResult
@@ -2363,7 +2378,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                             }
                         };
                     }
-                    return CreateErrorResult(SR.PeekDefinitionNoResultsError);
+                    return CreateErrorResult(PeekDefSR.PeekDefinitionNoResultsError);
                 },
                 timeoutOperation: (_) => new DefinitionResult
                 {
@@ -2576,7 +2591,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 return null;
             }
 
-            ConnectionInfo? connInfo;
+            ConnectionInfoBase? connInfo;
             ConnectionServiceInstance.TryFindConnection(
                 scriptFile.ClientUri,
                 out connInfo);
@@ -2599,7 +2614,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     {
                         QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
                             key: scriptParseInfo.ConnectionKey,
-                            bindingTimeout: LanguageService.BindingTimeout,
+                            bindingTimeout: ConnectedBindingQueue.BindingTimeout,
                             bindOperation: (bindingContext, cancelToken) =>
                             {
                                 // get the list of possible current methods for signature help
@@ -2657,14 +2672,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         public virtual async Task<CompletionItem[]> GetCompletionItems(
             TextDocumentPosition textDocumentPosition,
             ScriptFile scriptFile,
-            ConnectionInfo connInfo,
+            ConnectionInfoBase connInfo,
             CancellationToken cancellationToken = default)
         {
             // initialize some state to parse and bind the current script file
             this.currentCompletionParseInfo = null;
             CompletionItem[] resultCompletionItems = null;
             CompletionService completionService = new CompletionService(BindingQueue);
-            bool useLowerCaseSuggestions = this.CurrentWorkspaceSettings.SqlTools.Format.KeywordCasing == Microsoft.SqlTools.LanguageService.Formatter.CasingOptions.Lowercase;
+            bool useLowerCaseSuggestions = this.CurrentWorkspaceSettings.FormatKeywordCasing == Microsoft.SqlTools.LanguageService.Formatter.CasingOptions.Lowercase;
 
             // get the current script parse info object
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(scriptFile.ClientUri);
@@ -2738,7 +2753,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="resultCompletionItems"></param>
         /// <param name="scriptDocumentInfo"></param>
         /// <returns></returns>
-        private async Task<CompletionItem[]> ApplyCompletionExtensions(ConnectionInfo connInfo, CompletionItem[] resultCompletionItems, ScriptDocumentInfo scriptDocumentInfo)
+        private async Task<CompletionItem[]> ApplyCompletionExtensions(ConnectionInfoBase connInfo, CompletionItem[] resultCompletionItems, ScriptDocumentInfo scriptDocumentInfo)
         {
             //invoke the completion extensions
             foreach (var completionExt in completionExtensions.Values)
@@ -2870,7 +2885,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="scriptFile"></param>
         internal async Task<ScriptFileMarker[]> GetSemanticMarkers(ScriptFile scriptFile)
         {
-            ConnectionInfo connInfo;
+            ConnectionInfoBase connInfo;
             ConnectionServiceInstance.TryFindConnection(
                 scriptFile.ClientUri,
                 out connInfo);
@@ -2934,7 +2949,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
             }
 
-            if (CurrentWorkspaceSettings.QueryExecutionSettings.IsAlwaysEncryptedParameterizationEnabled)
+            if (CurrentWorkspaceSettings.IsAlwaysEncryptedParameterizationEnabled)
             {
                 markers.AddRange(SqlParameterizer.CodeSense(scriptFile.Contents));
             }
@@ -3160,9 +3175,9 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         internal void DeletePeekDefinitionScripts()
         {
             // Delete temp folder created to store peek definition scripts
-            if (FileUtilities.SafeDirectoryExists(FileUtilities.PeekDefinitionTempFolder))
+            if (FileUtilities.SafeDirectoryExists(PeekDefinitionTempFolder.TempFolderPath))
             {
-                FileUtilities.SafeDirectoryDelete(FileUtilities.PeekDefinitionTempFolder, true);
+                FileUtilities.SafeDirectoryDelete(PeekDefinitionTempFolder.TempFolderPath, true);
             }
         }
 

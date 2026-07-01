@@ -6,7 +6,7 @@
 #nullable disable
 
 using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
+using Microsoft.SqlTools.LanguageService.LanguageServices;
 using Moq;
 using NUnit.Framework;
 

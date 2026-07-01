@@ -47,6 +47,62 @@ namespace Microsoft.SqlTools.LanguageService
             }
         }
 
+        public static string ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves);
+            }
+        }
+
+        public static string ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol);
+            }
+        }
+
+        public static string ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination);
+            }
+        }
+
+        public static string ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl);
+            }
+        }
+
+        public static string PeekDefinitionNoResultsError
+        {
+            get
+            {
+                return Keys.GetString(Keys.PeekDefinitionNoResultsError);
+            }
+        }
+
+        public static string PeekDefinitionDatabaseError
+        {
+            get
+            {
+                return Keys.GetString(Keys.PeekDefinitionDatabaseError);
+            }
+        }
+
+        public static string PeekDefinitionTypeNotSupportedError
+        {
+            get
+            {
+                return Keys.GetString(Keys.PeekDefinitionTypeNotSupportedError);
+            }
+        }
+
         public static string WorkspaceServiceBufferPositionOutOfOrder(int sLine, int sCol, int eLine, int eCol)
         {
             return Keys.GetString(Keys.WorkspaceServiceBufferPositionOutOfOrder, sLine, sCol, eLine, eCol);
@@ -55,6 +111,56 @@ namespace Microsoft.SqlTools.LanguageService
         public static string WorkspaceServicePositionColumnOutOfRange(int line)
         {
             return Keys.GetString(Keys.WorkspaceServicePositionColumnOutOfRange, line);
+        }
+
+        public static string StarExpansionLabel(string starExpression)
+        {
+            return Keys.GetString(Keys.StarExpansionLabel, starExpression);
+        }
+
+        public static string StarExpansionDescription(string starExpression, string columnCount, string columnPreview)
+        {
+            return Keys.GetString(Keys.StarExpansionDescription, starExpression, columnCount, columnPreview);
+        }
+
+        public static string ConnectionServiceConnStringInvalidAuthType(string authType)
+        {
+            return Keys.GetString(Keys.ConnectionServiceConnStringInvalidAuthType, authType);
+        }
+
+        public static string ConnectionServiceConnStringInvalidColumnEncryptionSetting(string columnEncryptionSetting)
+        {
+            return Keys.GetString(Keys.ConnectionServiceConnStringInvalidColumnEncryptionSetting, columnEncryptionSetting);
+        }
+
+        public static string ConnectionServiceConnStringInvalidSecureEnclaves(string secureEnclaves)
+        {
+            return Keys.GetString(Keys.ConnectionServiceConnStringInvalidSecureEnclaves, secureEnclaves);
+        }
+
+        public static string ConnectionServiceConnStringInvalidEncryptOption(string encrypt)
+        {
+            return Keys.GetString(Keys.ConnectionServiceConnStringInvalidEncryptOption, encrypt);
+        }
+
+        public static string ConnectionServiceConnStringInvalidEnclaveAttestationProtocol(string enclaveAttestationProtocol)
+        {
+            return Keys.GetString(Keys.ConnectionServiceConnStringInvalidEnclaveAttestationProtocol, enclaveAttestationProtocol);
+        }
+
+        public static string ConnectionServiceConnStringInvalidIntent(string intent)
+        {
+            return Keys.GetString(Keys.ConnectionServiceConnStringInvalidIntent, intent);
+        }
+
+        public static string PeekDefinitionAzureError(string errorMessage)
+        {
+            return Keys.GetString(Keys.PeekDefinitionAzureError, errorMessage);
+        }
+
+        public static string PeekDefinitionError(string errorMessage)
+        {
+            return Keys.GetString(Keys.PeekDefinitionError, errorMessage);
         }
 
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
@@ -75,6 +181,57 @@ namespace Microsoft.SqlTools.LanguageService
 
 
             public const string ErrorEmptyStringReplacement = "ErrorEmptyStringReplacement";
+
+
+            public const string StarExpansionLabel = "StarExpansionLabel";
+
+
+            public const string StarExpansionDescription = "StarExpansionDescription";
+
+
+            public const string ConnectionServiceConnStringInvalidAuthType = "ConnectionServiceConnStringInvalidAuthType";
+
+
+            public const string ConnectionServiceConnStringInvalidColumnEncryptionSetting = "ConnectionServiceConnStringInvalidColumnEncryptionSetting";
+
+
+            public const string ConnectionServiceConnStringInvalidSecureEnclaves = "ConnectionServiceConnStringInvalidSecureEnclaves";
+
+
+            public const string ConnectionServiceConnStringInvalidEncryptOption = "ConnectionServiceConnStringInvalidEncryptOption";
+
+
+            public const string ConnectionServiceConnStringInvalidEnclaveAttestationProtocol = "ConnectionServiceConnStringInvalidEnclaveAttestationProtocol";
+
+
+            public const string ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves = "ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves";
+
+
+            public const string ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol = "ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol";
+
+
+            public const string ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination = "ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination";
+
+
+            public const string ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl = "ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl";
+
+
+            public const string ConnectionServiceConnStringInvalidIntent = "ConnectionServiceConnStringInvalidIntent";
+
+
+            public const string PeekDefinitionAzureError = "PeekDefinitionAzureError";
+
+
+            public const string PeekDefinitionError = "PeekDefinitionError";
+
+
+            public const string PeekDefinitionNoResultsError = "PeekDefinitionNoResultsError";
+
+
+            public const string PeekDefinitionDatabaseError = "PeekDefinitionDatabaseError";
+
+
+            public const string PeekDefinitionTypeNotSupportedError = "PeekDefinitionTypeNotSupportedError";
 
 
             private Keys()
@@ -101,6 +258,12 @@ namespace Microsoft.SqlTools.LanguageService
             public static string GetString(string key, object arg0)
             {
                 return string.Format(global::System.Globalization.CultureInfo.CurrentCulture, resourceManager.GetString(key, _culture), arg0);
+            }
+
+
+            public static string GetString(string key, object arg0, object arg1, object arg2)
+            {
+                return string.Format(global::System.Globalization.CultureInfo.CurrentCulture, resourceManager.GetString(key, _culture), arg0, arg1, arg2);
             }
 
 
