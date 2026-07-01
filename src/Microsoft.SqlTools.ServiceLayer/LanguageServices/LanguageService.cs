@@ -299,6 +299,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// </param>
         public void InitializeService(ILanguageServiceHost serviceHost, SqlToolsContext context, IConnectionService connectionService, IProjectIntelliSenseService projectIntelliSenseService, ILanguageWorkspaceService workspaceService)
         {
+            if (serviceHost is null)
+            {
+                throw new ArgumentNullException(nameof(serviceHost));
+            }
+
             if (connectionService is null)
             {
                 throw new ArgumentNullException(nameof(connectionService));
