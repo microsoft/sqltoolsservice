@@ -137,10 +137,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SchemaCompare
             // The SourcePlatform / TargetPlatform projection lets clients show the user
             // which T-SQL dialect Schema Compare is actually running under (e.g. "SqlDwUnified"
             // for Fabric Warehouse vs. "Sql160" for Azure SQL Database). The values are
-            // pass-through reads of ComparisonResult.SourceModel.Version.ToString() /
-            // TargetModel.Version.ToString(), so the meaningful unit-level guarantee is that
-            // the contract surface accepts and round-trips the values. End-to-end behavior
-            // for live comparisons is covered by integration tests.
+            // sourced from SchemaCompareUtils.GetComparisonPlatform, which reads
+            // DatabaseSchemaProvider.Platform via reflection because TSqlModel.Version
+            // reports "Sql150" for Fabric Warehouse models. The meaningful unit-level
+            // guarantee is that the contract surface accepts and round-trips the values;
+            // end-to-end behavior for live comparisons is covered by integration tests.
             SchemaCompareResult result = new SchemaCompareResult
             {
                 OperationId = "op-1",

@@ -350,8 +350,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
 
             StringAssert.Contains(includedTable, generatedScript,
                 "Selection-scope: generated script must reference the included table");
-            Assert.IsFalse(generatedScript.IndexOf(excludedTable, StringComparison.OrdinalIgnoreCase) >= 0
-                && CountOccurrences(generatedScript, excludedTable) > 0,
+            Assert.IsFalse(generatedScript.IndexOf(excludedTable, StringComparison.OrdinalIgnoreCase) >= 0,
                 $"Selection-scope: generated script must not reference excluded table '{excludedTable}'. Script:\n{generatedScript}");
             Assert.IsFalse(generatedScript.IndexOf(excludedPk, StringComparison.OrdinalIgnoreCase) >= 0,
                 $"Selection-scope: generated script must not contain PRINT/ALTER lines for excluded PK '{excludedPk}'. Script:\n{generatedScript}");
@@ -570,22 +569,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
         {
             string[] parts = diff.SourceValue ?? diff.TargetValue ?? Array.Empty<string>();
             return $"{(diff.SourceObjectType ?? diff.TargetObjectType ?? "?")}: {(parts.Length > 0 ? string.Join(".", parts) : (diff.Name ?? "?"))}";
-        }
-
-        private static int CountOccurrences(string text, string needle)
-        {
-            if (string.IsNullOrEmpty(text) || string.IsNullOrEmpty(needle))
-            {
-                return 0;
-            }
-            int count = 0;
-            int index = 0;
-            while ((index = text.IndexOf(needle, index, StringComparison.OrdinalIgnoreCase)) >= 0)
-            {
-                count++;
-                index += needle.Length;
-            }
-            return count;
         }
     }
 }
