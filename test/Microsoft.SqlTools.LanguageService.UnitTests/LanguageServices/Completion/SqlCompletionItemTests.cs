@@ -33,7 +33,7 @@ namespace Microsoft.SqlTools.LanguageService.UnitTests.LanguageServices.Completi
         }
 
         [Test]
-        public void ConstructorShouldThrowExceptionGivenEmptyDeclarionType()
+        public void ConstructorShouldThrowExceptionGivenEmptyDeclarationTitle()
         {
             string declarationTitle = "";
             DeclarationType declarationType = DeclarationType.Table;
