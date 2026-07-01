@@ -1903,7 +1903,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
 
             // Warn if an object with the new name already exists in the same scope.
-            // The workspace edits are still computed and returned so the client can apply
+            // Workspace edits are still computed and returned so the client can apply them after confirmation.
             string nameCollisionWarning = null;
             if (provider != null && qualifiedName != null)
             {
@@ -1912,9 +1912,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     ? qualifiedName.Substring(0, lastDot + 1) + renameParams.NewName
                     : renameParams.NewName;
 
-                if (provider.FindObject(newQualifiedName) != null)
+                if (!string.Equals(newQualifiedName, qualifiedName, StringComparison.OrdinalIgnoreCase)
+                    && provider.FindObject(newQualifiedName) != null)
                 {
-                    nameCollisionWarning = string.Format(DuplicateNameWarningFormat, $"[{renameParams.NewName}]");
+                    nameCollisionWarning = string.Format(DuplicateNameWarningFormat, $"[{renameParams.NewName.Replace("]", "]]")}]");
                 }
             }
 
@@ -2051,7 +2052,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             string targetQualifiedName = $"{moveParams.TargetSchema}.{unqualifiedName}";
             DacModel.TSqlObject existingObject = provider.FindObject(targetQualifiedName);
             string moveCollisionWarning = existingObject != null
-                ? string.Format(DuplicateNameWarningFormat, $"[{moveParams.TargetSchema}].[{unqualifiedName}]")
+                ? string.Format(DuplicateNameWarningFormat, $"[{moveParams.TargetSchema.Replace("]", "]]")}].[{unqualifiedName.Replace("]", "]]")}]")
                 : null;
 
             // Re-scan each file that references the object and compute the schema-qualifier edits.
