@@ -10,7 +10,7 @@ using System.Collections;
 
 namespace Microsoft.SqlTools.LanguageService.Formatter
 {
-    internal class ReplacementQueue : IEnumerable
+    internal sealed class ReplacementQueue : IEnumerable
     {
         internal int offset = 0;
 

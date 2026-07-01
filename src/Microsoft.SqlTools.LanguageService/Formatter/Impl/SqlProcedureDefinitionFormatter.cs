@@ -14,7 +14,7 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
 {
 
     [Export(typeof(ASTNodeFormatterFactory))]
-    internal class SqlProcedureDefinitionFormatterFactory : ASTNodeFormatterFactoryT<SqlProcedureDefinition>
+    internal sealed class SqlProcedureDefinitionFormatterFactory : ASTNodeFormatterFactoryT<SqlProcedureDefinition>
     {
         protected override ASTNodeFormatter DoCreate(FormatterVisitor visitor, SqlProcedureDefinition codeObject)
         {
@@ -22,7 +22,7 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
         }
     }
 
-    class SqlProcedureDefinitionFormatter : ASTNodeFormatterT<SqlProcedureDefinition>
+    internal sealed class SqlProcedureDefinitionFormatter : ASTNodeFormatterT<SqlProcedureDefinition>
     {
         NewLineSeparatedListFormatter NewLineSeparatedListFormatter { get; set; }
         CommaSeparatedListFormatter CommaSeparatedListFormatter { get; set; }

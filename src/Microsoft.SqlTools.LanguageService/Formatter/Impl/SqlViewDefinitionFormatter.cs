@@ -17,7 +17,7 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
 {
 
     [Export(typeof(ASTNodeFormatterFactory))]
-    internal class SqlViewDefinitionFormatterFactory : ASTNodeFormatterFactoryT<SqlViewDefinition>
+    internal sealed class SqlViewDefinitionFormatterFactory : ASTNodeFormatterFactoryT<SqlViewDefinition>
     {
         protected override ASTNodeFormatter DoCreate(FormatterVisitor visitor, SqlViewDefinition codeObject)
         {
@@ -25,7 +25,7 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
         }
     }
 
-    class SqlViewDefinitionFormatter : SysCommentsFormatterBase<SqlViewDefinition>
+    internal sealed class SqlViewDefinitionFormatter : SysCommentsFormatterBase<SqlViewDefinition>
     {
 
         internal SqlViewDefinitionFormatter(FormatterVisitor visitor, SqlViewDefinition sqlCodeObject)

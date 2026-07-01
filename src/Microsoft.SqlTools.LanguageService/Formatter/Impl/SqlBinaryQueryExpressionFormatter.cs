@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
 {
 
     [Export(typeof(ASTNodeFormatterFactory))]
-    internal class SqlBinaryQueryExpressionFormatterFactory : ASTNodeFormatterFactoryT<SqlBinaryQueryExpression>
+    internal sealed class SqlBinaryQueryExpressionFormatterFactory : ASTNodeFormatterFactoryT<SqlBinaryQueryExpression>
     {
         protected override ASTNodeFormatter DoCreate(FormatterVisitor visitor, SqlBinaryQueryExpression codeObject)
         {
@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
         }
     }
 
-    class SqlBinaryQueryExpressionFormatter : ASTNodeFormatterT<SqlBinaryQueryExpression>
+    internal sealed class SqlBinaryQueryExpressionFormatter : ASTNodeFormatterT<SqlBinaryQueryExpression>
     {
 
         internal SqlBinaryQueryExpressionFormatter(FormatterVisitor visitor, SqlBinaryQueryExpression codeObject)

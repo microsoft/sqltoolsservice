@@ -12,7 +12,7 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
 {
 
     [Export(typeof(ASTNodeFormatterFactory))]
-    internal class SqlCreateProcedureStatementFormatterFactory : ASTNodeFormatterFactoryT<SqlCreateProcedureStatement>
+    internal sealed class SqlCreateProcedureStatementFormatterFactory : ASTNodeFormatterFactoryT<SqlCreateProcedureStatement>
     {
         protected override ASTNodeFormatter DoCreate(FormatterVisitor visitor, SqlCreateProcedureStatement codeObject)
         {
@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
         }
     }
 
-    class SqlCreateProcedureStatementFormatter : NewLineSeparatedListFormatter
+    internal sealed class SqlCreateProcedureStatementFormatter : NewLineSeparatedListFormatter
     {
         internal SqlCreateProcedureStatementFormatter(FormatterVisitor visitor, SqlCreateProcedureStatement codeObject)
             : base(visitor, codeObject, false)

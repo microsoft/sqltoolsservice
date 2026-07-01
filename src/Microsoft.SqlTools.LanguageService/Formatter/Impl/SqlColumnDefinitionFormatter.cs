@@ -12,7 +12,7 @@ using Microsoft.SqlTools.Utility;
 namespace Microsoft.SqlTools.LanguageService.Formatter
 {
     [Export(typeof(ASTNodeFormatterFactory))]
-    internal class SqlColumnDefinitionFormatterFactory : ASTNodeFormatterFactoryT<SqlColumnDefinition>
+    internal sealed class SqlColumnDefinitionFormatterFactory : ASTNodeFormatterFactoryT<SqlColumnDefinition>
     {
         protected override ASTNodeFormatter DoCreate(FormatterVisitor visitor, SqlColumnDefinition codeObject)
         {
@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
         }
     }
 
-    internal class SqlColumnDefinitionFormatter : ASTNodeFormatterT<SqlColumnDefinition>
+    internal sealed class SqlColumnDefinitionFormatter : ASTNodeFormatterT<SqlColumnDefinition>
     {
         private PaddedSpaceSeparatedListFormatter SpaceSeparatedListFormatter { get; set; }
 

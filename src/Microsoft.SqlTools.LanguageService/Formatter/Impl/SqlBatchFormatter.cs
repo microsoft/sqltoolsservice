@@ -11,7 +11,7 @@ using Microsoft.SqlServer.Management.SqlParser.SqlCodeDom;
 namespace Microsoft.SqlTools.LanguageService.Formatter
 {
     [Export(typeof(ASTNodeFormatterFactory))]
-    internal class SqlBatchFormatterFactory : ASTNodeFormatterFactoryT<SqlBatch>
+    internal sealed class SqlBatchFormatterFactory : ASTNodeFormatterFactoryT<SqlBatch>
     {
         protected override ASTNodeFormatter DoCreate(FormatterVisitor visitor, SqlBatch codeObject)
         {
@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
         }
     }
 
-    class SqlBatchFormatter : NewLineSeparatedListFormatter
+    internal sealed class SqlBatchFormatter : NewLineSeparatedListFormatter
     {
         public SqlBatchFormatter(FormatterVisitor visitor, SqlCodeObject codeObject)
             :base(visitor, codeObject, false)

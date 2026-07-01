@@ -12,7 +12,7 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
 {
 
     [Export(typeof(ASTNodeFormatterFactory))]
-    internal class SqlQueryWithClauseFormatterFactory : ASTNodeFormatterFactoryT<SqlQueryWithClause>
+    internal sealed class SqlQueryWithClauseFormatterFactory : ASTNodeFormatterFactoryT<SqlQueryWithClause>
     {
         protected override ASTNodeFormatter DoCreate(FormatterVisitor visitor, SqlQueryWithClause codeObject)
         {
@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
         }
     }
 
-    class SqlQueryWithClauseFormatter : CommaSeparatedListFormatter
+    internal sealed class SqlQueryWithClauseFormatter : CommaSeparatedListFormatter
     {
         public SqlQueryWithClauseFormatter(FormatterVisitor visitor, SqlQueryWithClause codeObject)
             : base(visitor, codeObject, true)

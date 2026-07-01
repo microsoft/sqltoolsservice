@@ -25,7 +25,7 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
     /// A note on the <see cref="SqlCodeObjectVisitor"/> implementation: All of the override nodes in the Intellisense AST are defined here, and routed to the Format method which looks up a matching
     /// formatter to handle them. Any entry not explicitly formatted will use the no-op formatter which passes through the text unchanged.
     /// </summary>
-    internal partial class FormatterVisitor : SqlCodeObjectVisitor
+    internal sealed partial class FormatterVisitor : SqlCodeObjectVisitor
     {
         private readonly IMultiServiceProvider serviceProvider;
 

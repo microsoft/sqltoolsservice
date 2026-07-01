@@ -13,7 +13,7 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
 {
 
     [Export(typeof(ASTNodeFormatterFactory))]
-    internal class SqlQualifiedJoinTableExpressionFormatterFactory : ASTNodeFormatterFactoryT<SqlQualifiedJoinTableExpression>
+    internal sealed class SqlQualifiedJoinTableExpressionFormatterFactory : ASTNodeFormatterFactoryT<SqlQualifiedJoinTableExpression>
     {
         protected override ASTNodeFormatter DoCreate(FormatterVisitor visitor, SqlQualifiedJoinTableExpression codeObject)
         {
@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
         }
     }
 
-    internal class SqlQualifiedJoinTableExpressionFormatter : ASTNodeFormatterT<SqlQualifiedJoinTableExpression>
+    internal sealed class SqlQualifiedJoinTableExpressionFormatter : ASTNodeFormatterT<SqlQualifiedJoinTableExpression>
     {
         SpaceSeparatedListFormatter SpaceSeparatedListFormatter { get; set; }
 

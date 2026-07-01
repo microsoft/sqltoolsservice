@@ -13,7 +13,7 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
 {
     
     [Export(typeof(ASTNodeFormatterFactory))]
-    internal class SqlInsertStatementFormatterFactory : ASTNodeFormatterFactoryT<SqlInsertStatement>
+    internal sealed class SqlInsertStatementFormatterFactory : ASTNodeFormatterFactoryT<SqlInsertStatement>
     {
         protected override ASTNodeFormatter DoCreate(FormatterVisitor visitor, SqlInsertStatement codeObject)
         {
@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
         }
     }
 
-    internal class SqlInsertStatementFormatter : NewLineSeparatedListFormatter
+    internal sealed class SqlInsertStatementFormatter : NewLineSeparatedListFormatter
     {
         [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         public SqlInsertStatementFormatter(FormatterVisitor visitor, SqlInsertStatement codeObject)

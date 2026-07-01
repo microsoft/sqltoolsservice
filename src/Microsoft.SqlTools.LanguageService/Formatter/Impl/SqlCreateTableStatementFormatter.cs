@@ -15,7 +15,7 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
 {
 
     [Export(typeof(ASTNodeFormatterFactory))]
-    internal class SqlCreateTableStatementFormatterFactory : ASTNodeFormatterFactoryT<SqlCreateTableStatement>
+    internal sealed class SqlCreateTableStatementFormatterFactory : ASTNodeFormatterFactoryT<SqlCreateTableStatement>
     {
         protected override ASTNodeFormatter DoCreate(FormatterVisitor visitor, SqlCreateTableStatement codeObject)
         {
@@ -23,7 +23,7 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
         }
     }
 
-    internal class SqlCreateTableStatementFormatter : ASTNodeFormatterT<SqlCreateTableStatement>
+    internal sealed class SqlCreateTableStatementFormatter : ASTNodeFormatterT<SqlCreateTableStatement>
     {
         internal SqlCreateTableStatementFormatter(FormatterVisitor visitor, SqlCreateTableStatement codeObject)
             : base(visitor, codeObject)

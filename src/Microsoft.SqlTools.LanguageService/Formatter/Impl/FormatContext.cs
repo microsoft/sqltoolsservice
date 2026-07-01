@@ -15,7 +15,7 @@ using Microsoft.SqlServer.Management.SqlParser.SqlCodeDom;
 
 namespace Microsoft.SqlTools.LanguageService.Formatter
 {
-    internal class FormatContext
+    internal sealed class FormatContext
     {
         private ReplacementQueue replacements = new ReplacementQueue();
         private string formattedSql;

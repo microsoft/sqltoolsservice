@@ -12,7 +12,7 @@ using Microsoft.SqlTools.Utility;
 namespace Microsoft.SqlTools.LanguageService.Formatter
 {
     [Export(typeof(ASTNodeFormatterFactory))]
-    internal class SqlSelectClauseFormatterFactory : ASTNodeFormatterFactoryT<SqlSelectClause>
+    internal sealed class SqlSelectClauseFormatterFactory : ASTNodeFormatterFactoryT<SqlSelectClause>
     {
         protected override ASTNodeFormatter DoCreate(FormatterVisitor visitor, SqlSelectClause codeObject)
         {
@@ -20,7 +20,7 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
         }
     }
 
-    internal class SqlSelectClauseFormatter : CommaSeparatedListFormatter
+    internal sealed class SqlSelectClauseFormatter : CommaSeparatedListFormatter
     {
         private NewLineSeparatedListFormatter NewLineSeparatedListFormatter { get; set; }
 

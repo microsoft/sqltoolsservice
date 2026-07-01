@@ -13,7 +13,7 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
 {
 
     [Export(typeof(ASTNodeFormatterFactory))]
-    internal class SqlQuerySpecificationFormatterFactory : ASTNodeFormatterFactoryT<SqlQuerySpecification>
+    internal sealed class SqlQuerySpecificationFormatterFactory : ASTNodeFormatterFactoryT<SqlQuerySpecification>
     {
         protected override ASTNodeFormatter DoCreate(FormatterVisitor visitor, SqlQuerySpecification codeObject)
         {
@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
         }
     }
 
-    internal class SqlQuerySpecificationFormatter : ASTNodeFormatterT<SqlQuerySpecification>
+    internal sealed class SqlQuerySpecificationFormatter : ASTNodeFormatterT<SqlQuerySpecification>
     {
         WhiteSpaceSeparatedListFormatter WhiteSpaceSeparatedListFormatter { get; set; }
 

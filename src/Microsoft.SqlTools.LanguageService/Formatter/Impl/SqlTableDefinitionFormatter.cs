@@ -15,7 +15,7 @@ using Microsoft.SqlTools.Utility;
 namespace Microsoft.SqlTools.LanguageService.Formatter
 {
     [Export(typeof(ASTNodeFormatterFactory))]
-    internal class SqlTableDefinitionFormatterFactory : ASTNodeFormatterFactoryT<SqlTableDefinition>
+    internal sealed class SqlTableDefinitionFormatterFactory : ASTNodeFormatterFactoryT<SqlTableDefinition>
     {
         protected override ASTNodeFormatter DoCreate(FormatterVisitor visitor, SqlTableDefinition codeObject)
         {
@@ -23,7 +23,7 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
         }
     }
 
-    internal class SqlTableDefinitionFormatter : ASTNodeFormatterT<SqlTableDefinition>
+    internal sealed class SqlTableDefinitionFormatter : ASTNodeFormatterT<SqlTableDefinition>
     {
         private CommaSeparatedListFormatter CommaSeparatedListFormatter { get; set; }
 

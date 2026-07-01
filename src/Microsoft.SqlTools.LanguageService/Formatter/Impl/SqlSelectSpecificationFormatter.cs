@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
 {
 
     [Export(typeof(ASTNodeFormatterFactory))]
-    internal class SqlSelectSpecificationFormatterFactory : ASTNodeFormatterFactoryT<SqlSelectSpecification>
+    internal sealed class SqlSelectSpecificationFormatterFactory : ASTNodeFormatterFactoryT<SqlSelectSpecification>
     {
         protected override ASTNodeFormatter DoCreate(FormatterVisitor visitor, SqlSelectSpecification codeObject)
         {
@@ -24,7 +24,7 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
         }
     }
 
-    internal class SqlSelectSpecificationFormatter : NewLineSeparatedListFormatter
+    internal sealed class SqlSelectSpecificationFormatter : NewLineSeparatedListFormatter
     {
 
         internal SqlSelectSpecificationFormatter(FormatterVisitor visitor, SqlSelectSpecification codeObject)

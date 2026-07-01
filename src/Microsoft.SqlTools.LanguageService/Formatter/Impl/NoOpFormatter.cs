@@ -9,7 +9,7 @@ using Microsoft.SqlServer.Management.SqlParser.SqlCodeDom;
 
 namespace Microsoft.SqlTools.LanguageService.Formatter
 {
-    internal class NoOpFormatter : ASTNodeFormatterT<SqlCodeObject>
+    internal sealed class NoOpFormatter : ASTNodeFormatterT<SqlCodeObject>
     {
         public NoOpFormatter(FormatterVisitor visitor, SqlCodeObject codeObject)
             : base(visitor, codeObject)

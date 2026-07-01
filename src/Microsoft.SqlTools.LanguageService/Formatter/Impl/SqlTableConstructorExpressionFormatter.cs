@@ -13,7 +13,7 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
 {
     
     [Export(typeof(ASTNodeFormatterFactory))]
-    internal class SqlTableConstructorExpressionFormatterFactory : ASTNodeFormatterFactoryT<SqlTableConstructorExpression>
+    internal sealed class SqlTableConstructorExpressionFormatterFactory : ASTNodeFormatterFactoryT<SqlTableConstructorExpression>
     {
         protected override ASTNodeFormatter DoCreate(FormatterVisitor visitor, SqlTableConstructorExpression codeObject)
         {
@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
         }
     }
 
-    internal class SqlTableConstructorExpressionFormatter : CommaSeparatedListFormatter
+    internal sealed class SqlTableConstructorExpressionFormatter : CommaSeparatedListFormatter
     {
         [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         public SqlTableConstructorExpressionFormatter(FormatterVisitor visitor, SqlTableConstructorExpression codeObject)

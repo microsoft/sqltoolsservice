@@ -13,7 +13,7 @@ using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.LanguageService.Formatter
 {
-    internal class PaddedSpaceSeparatedListFormatter : SpaceSeparatedListFormatter
+    internal sealed class PaddedSpaceSeparatedListFormatter : SpaceSeparatedListFormatter
     {
         private List<ColumnSpacingFormatDefinition> ColumnSpacingDefinitions { get; set; }
         private int nextColumn = 0;
@@ -58,7 +58,7 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
 
         }
 
-        internal class ColumnSpacingFormatDefinition
+        internal sealed class ColumnSpacingFormatDefinition
         {
             internal ColumnSpacingFormatDefinition(Type previousType, Type nextType, int padLength)
             {

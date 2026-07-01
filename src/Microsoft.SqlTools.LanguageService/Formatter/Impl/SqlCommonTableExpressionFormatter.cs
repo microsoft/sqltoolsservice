@@ -11,7 +11,7 @@ using Microsoft.SqlServer.Management.SqlParser.SqlCodeDom;
 namespace Microsoft.SqlTools.LanguageService.Formatter
 {
     [Export(typeof(ASTNodeFormatterFactory))]
-    internal class SqlCommonTableExpressionFormatterFactory : ASTNodeFormatterFactoryT<SqlCommonTableExpression>
+    internal sealed class SqlCommonTableExpressionFormatterFactory : ASTNodeFormatterFactoryT<SqlCommonTableExpression>
     {
         protected override ASTNodeFormatter DoCreate(FormatterVisitor visitor, SqlCommonTableExpression codeObject)
         {
@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
         }
     }
 
-    internal class SqlCommonTableExpressionFormatter : SysCommentsFormatterBase<SqlCommonTableExpression>
+    internal sealed class SqlCommonTableExpressionFormatter : SysCommentsFormatterBase<SqlCommonTableExpression>
     {        
 
         public SqlCommonTableExpressionFormatter(FormatterVisitor visitor, SqlCommonTableExpression codeObject)

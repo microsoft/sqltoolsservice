@@ -13,7 +13,7 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
 {
 
     [Export(typeof(ASTNodeFormatterFactory))]
-    internal class SqlBinaryBooleanExpressionFormatterFactory : ASTNodeFormatterFactoryT<SqlBinaryBooleanExpression>
+    internal sealed class SqlBinaryBooleanExpressionFormatterFactory : ASTNodeFormatterFactoryT<SqlBinaryBooleanExpression>
     {
         protected override ASTNodeFormatter DoCreate(FormatterVisitor visitor, SqlBinaryBooleanExpression codeObject)
         {
@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
         }
     }
 
-    internal class SqlBinaryBooleanExpressionFormatter : ASTNodeFormatterT<SqlBinaryBooleanExpression>
+    internal sealed class SqlBinaryBooleanExpressionFormatter : ASTNodeFormatterT<SqlBinaryBooleanExpression>
     {
         SpaceSeparatedListFormatter SpaceSeparatedListFormatter { get; set; }
 

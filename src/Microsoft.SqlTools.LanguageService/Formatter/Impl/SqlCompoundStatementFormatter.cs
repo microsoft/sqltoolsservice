@@ -13,7 +13,7 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
 {
 
     [Export(typeof(ASTNodeFormatterFactory))]
-    internal class SqlCompoundStatementFormatterFactory : ASTNodeFormatterFactoryT<SqlCompoundStatement>
+    internal sealed class SqlCompoundStatementFormatterFactory : ASTNodeFormatterFactoryT<SqlCompoundStatement>
     {
         protected override ASTNodeFormatter DoCreate(FormatterVisitor visitor, SqlCompoundStatement codeObject)
         {
@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
         }
     }
 
-    class SqlCompoundStatementFormatter : NewLineSeparatedListFormatter
+    internal sealed class SqlCompoundStatementFormatter : NewLineSeparatedListFormatter
     {
         internal SqlCompoundStatementFormatter(FormatterVisitor visitor, SqlCompoundStatement codeObject)
             : base(visitor, codeObject, true)
