@@ -317,7 +317,7 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
                 // Reflection failures are non-fatal: the platform pill simply won't render
                 // and the user keeps their compare results. Log so the failure is diagnosable
                 // from the STS log file without surfacing to the UI.
-                Logger.Warning(string.Format("Schema compare: failed to detect comparison platform via reflection: {0}", ex.Message));
+                Logger.Warning(string.Format("Schema compare: failed to detect comparison platform via reflection: {0}", ex));
                 return null;
             }
         }

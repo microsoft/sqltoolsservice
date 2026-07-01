@@ -165,9 +165,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SchemaCompare
         [Test]
         public void SchemaCompareOperationExposesSourceAndTargetPlatformProperties()
         {
-            // The operation hoists Source/TargetPlatform from ComparisonResult.Source/TargetModel
-            // after Execute() so SchemaCompareService can wire it into the SchemaCompareResult
-            // contract without re-walking the DacFx model on the JSON-RPC layer.
+            // The operation surfaces Source/TargetPlatform after Execute() so
+            // SchemaCompareService can wire it into the SchemaCompareResult contract without
+            // re-walking the DacFx model on the JSON-RPC layer. The values are populated by
+            // Execute() via SchemaCompareUtils.GetComparisonPlatform (DSP-based reflection),
+            // not from TSqlModel.Version (which misreports Fabric Warehouse as Sql150). This
+            // test exercises the contract's get/set surface; the reflection-based population
+            // is covered by the SchemaCompareFabricTests integration suite.
             SchemaCompareParams parameters = new SchemaCompareParams { OperationId = "op-2" };
             SchemaCompareOperation operation = new SchemaCompareOperation(parameters, connectionProvider: null);
 

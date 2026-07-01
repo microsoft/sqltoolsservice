@@ -47,13 +47,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
     {
         private const string FabricPlatformName = "SqlDwUnified";
 
-        private const string SqlPrimaryKeyConstraintType =
-            "Microsoft.Data.Tools.Schema.Sql.SchemaModel.SqlPrimaryKeyConstraint";
-        private const string SqlForeignKeyConstraintType =
-            "Microsoft.Data.Tools.Schema.Sql.SchemaModel.SqlForeignKeyConstraint";
-        private const string SqlUniqueConstraintType =
-            "Microsoft.Data.Tools.Schema.Sql.SchemaModel.SqlUniqueConstraint";
-
         private static readonly string[] ConstraintTypeSuffixes = new[]
         {
             "PrimaryKeyConstraint",
