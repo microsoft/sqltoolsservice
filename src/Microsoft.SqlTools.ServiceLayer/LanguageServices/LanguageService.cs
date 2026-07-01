@@ -96,7 +96,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         internal const int CompletionExtTimeout = 200;
 
         internal const string RenameNotSupportedLiveServer =
-            "Rename is only supported in SQL project files.";
+            "Rename is only supported in SQL project files. To rename objects on a connected server, use sp_rename.";
 
         internal const string RenameNotSupported =
             "Renaming an object of this type is not supported.";
