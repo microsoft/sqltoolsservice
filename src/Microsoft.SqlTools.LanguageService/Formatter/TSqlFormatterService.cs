@@ -46,8 +46,7 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
         }
 
         /// <summary>
-        /// Gets the language service used to determine whether a file should be skipped. Note: may be null
-        /// in cases where unit tests do not set this up.
+        /// Gets the language service instance
         /// </summary>
         private TSqlLanguageService LanguageService
         {
