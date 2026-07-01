@@ -25,7 +25,7 @@ using Microsoft.SqlServer.Management.SqlParser.SqlCodeDom;
 using DacModel = Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.AutoParameterizaition;
+using Microsoft.SqlTools.LanguageService.AutoParameterizaition;
 using Microsoft.SqlTools.LanguageService.Connection;
 using Microsoft.SqlTools.LanguageService.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
