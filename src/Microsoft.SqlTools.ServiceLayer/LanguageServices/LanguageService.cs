@@ -95,6 +95,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         internal const int CompletionExtTimeout = 200;
 
+        // {0} = bracketed object name, e.g. [TableName] or [dbo].[TableName]
+        internal const string DuplicateNameWarningFormat =
+            "A schema object with the name {0} already exists. Would you like to continue?";
+
         // For testability only
         internal Task DelayedDiagnosticsTask = null;
 
@@ -1898,6 +1902,22 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
             }
 
+            // Warn if an object with the new name already exists in the same scope.
+            // The workspace edits are still computed and returned so the client can apply
+            string nameCollisionWarning = null;
+            if (provider != null && qualifiedName != null)
+            {
+                int lastDot = qualifiedName.LastIndexOf('.');
+                string newQualifiedName = lastDot >= 0
+                    ? qualifiedName.Substring(0, lastDot + 1) + renameParams.NewName
+                    : renameParams.NewName;
+
+                if (provider.FindObject(newQualifiedName) != null)
+                {
+                    nameCollisionWarning = string.Format(DuplicateNameWarningFormat, $"[{renameParams.NewName}]");
+                }
+            }
+
             var changes = new Dictionary<string, List<TextEdit>>(StringComparer.OrdinalIgnoreCase);
 
             // Cache line lookups so each candidate file is read at most once, regardless of how
@@ -1962,7 +1982,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 Changes            = changes,
                 RefactorLogContent = refactorLogContent,
-                NewName            = renameParams.NewName
+                NewName            = renameParams.NewName,
+                WarningMessage     = nameCollisionWarning
             });
         }
 
@@ -2023,16 +2044,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
             }
 
-            // Check for name collision: reject if an object with the same name already exists in
-            // the target schema.
+            // Check for name collision: warn if an object with the same name already exists in
+            // the target schema. The workspace edits are still computed and returned so the client
+            // can apply them after the user confirms the SSDT-style warning dialog.
             string unqualifiedName = TextUtilities.RemoveSquareBracketSyntax(elementName.Split('.').Last());
             string targetQualifiedName = $"{moveParams.TargetSchema}.{unqualifiedName}";
             DacModel.TSqlObject existingObject = provider.FindObject(targetQualifiedName);
-            if (existingObject != null)
-            {
-                await requestContext.SendResult(null);
-                return;
-            }
+            string moveCollisionWarning = existingObject != null
+                ? string.Format(DuplicateNameWarningFormat, $"[{moveParams.TargetSchema}].[{unqualifiedName}]")
+                : null;
 
             // Re-scan each file that references the object and compute the schema-qualifier edits.
             // We use both the identifier-reference locations AND the defining file, because the
@@ -2082,7 +2102,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 Changes            = changes,
                 RefactorLogContent = refactorLogContent,
-                TargetSchema       = moveParams.TargetSchema
+                TargetSchema       = moveParams.TargetSchema,
+                WarningMessage     = moveCollisionWarning
             });
         }
 
