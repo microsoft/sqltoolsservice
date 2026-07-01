@@ -40,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
     /// <summary>
     /// Main class for the Connection Management services
     /// </summary>
-    public class ConnectionService
+    public class ConnectionService : IConnectionService
     {
         public const string AdminConnectionPrefix = "ADMIN:";
         internal const string PasswordPlaceholder = "******";
@@ -258,11 +258,35 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <param name="connectedQueue"></param>
         public virtual void RegisterConnectedQueue(string type, IConnectedBindingQueue connectedQueue)
         {
-            if (!connectedQueues.ContainsKey(type))
-            {
-                connectedQueues.AddOrUpdate(type, connectedQueue, (key, old) => connectedQueue);
-            }
+            connectedQueues.TryAdd(type, connectedQueue);
         }
+
+        #region IConnectionService explicit implementation
+
+        bool IConnectionService.EnableGlobalConnectionPooling => EnableGlobalConnectionPooling;
+
+        ConcurrentDictionary<string, bool> IConnectionService.TokenUpdateUris => TokenUpdateUris;
+
+        void IConnectionService.RegisterOnConnectionTask(ConnectionHandler activity)
+            => RegisterOnConnectionTask(info => activity(info));
+
+        void IConnectionService.RegisterOnDisconnectTask(DisconnectionHandler activity)
+            => RegisterOnDisconnectTask((summary, ownerUri) => activity(summary, ownerUri));
+
+        Task<bool> IConnectionService.TryRequestRefreshAuthToken(string ownerUri)
+            => TryRequestRefreshAuthToken(ownerUri);
+
+        bool IConnectionService.TryFindConnection(string ownerUri, out Microsoft.SqlTools.LanguageService.LanguageServices.ConnectionInfoBase connectionInfo)
+        {
+            bool found = TryFindConnection(ownerUri, out ConnectionInfo info);
+            connectionInfo = info;
+            return found;
+        }
+
+        void IConnectionService.UpdateAuthToken(string uri, string token, int expiresOn)
+            => UpdateAuthToken(new TokenRefreshedParams() { Uri = uri, Token = token, ExpiresOn = expiresOn });
+
+        #endregion
 
         /// <summary>
         /// Callback for onconnection handler
@@ -1526,9 +1550,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public static bool IsDedicatedAdminConnection(ConnectionDetails connectionDetails)
         {
             Validate.IsNotNull(nameof(connectionDetails), connectionDetails);
-            SqlConnectionStringBuilder builder = CreateConnectionStringBuilder(connectionDetails);
-            string serverName = builder.DataSource;
-            return serverName != null && serverName.StartsWith(AdminConnectionPrefix, StringComparison.OrdinalIgnoreCase);
+            return Microsoft.SqlTools.LanguageService.Connection.ConnectionStringHelper.IsDedicatedAdminConnection(connectionDetails, Instance.EnableSqlAuthenticationProvider, !EnableGlobalConnectionPooling);
         }
 
         /// <summary>

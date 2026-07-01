@@ -354,5 +354,27 @@ namespace Microsoft.SqlTools.LanguageService.Connection
 
             return connectionBuilder;
         }
+
+        /// <summary>
+        /// Prefix that identifies a dedicated administrator (DAC) connection.
+        /// </summary>
+        private const string AdminConnectionPrefix = "ADMIN:";
+
+        /// <summary>
+        /// Checks if a <see cref="ConnectionDetails"/> object represents a DAC connection.
+        /// </summary>
+        /// <param name="connectionDetails">Connection details</param>
+        /// <param name="enableSqlAuthenticationProvider">Whether the configured 'Sql Authentication Provider' for 'Active Directory Interactive' authentication mode should be used when the user chooses 'Azure MFA'.</param>
+        /// <param name="disablePooling">Whether to disable connection pooling for the built connection string.</param>
+        public static bool IsDedicatedAdminConnection(ConnectionDetails connectionDetails, bool enableSqlAuthenticationProvider, bool disablePooling)
+        {
+            if (connectionDetails == null)
+            {
+                throw new ArgumentNullException(nameof(connectionDetails));
+            }
+            SqlConnectionStringBuilder builder = CreateConnectionStringBuilder(connectionDetails, enableSqlAuthenticationProvider, disablePooling);
+            string serverName = builder.DataSource;
+            return serverName != null && serverName.StartsWith(AdminConnectionPrefix, StringComparison.OrdinalIgnoreCase);
+        }
     }
 }

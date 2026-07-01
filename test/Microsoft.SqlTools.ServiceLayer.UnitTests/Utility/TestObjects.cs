@@ -108,7 +108,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         /// <returns></returns>
         public static LanguageServices.LanguageService GetTestLanguageService()
         {
-            return new LanguageServices.LanguageService();
+            var languageService = new LanguageServices.LanguageService();
+            languageService.ConnectionServiceInstance = GetTestConnectionService();
+            return languageService;
         }
 
         /// <summary>

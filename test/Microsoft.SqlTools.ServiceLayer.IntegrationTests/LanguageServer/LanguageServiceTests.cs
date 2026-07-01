@@ -624,7 +624,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
 
                 // Add a connection to ensure the intellisense building works            
                 ConnectionInfo connectionInfo = GetLiveAutoCompleteTestObjects().ConnectionInfo;
-                langService.ConnectionServiceInstance.OwnerToConnectionMap.TryAdd(scriptFile.ClientUri, connectionInfo);
+                ((ConnectionService)langService.ConnectionServiceInstance).OwnerToConnectionMap.TryAdd(scriptFile.ClientUri, connectionInfo);
 
                 // Test SQL
                 int countOfValidationCalls = 0;
