@@ -297,17 +297,22 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// The workspace service that tracks open files and settings. Passed in by the host so this
         /// class does not reference the concrete WorkspaceService&lt;SqlToolsSettings&gt; type (inverted control).
         /// </param>
-        public void InitializeService(ILanguageServiceHost serviceHost, SqlToolsContext context, IConnectionService connectionService, IProjectIntelliSenseService projectIntelliSenseService, ILanguageWorkspaceService workspaceService)
-        {
-            if (serviceHost is null)
-            {
-                throw new ArgumentNullException(nameof(serviceHost));
-            }
+public void InitializeService(ILanguageServiceHost serviceHost, SqlToolsContext context, IConnectionService connectionService, IProjectIntelliSenseService projectIntelliSenseService, ILanguageWorkspaceService workspaceService)
+{
+    if (serviceHost is null)
+    {
+        throw new ArgumentNullException(nameof(serviceHost));
+    }
 
-            if (connectionService is null)
-            {
-                throw new ArgumentNullException(nameof(connectionService));
-            }
+    if (context is null)
+    {
+        throw new ArgumentNullException(nameof(context));
+    }
+
+    if (connectionService is null)
+    {
+        throw new ArgumentNullException(nameof(connectionService));
+    }
 
             if (projectIntelliSenseService is null)
             {
