@@ -2121,6 +2121,61 @@ END
             Assert.That(result, Is.Null, "Name collision should cause the operation to be rejected");
         }
 
+        // ── Rename rejection: specific error messages ─────────────────────────
+
+        [Test]
+        public async Task HandleRenameRequest_ReturnsKeywordMessage_WhenCursorOnKeyword()
+        {
+            LoadAllFilesIntoWorkspace();
+            string fileUri = GetFileUri("StoredProcedures/GetCustomer.sql");
+
+            SqlSymbolRenameResponse result = null;
+            var ctx = new Mock<RequestContext<SqlSymbolRenameResponse>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlSymbolRenameResponse>()))
+               .Returns<SqlSymbolRenameResponse>(r => { result = r; return Task.FromResult(0); });
+
+            // Line 0: "CREATE PROCEDURE dbo.GetCustomer" — char 0 is 'C' in "CREATE" (a keyword).
+            await _langService.HandleSqlRenameRequest(
+                new SqlSymbolRenameParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = fileUri },
+                    Position = new Position { Line = 0, Character = 0 },
+                    NewName = "Whatever"
+                },
+                ctx.Object);
+
+            Assert.That(result?.ErrorMessage, Does.Contain("keyword"),
+                $"Expected keyword message. Got: {result?.ErrorMessage}");
+        }
+
+        [Test]
+        public async Task HandleRenameRequest_ReturnsModelNotFoundMessage_WhenSymbolUnresolved()
+        {
+            LoadAllFilesIntoWorkspace();
+
+            const string ghostUri = "file:///ghost.sql";
+            _workspaceService.Workspace.GetFileBuffer(ghostUri, "SELECT * FROM dbo.NonExistentTable");
+            _langService.InitializeProjectFileContexts(new[] { ghostUri }, _contextKey, _databaseName);
+
+            SqlSymbolRenameResponse result = null;
+            var ctx = new Mock<RequestContext<SqlSymbolRenameResponse>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlSymbolRenameResponse>()))
+               .Returns<SqlSymbolRenameResponse>(r => { result = r; return Task.FromResult(0); });
+
+            // Char 22 is inside "NonExistentTable".
+            await _langService.HandleSqlRenameRequest(
+                new SqlSymbolRenameParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = ghostUri },
+                    Position = new Position { Line = 0, Character = 22 },
+                    NewName = "SomeName"
+                },
+                ctx.Object);
+
+            Assert.That(result?.ErrorMessage, Does.Contain("could not be found"),
+                $"Expected 'could not be found' message. Got: {result?.ErrorMessage}");
+        }
+
     }
 
     /// <summary>

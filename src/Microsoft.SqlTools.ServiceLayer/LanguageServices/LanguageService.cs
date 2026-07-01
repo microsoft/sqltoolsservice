@@ -763,7 +763,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         if (changedFile != null)
                             filesToRefresh.Insert(0, changedFile);
                         if (filesToRefresh.Count > 0)
+                        {
+                            newCts.Token.ThrowIfCancellationRequested();
                             await RunScriptDiagnostics(filesToRefresh.ToArray(), eventContext);
+                        }
                     }
                 }
                 catch (OperationCanceledException) { /* superseded by a newer edit — expected */ }
@@ -1883,16 +1886,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// Determines why a rename cannot proceed and returns a user-facing error message,
         /// or <c>null</c> when the rename is allowed.
         /// </summary>
-        /// <param name="scriptFile">The file containing the cursor, or null if unavailable.</param>
-        /// <param name="line0">0-based cursor line.</param>
-        /// <param name="col0">0-based cursor column.</param>
         /// <param name="locations">Locations returned by <see cref="FindProjectSymbolLocations"/>.</param>
-        /// <param name="tokenText">Bare token text resolved by <see cref="FindProjectSymbolLocations"/>.</param>
+        /// <param name="tokenText">Bare token text resolved by <see cref="FindProjectSymbolLocations"/>; null/empty means the cursor is not on an identifier.</param>
         /// <param name="qualifiedName">Qualified name resolved by <see cref="FindProjectSymbolLocations"/>.</param>
         /// <param name="provider">Metadata provider resolved by <see cref="FindProjectSymbolLocations"/>.</param>
         private static string GetRenameErrorMessage(
-            ScriptFile scriptFile,
-            int line0, int col0,
             Location[] locations,
             string tokenText,
             string qualifiedName,
@@ -1900,12 +1898,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         {
             if (locations.Length == 0)
             {
-                bool cursorOnIdentifier = scriptFile != null
-                    && RenameScriptDomHelper.TryResolveCursorName(
-                        scriptFile.Contents, line0, col0, out _, out _)
-                    && !string.IsNullOrWhiteSpace(tokenText);
-
-                if (!cursorOnIdentifier)
+                if (string.IsNullOrWhiteSpace(tokenText))
                     return "Rename is not supported for SQL keywords and syntax elements. " +
                            "Place the cursor on an identifier to rename.";
 
@@ -1983,9 +1976,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
 
             string errorMessage = GetRenameErrorMessage(
-                scriptFile,
-                renameParams.Position.Line,
-                renameParams.Position.Character,
                 locations, tokenText, qualifiedName, provider);
 
             if (errorMessage != null)
