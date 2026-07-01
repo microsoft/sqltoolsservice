@@ -85,7 +85,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             langService = new LanguageServices.LanguageService();
             // inject mock instances into the Language Service
             langService.WorkspaceServiceInstance = workspaceService.Object;
-            // inject a service host that reports the MSSQL provider (mirrors production)
             var serviceHostMock = new Mock<ILanguageServiceHost>();
             serviceHostMock.SetupGet(host => host.ProviderName).Returns("MSSQL");
             langService.ServiceHostInstance = serviceHostMock.Object;
