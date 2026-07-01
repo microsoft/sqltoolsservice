@@ -13,13 +13,13 @@ using System.Globalization;
 using System.Linq;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.TransactSql.ScriptDom;
-using Microsoft.SqlTools.ServiceLayer.AutoParameterizaition.Exceptions;
-using Microsoft.SqlTools.ServiceLayer.AutoParameterizaition.Helpers;
+using Microsoft.SqlTools.LanguageService.AutoParameterizaition.Exceptions;
+using Microsoft.SqlTools.LanguageService.AutoParameterizaition.Helpers;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.AutoParameterizaition
+namespace Microsoft.SqlTools.LanguageService.AutoParameterizaition
 {
-    internal class ScalarExpressionTransformer : TSqlFragmentVisitor
+    internal sealed class ScalarExpressionTransformer : TSqlFragmentVisitor
     {
         #region datetimeFormats
 

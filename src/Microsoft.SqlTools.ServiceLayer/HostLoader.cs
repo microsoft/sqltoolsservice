@@ -107,14 +107,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             serviceHost.RegisterShutdownTask(WorkspaceService<SqlToolsSettings>.Instance.HandleShutdown);
             serviceProvider.RegisterSingleService(WorkspaceService<SqlToolsSettings>.Instance);
 
-            LanguageServices.LanguageService.Instance.InitializeService(serviceHost, sqlToolsContext);
+            ConnectionService.Instance.InitializeService(serviceHost, commandOptions);
+            serviceProvider.RegisterSingleService(ConnectionService.Instance);
+
+            LanguageServices.LanguageService.Instance.InitializeService(serviceHost, sqlToolsContext, ConnectionService.Instance, SqlProjectsService.Instance, WorkspaceService<SqlToolsSettings>.Instance);
             serviceProvider.RegisterSingleService(LanguageServices.LanguageService.Instance);
             // Register the language service under the file-filter abstraction so the formatter (which lives in
             // the LanguageService library and cannot reference the concrete LanguageService) can resolve it.
             serviceProvider.RegisterSingleService<ILanguageFileFilter>(LanguageServices.LanguageService.Instance);
-
-            ConnectionService.Instance.InitializeService(serviceHost, commandOptions);
-            serviceProvider.RegisterSingleService(ConnectionService.Instance);
 
             CredentialService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(CredentialService.Instance);

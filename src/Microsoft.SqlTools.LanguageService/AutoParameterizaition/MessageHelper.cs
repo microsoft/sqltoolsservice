@@ -7,7 +7,7 @@
 
 using System.Globalization;
 
-namespace Microsoft.SqlTools.ServiceLayer.AutoParameterizaition.Helpers
+namespace Microsoft.SqlTools.LanguageService.AutoParameterizaition.Helpers
 {
     public class MessageHelper
     {

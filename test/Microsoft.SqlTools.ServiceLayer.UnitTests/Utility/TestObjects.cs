@@ -12,7 +12,9 @@ using System.Data.Common;
 using System.Linq;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.LanguageService.Connection.Contracts;
+using Microsoft.SqlTools.LanguageService.Workspace;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using Microsoft.Data.SqlClient;
 using Moq;
@@ -108,7 +110,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         /// <returns></returns>
         public static LanguageServices.LanguageService GetTestLanguageService()
         {
-            return new LanguageServices.LanguageService();
+            var languageService = new LanguageServices.LanguageService();
+            languageService.ConnectionServiceInstance = GetTestConnectionService();
+            languageService.WorkspaceServiceInstance = WorkspaceService<SqlToolsSettings>.Instance;
+            return languageService;
         }
 
         /// <summary>

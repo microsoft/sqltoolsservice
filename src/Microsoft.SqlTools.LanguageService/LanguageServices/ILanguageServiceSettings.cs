@@ -34,5 +34,11 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
         /// <summary>Gets the keyword casing used when generating completion suggestions.</summary>
         CasingOptions FormatKeywordCasing { get; }
+
+        /// <summary>
+        /// Merges the values from <paramref name="newSettings"/> into this instance.
+        /// </summary>
+        /// <param name="newSettings">The settings to merge in.</param>
+        void UpdateFrom(ILanguageServiceSettings newSettings);
     }
 }

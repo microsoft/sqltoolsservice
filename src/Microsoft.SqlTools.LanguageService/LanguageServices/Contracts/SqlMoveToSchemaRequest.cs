@@ -60,5 +60,8 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices.Contracts
 
         /// <summary>The target schema as echoed back from the request.</summary>
         public string TargetSchema { get; set; }
+
+        /// <summary>Warning message to surface to the user, if any.</summary>
+        public string WarningMessage { get; set; }
     }
 }
