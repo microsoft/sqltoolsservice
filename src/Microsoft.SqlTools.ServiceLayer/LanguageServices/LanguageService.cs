@@ -96,17 +96,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         internal const int CompletionExtTimeout = 200;
 
         internal const string RenameNotSupportedLiveServer =
-            "Rename is not supported for files connected to a live server. Open the file as part of a SQL project first.";
+            "Rename is only supported in SQL project files.";
 
-        internal const string RenameNotSupportedSchemaNames =
-            "Rename is not supported for schema names. Use 'Move to Schema' to move objects between schemas.";
-
-        internal const string RenameNotSupportedKeywords =
-            "Rename is not supported for SQL keywords and syntax elements. Place the cursor on an identifier to rename.";
-
-        // {0} = token text
-        internal const string RenameSymbolNotFoundFormat =
-            "The symbol '{0}' could not be found in the project model. Try saving the file first.";
+        internal const string RenameNotSupported =
+            "Renaming an object of this type is not supported.";
 
         // For testability only
         internal Task DelayedDiagnosticsTask = null;
@@ -1912,16 +1905,10 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <see cref="FindProjectSymbolLocations"/> runs, so this only handles keyword/not-found cases.
         /// </summary>
         /// <param name="locations">Locations returned by <see cref="FindProjectSymbolLocations"/>.</param>
-        /// <param name="tokenText">Bare token text at the cursor; null/empty means the cursor is not on an identifier.</param>
-        private static string GetRenameErrorMessage(Location[] locations, string tokenText)
+        private static string GetRenameErrorMessage(Location[] locations)
         {
             if (locations.Length == 0)
-            {
-                if (string.IsNullOrWhiteSpace(tokenText))
-                    return RenameNotSupportedKeywords;
-
-                return string.Format(RenameSymbolNotFoundFormat, tokenText ?? "unknown");
-            }
+                return RenameNotSupported;
 
             return null;
         }
@@ -1960,7 +1947,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 await requestContext.SendResult(new SqlSymbolRenameResponse
                 {
-                    ErrorMessage = RenameNotSupportedSchemaNames
+                    ErrorMessage = RenameNotSupported
                 });
                 return;
             }
@@ -1981,7 +1968,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 return;
             }
 
-            string errorMessage = GetRenameErrorMessage(locations, tokenText);
+            string errorMessage = GetRenameErrorMessage(locations);
 
             if (errorMessage != null)
             {

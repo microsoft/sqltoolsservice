@@ -2125,7 +2125,7 @@ END
         // ── Rename rejection: specific error messages ─────────────────────────
 
         [Test]
-        public async Task HandleRenameRequest_ReturnsKeywordMessage_WhenCursorOnKeyword()
+        public async Task HandleRenameRequest_ReturnsNotSupportedMessage_WhenCursorOnKeyword()
         {
             LoadAllFilesIntoWorkspace();
             string fileUri = GetFileUri("StoredProcedures/GetCustomer.sql");
@@ -2145,12 +2145,12 @@ END
                 },
                 ctx.Object);
 
-            Assert.That(result?.ErrorMessage, Does.Contain("keyword"),
-                $"Expected keyword message. Got: {result?.ErrorMessage}");
+            Assert.That(result?.ErrorMessage, Is.EqualTo(LangService.RenameNotSupported),
+                $"Expected not-supported message. Got: {result?.ErrorMessage}");
         }
 
         [Test]
-        public async Task HandleRenameRequest_ReturnsModelNotFoundMessage_WhenSymbolUnresolved()
+        public async Task HandleRenameRequest_ReturnsNotSupportedMessage_WhenSymbolUnresolved()
         {
             LoadAllFilesIntoWorkspace();
 
@@ -2173,14 +2173,14 @@ END
                 },
                 ctx.Object);
 
-            Assert.That(result?.ErrorMessage, Does.Contain("could not be found"),
-                $"Expected 'could not be found' message. Got: {result?.ErrorMessage}");
+            Assert.That(result?.ErrorMessage, Is.EqualTo(LangService.RenameNotSupported),
+                $"Expected not-supported message. Got: {result?.ErrorMessage}");
         }
 
         // Cursor on the schema prefix of a qualified name (e.g. "dbo" in "dbo.Customers").
         // The FAR scan must NOT run — we should get the schema error immediately.
         [Test]
-        public async Task HandleRenameRequest_ReturnsSchemaNamesMessage_WhenCursorOnSchemaPrefix()
+        public async Task HandleRenameRequest_ReturnsNotSupportedMessage_WhenCursorOnSchemaPrefix()
         {
             LoadAllFilesIntoWorkspace();
             string fileUri = GetFileUri("StoredProcedures/GetCustomer.sql");
@@ -2201,8 +2201,8 @@ END
                 },
                 ctx.Object);
 
-            Assert.That(result?.ErrorMessage, Is.EqualTo(LangService.RenameNotSupportedSchemaNames),
-                $"Expected schema message. Got: {result?.ErrorMessage}");
+            Assert.That(result?.ErrorMessage, Is.EqualTo(LangService.RenameNotSupported),
+                $"Expected not-supported message. Got: {result?.ErrorMessage}");
         }
 
         // File connected to a live server must be rejected before any project-model work runs.
