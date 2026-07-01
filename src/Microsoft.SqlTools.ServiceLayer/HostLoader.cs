@@ -112,9 +112,6 @@ namespace Microsoft.SqlTools.ServiceLayer
 
             TSqlLanguageService.Instance.InitializeService(serviceHost, sqlToolsContext, ConnectionService.Instance, SqlProjectsService.Instance, WorkspaceService<SqlToolsSettings>.Instance);
             serviceProvider.RegisterSingleService(TSqlLanguageService.Instance);
-            // Register the language service under the file-filter abstraction so the formatter (which lives in
-            // the LanguageService library and cannot reference the concrete LanguageService) can resolve it.
-            serviceProvider.RegisterSingleService<ILanguageFileFilter>(TSqlLanguageService.Instance);
 
             CredentialService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(CredentialService.Instance);

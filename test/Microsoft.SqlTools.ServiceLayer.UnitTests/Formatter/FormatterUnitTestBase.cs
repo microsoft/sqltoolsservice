@@ -28,7 +28,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
             ServiceProvider = ExtensionServiceProvider.CreateDefaultServiceProvider();
             ServiceProvider.RegisterSingleService(WorkspaceServiceMock.Object);
             ServiceProvider.RegisterSingleService(LanguageServiceMock.Object);
-            ServiceProvider.RegisterSingleService<ILanguageFileFilter>(LanguageServiceMock.Object);
             HostLoader.InitializeHostedServices(ServiceProvider, HostMock.Object);
             FormatterService = ServiceProvider.GetService<TSqlFormatterService>();
             FormatterService.SetFileResolver(uri => WorkspaceServiceMock.Object.Workspace?.GetFile(uri));

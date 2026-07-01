@@ -47,7 +47,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
     /// Main class for Language Service functionality including anything that requires knowledge of
     /// the language to perform, such as definitions, intellisense, etc.
     /// </summary>
-    public class TSqlLanguageService : IDisposable, ILanguageFileFilter
+    public class TSqlLanguageService : IDisposable
     {
         #region Singleton Instance Implementation
 
