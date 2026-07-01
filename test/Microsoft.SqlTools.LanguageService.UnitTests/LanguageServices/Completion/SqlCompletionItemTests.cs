@@ -29,11 +29,11 @@ namespace Microsoft.SqlTools.LanguageService.UnitTests.LanguageServices.Completi
             SqlCompletionItem item = new SqlCompletionItem(declarationTitle, declarationType, tokenText);
             CompletionItem completionItem = item.CreateCompletionItem(0, 1, 2);
 
-            Assert.True(completionItem.InsertText.StartsWith("[") && completionItem.InsertText.EndsWith("]"));
+            Assert.AreEqual(expected, completionItem.InsertText);
         }
 
         [Test]
-        public void ConstructorShouldThrowExceptionGivenEmptyDeclarionType()
+        public void ConstructorShouldThrowExceptionGivenEmptyDeclarationTitle()
         {
             string declarationTitle = "";
             DeclarationType declarationType = DeclarationType.Table;
