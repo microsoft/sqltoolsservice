@@ -85,6 +85,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             langService = new LanguageServices.LanguageService();
             // inject mock instances into the Language Service
             langService.WorkspaceServiceInstance = workspaceService.Object;
+            var serviceHostMock = new Mock<ILanguageServiceHost>();
+            serviceHostMock.SetupGet(host => host.ProviderName).Returns("MSSQL");
+            langService.ServiceHostInstance = serviceHostMock.Object;
             // Set the binding queue before the connection service so the connection service
             // registers the mock queue (registration happens in the ConnectionServiceInstance setter).
             langService.BindingQueue = bindingQueue.Object;

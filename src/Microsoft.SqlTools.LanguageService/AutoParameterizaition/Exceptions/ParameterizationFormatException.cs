@@ -6,9 +6,9 @@
 #nullable disable
 
 using System;
-using Microsoft.SqlTools.ServiceLayer.AutoParameterizaition.Helpers;
+using Microsoft.SqlTools.LanguageService.AutoParameterizaition.Helpers;
 
-namespace Microsoft.SqlTools.ServiceLayer.AutoParameterizaition.Exceptions
+namespace Microsoft.SqlTools.LanguageService.AutoParameterizaition.Exceptions
 {
     /// <summary>
     /// ParameterizationFormatException is used to surface format exceptions encountered in the TSQL batch to perform 

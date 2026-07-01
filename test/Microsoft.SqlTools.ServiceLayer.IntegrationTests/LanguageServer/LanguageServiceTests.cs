@@ -23,7 +23,7 @@ using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using Microsoft.SqlTools.LanguageService.Workspace;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.LanguageService.Connection.Contracts;
 using Moq;
 using NUnit.Framework;
 
@@ -736,16 +736,19 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         /// <returns></returns>
         private ServiceLayer.LanguageServices.LanguageService CreateLanguageService(ScriptFile scriptFile, bool lowerCaseSuggestions = true)
         {
+            var workspaceService = new WorkspaceService<SqlToolsSettings>()
+            {
+                Workspace = new Microsoft.SqlTools.LanguageService.Workspace.Workspace()
+            };
             var langService = new ServiceLayer.LanguageServices.LanguageService()
             {
-                WorkspaceServiceInstance = new WorkspaceService<SqlToolsSettings>()
-                {
-                    Workspace = new Microsoft.SqlTools.LanguageService.Workspace.Workspace()
-                }
+                WorkspaceServiceInstance = workspaceService
             };
+            langService.ConnectionServiceInstance = ConnectionService.Instance;
+            langService.ServiceHostInstance = Hosting.ServiceHost.Instance;
             langService.CurrentWorkspace.GetFile(scriptFile.ClientUri);
-            langService.CurrentWorkspaceSettings.SqlTools.IntelliSense.EnableIntellisense = true;
-            langService.CurrentWorkspaceSettings.SqlTools.Format.KeywordCasing = 
+            workspaceService.CurrentSettings.SqlTools.IntelliSense.EnableIntellisense = true;
+            workspaceService.CurrentSettings.SqlTools.Format.KeywordCasing =
                 lowerCaseSuggestions ?
                 CasingOptions.Lowercase :
                 CasingOptions.Uppercase;

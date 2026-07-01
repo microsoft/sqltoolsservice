@@ -25,11 +25,9 @@ using Microsoft.SqlServer.Management.SqlParser.SqlCodeDom;
 using DacModel = Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.AutoParameterizaition;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.LanguageService.AutoParameterizaition;
 using Microsoft.SqlTools.LanguageService.Connection;
 using Microsoft.SqlTools.LanguageService.Connection.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.LanguageService.LanguageServices;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Completion;
 using ConnectionInfoBase = Microsoft.SqlTools.LanguageService.LanguageServices.ConnectionInfoBase;
@@ -37,8 +35,6 @@ using Microsoft.SqlTools.LanguageService.LanguageServices.Completion.Extension;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;
 using Microsoft.SqlTools.LanguageService.Scripting;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Microsoft.SqlTools.ServiceLayer.SqlProjects;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.LanguageService.Workspace;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using Microsoft.SqlTools.Utility;
@@ -95,14 +91,20 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         internal const int CompletionExtTimeout = 200;
 
+        // {0} = bracketed object name, e.g. [TableName] or [dbo].[TableName]
+        internal const string DuplicateNameWarningFormat =
+            "A schema object with the name {0} already exists. Would you like to continue?";
+
         // For testability only
         internal Task DelayedDiagnosticsTask = null;
 
         private IConnectionService connectionService = null;
 
-        private WorkspaceService<SqlToolsSettings> workspaceServiceInstance;
+        private IProjectIntelliSenseService projectIntelliSenseService = null;
 
-        private ServiceHost serviceHostInstance;
+        private ILanguageWorkspaceService workspaceServiceInstance;
+
+        private ILanguageServiceHost serviceHostInstance;
 
         private Lock parseMapLock = new();
 
@@ -201,18 +203,36 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
 
+        /// <summary>
+        /// Gets or sets the SQL projects service used for project-aware IntelliSense.
+        /// The host sets this when the language service is initialized (see HostLoader) so this
+        /// class does not reference the concrete SqlProjectsService type directly (inverted control).
+        /// Setter is also used by tests to inject a fake.
+        /// </summary>
+        internal IProjectIntelliSenseService ProjectIntelliSenseService
+        {
+            get
+            {
+                return projectIntelliSenseService ?? throw new InvalidOperationException($"{nameof(ProjectIntelliSenseService)} has not been set.");
+            }
+
+            set
+            {
+                projectIntelliSenseService = value;
+            }
+        }
+
         private CancellationTokenSource? existingRequestCancellation;
 
         /// <summary>
         /// Gets or sets the current workspace service instance
         /// Setter for internal testing purposes only
         /// </summary>
-        internal WorkspaceService<SqlToolsSettings> WorkspaceServiceInstance
+        internal ILanguageWorkspaceService WorkspaceServiceInstance
         {
             get
             {
-                workspaceServiceInstance ??= WorkspaceService<SqlToolsSettings>.Instance;
-                return workspaceServiceInstance;
+                return workspaceServiceInstance ?? throw new InvalidOperationException($"{nameof(WorkspaceServiceInstance)} has not been set.");
             }
             set
             {
@@ -220,12 +240,17 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             }
         }
 
-        internal ServiceHost ServiceHostInstance
+        /// <summary>
+        /// Gets or sets the service host the language service registers handlers on and sends events through.
+        /// The host sets this when the language service is initialized (see HostLoader) so this class does
+        /// not reference the concrete ServiceHost type directly (inverted control). Setter is also used by
+        /// tests to inject a fake.
+        /// </summary>
+        internal ILanguageServiceHost ServiceHostInstance
         {
             get
             {
-                this.serviceHostInstance ??= ServiceHost.Instance;
-                return this.serviceHostInstance;
+                return this.serviceHostInstance ?? throw new InvalidOperationException($"{nameof(ServiceHostInstance)} has not been set.");
             }
             set
             {
@@ -236,7 +261,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Gets the current settings
         /// </summary>
-        internal SqlToolsSettings CurrentWorkspaceSettings
+        internal ILanguageServiceSettings CurrentWorkspaceSettings
         {
             get { return WorkspaceServiceInstance.CurrentSettings; }
         }
@@ -268,15 +293,46 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// The connection service the language service resolves connections through. Passed in by the
         /// host so this class does not reference the concrete ConnectionService type (inverted control).
         /// </param>
-        public void InitializeService(ServiceHost serviceHost, SqlToolsContext context, IConnectionService connectionService)
+        /// <param name="projectIntelliSenseService">
+        /// The SQL projects service used for project-aware IntelliSense. Passed in by the host so this
+        /// class does not reference the concrete SqlProjectsService type (inverted control).
+        /// </param>
+        /// <param name="workspaceService">
+        /// The workspace service that tracks open files and settings. Passed in by the host so this
+        /// class does not reference the concrete WorkspaceService&lt;SqlToolsSettings&gt; type (inverted control).
+        /// </param>
+        public void InitializeService(ILanguageServiceHost serviceHost, SqlToolsContext context, IConnectionService connectionService, IProjectIntelliSenseService projectIntelliSenseService, ILanguageWorkspaceService workspaceService)
         {
+            if (serviceHost is null)
+            {
+                throw new ArgumentNullException(nameof(serviceHost));
+            }
+
+            if (context is null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+
             if (connectionService is null)
             {
                 throw new ArgumentNullException(nameof(connectionService));
             }
 
+            if (projectIntelliSenseService is null)
+            {
+                throw new ArgumentNullException(nameof(projectIntelliSenseService));
+            }
+
+            if (workspaceService is null)
+            {
+                throw new ArgumentNullException(nameof(workspaceService));
+            }
+
             // Wire up the connection service right away so it is available before any handler runs.
             ConnectionServiceInstance = connectionService;
+            ProjectIntelliSenseService = projectIntelliSenseService;
+            ServiceHostInstance = serviceHost;
+            WorkspaceServiceInstance = workspaceService;
             // Register the requests that this service will handle
 
             // turn off until needed (10/28/2016)
@@ -346,8 +402,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 this.Dispose();
                 return Task.FromResult(0);
             });
-
-            ServiceHostInstance = serviceHost;
 
             // Register the configuration update handler
             WorkspaceServiceInstance.RegisterConfigChangeCallback(HandleDidChangeConfigurationNotification);
@@ -756,7 +810,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     AsyncLock projectLock = projectModelUpdateLocks.GetOrAdd(projectUri, _ => new AsyncLock());
                     using (await projectLock.LockAsync())
                     {
-                        await SqlProjectsService.Instance.UpdateProjectIntelliSenseAsync(
+                        await ProjectIntelliSenseService.UpdateProjectIntelliSenseAsync(
                             projectUri, fileUri, deleted: false, sqlTextOverride: contents);
                     }
 
@@ -842,7 +896,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 if (!TryGetProjectUriForSqlFile(uri, out string projectUri))
                     return;
 
-                await SqlProjectsService.Instance.UpdateProjectIntelliSenseAsync(projectUri, uri, deleted: false);
+                await ProjectIntelliSenseService.UpdateProjectIntelliSenseAsync(projectUri, uri, deleted: false);
 
                 // After the model update, re-run diagnostics on ALL open project files
                 // (including the saved file itself). This is necessary because:
@@ -852,7 +906,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 if (CurrentWorkspaceSettings.IsDiagnosticsEnabled)
                 {
                     var savedFile = CurrentWorkspace.GetFile(uri);
-                    var siblingUris = SqlProjectsService.Instance.GetSiblingProjectFileUris(projectUri, uri);
+                    var siblingUris = ProjectIntelliSenseService.GetSiblingProjectFileUris(projectUri, uri);
                     var filesToRefresh = siblingUris
                         .Select(u => CurrentWorkspace.GetFile(u))
                         .Where(f => f != null)
@@ -998,8 +1052,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <param name="oldSettings"></param>
         /// <param name="eventContext"></param>
         public async Task HandleDidChangeConfigurationNotification(
-            SqlToolsSettings newSettings,
-            SqlToolsSettings oldSettings,
+            ILanguageServiceSettings newSettings,
+            ILanguageServiceSettings oldSettings,
             EventContext eventContext)
         {
             try
@@ -1009,7 +1063,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 bool? oldEnableDiagnostics = oldSettings.IsErrorCheckingEnabled;
 
                 // update the current settings to reflect any changes
-                CurrentWorkspaceSettings.Update(newSettings);
+                CurrentWorkspaceSettings.UpdateFrom(newSettings);
 
                 // if script analysis settings have changed we need to clear the current diagnostic markers
                 if (oldEnableIntelliSense != newSettings.IsIntelliSenseEnabled
@@ -1069,7 +1123,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             bool shouldBlock = false;
             if (SQL_LANG.Equals(changeParams.Language, StringComparison.OrdinalIgnoreCase))
             {
-                shouldBlock = !ServiceHost.ProviderName.Equals(changeParams.Flavor, StringComparison.OrdinalIgnoreCase);
+                shouldBlock = !ServiceHostInstance.ProviderName.Equals(changeParams.Flavor, StringComparison.OrdinalIgnoreCase);
             }
             if (SQL_CMD_LANG.Equals(changeParams.Language, StringComparison.OrdinalIgnoreCase))
             {
@@ -1970,6 +2024,23 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 return;
             }
 
+            // Warn if an object with the new name already exists in the same scope.
+            // Workspace edits are still computed and returned so the client can apply them after confirmation.
+            string nameCollisionWarning = null;
+            if (provider != null && qualifiedName != null)
+            {
+                int lastDot = qualifiedName.LastIndexOf('.');
+                string newQualifiedName = lastDot >= 0
+                    ? qualifiedName.Substring(0, lastDot + 1) + renameParams.NewName
+                    : renameParams.NewName;
+
+                if (!string.Equals(newQualifiedName, qualifiedName, StringComparison.OrdinalIgnoreCase)
+                    && provider.FindObject(newQualifiedName) != null)
+                {
+                    nameCollisionWarning = string.Format(DuplicateNameWarningFormat, $"[{renameParams.NewName.Replace("]", "]]")}]");
+                }
+            }
+
             var changes = new Dictionary<string, List<TextEdit>>(StringComparer.OrdinalIgnoreCase);
 
             // Cache line lookups so each candidate file is read at most once, regardless of how
@@ -2034,7 +2105,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 Changes            = changes,
                 RefactorLogContent = refactorLogContent,
-                NewName            = renameParams.NewName
+                NewName            = renameParams.NewName,
+                WarningMessage     = nameCollisionWarning
             });
         }
 
@@ -2095,16 +2167,15 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 }
             }
 
-            // Check for name collision: reject if an object with the same name already exists in
-            // the target schema.
+            // Check for name collision: warn if an object with the same name already exists in
+            // the target schema. The workspace edits are still computed and returned so the client
+            // can apply them after the user confirms the SSDT-style warning dialog.
             string unqualifiedName = TextUtilities.RemoveSquareBracketSyntax(elementName.Split('.').Last());
             string targetQualifiedName = $"{moveParams.TargetSchema}.{unqualifiedName}";
             DacModel.TSqlObject existingObject = provider.FindObject(targetQualifiedName);
-            if (existingObject != null)
-            {
-                await requestContext.SendResult(null);
-                return;
-            }
+            string moveCollisionWarning = existingObject != null
+                ? string.Format(DuplicateNameWarningFormat, $"[{moveParams.TargetSchema.Replace("]", "]]")}].[{unqualifiedName.Replace("]", "]]")}]")
+                : null;
 
             // Re-scan each file that references the object and compute the schema-qualifier edits.
             // We use both the identifier-reference locations AND the defining file, because the
@@ -2154,7 +2225,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 Changes            = changes,
                 RefactorLogContent = refactorLogContent,
-                TargetSchema       = moveParams.TargetSchema
+                TargetSchema       = moveParams.TargetSchema,
+                WarningMessage     = moveCollisionWarning
             });
         }
 
@@ -2990,7 +3062,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         // If lookupName is null/empty or project state is unavailable, keep the
                         // diagnostic rather than risking suppression of a real error.
                         if (projectUri != null
-                            && SqlProjectsService.Instance.TryIsDuplicate(projectUri, lookupName, out bool isDuplicate)
+                            && ProjectIntelliSenseService.TryIsDuplicate(projectUri, lookupName, out bool isDuplicate)
                             && !isDuplicate)
                         {
                             continue;
@@ -3237,9 +3309,16 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         internal void DeletePeekDefinitionScripts()
         {
             // Delete temp folder created to store peek definition scripts
-            if (FileUtilities.SafeDirectoryExists(PeekDefinitionTempFolder.TempFolderPath))
+            try
             {
-                FileUtilities.SafeDirectoryDelete(PeekDefinitionTempFolder.TempFolderPath, true);
+                if (Directory.Exists(PeekDefinitionTempFolder.TempFolderPath))
+                {
+                    Directory.Delete(PeekDefinitionTempFolder.TempFolderPath, recursive: true);
+                }
+            }
+            catch (Exception)
+            {
+                // Swallow exception, do nothing
             }
         }
 

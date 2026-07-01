@@ -123,6 +123,17 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         }
 
         /// <summary>
+        /// Merges the values from <paramref name="newSettings"/> into this instance.
+        /// </summary>
+        public void UpdateFrom(ILanguageServiceSettings newSettings)
+        {
+            if (newSettings is SqlToolsSettings settings)
+            {
+                Update(settings);
+            }
+        }
+
+        /// <summary>
         /// Gets a flag determining if diagnostics are enabled
         /// </summary>
         public bool IsDiagnosticsEnabled

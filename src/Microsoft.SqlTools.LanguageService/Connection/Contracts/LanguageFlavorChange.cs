@@ -7,7 +7,7 @@
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+namespace Microsoft.SqlTools.LanguageService.Connection.Contracts
 {
 
     /// <summary>

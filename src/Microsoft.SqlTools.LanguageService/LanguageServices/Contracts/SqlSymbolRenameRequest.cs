@@ -66,5 +66,10 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices.Contracts
         /// should be displayed to the user in place of any generic fallback message.
         /// </summary>
         public string ErrorMessage { get; set; }
+
+        /// <summary>
+        /// Warning message to surface to the user, if any.
+        /// </summary>
+        public string WarningMessage { get; set; }
     }
 }

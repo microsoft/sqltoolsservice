@@ -5,9 +5,9 @@
 
 #nullable disable
 
-namespace Microsoft.SqlTools.ServiceLayer.AutoParameterizaition.Exceptions
+namespace Microsoft.SqlTools.LanguageService.AutoParameterizaition.Exceptions
 {
-    internal class ParameterizationScriptTooLargeException : ParameterizationParsingException
+    internal sealed class ParameterizationScriptTooLargeException : ParameterizationParsingException
     {
         public readonly int ScriptLength;
 
