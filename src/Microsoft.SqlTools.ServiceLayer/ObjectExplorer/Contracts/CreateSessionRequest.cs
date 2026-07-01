@@ -57,6 +57,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         /// Error message returned from the engine for a object explorer session failure reason, if any.
         /// </summary>
         public string ErrorMessage { get; set; }
+
+        /// <summary>
+        /// Stable, non-localized error code identifying the session failure reason (e.g.
+        /// <see cref="ObjectExplorerErrorCodes.CreateSessionTimeout"/>), if a known one applies.
+        /// Allows clients to detect specific failures without matching on the localized error message.
+        /// </summary>
+        public string ErrorCode { get; set; }
     }
     /// <summary>
     /// Establishes an Object Explorer tree session for a specific connection.
