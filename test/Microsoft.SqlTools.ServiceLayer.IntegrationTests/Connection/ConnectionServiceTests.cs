@@ -9,6 +9,7 @@ using System.Data.Common;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.LanguageService.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;

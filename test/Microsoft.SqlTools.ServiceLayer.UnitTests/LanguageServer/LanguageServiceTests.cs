@@ -10,7 +10,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.SqlParser.Common;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
 using Microsoft.SqlTools.LanguageService.LanguageServices;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Completion;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;

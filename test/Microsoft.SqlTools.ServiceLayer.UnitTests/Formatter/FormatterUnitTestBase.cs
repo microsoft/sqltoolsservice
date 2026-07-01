@@ -10,7 +10,7 @@ using System.Reflection;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.LanguageService.Formatter;
-using Microsoft.SqlTools.ServiceLayer.Formatter;
+using Microsoft.SqlTools.LanguageService.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.LanguageService.Workspace;
@@ -28,8 +28,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
             ServiceProvider = ExtensionServiceProvider.CreateDefaultServiceProvider();
             ServiceProvider.RegisterSingleService(WorkspaceServiceMock.Object);
             ServiceProvider.RegisterSingleService(LanguageServiceMock.Object);
+            ServiceProvider.RegisterSingleService<ILanguageFileFilter>(LanguageServiceMock.Object);
             HostLoader.InitializeHostedServices(ServiceProvider, HostMock.Object);
             FormatterService = ServiceProvider.GetService<TSqlFormatterService>();
+            FormatterService.SetFileResolver(uri => WorkspaceServiceMock.Object.Workspace?.GetFile(uri));
         }
 
         protected ExtensionServiceProvider ServiceProvider { get; private set; }

@@ -6,7 +6,7 @@
 #nullable disable
 
 
-namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
+namespace Microsoft.SqlTools.LanguageService.Connection.Contracts
 {
 
     public interface IConnectionSummary

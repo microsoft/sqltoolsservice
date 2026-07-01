@@ -12,6 +12,7 @@ using System.Data.Common;
 using System.Linq;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.LanguageService.Connection.Contracts;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using Microsoft.Data.SqlClient;
 using Moq;

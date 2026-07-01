@@ -47,38 +47,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves
-        {
-            get
-            {
-                return Keys.GetString(Keys.ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves);
-            }
-        }
-
-        public static string ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol
-        {
-            get
-            {
-                return Keys.GetString(Keys.ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol);
-            }
-        }
-
-        public static string ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination
-        {
-            get
-            {
-                return Keys.GetString(Keys.ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination);
-            }
-        }
-
-        public static string ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl
-        {
-            get
-            {
-                return Keys.GetString(Keys.ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl);
-            }
-        }
-
         public static string ConnectionServiceConnectionCanceled
         {
             get
@@ -471,22 +439,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string PeekDefinitionNoResultsError
-        {
-            get
-            {
-                return Keys.GetString(Keys.PeekDefinitionNoResultsError);
-            }
-        }
-
-        public static string PeekDefinitionDatabaseError
-        {
-            get
-            {
-                return Keys.GetString(Keys.PeekDefinitionDatabaseError);
-            }
-        }
-
         public static string PeekDefinitionNotConnectedError
         {
             get
@@ -500,14 +452,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             get
             {
                 return Keys.GetString(Keys.PeekDefinitionTimedoutError);
-            }
-        }
-
-        public static string PeekDefinitionTypeNotSupportedError
-        {
-            get
-            {
-                return Keys.GetString(Keys.PeekDefinitionTypeNotSupportedError);
             }
         }
 
@@ -10793,36 +10737,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.ConnectionServiceDbErrorDefaultNotConnected, uri);
         }
 
-        public static string ConnectionServiceConnStringInvalidAuthType(string authType)
-        {
-            return Keys.GetString(Keys.ConnectionServiceConnStringInvalidAuthType, authType);
-        }
-
-        public static string ConnectionServiceConnStringInvalidColumnEncryptionSetting(string columnEncryptionSetting)
-        {
-            return Keys.GetString(Keys.ConnectionServiceConnStringInvalidColumnEncryptionSetting, columnEncryptionSetting);
-        }
-
-        public static string ConnectionServiceConnStringInvalidSecureEnclaves(string secureEnclaves)
-        {
-            return Keys.GetString(Keys.ConnectionServiceConnStringInvalidSecureEnclaves, secureEnclaves);
-        }
-
-        public static string ConnectionServiceConnStringInvalidEncryptOption(string encrypt)
-        {
-            return Keys.GetString(Keys.ConnectionServiceConnStringInvalidEncryptOption, encrypt);
-        }
-
-        public static string ConnectionServiceConnStringInvalidEnclaveAttestationProtocol(string enclaveAttestationProtocol)
-        {
-            return Keys.GetString(Keys.ConnectionServiceConnStringInvalidEnclaveAttestationProtocol, enclaveAttestationProtocol);
-        }
-
-        public static string ConnectionServiceConnStringInvalidIntent(string intent)
-        {
-            return Keys.GetString(Keys.ConnectionServiceConnStringInvalidIntent, intent);
-        }
-
         public static string ConnectionParamsValidateNullSqlAuth(string component)
         {
             return Keys.GetString(Keys.ConnectionParamsValidateNullSqlAuth, component);
@@ -10906,26 +10820,6 @@ namespace Microsoft.SqlTools.ServiceLayer
         public static string SerializationServiceRequestNotFound(string filePath)
         {
             return Keys.GetString(Keys.SerializationServiceRequestNotFound, filePath);
-        }
-
-        public static string PeekDefinitionAzureError(string errorMessage)
-        {
-            return Keys.GetString(Keys.PeekDefinitionAzureError, errorMessage);
-        }
-
-        public static string PeekDefinitionError(string errorMessage)
-        {
-            return Keys.GetString(Keys.PeekDefinitionError, errorMessage);
-        }
-
-        public static string StarExpansionLabel(string starExpression)
-        {
-            return Keys.GetString(Keys.StarExpansionLabel, starExpression);
-        }
-
-        public static string StarExpansionDescription(string starExpression, string columnCount, string columnPreview)
-        {
-            return Keys.GetString(Keys.StarExpansionDescription, starExpression, columnCount, columnPreview);
         }
 
         public static string EditDataUnsupportedObjectType(string typeName)
@@ -11143,36 +11037,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string ConnectionServiceDbErrorDefaultNotConnected = "ConnectionServiceDbErrorDefaultNotConnected";
 
 
-            public const string ConnectionServiceConnStringInvalidAuthType = "ConnectionServiceConnStringInvalidAuthType";
-
-
-            public const string ConnectionServiceConnStringInvalidColumnEncryptionSetting = "ConnectionServiceConnStringInvalidColumnEncryptionSetting";
-
-
-            public const string ConnectionServiceConnStringInvalidSecureEnclaves = "ConnectionServiceConnStringInvalidSecureEnclaves";
-
-
-            public const string ConnectionServiceConnStringInvalidEncryptOption = "ConnectionServiceConnStringInvalidEncryptOption";
-
-
-            public const string ConnectionServiceConnStringInvalidEnclaveAttestationProtocol = "ConnectionServiceConnStringInvalidEnclaveAttestationProtocol";
-
-
-            public const string ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves = "ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves";
-
-
-            public const string ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol = "ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol";
-
-
-            public const string ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination = "ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination";
-
-
-            public const string ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl = "ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl";
-
-
-            public const string ConnectionServiceConnStringInvalidIntent = "ConnectionServiceConnStringInvalidIntent";
-
-
             public const string ConnectionServiceConnectionCanceled = "ConnectionServiceConnectionCanceled";
 
 
@@ -11371,31 +11235,10 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string SerializationServiceRequestNotFound = "SerializationServiceRequestNotFound";
 
 
-            public const string PeekDefinitionAzureError = "PeekDefinitionAzureError";
-
-
-            public const string PeekDefinitionError = "PeekDefinitionError";
-
-
-            public const string PeekDefinitionNoResultsError = "PeekDefinitionNoResultsError";
-
-
-            public const string PeekDefinitionDatabaseError = "PeekDefinitionDatabaseError";
-
-
             public const string PeekDefinitionNotConnectedError = "PeekDefinitionNotConnectedError";
 
 
             public const string PeekDefinitionTimedoutError = "PeekDefinitionTimedoutError";
-
-
-            public const string PeekDefinitionTypeNotSupportedError = "PeekDefinitionTypeNotSupportedError";
-
-
-            public const string StarExpansionLabel = "StarExpansionLabel";
-
-
-            public const string StarExpansionDescription = "StarExpansionDescription";
 
 
             public const string EditDataObjectNotFound = "EditDataObjectNotFound";

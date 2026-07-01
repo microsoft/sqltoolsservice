@@ -12,15 +12,13 @@ using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.Metadata;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlServer.Management.SqlParser.SqlCodeDom;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Completion;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.Utility;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using Range = Microsoft.SqlTools.LanguageService.Workspace.Contracts.Range;
 
-namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
+namespace Microsoft.SqlTools.LanguageService.LanguageServices
 {
     /// <summary>
     /// Main class for Language Service functionality including anything that requires knowledge of
@@ -29,6 +27,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
     public static class AutoCompleteHelper
     {
         private static CompletionItem[] emptyCompletionList = new CompletionItem[0];
+
+        /// <summary>
+        /// Wraps the given identifier in square brackets, escaping any embedded closing brackets.
+        /// </summary>
+        private static string MakeSqlBracket(string s)
+        {
+            return "[" + s.Replace("]", "]]") + "]";
+        }
 
         public static readonly string[] DefaultCompletionText = new string[]
         {
@@ -872,7 +878,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 string objectIdentifierName = starObjectIdentifier.ObjectName.ToString();
                 ITabular relatedTable = boundedTableList.Single(t => t.Name == objectIdentifierName);
-                columnNames = relatedTable.Columns.Select(c => String.Format("{0}.{1}", Utils.MakeSqlBracket(objectIdentifierName), Utils.MakeSqlBracket(c.Name))).ToList();
+                columnNames = relatedTable.Columns.Select(c => String.Format("{0}.{1}", MakeSqlBracket(objectIdentifierName), MakeSqlBracket(c.Name))).ToList();
             }
             else
             {
@@ -882,11 +888,11 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     {
                         if (includeTableName)
                         {
-                            columnNames.Add($"{Utils.MakeSqlBracket(table.Name)}.{Utils.MakeSqlBracket(column.Name)}"); // Including table names in case of multiple tables to avoid column ambiguity errors. 
+                            columnNames.Add($"{MakeSqlBracket(table.Name)}.{MakeSqlBracket(column.Name)}"); // Including table names in case of multiple tables to avoid column ambiguity errors. 
                         }
                         else
                         {
-                            columnNames.Add(Utils.MakeSqlBracket(column.Name));
+                            columnNames.Add(MakeSqlBracket(column.Name));
                         }
                     }
                 }

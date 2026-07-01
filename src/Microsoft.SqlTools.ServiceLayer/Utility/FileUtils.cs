@@ -6,58 +6,12 @@
 #nullable disable
 using System;
 using System.IO;
-using System.Threading;
 
 namespace Microsoft.SqlTools.ServiceLayer.Utility
 {
     internal static class FileUtilities
     {
-        private static readonly Lock PeekDefinitionTempFolderLock = new();
-
-        internal static string PeekDefinitionTempFolder = Path.GetTempPath() + "mssql_definition"; 
         internal static string AgentNotebookTempFolder = Path.GetTempPath() + "mssql_notebooks";
-        internal static bool PeekDefinitionTempFolderCreated = false;
-
-        internal static string GetPeekDefinitionTempFolder()
-        {
-            lock (PeekDefinitionTempFolderLock)
-            {
-                string tempPath;
-                if (!PeekDefinitionTempFolderCreated)
-                {
-                    try
-                    {
-                        // create a private temp folder once per process so concurrent peek-definition requests share the same root
-                        string tempFolder = string.Format("{0}_{1}", FileUtilities.PeekDefinitionTempFolder, Guid.NewGuid().ToString("N"));
-                        DirectoryInfo tempScriptDirectory = Directory.CreateDirectory(tempFolder);
-                        FileUtilities.PeekDefinitionTempFolder = tempScriptDirectory.FullName;
-                        tempPath = tempScriptDirectory.FullName;
-                        PeekDefinitionTempFolderCreated = true;
-                    }
-                    catch (Exception)
-                    {
-                        // swallow exception and use temp folder to store scripts
-                        tempPath = Path.GetTempPath();
-                    }
-                }
-                else
-                {
-                    try
-                    {
-                        // use tempDirectory name created previously
-                        DirectoryInfo tempScriptDirectory = Directory.CreateDirectory(FileUtilities.PeekDefinitionTempFolder);
-                        tempPath = tempScriptDirectory.FullName;
-                    }
-                    catch (Exception)
-                    {
-                        // swallow exception and use temp folder to store scripts
-                        tempPath = Path.GetTempPath();
-                    }
-                }
-
-                return tempPath;
-            }
-        }
 
         /// <summary>
         /// Checks if file exists and swallows exceptions, if any

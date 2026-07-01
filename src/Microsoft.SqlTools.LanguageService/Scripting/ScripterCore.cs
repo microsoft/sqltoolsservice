@@ -17,28 +17,31 @@ using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.LanguageService.Connection;
 using Microsoft.SqlTools.LanguageService.LanguageServices;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using Microsoft.SqlTools.Utility;
-using ConnectionType = Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType;
+using ConnectionInfoBase = Microsoft.SqlTools.LanguageService.LanguageServices.ConnectionInfoBase;
 using Location = Microsoft.SqlTools.LanguageService.Workspace.Contracts.Location;
 using System.Data;
 using Range = Microsoft.SqlTools.LanguageService.Workspace.Contracts.Range;
 using Microsoft.SqlTools.SqlCore.Scripting;
 using Microsoft.SqlTools.SqlCore.Scripting.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.Scripting
+namespace Microsoft.SqlTools.LanguageService.Scripting
 {
-    internal partial class Scripter
+    internal sealed partial class Scripter
     {
+        private const string QueryConnectionType = "Query";
+
         private bool error;
         private string errorMessage;
         private ServerConnection serverConnection;
-        private ConnectionInfo connectionInfo;
+        private ConnectionInfoBase connectionInfo;
         private Database database;
         private string tempPath;
+        private bool enableSqlAuthenticationProvider;
+        private bool enableGlobalConnectionPooling;
 
         // Dictionary that holds the object name (as appears on the TSQL create statement)
         private Dictionary<DeclarationType, string> sqlObjectTypes = new Dictionary<DeclarationType, string>();
@@ -57,11 +60,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// Initialize a Peek Definition helper object
         /// </summary>
         /// <param name="serverConnection">SMO Server connection</param>
-        internal Scripter(ServerConnection serverConnection, ConnectionInfo connInfo)
+        /// <param name="connInfo">Connection information for the object being scripted</param>
+        /// <param name="enableSqlAuthenticationProvider">Whether the configured 'Sql Authentication Provider' should be used for 'Azure MFA' connections.</param>
+        /// <param name="enableGlobalConnectionPooling">Whether connection pooling is enabled for SQL connections.</param>
+        internal Scripter(ServerConnection serverConnection, ConnectionInfoBase connInfo, bool enableSqlAuthenticationProvider = false, bool enableGlobalConnectionPooling = false)
         {
             this.serverConnection = serverConnection;
             this.connectionInfo = connInfo;
-            this.tempPath = FileUtilities.GetPeekDefinitionTempFolder();
+            this.enableSqlAuthenticationProvider = enableSqlAuthenticationProvider;
+            this.enableGlobalConnectionPooling = enableGlobalConnectionPooling;
+            this.tempPath = PeekDefinitionTempFolder.GetTempFolder();
             Initialize();
         }
 
@@ -78,7 +86,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
                         // If there is a query DbConnection, use that connection to get the database name
                         // This is preferred since it has the most current database name (in case of database switching)
-                        if (this.connectionInfo?.TryGetConnection(ConnectionType.Query, out DbConnection connection) == true)
+                        if (this.connectionInfo?.TryGetConnection(QueryConnectionType, out DbConnection connection) == true)
                         {
                             if (!string.IsNullOrEmpty(connection.Database))
                             {
@@ -537,7 +545,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
 
             ScriptingParams parameters = new ScriptingParams
             {
-                ConnectionString = ConnectionService.BuildConnectionString(this.connectionInfo.ConnectionDetails),
+                ConnectionString = ConnectionStringHelper.BuildConnectionString(this.connectionInfo.ConnectionDetails, this.enableSqlAuthenticationProvider, disablePooling: !this.enableGlobalConnectionPooling),
                 ScriptingObjects = objectList,
                 ScriptOptions = options,
                 ScriptDestination = "ToEditor"
