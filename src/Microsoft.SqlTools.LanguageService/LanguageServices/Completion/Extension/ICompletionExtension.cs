@@ -5,15 +5,13 @@
 
 #nullable disable
 
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.LanguageService.LanguageServices.Completion;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.Extension
+namespace Microsoft.SqlTools.LanguageService.LanguageServices.Completion.Extension
 {
     public interface ICompletionExtension : IDisposable
     {
@@ -38,6 +36,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.Extension
         /// <param name="completions">Current completion list</param>
         /// <param name="cancelToken">Token used to indicate that the completion request should be cancelled</param>
         /// <returns></returns>
-        Task<CompletionItem[]> HandleCompletionAsync(ConnectionInfo connInfo, ScriptDocumentInfo scriptDocumentInfo, CompletionItem[] completions, CancellationToken cancelToken);
+        Task<CompletionItem[]> HandleCompletionAsync(ConnectionInfoBase connInfo, ScriptDocumentInfo scriptDocumentInfo, CompletionItem[] completions, CancellationToken cancelToken);
     }
 }
