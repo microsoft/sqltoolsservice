@@ -107,6 +107,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             serviceHost.SetRequestHandler(ExcludeNoneItemRequest.Type, HandleExcludeNoneItemRequest, isParallelProcessingSupported: false);
             serviceHost.SetRequestHandler(MoveNoneItemRequest.Type, HandleMoveNoneItemRequest, isParallelProcessingSupported: false);
 
+            // RefactorLog item functions
+            serviceHost.SetRequestHandler(GetRefactorLogItemsRequest.Type, HandleGetRefactorLogItemsRequest, isParallelProcessingSupported: true);
+            serviceHost.SetRequestHandler(AddRefactorLogItemRequest.Type, HandleAddRefactorLogItemRequest, isParallelProcessingSupported: false);
+            serviceHost.SetRequestHandler(DeleteRefactorLogItemRequest.Type, HandleDeleteRefactorLogItemRequest, isParallelProcessingSupported: false);
+
             // Folder functions
             serviceHost.SetRequestHandler(GetFoldersRequest.Type, HandleGetFoldersRequest, isParallelProcessingSupported: true);
             serviceHost.SetRequestHandler(AddFolderRequest.Type, HandleAddFolderRequest, isParallelProcessingSupported: false);
@@ -762,6 +767,33 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         internal async Task HandleMoveNoneItemRequest(MoveItemParams requestParams, RequestContext<ResultStatus> requestContext)
         {
             await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).NoneItems.Move(requestParams.Path, requestParams.DestinationPath), requestContext);
+        }
+
+        #endregion
+
+        #region RefactorLog item functions
+
+        internal async Task HandleGetRefactorLogItemsRequest(SqlProjectParams requestParams, RequestContext<GetScriptsResult> requestContext)
+        {
+            await RunWithErrorHandling(() =>
+            {
+                return new GetScriptsResult()
+                {
+                    Success = true,
+                    ErrorMessage = null,
+                    Scripts = GetProject(requestParams.ProjectUri).RefactorLogItems.Select(x => x.Path).ToArray()
+                };
+            }, requestContext);
+        }
+
+        internal async Task HandleAddRefactorLogItemRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
+        {
+            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).RefactorLogItems.Add(new RefactorLogItem(requestParams.Path)), requestContext);
+        }
+
+        internal async Task HandleDeleteRefactorLogItemRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
+        {
+            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri).RefactorLogItems.Delete(requestParams.Path), requestContext);
         }
 
         #endregion

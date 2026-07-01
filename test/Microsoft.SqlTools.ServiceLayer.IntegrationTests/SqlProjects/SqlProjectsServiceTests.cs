@@ -290,6 +290,55 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
         }
 
         [Test]
+        public async Task TestRefactorLogItemOperations()
+        {
+            // Setup
+            SqlProjectsService service = new();
+            string projectUri = await service.CreateSqlProject();
+            Assert.AreEqual(0, service.Projects[projectUri].RefactorLogItems.Count, "Baseline number of RefactorLog items");
+
+            // Validate adding a RefactorLog item
+            MockRequest<ResultStatus> requestMock = new();
+            string relativePath = "TestProject.refactorlog";
+            string absolutePath = Path.Join(Path.GetDirectoryName(projectUri), relativePath);
+            await File.WriteAllTextAsync(absolutePath, "<Operations></Operations>");
+            Assert.IsTrue(File.Exists(absolutePath), $"{absolutePath} expected to be on disk");
+
+            await service.HandleAddRefactorLogItemRequest(new SqlProjectScriptParams()
+            {
+                ProjectUri = projectUri,
+                Path = relativePath
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleAddRefactorLogItemRequest));
+            Assert.AreEqual(1, service.Projects[projectUri].RefactorLogItems.Count, "RefactorLogItems count after add");
+            Assert.IsTrue(service.Projects[projectUri].RefactorLogItems.Contains(relativePath), $"RefactorLogItems expected to contain {relativePath}");
+
+            // Validate getting the list of RefactorLog items
+            MockRequest<GetScriptsResult> getMock = new();
+            await service.HandleGetRefactorLogItemsRequest(new SqlProjectParams()
+            {
+                ProjectUri = projectUri
+            }, getMock.Object);
+
+            getMock.AssertSuccess(nameof(service.HandleGetRefactorLogItemsRequest));
+            Assert.AreEqual(1, getMock.Result.Scripts.Length, "GetRefactorLogItems should return one item");
+            Assert.AreEqual(relativePath, getMock.Result.Scripts[0], "Returned path should match the added path");
+
+            // Validate deleting the RefactorLog item
+            requestMock = new();
+            await service.HandleDeleteRefactorLogItemRequest(new SqlProjectScriptParams()
+            {
+                ProjectUri = projectUri,
+                Path = relativePath
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleDeleteRefactorLogItemRequest));
+            Assert.AreEqual(0, service.Projects[projectUri].RefactorLogItems.Count, "RefactorLogItems count after delete");
+            Assert.IsFalse(File.Exists(absolutePath), $"{absolutePath} expected to have been deleted from disk");
+        }
+
+        [Test]
         public async Task TestPreDeploymentScriptOperations()
         {
             // Setup
