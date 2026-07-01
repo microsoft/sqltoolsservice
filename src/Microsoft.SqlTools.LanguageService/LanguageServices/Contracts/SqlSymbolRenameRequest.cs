@@ -62,14 +62,16 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices.Contracts
         public string NewName { get; set; }
 
         /// <summary>
-        /// When non-null, the rename was rejected for a specific reason and this message
-        /// should be displayed to the user in place of any generic fallback message.
+        /// When non-null, a message to surface to the user. Check <see cref="IsWarning"/> to
+        /// determine whether to show a confirmation dialog (<see langword="true"/>) or a blocking
+        /// error (<see langword="false"/>).
         /// </summary>
-        public string ErrorMessage { get; set; }
+        public string Message { get; set; }
 
         /// <summary>
-        /// Warning message to surface to the user, if any.
+        /// <see langword="true"/> when <see cref="Message"/> is a confirmation warning that the user
+        /// can dismiss to proceed; <see langword="false"/> (default) when it is a hard rejection.
         /// </summary>
-        public string WarningMessage { get; set; }
+        public bool IsWarning { get; set; }
     }
 }

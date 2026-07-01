@@ -2118,9 +2118,9 @@ END
 
             Assert.That(result, Is.Not.Null, "Should return a response even on collision");
             Assert.That(result.Changes, Is.Not.Null.And.Not.Empty, "Workspace edits should still be returned");
-            Assert.That(result.WarningMessage, Is.Not.Null.And.Not.Empty, "WarningMessage should be set on collision");
-            Assert.That(result.WarningMessage, Does.Contain("[sales].[Customers]"),
-                $"Warning should include the bracketed target name. Got: {result.WarningMessage}");
+            Assert.That(result.Message, Is.Not.Null.And.Not.Empty, "WarningMessage should be set on collision");
+            Assert.That(result.Message, Does.Contain("[sales].[Customers]"),
+                $"Warning should include the bracketed target name. Got: {result.Message}");
         }
 
         [Test]
@@ -2146,9 +2146,9 @@ END
 
             Assert.That(result, Is.Not.Null, "Should return a response even on collision");
             Assert.That(result.Changes, Is.Not.Null.And.Not.Empty, "Workspace edits should still be returned");
-            Assert.That(result.WarningMessage, Is.Not.Null.And.Not.Empty, "WarningMessage should be set on collision");
-            Assert.That(result.WarningMessage, Does.Contain("[Orders]"),
-                $"Warning should include the bracketed new name. Got: {result.WarningMessage}");
+            Assert.That(result.Message, Is.Not.Null.And.Not.Empty, "WarningMessage should be set on collision");
+            Assert.That(result.Message, Does.Contain("[Orders]"),
+                $"Warning should include the bracketed new name. Got: {result.Message}");
         }
 
         // ── Rename rejection: specific error messages ─────────────────────────
@@ -2174,8 +2174,8 @@ END
                 },
                 ctx.Object);
 
-            Assert.That(result?.ErrorMessage, Is.EqualTo(SR.RenameNotSupported),
-                $"Expected not-supported message. Got: {result?.ErrorMessage}");
+            Assert.That(result?.Message, Is.EqualTo(SR.RenameNotSupported),
+                $"Expected not-supported message. Got: {result?.Message}");
         }
 
         [Test]
@@ -2202,8 +2202,8 @@ END
                 },
                 ctx.Object);
 
-            Assert.That(result?.ErrorMessage, Is.EqualTo(SR.RenameNotSupported),
-                $"Expected not-supported message. Got: {result?.ErrorMessage}");
+            Assert.That(result?.Message, Is.EqualTo(SR.RenameNotSupported),
+                $"Expected not-supported message. Got: {result?.Message}");
         }
 
         // Cursor on the schema prefix of a qualified name (e.g. "dbo" in "dbo.Customers").
@@ -2230,8 +2230,8 @@ END
                 },
                 ctx.Object);
 
-            Assert.That(result?.ErrorMessage, Is.EqualTo(SR.RenameNotSupported),
-                $"Expected not-supported message. Got: {result?.ErrorMessage}");
+            Assert.That(result?.Message, Is.EqualTo(SR.RenameNotSupported),
+                $"Expected not-supported message. Got: {result?.Message}");
         }
 
         // File connected to a live server must be rejected before any project-model work runs.
@@ -2263,8 +2263,8 @@ END
                 },
                 ctx.Object);
 
-            Assert.That(result?.ErrorMessage, Is.EqualTo(SR.RenameNotSupportedLiveServer),
-                $"Expected live-server message. Got: {result?.ErrorMessage}");
+            Assert.That(result?.Message, Is.EqualTo(SR.RenameNotSupportedLiveServer),
+                $"Expected live-server message. Got: {result?.Message}");
         }
 
     }

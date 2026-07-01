@@ -819,7 +819,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     if (CurrentWorkspaceSettings.IsDiagnosticsEnabled)
                     {
                         var changedFile = CurrentWorkspace.GetFile(fileUri);
-                        var siblingUris = SqlProjectsService.Instance.GetSiblingProjectFileUris(projectUri, fileUri);
+                        var siblingUris = ProjectIntelliSenseService.GetSiblingProjectFileUris(projectUri, fileUri);
                         var filesToRefresh = siblingUris
                             .Select(u => CurrentWorkspace.GetFile(u))
                             .Where(f => f != null)
@@ -1981,7 +1981,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     await requestContext.SendResult(new SqlSymbolRenameResponse
                     {
-                        ErrorMessage = SR.RenameNotSupportedLiveServer
+                        Message = SR.RenameNotSupportedLiveServer
                     });
                     return;
                 }
@@ -1995,7 +1995,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 await requestContext.SendResult(new SqlSymbolRenameResponse
                 {
-                    ErrorMessage = SR.RenameNotSupported
+                    Message = SR.RenameNotSupported
                 });
                 return;
             }
@@ -2020,7 +2020,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             if (errorMessage != null)
             {
-                await requestContext.SendResult(new SqlSymbolRenameResponse { ErrorMessage = errorMessage });
+                await requestContext.SendResult(new SqlSymbolRenameResponse { Message = errorMessage });
                 return;
             }
 
@@ -2106,7 +2106,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 Changes            = changes,
                 RefactorLogContent = refactorLogContent,
                 NewName            = renameParams.NewName,
-                WarningMessage     = nameCollisionWarning
+                Message            = nameCollisionWarning,
+                IsWarning          = nameCollisionWarning != null
             });
         }
 
@@ -2226,7 +2227,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 Changes            = changes,
                 RefactorLogContent = refactorLogContent,
                 TargetSchema       = moveParams.TargetSchema,
-                WarningMessage     = moveCollisionWarning
+                Message            = moveCollisionWarning,
+                IsWarning          = moveCollisionWarning != null
             });
         }
 
