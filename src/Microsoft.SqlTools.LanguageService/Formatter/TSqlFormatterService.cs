@@ -46,12 +46,11 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
         }
 
         /// <summary>
-        /// Gets the file filter used to determine whether a file should be skipped. Note: may be null
-        /// in cases where unit tests do not set this up.
+        /// Gets the language service instance
         /// </summary>
-        private ILanguageFileFilter FileFilter
+        private TSqlLanguageService LanguageService
         {
-            get { return ServiceProvider?.GetService<ILanguageFileFilter>(); }
+            get { return ServiceProvider?.GetService<TSqlLanguageService>(); }
         }
 
         /// <summary>
@@ -129,8 +128,8 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
             {
                 return true;
             }
-            ILanguageFileFilter fileFilter = FileFilter;
-            return (fileFilter != null && fileFilter.ShouldSkipNonMssqlFile(docFormatParams.TextDocument.Uri));
+            TSqlLanguageService languageService = LanguageService;
+            return (languageService != null && languageService.ShouldSkipNonMssqlFile(docFormatParams.TextDocument.Uri));
         }
 
         private Task<TextEdit[]> FormatAndReturnEdits(DocumentFormattingParams docFormatParams)

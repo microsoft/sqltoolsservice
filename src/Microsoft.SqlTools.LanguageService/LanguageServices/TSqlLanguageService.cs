@@ -28,9 +28,7 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.LanguageService.AutoParameterizaition;
 using Microsoft.SqlTools.LanguageService.Connection;
 using Microsoft.SqlTools.LanguageService.Connection.Contracts;
-using Microsoft.SqlTools.LanguageService.LanguageServices;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Completion;
-using ConnectionInfoBase = Microsoft.SqlTools.LanguageService.LanguageServices.ConnectionInfoBase;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Completion.Extension;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;
 using Microsoft.SqlTools.LanguageService.Scripting;
@@ -43,22 +41,22 @@ using Location = Microsoft.SqlTools.LanguageService.Workspace.Contracts.Location
 using Range = Microsoft.SqlTools.LanguageService.Workspace.Contracts.Range;
 using PeekDefSR = Microsoft.SqlTools.LanguageService.SR;
 
-namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
+namespace Microsoft.SqlTools.LanguageService.LanguageServices
 {
     /// <summary>
     /// Main class for Language Service functionality including anything that requires knowledge of
     /// the language to perform, such as definitions, intellisense, etc.
     /// </summary>
-    public class LanguageService : IDisposable, ILanguageFileFilter
+    public class TSqlLanguageService : IDisposable
     {
         #region Singleton Instance Implementation
 
-        private static readonly Lazy<LanguageService> instance = new Lazy<LanguageService>(() => new LanguageService());
+        private static readonly Lazy<TSqlLanguageService> instance = new Lazy<TSqlLanguageService>(() => new TSqlLanguageService());
 
         /// <summary>
         /// Gets the singleton instance object
         /// </summary>
-        public static LanguageService Instance
+        public static TSqlLanguageService Instance
         {
             get { return instance.Value; }
         }
@@ -106,14 +104,14 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         private ILanguageServiceHost serviceHostInstance;
 
-        private Lock parseMapLock = new();
+        private object parseMapLock = new();
 
         private ScriptParseInfo currentCompletionParseInfo;
 
         private ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue();
 
         private ParseOptions defaultParseOptions = new ParseOptions(
-            batchSeparator: LanguageService.DefaultBatchSeperator,
+            batchSeparator: TSqlLanguageService.DefaultBatchSeperator,
             isQuotedIdentifierSet: true,
             compatibilityLevel: DatabaseCompatibilityLevel.Current,
             transactSqlVersion: TransactSqlVersion.Current);
@@ -159,7 +157,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Default, parameterless constructor.
         /// </summary>
-        internal LanguageService()
+        internal TSqlLanguageService()
         {
         }
 
@@ -269,7 +267,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Gets the current workspace instance
         /// </summary>
-        internal Workspace CurrentWorkspace
+        internal Microsoft.SqlTools.LanguageService.Workspace.Workspace CurrentWorkspace
         {
             get { return WorkspaceServiceInstance.Workspace; }
         }
@@ -842,7 +840,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 // This clears the uri of the connection from the tokenUpdateUris map, which is used to track
                 // open editors that have requested a refreshed Microsoft Entra token.
-                ConnectionServiceInstance.TokenUpdateUris.Remove(uri, out var result);
+                ConnectionServiceInstance.TokenUpdateUris.TryRemove(uri, out var result);
                 // if not in the preview window and diagnostics are enabled then clear diagnostics
                 if (!IsPreviewWindow(scriptFile)
                     && CurrentWorkspaceSettings.IsDiagnosticsEnabled)
@@ -977,7 +975,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     // Get the current ScriptInfo if one exists so we can lock it while we're rebuilding the cache
                     ScriptParseInfo scriptInfo = GetScriptParseInfo(connInfo.OwnerUri, createIfNotExists: false);
                     if (scriptInfo != null && scriptInfo.IsConnected &&
-                        Monitor.TryEnter(scriptInfo.BuildingMetadataLock, LanguageService.OnConnectionWaitTimeout))
+                        Monitor.TryEnter(scriptInfo.BuildingMetadataLock, TSqlLanguageService.OnConnectionWaitTimeout))
                     {
                         try
                         {
@@ -1382,7 +1380,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 return;
             }
 
-            if (Monitor.TryEnter(scriptInfo.BuildingMetadataLock, LanguageService.OnConnectionWaitTimeout))
+            if (Monitor.TryEnter(scriptInfo.BuildingMetadataLock, TSqlLanguageService.OnConnectionWaitTimeout))
             {
                 try
                 {
@@ -1431,7 +1429,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                 // Stamp the .sqlproj URI itself
                 ScriptParseInfo scriptInfo = GetScriptParseInfo(projectUri, createIfNotExists: true);
-                if (Monitor.TryEnter(scriptInfo.BuildingMetadataLock, LanguageService.OnConnectionWaitTimeout))
+                if (Monitor.TryEnter(scriptInfo.BuildingMetadataLock, TSqlLanguageService.OnConnectionWaitTimeout))
                 {
                     try
                     {
@@ -1469,7 +1467,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             foreach (string fileUri in fileUris)
             {
                 ScriptParseInfo scriptInfo = GetScriptParseInfo(fileUri, createIfNotExists: true);
-                if (Monitor.TryEnter(scriptInfo.BuildingMetadataLock, LanguageService.OnConnectionWaitTimeout))
+                if (Monitor.TryEnter(scriptInfo.BuildingMetadataLock, TSqlLanguageService.OnConnectionWaitTimeout))
                 {
                     try
                     {
@@ -1529,7 +1527,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
                 await ParseAndBind(scriptFile, info).ContinueWith(t =>
                 {
-                    if (Monitor.TryEnter(scriptInfo.BuildingMetadataLock, LanguageService.OnConnectionWaitTimeout))
+                    if (Monitor.TryEnter(scriptInfo.BuildingMetadataLock, TSqlLanguageService.OnConnectionWaitTimeout))
                     {
                         try
                         {
@@ -1712,7 +1710,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             // Queue the task with the binding queue
             QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
                 key: scriptParseInfo.ConnectionKey,
-                bindingTimeout: LanguageService.PeekDefinitionTimeout,
+                bindingTimeout: TSqlLanguageService.PeekDefinitionTimeout,
                 bindOperation: (bindingContext, cancelToken) =>
                 {
                     // Project contexts do not have a server connection; only SMO-connected contexts can script objects.
@@ -2140,7 +2138,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             foreach (string localPath in filesToScan)
             {
-                string fileUri = Utility.FileUtilities.LocalPathToFileUri(localPath);
+                string fileUri = LocalPathToFileUri(localPath);
                 if (!scannedFiles.Add(fileUri))
                     continue;
 
@@ -2386,7 +2384,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
             QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
                 key: scriptParseInfo.ConnectionKey,
-                bindingTimeout: LanguageService.PeekDefinitionTimeout,
+                bindingTimeout: TSqlLanguageService.PeekDefinitionTimeout,
                 bindOperation: (bindingContext, cancelToken) =>
                 {
                     if (bindingContext is ConnectedBindingContext cbc && 
@@ -2432,7 +2430,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                         if (sourceInfo?.SourceName == null)
                             return CreateErrorResult(PeekDefSR.PeekDefinitionNoResultsError);
 
-                        string fileUri = Utility.FileUtilities.LocalPathToFileUri(sourceInfo.SourceName);
+                        string fileUri = LocalPathToFileUri(sourceInfo.SourceName);
                         return new DefinitionResult
                         {
                             Locations = new[]
@@ -2613,7 +2611,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     {
                         QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
                             key: scriptParseInfo.ConnectionKey,
-                            bindingTimeout: LanguageService.HoverTimeout,
+                            bindingTimeout: TSqlLanguageService.HoverTimeout,
                             bindOperation: (bindingContext, cancelToken) =>
                             {
                                 // get the current quick info text
@@ -3072,7 +3070,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             Task.Factory.StartNew(
                 () =>
                     this.DelayedDiagnosticsTask = DelayThenInvokeDiagnostics(
-                        LanguageService.DiagnosticParseDelay,
+                        TSqlLanguageService.DiagnosticParseDelay,
                         filesToAnalyze,
                         eventContext,
                         existingRequestCancellation.Token),
@@ -3258,6 +3256,26 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 // Swallow exception, do nothing
             }
+        }
+
+        /// <summary>
+        /// Converts an OS-native absolute path to a <c>file://</c> URI string, normalising
+        /// Windows-style backslash separators first. Works correctly on all platforms:
+        /// Windows paths (<c>C:\path\file.sql</c>) and Unix paths (<c>/home/user/file.sql</c>)
+        /// both produce well-formed <c>file:///...</c> URIs.
+        /// </summary>
+        private static string LocalPathToFileUri(string localPath)
+        {
+            // Use UriBuilder so the path is percent-encoded correctly (e.g. '#' or '?' in file
+            // names become %23 / %3F rather than being treated as URI fragment/query separators).
+            // UriBuilder.Path expects a forward-slash path; normalise Windows backslashes first.
+            string p = localPath.Replace('\\', '/');
+            // Ensure a leading '/' — UriBuilder requires an absolute path.
+            // Windows paths like "c:/Users/..." become "/c:/Users/..." here.
+            if (p.Length > 0 && p[0] != '/')
+                p = "/" + p;
+            var builder = new UriBuilder { Scheme = Uri.UriSchemeFile, Host = string.Empty, Path = p };
+            return builder.Uri.AbsoluteUri;
         }
 
         internal sealed class StatementParseInfo

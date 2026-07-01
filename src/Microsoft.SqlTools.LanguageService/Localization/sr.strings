@@ -72,6 +72,10 @@ PeekDefinitionDatabaseError = No database object was retrieved.
 
 PeekDefinitionTypeNotSupportedError = This object type is currently not supported by this feature.
 
+PeekDefinitionNotConnectedError = Please connect to a server.
+
+PeekDefinitionTimedoutError = Operation timed out.
+
 ############################################################################
 # AutoParameterization for Always Encrypted
 

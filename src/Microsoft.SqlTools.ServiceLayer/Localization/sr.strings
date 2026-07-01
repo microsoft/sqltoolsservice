@@ -173,13 +173,6 @@ SerializationServiceRequestInProgress (string filePath) = A request for file {0}
 SerializationServiceRequestNotFound (string filePath) = Cannot serialize more data as no request for file {0} could be found
 
 ############################################################################
-# Language Service
-
-PeekDefinitionNotConnectedError = Please connect to a server.
-
-PeekDefinitionTimedoutError = Operation timed out.
-
-############################################################################
 # Edit Data Service
 
 EditDataObjectNotFound = Table or view requested for edit could not be found
