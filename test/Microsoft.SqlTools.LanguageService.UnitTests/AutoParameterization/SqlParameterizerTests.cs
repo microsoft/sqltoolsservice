@@ -10,14 +10,14 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using Microsoft.Data.SqlClient;
-using Microsoft.SqlTools.ServiceLayer.AutoParameterizaition;
-using Microsoft.SqlTools.ServiceLayer.AutoParameterizaition.Exceptions;
+using Microsoft.SqlTools.LanguageService.AutoParameterizaition;
+using Microsoft.SqlTools.LanguageService.AutoParameterizaition.Exceptions;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using NUnit.Framework;
 
 using static System.Linq.Enumerable;
 
-namespace Microsoft.SqlTools.ServiceLayer.UnitTests.AutoParameterization
+namespace Microsoft.SqlTools.LanguageService.UnitTests.AutoParameterization
 {
     [TestFixture]
     /// <summary>

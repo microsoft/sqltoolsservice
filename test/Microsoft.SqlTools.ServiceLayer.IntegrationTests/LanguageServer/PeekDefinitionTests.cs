@@ -10,7 +10,9 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.LanguageService.LanguageServices;
 using Microsoft.SqlTools.LanguageService.Scripting;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
+using Microsoft.SqlTools.LanguageService.Workspace;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using Moq;
 using System;
@@ -795,6 +797,8 @@ GO";
             service.RemoveScriptParseInfo(OwnerUri);
             service.BindingQueue = bindingQueue;
             service.ConnectionServiceInstance = ConnectionService.Instance;
+            service.ServiceHostInstance = Hosting.ServiceHost.Instance;
+            service.WorkspaceServiceInstance = WorkspaceService<SqlToolsSettings>.Instance;
             await service.UpdateLanguageServiceOnConnection(connectionResult.ConnectionInfo);
 
             ScriptParseInfo scriptInfo = new ScriptParseInfo { BindingContextKind = BindingContextKindEnum.LiveConnection };
