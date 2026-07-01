@@ -35,7 +35,6 @@ using Microsoft.SqlTools.LanguageService.LanguageServices.Completion.Extension;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;
 using Microsoft.SqlTools.LanguageService.Scripting;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.LanguageService.Workspace;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using Microsoft.SqlTools.Utility;
@@ -3216,9 +3215,16 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         internal void DeletePeekDefinitionScripts()
         {
             // Delete temp folder created to store peek definition scripts
-            if (FileUtilities.SafeDirectoryExists(PeekDefinitionTempFolder.TempFolderPath))
+            try
             {
-                FileUtilities.SafeDirectoryDelete(PeekDefinitionTempFolder.TempFolderPath, true);
+                if (Directory.Exists(PeekDefinitionTempFolder.TempFolderPath))
+                {
+                    Directory.Delete(PeekDefinitionTempFolder.TempFolderPath, recursive: true);
+                }
+            }
+            catch (Exception)
+            {
+                // Swallow exception, do nothing
             }
         }
 
