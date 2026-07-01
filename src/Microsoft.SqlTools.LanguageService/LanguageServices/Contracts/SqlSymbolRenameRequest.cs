@@ -61,7 +61,17 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices.Contracts
         /// </summary>
         public string NewName { get; set; }
 
-        /// <summary>Warning message to surface to the user, if any.</summary>
-        public string WarningMessage { get; set; }
+        /// <summary>
+        /// When non-null, a message to surface to the user. Check <see cref="IsWarning"/> to
+        /// determine whether to show a confirmation dialog (<see langword="true"/>) or a blocking
+        /// error (<see langword="false"/>).
+        /// </summary>
+        public string Message { get; set; }
+
+        /// <summary>
+        /// <see langword="true"/> when <see cref="Message"/> is a confirmation warning that the user
+        /// can dismiss to proceed; <see langword="false"/> (default) when it is a hard rejection.
+        /// </summary>
+        public bool IsWarning { get; set; }
     }
 }

@@ -760,15 +760,20 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 foreach (var file in changedFiles.GroupBy(f => f.ClientUri).Select(g => g.Last()))
                 {
                     if (TryGetProjectUriForSqlFile(file.ClientUri, out string projectUri))
-                        ScheduleDebouncedIntelliSenseUpdate(file.ClientUri, projectUri, file.Contents);
+                        ScheduleDebouncedIntelliSenseUpdate(file.ClientUri, projectUri, file.Contents, eventContext);
                 }
 
                 if (CurrentWorkspaceSettings.IsDiagnosticsEnabled)
                 {
-                    // Only process files that are MSSQL flavor
-                    await this.RunScriptDiagnostics(
-                        changedFiles.ToArray(),
-                        eventContext);
+                    // For project files, diagnostics are triggered AFTER the debounced model
+                    // update completes (in ScheduleDebouncedIntelliSenseUpdate) so they reflect
+                    // the current model state. Running them here (before the model is updated)
+                    // would produce stale results and interfere with the debounced diagnostic.
+                    var nonProjectFiles = changedFiles
+                        .Where(f => !TryGetProjectUriForSqlFile(f.ClientUri, out _))
+                        .ToArray();
+                    if (nonProjectFiles.Length > 0)
+                        await this.RunScriptDiagnostics(nonProjectFiles, eventContext);
                 }
             }
             catch (Exception ex)
@@ -784,7 +789,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// keystrokes collapse into a single model rebuild fired after
         /// <see cref="IntelliSenseUpdateDebounceMs"/> of inactivity.
         /// </summary>
-        private void ScheduleDebouncedIntelliSenseUpdate(string fileUri, string projectUri, string contents)
+        private void ScheduleDebouncedIntelliSenseUpdate(string fileUri, string projectUri, string contents, EventContext eventContext)
         {
             var newCts = new CancellationTokenSource();
             if (_intelliSenseUpdateDebounce.TryRemove(fileUri, out var oldCts))
@@ -807,6 +812,25 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                     {
                         await ProjectIntelliSenseService.UpdateProjectIntelliSenseAsync(
                             projectUri, fileUri, deleted: false, sqlTextOverride: contents);
+                    }
+
+                    // Re-run diagnostics on all open project files so squiggles clear/appear
+                    // immediately after a model change — not just on the next file save.
+                    if (CurrentWorkspaceSettings.IsDiagnosticsEnabled)
+                    {
+                        var changedFile = CurrentWorkspace.GetFile(fileUri);
+                        var siblingUris = ProjectIntelliSenseService.GetSiblingProjectFileUris(projectUri, fileUri);
+                        var filesToRefresh = siblingUris
+                            .Select(u => CurrentWorkspace.GetFile(u))
+                            .Where(f => f != null)
+                            .ToList();
+                        if (changedFile != null)
+                            filesToRefresh.Insert(0, changedFile);
+                        if (filesToRefresh.Count > 0)
+                        {
+                            newCts.Token.ThrowIfCancellationRequested();
+                            await RunScriptDiagnostics(filesToRefresh.ToArray(), eventContext);
+                        }
                     }
                 }
                 catch (OperationCanceledException) { /* superseded by a newer edit — expected */ }
@@ -1923,6 +1947,21 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         }
 
         /// <summary>
+        /// Determines why a rename cannot proceed and returns a user-facing error message,
+        /// or <c>null</c> when the rename is allowed.
+        /// Schema names are rejected earlier in <see cref="HandleSqlRenameRequest"/> before
+        /// <see cref="FindProjectSymbolLocations"/> runs, so this only handles keyword/not-found cases.
+        /// </summary>
+        /// <param name="locations">Locations returned by <see cref="FindProjectSymbolLocations"/>.</param>
+        private static string GetRenameErrorMessage(Location[] locations)
+        {
+            if (locations.Length == 0)
+                return SR.RenameNotSupported;
+
+            return null;
+        }
+
+        /// <summary>
         /// Handles <c>sql/rename</c> — finds all occurrences of the symbol at the cursor
         /// using <see cref="FindProjectSymbolLocations"/>, returns a <see cref="SqlSymbolRenameResponse"/>
         /// with both the WorkspaceEdit and the element name so the client can append a
@@ -1932,6 +1971,35 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             SqlSymbolRenameParams renameParams,
             RequestContext<SqlSymbolRenameResponse> requestContext)
         {
+            // Check binding context early so we can return a targeted error instead of the
+            // generic "not a project file" fallback shown by the client.
+            var scriptFile = CurrentWorkspace.GetFile(renameParams.TextDocument.Uri);
+            if (scriptFile != null)
+            {
+                var parseInfo = GetScriptParseInfo(scriptFile.ClientUri);
+                if (parseInfo != null && parseInfo.IsConnected && !parseInfo.IsProject)
+                {
+                    await requestContext.SendResult(new SqlSymbolRenameResponse
+                    {
+                        Message = SR.RenameNotSupportedLiveServer
+                    });
+                    return;
+                }
+            }
+
+            // Reject schema names before the expensive symbol-location scan.
+            string earlyTokenText = GetTokenTextAtPosition(renameParams.TextDocument.Uri, renameParams.Position.Line, renameParams.Position.Character);
+            if (!string.IsNullOrWhiteSpace(earlyTokenText)
+                && TryGetProjectMetadataProvider(renameParams.TextDocument.Uri, out var schemaCheckProvider)
+                && schemaCheckProvider.GetSchemaNames().Contains(earlyTokenText, StringComparer.OrdinalIgnoreCase))
+            {
+                await requestContext.SendResult(new SqlSymbolRenameResponse
+                {
+                    Message = SR.RenameNotSupported
+                });
+                return;
+            }
+
             var locations = FindProjectSymbolLocations(
                 renameParams.TextDocument.Uri,
                 renameParams.Position.Line,
@@ -1940,26 +2008,20 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 out TSqlModelMetadataProvider provider,
                 out string tokenText);
 
-            if (locations == null || locations.Length == 0)
+            if (locations == null)
             {
+                // File is not a project file — client's prepareRename already handles this
+                // with the standard "open a project" message.
                 await requestContext.SendResult(null);
                 return;
             }
 
-            // Resolve element metadata. Rename is only supported for level-1 objects (tables, views, procs, etc.)
-            // and level-2 objects (columns, parameters, etc.). Schema objects themselves cannot be renamed.
-            if (provider != null && qualifiedName != null)
+            string errorMessage = GetRenameErrorMessage(locations);
+
+            if (errorMessage != null)
             {
-                if (provider.TryGetRefactorInfo(
-                        qualifiedName, tokenText,
-                        out _, out string elementType,
-                        out _, out _)
-                    && elementType == "SqlSchema")
-                {
-                    // Reject rename for schema objects
-                    await requestContext.SendResult(null);
-                    return;
-                }
+                await requestContext.SendResult(new SqlSymbolRenameResponse { Message = errorMessage });
+                return;
             }
 
             // Warn if an object with the new name already exists in the same scope.
@@ -2044,7 +2106,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 Changes            = changes,
                 RefactorLogContent = refactorLogContent,
                 NewName            = renameParams.NewName,
-                WarningMessage     = nameCollisionWarning
+                Message            = nameCollisionWarning,
+                IsWarning          = nameCollisionWarning != null
             });
         }
 
@@ -2164,7 +2227,8 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 Changes            = changes,
                 RefactorLogContent = refactorLogContent,
                 TargetSchema       = moveParams.TargetSchema,
-                WarningMessage     = moveCollisionWarning
+                Message            = moveCollisionWarning,
+                IsWarning          = moveCollisionWarning != null
             });
         }
 

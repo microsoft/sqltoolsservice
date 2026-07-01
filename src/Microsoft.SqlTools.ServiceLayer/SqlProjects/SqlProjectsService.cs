@@ -515,9 +515,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     
                     try
                     {
-                        // TODO: Once DacFx supports TSqlObjectOptions.AllowExistingModelErrors or similar property, set it
-                        // here so the model can update even when a previous parse left build errors.
-                        state.Model.AddOrUpdateObjects(sqlText, sourceName, new TSqlObjectOptions());
+                        state.Model.AddOrUpdateObjects(sqlText, sourceName, new TSqlObjectOptions { SkipExistingModelValidation = true });
                         parseSucceeded = true;
                     }
                     catch (Exception ex)
@@ -528,7 +526,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 else
                 {
                     if (!projectIntelliSense.ContainsKey(projectUri)) return;
-                    state.Model.DeleteObjects(sourceName);
+                    state.Model.DeleteObjects(sourceName, new TSqlObjectOptions { SkipExistingModelValidation = true });
                 }
                 
                 // Update provider: deleted=true for actual deletes OR failed parses
