@@ -289,7 +289,9 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
                     return null;
                 }
 
-                PropertyInfo dspProp = s_dspProp ?? dataModel.GetType().GetProperty("DatabaseSchemaProvider");
+                PropertyInfo dspProp = s_dspProp ?? dataModel.GetType().GetProperty(
+                    "DatabaseSchemaProvider",
+                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                 if (dspProp == null)
                 {
                     return null;
@@ -302,7 +304,9 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
                     return null;
                 }
 
-                PropertyInfo platformProp = s_platformProp ?? dsp.GetType().GetProperty("Platform");
+                PropertyInfo platformProp = s_platformProp ?? dsp.GetType().GetProperty(
+                    "Platform",
+                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                 if (platformProp == null)
                 {
                     return null;
@@ -346,7 +350,7 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
 
                 PropertyInfo prop = resultType.GetProperty(
                     "DataModel",
-                    BindingFlags.NonPublic | BindingFlags.Instance);
+                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                 if (prop == null)
                 {
                     s_reflectionInitFailed = true;
