@@ -268,15 +268,10 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
                 return null;
             }
 
-            if (s_platformByResult.TryGetValue(result, out string cached))
-            {
-                return string.IsNullOrEmpty(cached) ? null : cached;
-            }
-
-            string platform = TryGetComparisonPlatformCore(result);
-            // ConditionalWeakTable rejects nulls, so store empty for "unknown".
-            s_platformByResult.Add(result, platform ?? string.Empty);
-            return platform;
+            // ConditionalWeakTable is thread-safe, but TryGetValue+Add can still race on the same key.
+            // Cache empty string as the sentinel for "unknown" since ConditionalWeakTable does not allow null values.
+            string cached = s_platformByResult.GetValue(result, r => TryGetComparisonPlatformCore(r) ?? string.Empty);
+            return string.IsNullOrEmpty(cached) ? null : cached;
         }
 
         private static string TryGetComparisonPlatformCore(SchemaComparisonResult result)
