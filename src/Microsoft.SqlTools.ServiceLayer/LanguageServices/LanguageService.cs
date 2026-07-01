@@ -28,7 +28,6 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.LanguageService.AutoParameterizaition;
 using Microsoft.SqlTools.LanguageService.Connection;
 using Microsoft.SqlTools.LanguageService.Connection.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.LanguageService.LanguageServices;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Completion;
 using ConnectionInfoBase = Microsoft.SqlTools.LanguageService.LanguageServices.ConnectionInfoBase;
@@ -1087,7 +1086,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             bool shouldBlock = false;
             if (SQL_LANG.Equals(changeParams.Language, StringComparison.OrdinalIgnoreCase))
             {
-                shouldBlock = !ServiceHost.ProviderName.Equals(changeParams.Flavor, StringComparison.OrdinalIgnoreCase);
+                shouldBlock = !ServiceHostInstance.ProviderName.Equals(changeParams.Flavor, StringComparison.OrdinalIgnoreCase);
             }
             if (SQL_CMD_LANG.Equals(changeParams.Language, StringComparison.OrdinalIgnoreCase))
             {

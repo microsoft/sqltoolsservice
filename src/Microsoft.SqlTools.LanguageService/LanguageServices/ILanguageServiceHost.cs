@@ -25,6 +25,11 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
     public interface ILanguageServiceHost : IProtocolEndpoint
     {
         /// <summary>
+        /// The provider (language flavor) name this host serves, e.g. "MSSQL".
+        /// </summary>
+        string ProviderName { get; }
+
+        /// <summary>
         /// The service provider used to resolve and load extensions (e.g. completion extensions).
         /// </summary>
         IMultiServiceProvider ServiceProvider { get; }

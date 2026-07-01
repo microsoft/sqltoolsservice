@@ -35,6 +35,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Hosting
         private const string ProviderProtocolVersion = "1.0";
 
         /// <summary>
+        /// The provider (language flavor) name this host serves, exposed via <see cref="ILanguageServiceHost"/>.
+        /// </summary>
+        string ILanguageServiceHost.ProviderName => ProviderName;
+
+        /// <summary>
         /// This timeout limits the amount of time that shutdown tasks can take to complete
         /// prior to the process shutting down.
         /// </summary>
