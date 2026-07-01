@@ -29,7 +29,6 @@ using Moq;
 using NUnit.Framework;
 using WsLocation = Microsoft.SqlTools.LanguageService.Workspace.Contracts.Location;
 using LangService = Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService;
-using SR = Microsoft.SqlTools.ServiceLayer.SR;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.IntelliSense
 {
