@@ -95,12 +95,6 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         internal const int CompletionExtTimeout = 200;
 
-        internal const string RenameNotSupportedLiveServer =
-            "Rename is only supported in SQL project files. To rename objects on a connected server, use sp_rename.";
-
-        internal const string RenameNotSupported =
-            "Renaming an object of this type is not supported.";
-
         // For testability only
         internal Task DelayedDiagnosticsTask = null;
 
@@ -1908,7 +1902,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         private static string GetRenameErrorMessage(Location[] locations)
         {
             if (locations.Length == 0)
-                return RenameNotSupported;
+                return SR.RenameNotSupported;
 
             return null;
         }
@@ -1933,7 +1927,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     await requestContext.SendResult(new SqlSymbolRenameResponse
                     {
-                        ErrorMessage = RenameNotSupportedLiveServer
+                        ErrorMessage = SR.RenameNotSupportedLiveServer
                     });
                     return;
                 }
@@ -1947,7 +1941,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
             {
                 await requestContext.SendResult(new SqlSymbolRenameResponse
                 {
-                    ErrorMessage = RenameNotSupported
+                    ErrorMessage = SR.RenameNotSupported
                 });
                 return;
             }
