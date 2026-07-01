@@ -95,6 +95,19 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
 
         internal const int CompletionExtTimeout = 200;
 
+        internal const string RenameNotSupportedLiveServer =
+            "Rename is not supported for files connected to a live server. Open the file as part of a SQL project first.";
+
+        internal const string RenameNotSupportedSchemaNames =
+            "Rename is not supported for schema names. Use 'Move to Schema' to move objects between schemas.";
+
+        internal const string RenameNotSupportedKeywords =
+            "Rename is not supported for SQL keywords and syntax elements. Place the cursor on an identifier to rename.";
+
+        // {0} = token text
+        internal const string RenameSymbolNotFoundFormat =
+            "The symbol '{0}' could not be found in the project model. Try saving the file first.";
+
         // For testability only
         internal Task DelayedDiagnosticsTask = null;
 
@@ -1885,48 +1898,19 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
         /// <summary>
         /// Determines why a rename cannot proceed and returns a user-facing error message,
         /// or <c>null</c> when the rename is allowed.
+        /// Schema names are rejected earlier in <see cref="HandleSqlRenameRequest"/> before
+        /// <see cref="FindProjectSymbolLocations"/> runs, so this only handles keyword/not-found cases.
         /// </summary>
         /// <param name="locations">Locations returned by <see cref="FindProjectSymbolLocations"/>.</param>
-        /// <param name="tokenText">Bare token text resolved by <see cref="FindProjectSymbolLocations"/>; null/empty means the cursor is not on an identifier.</param>
-        /// <param name="qualifiedName">Qualified name resolved by <see cref="FindProjectSymbolLocations"/>.</param>
-        /// <param name="provider">Metadata provider resolved by <see cref="FindProjectSymbolLocations"/>.</param>
-        private static string GetRenameErrorMessage(
-            Location[] locations,
-            string tokenText,
-            string qualifiedName,
-            TSqlModelMetadataProvider provider)
+        /// <param name="tokenText">Bare token text at the cursor; null/empty means the cursor is not on an identifier.</param>
+        private static string GetRenameErrorMessage(Location[] locations, string tokenText)
         {
             if (locations.Length == 0)
             {
                 if (string.IsNullOrWhiteSpace(tokenText))
-                    return "Rename is not supported for SQL keywords and syntax elements. " +
-                           "Place the cursor on an identifier to rename.";
+                    return RenameNotSupportedKeywords;
 
-                // Cursor is on a valid identifier but no defining file was found.
-                // Schemas (e.g. "dbo") have no SQL source file — detect that case explicitly.
-                if (provider != null && qualifiedName != null
-                    && provider.TryGetRefactorInfo(
-                        qualifiedName, tokenText,
-                        out _, out string emptyLocElementType, out _, out _)
-                    && emptyLocElementType == "SqlSchema")
-                {
-                    return "Rename is not supported for schema names. " +
-                           "Use 'Move to Schema' to move objects between schemas.";
-                }
-
-                return $"The symbol '{tokenText ?? "unknown"}' could not be found in the " +
-                       "project model. Try saving the file first.";
-            }
-
-            // Locations found — still reject if the resolved element is a schema object.
-            if (provider != null && qualifiedName != null
-                && provider.TryGetRefactorInfo(
-                    qualifiedName, tokenText,
-                    out _, out string elementType, out _, out _)
-                && elementType == "SqlSchema")
-            {
-                return "Rename is not supported for schema names. " +
-                       "Use 'Move to Schema' to move objects between schemas.";
+                return string.Format(RenameSymbolNotFoundFormat, tokenText ?? "unknown");
             }
 
             return null;
@@ -1952,11 +1936,23 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 {
                     await requestContext.SendResult(new SqlSymbolRenameResponse
                     {
-                        ErrorMessage = "Rename is not supported for files connected to a live server. " +
-                                       "Open the file as part of a SQL project first."
+                        ErrorMessage = RenameNotSupportedLiveServer
                     });
                     return;
                 }
+            }
+
+            // Reject schema names before the expensive symbol-location scan.
+            string earlyTokenText = GetTokenTextAtPosition(renameParams.TextDocument.Uri, renameParams.Position.Line, renameParams.Position.Character);
+            if (!string.IsNullOrWhiteSpace(earlyTokenText)
+                && TryGetProjectMetadataProvider(renameParams.TextDocument.Uri, out var schemaCheckProvider)
+                && schemaCheckProvider.GetSchemaNames().Contains(earlyTokenText, StringComparer.OrdinalIgnoreCase))
+            {
+                await requestContext.SendResult(new SqlSymbolRenameResponse
+                {
+                    ErrorMessage = RenameNotSupportedSchemaNames
+                });
+                return;
             }
 
             var locations = FindProjectSymbolLocations(
@@ -1975,8 +1971,7 @@ namespace Microsoft.SqlTools.ServiceLayer.LanguageServices
                 return;
             }
 
-            string errorMessage = GetRenameErrorMessage(
-                locations, tokenText, qualifiedName, provider);
+            string errorMessage = GetRenameErrorMessage(locations, tokenText);
 
             if (errorMessage != null)
             {

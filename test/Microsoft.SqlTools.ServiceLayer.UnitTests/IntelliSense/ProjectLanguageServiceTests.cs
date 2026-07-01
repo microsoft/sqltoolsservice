@@ -2176,6 +2176,67 @@ END
                 $"Expected 'could not be found' message. Got: {result?.ErrorMessage}");
         }
 
+        // Cursor on the schema prefix of a qualified name (e.g. "dbo" in "dbo.Customers").
+        // The FAR scan must NOT run — we should get the schema error immediately.
+        [Test]
+        public async Task HandleRenameRequest_ReturnsSchemaNamesMessage_WhenCursorOnSchemaPrefix()
+        {
+            LoadAllFilesIntoWorkspace();
+            string fileUri = GetFileUri("StoredProcedures/GetCustomer.sql");
+
+            SqlSymbolRenameResponse result = null;
+            var ctx = new Mock<RequestContext<SqlSymbolRenameResponse>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlSymbolRenameResponse>()))
+               .Returns<SqlSymbolRenameResponse>(r => { result = r; return Task.FromResult(0); });
+
+            // Line 5 of GetCustomerScript: "    FROM dbo.Customers"
+            // "dbo" starts at char 9.
+            await _langService.HandleSqlRenameRequest(
+                new SqlSymbolRenameParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = fileUri },
+                    Position = new Position { Line = 5, Character = 10 },
+                    NewName = "sales"
+                },
+                ctx.Object);
+
+            Assert.That(result?.ErrorMessage, Is.EqualTo(LangService.RenameNotSupportedSchemaNames),
+                $"Expected schema message. Got: {result?.ErrorMessage}");
+        }
+
+        // File connected to a live server must be rejected before any project-model work runs.
+        [Test]
+        public async Task HandleRenameRequest_ReturnsLiveServerMessage_WhenFileConnectedToServer()
+        {
+            const string connectedUri = "file:///test_live_server.sql";
+            _workspaceService.Workspace.GetFileBuffer(connectedUri, "SELECT * FROM dbo.Customers");
+
+            // Stamp the file as a live-connection context (IsConnected = true, IsProject = false).
+            var parseInfo = new Microsoft.SqlTools.LanguageService.LanguageServices.ScriptParseInfo
+            {
+                BindingContextKind = BindingContextKindEnum.LiveConnection,
+                ConnectionKey = "some-live-connection-key"
+            };
+            _langService.AddOrUpdateScriptParseInfo(connectedUri, parseInfo);
+
+            SqlSymbolRenameResponse result = null;
+            var ctx = new Mock<RequestContext<SqlSymbolRenameResponse>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlSymbolRenameResponse>()))
+               .Returns<SqlSymbolRenameResponse>(r => { result = r; return Task.FromResult(0); });
+
+            await _langService.HandleSqlRenameRequest(
+                new SqlSymbolRenameParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = connectedUri },
+                    Position = new Position { Line = 0, Character = 20 },
+                    NewName = "NewName"
+                },
+                ctx.Object);
+
+            Assert.That(result?.ErrorMessage, Is.EqualTo(LangService.RenameNotSupportedLiveServer),
+                $"Expected live-server message. Got: {result?.ErrorMessage}");
+        }
+
     }
 
     /// <summary>
