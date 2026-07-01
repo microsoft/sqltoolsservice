@@ -2097,18 +2097,16 @@ END
         }
 
         [Test]
-        public async Task HandleMoveToSchemaRequest_ReturnsNull_WhenNameCollisionExists()
+        public async Task HandleMoveToSchemaRequest_ReturnsWarning_WhenNameCollisionExists()
         {
             LoadAllFilesIntoWorkspace(includeSalesSchema: true);
 
             SqlMoveToSchemaResponse result = null;
-            bool resultSent = false;
             var ctx = new Mock<RequestContext<SqlMoveToSchemaResponse>>();
             ctx.Setup(rc => rc.SendResult(It.IsAny<SqlMoveToSchemaResponse>()))
-               .Returns<SqlMoveToSchemaResponse>(r => { result = r; resultSent = true; return Task.FromResult(0); });
+               .Returns<SqlMoveToSchemaResponse>(r => { result = r; return Task.FromResult(0); });
 
             // Try to move dbo.Customers to sales schema (but sales.Customers already exists)
-            // Cursor on "Customers" in GetCustomer.sql line 5: "    FROM dbo.Customers"
             await _langService.HandleMoveToSchemaRequest(
                 new SqlMoveToSchemaParams
                 {
@@ -2118,8 +2116,39 @@ END
                 },
                 ctx.Object);
 
-            Assert.That(resultSent, Is.True, "SendResult should have been called");
-            Assert.That(result, Is.Null, "Name collision should cause the operation to be rejected");
+            Assert.That(result, Is.Not.Null, "Should return a response even on collision");
+            Assert.That(result.Changes, Is.Not.Null.And.Not.Empty, "Workspace edits should still be returned");
+            Assert.That(result.WarningMessage, Is.Not.Null.And.Not.Empty, "WarningMessage should be set on collision");
+            Assert.That(result.WarningMessage, Does.Contain("[sales].[Customers]"),
+                $"Warning should include the bracketed target name. Got: {result.WarningMessage}");
+        }
+
+        [Test]
+        public async Task HandleRenameRequest_ReturnsWarningAndEdits_WhenNewNameAlreadyExists()
+        {
+            LoadAllFilesIntoWorkspace();
+
+            SqlSymbolRenameResponse result = null;
+            var ctx = new Mock<RequestContext<SqlSymbolRenameResponse>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlSymbolRenameResponse>()))
+               .Returns<SqlSymbolRenameResponse>(r => { result = r; return Task.FromResult(0); });
+
+            // Rename dbo.Customers to "Orders" — dbo.Orders already exists in the model.
+            // Cursor on "Customers" in GetCustomer.sql line 5: "    FROM dbo.Customers".
+            await _langService.HandleSqlRenameRequest(
+                new SqlSymbolRenameParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = GetFileUri("StoredProcedures/GetCustomer.sql") },
+                    Position = new Position { Line = 5, Character = 15 },
+                    NewName = "Orders"
+                },
+                ctx.Object);
+
+            Assert.That(result, Is.Not.Null, "Should return a response even on collision");
+            Assert.That(result.Changes, Is.Not.Null.And.Not.Empty, "Workspace edits should still be returned");
+            Assert.That(result.WarningMessage, Is.Not.Null.And.Not.Empty, "WarningMessage should be set on collision");
+            Assert.That(result.WarningMessage, Does.Contain("[Orders]"),
+                $"Warning should include the bracketed new name. Got: {result.WarningMessage}");
         }
 
     }
