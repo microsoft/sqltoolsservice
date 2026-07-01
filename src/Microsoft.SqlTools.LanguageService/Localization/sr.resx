@@ -213,6 +213,14 @@
     <value>This object type is currently not supported by this feature.</value>
     <comment></comment>
   </data>
+  <data name="PeekDefinitionNotConnectedError" xml:space="preserve">
+    <value>Please connect to a server.</value>
+    <comment></comment>
+  </data>
+  <data name="PeekDefinitionTimedoutError" xml:space="preserve">
+    <value>Operation timed out.</value>
+    <comment></comment>
+  </data>
   <data name="ParameterizationDetails" xml:space="preserve">
     <value>{0} will be converted to a Microsoft.Data.SqlClient.SqlParameter object with the following properties: SqlDbType = {1}, Size = {2}, Precision = {3}, Scale = {4}, SqlValue = {5}</value>
     <comment>.

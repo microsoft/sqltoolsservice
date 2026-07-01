@@ -38,8 +38,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             Assert.NotNull(ServiceLayerSr.ConnectionServiceDbErrorDefaultNotConnected(""));
             Assert.NotNull(ServiceLayerSr.ConnectionServiceListDbErrorNotConnected(""));
             Assert.NotNull(ServiceLayerSr.ConnectionServiceListDbErrorNullOwnerUri);
-            Assert.NotNull(ServiceLayerSr.PeekDefinitionNotConnectedError);
-            Assert.NotNull(ServiceLayerSr.PeekDefinitionTimedoutError);
             Assert.NotNull(ServiceLayerSr.QueryServiceAffectedOneRow);
             Assert.NotNull(ServiceLayerSr.QueryServiceAffectedRows(0));
             Assert.NotNull(ServiceLayerSr.QueryServiceCancelAlreadyCompleted);

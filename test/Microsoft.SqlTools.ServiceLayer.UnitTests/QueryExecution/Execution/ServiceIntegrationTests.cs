@@ -21,6 +21,7 @@ using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Microsoft.SqlTools.LanguageService.Workspace;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
+using Microsoft.SqlTools.LanguageService.LanguageServices;
 using Moq;
 using NUnit.Framework;
 
@@ -86,7 +87,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             var statement2 = "SELECT * FROM sys.databases";
             string query = string.Format("{0}; {1}", statement1, statement2);
 
-            var statementInfo = LanguageServices.LanguageService.Instance.ParseStatementAtPositionInfo(
+            var statementInfo = TSqlLanguageService.Instance.ParseStatementAtPositionInfo(
                 query,
                 line: 0,
                 column: statement1.Length + 2);

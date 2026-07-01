@@ -32,6 +32,7 @@ using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using Microsoft.SqlTools.LanguageService.Workspace;
+using Microsoft.SqlTools.LanguageService.LanguageServices;
 using Microsoft.SqlTools.Utility;
 using TextCopy;
 using System.Threading;
@@ -1713,8 +1714,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 return new QueryExecutionInfo { QueryText = string.Empty };
             }
 
-            LanguageServices.LanguageService.StatementParseInfo statementInfo =
-                LanguageServices.LanguageService.Instance.ParseStatementAtPositionInfo(
+            TSqlLanguageService.StatementParseInfo statementInfo =
+                TSqlLanguageService.Instance.ParseStatementAtPositionInfo(
                     queryFile.Contents, line, column);
 
             if (statementInfo == null)

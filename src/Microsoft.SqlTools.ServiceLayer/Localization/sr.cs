@@ -439,22 +439,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string PeekDefinitionNotConnectedError
-        {
-            get
-            {
-                return Keys.GetString(Keys.PeekDefinitionNotConnectedError);
-            }
-        }
-
-        public static string PeekDefinitionTimedoutError
-        {
-            get
-            {
-                return Keys.GetString(Keys.PeekDefinitionTimedoutError);
-            }
-        }
-
         public static string EditDataObjectNotFound
         {
             get
@@ -11177,12 +11161,6 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string SerializationServiceRequestNotFound = "SerializationServiceRequestNotFound";
-
-
-            public const string PeekDefinitionNotConnectedError = "PeekDefinitionNotConnectedError";
-
-
-            public const string PeekDefinitionTimedoutError = "PeekDefinitionTimedoutError";
 
 
             public const string EditDataObjectNotFound = "EditDataObjectNotFound";

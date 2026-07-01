@@ -28,7 +28,6 @@ using Microsoft.SqlTools.SqlCore.IntelliSense;
 using Moq;
 using NUnit.Framework;
 using WsLocation = Microsoft.SqlTools.LanguageService.Workspace.Contracts.Location;
-using LangService = Microsoft.SqlTools.ServiceLayer.LanguageServices.LanguageService;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.IntelliSense
 {
@@ -38,7 +37,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.IntelliSense
     [TestFixture]
     public class ProjectLanguageServiceTests
     {
-        private LangService _langService;
+        private TSqlLanguageService _langService;
         private WorkspaceService<SqlToolsSettings> _workspaceService;
         private string _projectPath;
         private SqlProject _project;
@@ -100,7 +99,7 @@ END
                 transactSqlVersion: TransactSqlVersion.Current);
 
             // Initialize language service
-            _langService = new LangService();
+            _langService = new TSqlLanguageService();
             _langService.ConnectionServiceInstance = ConnectionService.Instance;
 
             // Set up workspace service
@@ -332,7 +331,7 @@ END
                     compatibilityLevel: DatabaseCompatibilityLevel.Current,
                     transactSqlVersion: TransactSqlVersion.Current);
 
-                var langService = new LangService();
+                var langService = new TSqlLanguageService();
                 var workspaceService = new WorkspaceService<SqlToolsSettings>();
                 workspaceService.Workspace = new Microsoft.SqlTools.LanguageService.Workspace.Workspace();
                 langService.WorkspaceServiceInstance = workspaceService;
@@ -1143,7 +1142,7 @@ END
         private string _projectPath;
         private SqlProject _project;
         private TSqlModel _model;
-        private LangService _langService;
+        private TSqlLanguageService _langService;
         private WorkspaceService<SqlToolsSettings> _workspaceService;
         private string _projectUri;
         private string _contextKey;
@@ -1230,7 +1229,7 @@ END
                 compatibilityLevel: DatabaseCompatibilityLevel.Current,
                 transactSqlVersion: TransactSqlVersion.Current);
 
-            _langService = new LangService();
+            _langService = new TSqlLanguageService();
             _workspaceService = new WorkspaceService<SqlToolsSettings>();
             _workspaceService.Workspace = new Microsoft.SqlTools.LanguageService.Workspace.Workspace();
             _langService.WorkspaceServiceInstance = _workspaceService;
@@ -1517,7 +1516,7 @@ END
         private string _projectPath;
         private SqlProject _project;
         private TSqlModel _model;
-        private LangService _langService;
+        private TSqlLanguageService _langService;
         private WorkspaceService<SqlToolsSettings> _workspaceService;
         private string _projectUri;
         private string _contextKey;
@@ -1618,7 +1617,7 @@ END
                 compatibilityLevel: DatabaseCompatibilityLevel.Current,
                 transactSqlVersion: TransactSqlVersion.Current);
 
-            _langService = new LangService();
+            _langService = new TSqlLanguageService();
             _workspaceService = new WorkspaceService<SqlToolsSettings>();
             _workspaceService.Workspace = new Microsoft.SqlTools.LanguageService.Workspace.Workspace();
             _langService.WorkspaceServiceInstance = _workspaceService;

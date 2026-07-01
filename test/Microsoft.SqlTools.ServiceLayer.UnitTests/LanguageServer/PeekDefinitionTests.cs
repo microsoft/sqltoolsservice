@@ -108,7 +108,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         {
             Scripter peekDefinition = new Scripter(null, null);
             Assert.True(Directory.Exists(PeekDefinitionTempFolder.TempFolderPath));
-            LanguageServices.LanguageService.Instance.DeletePeekDefinitionScripts();
+            TSqlLanguageService.Instance.DeletePeekDefinitionScripts();
             Assert.False(Directory.Exists(PeekDefinitionTempFolder.TempFolderPath));
         }
 
@@ -122,7 +122,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             FileUtilities.SafeDirectoryDelete(PeekDefinitionTempFolder.TempFolderPath, true);
             Assert.False(Directory.Exists(PeekDefinitionTempFolder.TempFolderPath));
             // Expected not to throw any exception
-            LanguageServices.LanguageService.Instance.DeletePeekDefinitionScripts();
+            TSqlLanguageService.Instance.DeletePeekDefinitionScripts();
         }
 
         [Test]
