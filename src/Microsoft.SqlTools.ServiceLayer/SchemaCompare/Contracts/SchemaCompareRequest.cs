@@ -49,6 +49,25 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
         public bool AreEqual { get; set; }
 
         public List<DiffEntry> Differences { get; set; }
+
+        /// <summary>
+        /// Short name of the DacFx <c>SqlPlatforms</c> value detected for the source endpoint
+        /// after the comparison runs (e.g. "Sql160", "SqlDwUnified", "SqlAzure"). Populated
+        /// from <c>DatabaseSchemaProvider.Platform</c> via
+        /// <c>SchemaCompareUtils.GetComparisonPlatform</c>, which differs from
+        /// <c>TSqlModel.Version</c> (the latter reports "Sql150" for Fabric Warehouse models).
+        /// Null if the comparison did not produce a source model.
+        /// </summary>
+        public string SourcePlatform { get; set; }
+
+        /// <summary>
+        /// Short name of the DacFx <c>SqlPlatforms</c> value detected for the target endpoint.
+        /// Populated from <c>DatabaseSchemaProvider.Platform</c> via
+        /// <c>SchemaCompareUtils.GetComparisonPlatform</c>, which differs from
+        /// <c>TSqlModel.Version</c> (the latter reports "Sql150" for Fabric Warehouse models).
+        /// Null if the comparison did not produce a target model.
+        /// </summary>
+        public string TargetPlatform { get; set; }
     }
 
     /// <summary>

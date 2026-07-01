@@ -36,6 +36,22 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
 
         public List<DiffEntry> Differences;
 
+        /// <summary>
+        /// The platform the comparison ran under (DacFx <c>SqlPlatforms</c> enum name, e.g.
+        /// "Sql160", "SqlAzureV12", "SqlDwUnified"). Sourced from the comparison's
+        /// <c>DatabaseSchemaProvider.Platform</c> (the unified DSP the comparison normalized
+        /// to). Source and Target carry the same value because DacFx runs a single comparison
+        /// under a single DSP — see <see cref="SchemaCompareUtils.GetComparisonPlatform"/>.
+        /// Null if the
+        /// platform could not be detected (e.g. the comparison was never run).
+        /// </summary>
+        public string SourcePlatform { get; set; }
+
+        /// <summary>
+        /// The platform the comparison ran under. See <see cref="SourcePlatform"/>.
+        /// </summary>
+        public string TargetPlatform { get; set; }
+
         public SchemaCompareOperation(SchemaCompareParams parameters, ISchemaCompareConnectionProvider connectionProvider)
         {
             Validate.IsNotNull("parameters", parameters);
@@ -116,6 +132,26 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
                         this.Differences.Add(diffEntry);
                     }
                 }
+
+                // Expose the platform the comparison actually ran under so clients can show
+                // the user which T-SQL dialect Schema Compare is using (e.g. "SqlDwUnified"
+                // when comparing Fabric Warehouse endpoints).
+                //
+                // We CANNOT use ComparisonResult.SourceModel.Version because DacFx maps the
+                // SqlDwUnified platform to SqlServerVersion.Sql150 in
+                // InternalModelUtils.CalculateVersionsForPlatform (it predates the
+                // SqlServerVersion.SqlDwUnified enum value). The TSqlModel.Version surface
+                // therefore reports "Sql150" for every Fabric Warehouse model, which would
+                // mislabel the platform pill in the UI.
+                //
+                // Instead, read the comparison's normalized DSP from
+                // SchemaComparisonResult.DataModel.DatabaseSchemaProvider.Platform via
+                // reflection. DatabaseSchemaProvider is internal-abstract in DacFx, but
+                // .Platform is a public abstract SqlPlatforms property (a public enum), and
+                // the cascade fix in PR 2143938 confirms this value is reliably populated.
+                string comparisonPlatform = SchemaCompareUtils.GetComparisonPlatform(this.ComparisonResult);
+                this.SourcePlatform = comparisonPlatform;
+                this.TargetPlatform = comparisonPlatform;
 
                 // Appending the set of errors that are stopping the schema compare to the ErrorMessage
                 // GetErrors return all type of warnings, and error messages. Only filtering the error type messages here
