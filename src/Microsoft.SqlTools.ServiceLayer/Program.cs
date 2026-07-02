@@ -76,6 +76,9 @@ namespace Microsoft.SqlTools.ServiceLayer
                     ProcessExitTimer.Start(commandOptions.ParentProcessId.Value);
                 }
 
+                // Perf-harness self-report: no-op unless PERF_MODE=1 (fire-and-forget HTTP to a localhost sink).
+                PerfSelfReport.TrySendProcessReady();
+
                 await serviceHost.WaitForExitAsync();
             }
             catch (Exception ex)
