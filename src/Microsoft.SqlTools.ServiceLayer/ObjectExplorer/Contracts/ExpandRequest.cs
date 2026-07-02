@@ -36,9 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         public string ErrorMessage { get; set; } = null!;
 
         /// <summary>
-        /// Stable, non-localized error code identifying the expand failure reason (e.g.
-        /// <see cref="ObjectExplorerErrorCodes.ExpandTimeout"/>), if a known one applies. Allows
-        /// clients to detect specific failures without matching on the localized error message.
+        /// Error code identifying the failure reason
         /// </summary>
         public string? ErrorCode { get; set; }
     }

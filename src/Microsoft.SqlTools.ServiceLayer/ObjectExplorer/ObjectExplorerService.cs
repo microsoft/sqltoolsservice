@@ -342,8 +342,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                             SessionId = uri,
                             ErrorNumber = result.Exception != null && result.Exception is SqlException sqlEx ? sqlEx.ErrorCode : null,
                             ErrorMessage = result.Exception != null ? result.Exception.Message : $"Failed to create session for session id {uri}",
-                            // Surface a stable, non-localized code when the failure was a timeout so
-                            // clients can detect it without matching on the (localized) message.
                             ErrorCode = result.Exception is TimeoutException ? ObjectExplorerErrorCodes.CreateSessionTimeout : null
 
                         };
@@ -665,8 +663,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                     cancellationTokenSource.Cancel();
                     ExpandResponse response = CreateExpandResponse(session, expandParams);
                     response.ErrorMessage = result.Exception != null ? result.Exception.Message : $"Failed to expand node: {expandParams.NodePath} in session {session.Uri}";
-                    // Surface a stable, non-localized code when the failure was a timeout so
-                    // clients can detect it without matching on the (localized) message.
                     if (result.Exception is TimeoutException)
                     {
                         response.ErrorCode = ObjectExplorerErrorCodes.ExpandTimeout;

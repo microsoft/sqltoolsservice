@@ -59,9 +59,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         public string ErrorMessage { get; set; }
 
         /// <summary>
-        /// Stable, non-localized error code identifying the session failure reason (e.g.
-        /// <see cref="ObjectExplorerErrorCodes.CreateSessionTimeout"/>), if a known one applies.
-        /// Allows clients to detect specific failures without matching on the localized error message.
+        /// Error code identifying the failure reason
         /// </summary>
         public string ErrorCode { get; set; }
     }

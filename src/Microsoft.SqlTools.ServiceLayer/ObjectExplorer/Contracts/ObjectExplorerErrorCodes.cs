@@ -6,8 +6,7 @@
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
 {
     /// <summary>
-    /// Stable, non-localized error codes returned on Object Explorer responses so clients can
-    /// reliably detect specific failure reasons without matching on (localized) error messages.
+    /// Error codes returned on Object Explorer responses
     /// </summary>
     public static class ObjectExplorerErrorCodes
     {
