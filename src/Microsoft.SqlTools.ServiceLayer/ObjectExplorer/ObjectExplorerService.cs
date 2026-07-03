@@ -483,7 +483,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                                // Debug Console diagnostics: SMO enumeration span
                                // (inert unless STS_DIAG_URL is set; node type +
                                // child count only, never object names).
-                               var smoDiagSpan = Hosting.Utility.StsDiag.StartSpan(
+                               var smoDiagSpan = Microsoft.SqlTools.Hosting.Utility.StsDiag.StartSpan(
                                    forceRefresh ? "sts.smo.refresh" : "sts.smo.expand", "sqlDriver");
                                if (forceRefresh)
                                {
@@ -508,7 +508,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                                }
                                smoDiagSpan.Complete(
                                    node.ErrorMessage != null ? "error" : "ok",
-                                   new System.Collections.Generic.Dictionary<string, object?>
+                                   new System.Collections.Generic.Dictionary<string, object>
                                    {
                                        ["nodeType"] = node.NodeTypeId.ToString(),
                                        ["childCount"] = nodes?.Length ?? 0,

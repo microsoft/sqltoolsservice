@@ -441,7 +441,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 // Debug Console diagnostics: SqlCommand execution span (inert
                 // unless STS_DIAG_URL is set; batch ordinal + row counts only,
                 // never SQL text).
-                var sqlDiagSpan = Hosting.Utility.StsDiag.StartSpan("sts.sql.executeReader", "sqlDriver");
+                var sqlDiagSpan = Microsoft.SqlTools.Hosting.Utility.StsDiag.StartSpan("sts.sql.executeReader", "sqlDriver");
                 long diagRowCount = 0;
 
                 // Execute the command to get back a reader
@@ -484,7 +484,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                     }
                 }
 
-                sqlDiagSpan.Complete("ok", new System.Collections.Generic.Dictionary<string, object?>
+                sqlDiagSpan.Complete("ok", new System.Collections.Generic.Dictionary<string, object>
                 {
                     ["batchOrdinal"] = Id,
                     ["resultSets"] = resultSets.Count,
