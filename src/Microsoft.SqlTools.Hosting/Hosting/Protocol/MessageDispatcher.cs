@@ -333,6 +333,32 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
             if (handlerToAwait != null)
             {
+                // Debug Console diagnostics (inert unless STS_DIAG_URL is set):
+                // one span per handled request/event with method + duration.
+                // Method names are protocol metadata, never payload.
+                Func<Message, MessageWriter, Task> innerHandler = handlerToAwait;
+                if (Utility.StsDiag.Enabled &&
+                    (messageToDispatch.MessageType == MessageType.Request ||
+                     messageToDispatch.MessageType == MessageType.Event))
+                {
+                    string diagMethod = messageToDispatch.Method;
+                    string diagKind = messageToDispatch.MessageType == MessageType.Request ? "dispatch" : "event";
+                    handlerToAwait = async (message, writer) =>
+                    {
+                        var span = Utility.StsDiag.StartSpan($"sts.{diagKind}.{diagMethod}", "rpc");
+                        try
+                        {
+                            await innerHandler(message, writer);
+                            span.Complete();
+                        }
+                        catch
+                        {
+                            span.Complete("error");
+                            throw;
+                        }
+                    };
+                }
+
                 try
                 {
                     if (this.ParallelMessageProcessing && isParallelProcessingSupported)

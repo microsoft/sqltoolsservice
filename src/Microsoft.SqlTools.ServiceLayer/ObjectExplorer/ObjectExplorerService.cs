@@ -480,6 +480,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                                }
 
 
+                               // Debug Console diagnostics: SMO enumeration span
+                               // (inert unless STS_DIAG_URL is set; node type +
+                               // child count only, never object names).
+                               var smoDiagSpan = Hosting.Utility.StsDiag.StartSpan(
+                                   forceRefresh ? "sts.smo.refresh" : "sts.smo.expand", "sqlDriver");
                                if (forceRefresh)
                                {
                                    Logger.Verbose($"Forcing refresh for {nodePath}");
@@ -501,6 +506,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                                        nodes = new NodeInfo[] { errorNode };
                                    }
                                }
+                               smoDiagSpan.Complete(
+                                   node.ErrorMessage != null ? "error" : "ok",
+                                   new System.Collections.Generic.Dictionary<string, object?>
+                                   {
+                                       ["nodeType"] = node.NodeTypeId.ToString(),
+                                       ["childCount"] = nodes?.Length ?? 0,
+                                   });
                                response.Nodes = nodes;
                                response.ErrorMessage = node.ErrorMessage;
                                try

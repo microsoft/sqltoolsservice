@@ -438,6 +438,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                 ConnectionService.EnsureConnectionIsOpen(conn);
 
+                // Debug Console diagnostics: SqlCommand execution span (inert
+                // unless STS_DIAG_URL is set; batch ordinal + row counts only,
+                // never SQL text).
+                var sqlDiagSpan = Hosting.Utility.StsDiag.StartSpan("sts.sql.executeReader", "sqlDriver");
+                long diagRowCount = 0;
+
                 // Execute the command to get back a reader
                 using (DbDataReader reader = dbCommand.ExecuteReader())
                 {
@@ -466,16 +472,24 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                         // Read until we hit the end of the result set
                         await resultSet.ReadResultToEnd(reader, cancellationToken);
+                        diagRowCount += resultSet.RowCount;
 
                     } while (reader.NextResult());
 
-                    // If there were no messages, for whatever reason (NO COUNT set, messages 
+                    // If there were no messages, for whatever reason (NO COUNT set, messages
                     // were emitted, records returned), output a "successful" message
                     if (!messagesSent)
                     {
                         await SendMessage(SR.QueryServiceCompletedSuccessfully, false);
                     }
                 }
+
+                sqlDiagSpan.Complete("ok", new System.Collections.Generic.Dictionary<string, object?>
+                {
+                    ["batchOrdinal"] = Id,
+                    ["resultSets"] = resultSets.Count,
+                    ["rowCount"] = diagRowCount,
+                });
 
                 if (columnSchemas != null)
                 {
