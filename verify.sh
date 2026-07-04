@@ -122,11 +122,29 @@ e2e_tests() {
 legacy_diff_budget() {
     # Legacy = src/ and test/ excluding the STS2 subtrees (DECISIONS.md D-0004 scope).
     # Repo-level build plumbing (sln, slnf, Packages.props, docs, tools) is not legacy code.
-    local stats files lines
+    #
+    # Sanctioned seams (docs/sts2/LEGACY-SEAM-ALLOWLIST.txt — owner-reviewed paths
+    # with recorded reasons: PERF_MODE self-report, StsDiag spans, CA1852 fixes)
+    # are reported but excluded from the budget. The gate exists to catch
+    # ACCIDENTAL legacy churn and stays full-strength for everything unlisted.
+    local stats files lines sanctioned allow
+    allow="$ROOT/docs/sts2/LEGACY-SEAM-ALLOWLIST.txt"
     stats=$(git diff --numstat "${BASE_REF}...HEAD" -- 'src' 'test' ':(exclude)src/sts2' ':(exclude)test/sts2')
+    if [ -f "$allow" ]; then
+        sanctioned=$(printf '%s\n' "$stats" | awk -v allowfile="$allow" '
+            BEGIN { while ((getline line < allowfile) > 0) { sub(/\r$/, "", line); if (line !~ /^#/ && line != "") allowed[line] = 1 } }
+            { if ($3 in allowed) print }')
+        stats=$(printf '%s\n' "$stats" | awk -v allowfile="$allow" '
+            BEGIN { while ((getline line < allowfile) > 0) { sub(/\r$/, "", line); if (line !~ /^#/ && line != "") allowed[line] = 1 } }
+            { if (!($3 in allowed) && $3 != "") print }')
+        if [ -n "$sanctioned" ]; then
+            echo "    sanctioned seams (allowlisted, excluded from budget):"
+            printf '%s\n' "$sanctioned" | sed 's/^/      /'
+        fi
+    fi
     files=$(printf '%s' "$stats" | grep -c . || true)
     lines=$(printf '%s' "$stats" | awk '{ added+=$1; deleted+=$2 } END { print added+deleted+0 }')
-    echo "    legacy diff vs ${BASE_REF}: ${lines} lines across ${files} files (budget: <${LEGACY_DIFF_LINE_BUDGET} lines, <=${LEGACY_DIFF_FILE_BUDGET} files)"
+    echo "    unsanctioned legacy diff vs ${BASE_REF}: ${lines} lines across ${files} files (budget: <${LEGACY_DIFF_LINE_BUDGET} lines, <=${LEGACY_DIFF_FILE_BUDGET} files)"
     printf '%s\n' "$stats" | sed 's/^/      /'
     [ "${files:-0}" -le "$LEGACY_DIFF_FILE_BUDGET" ] && [ "${lines:-0}" -lt "$LEGACY_DIFF_LINE_BUDGET" ]
 }

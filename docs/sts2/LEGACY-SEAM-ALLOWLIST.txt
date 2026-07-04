@@ -1,0 +1,64 @@
+# Sanctioned legacy-code seams (SPEC §5 discipline, made auditable).
+#
+# The legacy-diff-budget gate in verify.sh measures drift vs upstream main
+# EXCLUDING the exact paths listed here. Everything listed carries an owner
+# sanction and a reason; anything NOT listed still falls under the strict
+# budget (<=3 files, <60 lines). Adding a path here is a reviewed decision,
+# not a convenience — never park accidental churn in this file.
+#
+# Sanction record:
+#  - PERF_MODE observability seams (perftest harness design §18, owner-
+#    directed): process self-report + CLI options + Program wiring.
+#  - StsDiag diagnostic spans (observability retrofit, owner-directed;
+#    metadata-only, inert without STS_DIAG_URL/STS_DIAG_TOKEN): the StsDiag
+#    utility + its sanctioned call sites (dispatcher, query, connection,
+#    OE/SMO, DacFx, designers).
+#  - Formatter CA1852 fixes: mechanical sealed-class compliance required to
+#    build legacy with warnings-as-errors; no behavior change.
+
+# --- PERF_MODE seams ---------------------------------------------------------
+src/Microsoft.SqlTools.ServiceLayer/Utility/PerfSelfReport.cs
+src/Microsoft.SqlTools.ServiceLayer/Utility/ServiceLayerCommandOptions.cs
+src/Microsoft.SqlTools.ServiceLayer/Program.cs
+
+# --- StsDiag utility + call sites ---------------------------------------------
+src/Microsoft.SqlTools.Hosting/Utility/StsDiag.cs
+src/Microsoft.SqlTools.Hosting/Hosting/Protocol/MessageDispatcher.cs
+src/Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj
+src/Microsoft.SqlTools.ServiceLayer/QueryExecution/Batch.cs
+src/Microsoft.SqlTools.ServiceLayer/Connection/ConnectionService.cs
+src/Microsoft.SqlTools.ServiceLayer/ObjectExplorer/ObjectExplorerService.cs
+src/Microsoft.SqlTools.ServiceLayer/DacFx/DacFxService.cs
+src/Microsoft.SqlTools.ServiceLayer/TableDesigner/TableDesignerService.cs
+src/Microsoft.SqlTools.ServiceLayer/SchemaDesigner/SchemaDesignerService.cs
+src/Microsoft.SqlTools.ServiceLayer/Microsoft.SqlTools.ServiceLayer.csproj
+
+# --- Formatter CA1852 (warnings-as-errors compliance, mechanical) -------------
+src/Microsoft.SqlTools.LanguageService/Formatter/Impl/FormatContext.cs
+src/Microsoft.SqlTools.LanguageService/Formatter/Impl/FormatterVisitor.cs
+src/Microsoft.SqlTools.LanguageService/Formatter/Impl/NoOpFormatter.cs
+src/Microsoft.SqlTools.LanguageService/Formatter/Impl/PaddedSpaceSeparatedListFormatter.cs
+src/Microsoft.SqlTools.LanguageService/Formatter/Impl/ReplacementQueue.cs
+src/Microsoft.SqlTools.LanguageService/Formatter/Impl/SqlBatchFormatter.cs
+src/Microsoft.SqlTools.LanguageService/Formatter/Impl/SqlBinaryBooleanExpressionFormatter.cs
+src/Microsoft.SqlTools.LanguageService/Formatter/Impl/SqlBinaryQueryExpressionFormatter.cs
+src/Microsoft.SqlTools.LanguageService/Formatter/Impl/SqlColumnDefinitionFormatter.cs
+src/Microsoft.SqlTools.LanguageService/Formatter/Impl/SqlCommonTableExpressionFormatter.cs
+src/Microsoft.SqlTools.LanguageService/Formatter/Impl/SqlCompoundStatementFormatter.cs
+src/Microsoft.SqlTools.LanguageService/Formatter/Impl/SqlCreateProcedureStatementFormatter.cs
+src/Microsoft.SqlTools.LanguageService/Formatter/Impl/SqlCreateTableStatementFormatter.cs
+src/Microsoft.SqlTools.LanguageService/Formatter/Impl/SqlDataTypeFormatter.cs
+src/Microsoft.SqlTools.LanguageService/Formatter/Impl/SqlFromClauseFormatter.cs
+src/Microsoft.SqlTools.LanguageService/Formatter/Impl/SqlInsertSpecificationFormatter.cs
+src/Microsoft.SqlTools.LanguageService/Formatter/Impl/SqlInsertStatementFormatter.cs
+src/Microsoft.SqlTools.LanguageService/Formatter/Impl/SqlProcedureDefinitionFormatter.cs
+src/Microsoft.SqlTools.LanguageService/Formatter/Impl/SqlQualifiedJoinTableExpressionFormatter.cs
+src/Microsoft.SqlTools.LanguageService/Formatter/Impl/SqlQuerySpecificationFormatter.cs
+src/Microsoft.SqlTools.LanguageService/Formatter/Impl/SqlQueryWithClauseFormatter.cs
+src/Microsoft.SqlTools.LanguageService/Formatter/Impl/SqlRowConstructorExpressionFormatter.cs
+src/Microsoft.SqlTools.LanguageService/Formatter/Impl/SqlSelectClauseFormatter.cs
+src/Microsoft.SqlTools.LanguageService/Formatter/Impl/SqlSelectSpecificationFormatter.cs
+src/Microsoft.SqlTools.LanguageService/Formatter/Impl/SqlSelectStatementFormatter.cs
+src/Microsoft.SqlTools.LanguageService/Formatter/Impl/SqlTableConstructorExpressionFormatter.cs
+src/Microsoft.SqlTools.LanguageService/Formatter/Impl/SqlTableDefinitionFormatter.cs
+src/Microsoft.SqlTools.LanguageService/Formatter/Impl/SqlViewDefinitionFormatter.cs

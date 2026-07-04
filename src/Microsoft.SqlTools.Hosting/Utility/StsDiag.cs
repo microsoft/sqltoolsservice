@@ -38,7 +38,7 @@ namespace Microsoft.SqlTools.Hosting.Utility
         private static readonly string? token;
         private static readonly ConcurrentQueue<string> queue = new ConcurrentQueue<string>();
         private static readonly HttpClient? httpClient;
-#if NETSTANDARD2_0
+#if NETSTANDARD2_0 || NETFRAMEWORK
         private static readonly int processId = Process.GetCurrentProcess().Id;
 #else
         private static readonly int processId = Environment.ProcessId;

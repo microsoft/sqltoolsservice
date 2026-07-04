@@ -34,6 +34,8 @@
 	<ItemGroup Condition="'$(TargetFramework)' == '$(SsmsDotNetVersion)'">
 		<PackageReference Update="Microsoft.Extensions.DependencyModel" VersionOverride="$(SsmsSystemNugetVersion)" />
 		<PackageReference Update="System.Text.Json" VersionOverride="$(SsmsSystemNugetVersion)" />
+		<!-- StsDiag's loopback batch sender uses HttpClient, which .NET Framework ships in this assembly. -->
+		<Reference Include="System.Net.Http" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' != '$(SsmsDotNetVersion)'">
 		<InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.UnitTests" />
