@@ -48,12 +48,27 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             return Utils.HandleRequest<CreateSessionResponse>(requestContext, async () =>
             {
                 string sessionId = string.IsNullOrWhiteSpace(requestParams.SessionId) ? Guid.NewGuid().ToString() : requestParams.SessionId;
-                var session = new SchemaDesignerSession(
-                    sessionId,
-                    requestParams.ConnectionString,
-                    requestParams.AccessToken,
-                    CreateProgressNotificationHandler(),
-                    CreateMessageNotificationHandler());
+                // Driver-level DacFx model build — the expensive part of
+                // opening the schema designer. Metadata only, never the
+                // connection string.
+                var diagSpan = Microsoft.SqlTools.Hosting.Utility.StsDiag.StartSpan(
+                    "sts.dacfx.schemaDesigner.createSession", "sqlDriver");
+                SchemaDesignerSession session;
+                try
+                {
+                    session = new SchemaDesignerSession(
+                        sessionId,
+                        requestParams.ConnectionString,
+                        requestParams.AccessToken,
+                        CreateProgressNotificationHandler(),
+                        CreateMessageNotificationHandler());
+                    diagSpan.Complete("ok");
+                }
+                catch
+                {
+                    diagSpan.Complete("error");
+                    throw;
+                }
                 sessions.Add(sessionId, session);
 
                 await requestContext.SendResult(new CreateSessionResponse()
@@ -83,9 +98,22 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             {
                 if (sessions.TryGetValue(requestParams.SessionId!, out SchemaDesignerSession? session))
                 {
+                    var diagSpan = Microsoft.SqlTools.Hosting.Utility.StsDiag.StartSpan(
+                        "sts.dacfx.schemaDesigner.generateScript", "sqlDriver");
+                    string script;
+                    try
+                    {
+                        script = await session.GenerateScript();
+                        diagSpan.Complete("ok");
+                    }
+                    catch
+                    {
+                        diagSpan.Complete("error");
+                        throw;
+                    }
                     await requestContext.SendResult(new GenerateScriptResponse()
                     {
-                        Script = await session.GenerateScript(),
+                        Script = script,
                     });
                     return;
                 }
@@ -112,10 +140,21 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 
                     var sqlTask = SqlTaskManager.Instance.CreateTask<SqlTask>(metadata, async (task) =>
                     {
-                        await Task.Run(() =>
+                        var diagSpan = Microsoft.SqlTools.Hosting.Utility.StsDiag.StartSpan(
+                            "sts.dacfx.schemaDesigner.publish", "sqlDriver");
+                        try
                         {
-                            session.PublishSchema(task);
-                        });
+                            await Task.Run(() =>
+                            {
+                                session.PublishSchema(task);
+                            });
+                            diagSpan.Complete("ok");
+                        }
+                        catch
+                        {
+                            diagSpan.Complete("error");
+                            throw;
+                        }
 
                         await requestContext.SendResult(new PublishSessionResponse());
                         return new TaskResult()

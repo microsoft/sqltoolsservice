@@ -109,7 +109,21 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     ? !string.IsNullOrWhiteSpace(tableInfo.Id) ? tableInfo.Id : Guid.NewGuid().ToString()
                     : requestParams.SessionId;
                 tableInfo.Id = sessionId;
-                await requestContext.SendResult(this.tableDesignerManager.InitializeTableDesigner(tableInfo));
+                // Driver-level DacFx DesignServices work (model build) — the
+                // expensive part of opening the designer. Metadata only.
+                var diagSpan = Microsoft.SqlTools.Hosting.Utility.StsDiag.StartSpan(
+                    "sts.dacfx.tableDesigner.initialize", "sqlDriver");
+                try
+                {
+                    var result = this.tableDesignerManager.InitializeTableDesigner(tableInfo);
+                    diagSpan.Complete("ok");
+                    await requestContext.SendResult(result);
+                }
+                catch
+                {
+                    diagSpan.Complete("error");
+                    throw;
+                }
             });
         }
 
@@ -117,7 +131,19 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         {
             return Utils.HandleRequest<ProcessTableDesignerEditResponse>(requestContext, async () =>
             {
-                await requestContext.SendResult(this.tableDesignerManager.TableDesignerEdit(requestParams));
+                var diagSpan = Microsoft.SqlTools.Hosting.Utility.StsDiag.StartSpan(
+                    "sts.dacfx.tableDesigner.processEdit", "sqlDriver");
+                try
+                {
+                    var result = this.tableDesignerManager.TableDesignerEdit(requestParams);
+                    diagSpan.Complete("ok");
+                    await requestContext.SendResult(result);
+                }
+                catch
+                {
+                    diagSpan.Complete("error");
+                    throw;
+                }
             });
         }
 
@@ -142,10 +168,22 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
                     this.publishSqlTasks[originalId] = task;
                     try
                     {
-                        PublishTableChangesResponse result = await Task.Run(() =>
+                        var diagSpan = Microsoft.SqlTools.Hosting.Utility.StsDiag.StartSpan(
+                            "sts.dacfx.tableDesigner.publish", "sqlDriver");
+                        PublishTableChangesResponse result;
+                        try
                         {
-                            return this.tableDesignerManager.PublishTableChanges(tableInfo);
-                        });
+                            result = await Task.Run(() =>
+                            {
+                                return this.tableDesignerManager.PublishTableChanges(tableInfo);
+                            });
+                            diagSpan.Complete("ok");
+                        }
+                        catch
+                        {
+                            diagSpan.Complete("error");
+                            throw;
+                        }
 
                         await requestContext.SendResult(result);
 
@@ -223,7 +261,19 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         {
             return Utils.HandleRequest<string>(requestContext, async () =>
             {
-                await requestContext.SendResult(this.tableDesignerManager.GenerateScript(tableInfo));
+                var diagSpan = Microsoft.SqlTools.Hosting.Utility.StsDiag.StartSpan(
+                    "sts.dacfx.tableDesigner.generateScript", "sqlDriver");
+                try
+                {
+                    var result = this.tableDesignerManager.GenerateScript(tableInfo);
+                    diagSpan.Complete("ok");
+                    await requestContext.SendResult(result);
+                }
+                catch
+                {
+                    diagSpan.Complete("error");
+                    throw;
+                }
             });
         }
 
@@ -231,7 +281,19 @@ namespace Microsoft.SqlTools.ServiceLayer.TableDesigner
         {
             return Utils.HandleRequest<GeneratePreviewReportResult>(requestContext, async () =>
             {
-                await requestContext.SendResult(this.tableDesignerManager.GeneratePreviewReport(tableInfo));
+                var diagSpan = Microsoft.SqlTools.Hosting.Utility.StsDiag.StartSpan(
+                    "sts.dacfx.tableDesigner.previewReport", "sqlDriver");
+                try
+                {
+                    var result = this.tableDesignerManager.GeneratePreviewReport(tableInfo);
+                    diagSpan.Complete("ok");
+                    await requestContext.SendResult(result);
+                }
+                catch
+                {
+                    diagSpan.Complete("error");
+                    throw;
+                }
             });
         }
 
