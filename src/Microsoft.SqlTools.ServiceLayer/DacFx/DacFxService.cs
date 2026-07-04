@@ -429,9 +429,14 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         {
             Task.Run(async () =>
             {
+                // Diagnostics span for the whole DacFx operation (driver-level
+                // dependency work). Protocol metadata only: operation type and
+                // outcome — never file paths, database names, or scripts.
+                var diagSpan = Microsoft.SqlTools.Hosting.Utility.StsDiag.StartSpan(
+                    "sts.dacfx." + operation.GetType().Name, "sqlDriver");
                 try
                 {
-                    // show file location for export and extract operations 
+                    // show file location for export and extract operations
                     string? targetLocation = (operation is ExportOperation || operation is ExtractOperation) ? parameters.PackageFilePath : null;
                     TaskMetadata metadata = TaskMetadata.Create(parameters, taskName, operation, ConnectionServiceInstance, targetLocation);
 
@@ -441,15 +446,18 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                     operation.SqlTask = SqlTaskManagerInstance.CreateTask<SqlTask>(metadata);
 
                     await operation.SqlTask.RunAsync();
+                    bool succeeded = operation.SqlTask.TaskStatus == SqlTaskStatus.Succeeded;
+                    diagSpan.Complete(succeeded ? "ok" : "error");
                     await requestContext.SendResult(new DacFxResult()
                     {
                         OperationId = operation.OperationId,
-                        Success = operation.SqlTask.TaskStatus == SqlTaskStatus.Succeeded,
+                        Success = succeeded,
                         ErrorMessage = string.Empty,
                     });
                 }
                 catch (Exception e)
                 {
+                    diagSpan.Complete("error");
                     await requestContext.SendResult(new DacFxResult()
                     {
                         OperationId = operation.OperationId,

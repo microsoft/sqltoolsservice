@@ -893,8 +893,21 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     cancelTupleToCancellationTokenSourceMap[cancelKey] = source;
                 }
 
-                // Open the connection
-                await OpenConnectionAsync(connection, source.Token);
+                // Open the connection. Diagnostics span covers the physical
+                // SqlConnection.Open round-trip (driver-level work; protocol
+                // metadata only — connection type, never server/database names).
+                var openSpan = Microsoft.SqlTools.Hosting.Utility.StsDiag.StartSpan(
+                    "sts.sql.connectionOpen", "sqlDriver");
+                try
+                {
+                    await OpenConnectionAsync(connection, source.Token);
+                    openSpan.Complete("ok");
+                }
+                catch
+                {
+                    openSpan.Complete("error");
+                    throw;
+                }
             }
             catch (SqlException ex)
             {
