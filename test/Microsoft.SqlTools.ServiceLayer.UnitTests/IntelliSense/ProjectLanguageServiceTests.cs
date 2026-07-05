@@ -2117,9 +2117,9 @@ END
 
             Assert.That(result, Is.Not.Null, "Should return a response even on collision");
             Assert.That(result.Changes, Is.Not.Null.And.Not.Empty, "Workspace edits should still be returned");
-            Assert.That(result.WarningMessage, Is.Not.Null.And.Not.Empty, "WarningMessage should be set on collision");
-            Assert.That(result.WarningMessage, Does.Contain("[sales].[Customers]"),
-                $"Warning should include the bracketed target name. Got: {result.WarningMessage}");
+            Assert.That(result.Message, Is.Not.Null.And.Not.Empty, "WarningMessage should be set on collision");
+            Assert.That(result.Message, Does.Contain("[sales].[Customers]"),
+                $"Warning should include the bracketed target name. Got: {result.Message}");
         }
 
         [Test]
@@ -2145,9 +2145,125 @@ END
 
             Assert.That(result, Is.Not.Null, "Should return a response even on collision");
             Assert.That(result.Changes, Is.Not.Null.And.Not.Empty, "Workspace edits should still be returned");
-            Assert.That(result.WarningMessage, Is.Not.Null.And.Not.Empty, "WarningMessage should be set on collision");
-            Assert.That(result.WarningMessage, Does.Contain("[Orders]"),
-                $"Warning should include the bracketed new name. Got: {result.WarningMessage}");
+            Assert.That(result.Message, Is.Not.Null.And.Not.Empty, "WarningMessage should be set on collision");
+            Assert.That(result.Message, Does.Contain("[Orders]"),
+                $"Warning should include the bracketed new name. Got: {result.Message}");
+        }
+
+        // ── Rename rejection: specific error messages ─────────────────────────
+
+        [Test]
+        public async Task HandleRenameRequest_ReturnsNotSupportedMessage_WhenCursorOnKeyword()
+        {
+            LoadAllFilesIntoWorkspace();
+            string fileUri = GetFileUri("StoredProcedures/GetCustomer.sql");
+
+            SqlSymbolRenameResponse result = null;
+            var ctx = new Mock<RequestContext<SqlSymbolRenameResponse>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlSymbolRenameResponse>()))
+               .Returns<SqlSymbolRenameResponse>(r => { result = r; return Task.FromResult(0); });
+
+            // Line 0: "CREATE PROCEDURE dbo.GetCustomer" — char 0 is 'C' in "CREATE" (a keyword).
+            await _langService.HandleSqlRenameRequest(
+                new SqlSymbolRenameParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = fileUri },
+                    Position = new Position { Line = 0, Character = 0 },
+                    NewName = "Whatever"
+                },
+                ctx.Object);
+
+            Assert.That(result?.Message, Is.EqualTo(SR.RenameNotSupported),
+                $"Expected not-supported message. Got: {result?.Message}");
+        }
+
+        [Test]
+        public async Task HandleRenameRequest_ReturnsNotSupportedMessage_WhenSymbolUnresolved()
+        {
+            LoadAllFilesIntoWorkspace();
+
+            const string ghostUri = "file:///ghost.sql";
+            _workspaceService.Workspace.GetFileBuffer(ghostUri, "SELECT * FROM dbo.NonExistentTable");
+            _langService.InitializeProjectFileContexts(new[] { ghostUri }, _contextKey, _databaseName);
+
+            SqlSymbolRenameResponse result = null;
+            var ctx = new Mock<RequestContext<SqlSymbolRenameResponse>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlSymbolRenameResponse>()))
+               .Returns<SqlSymbolRenameResponse>(r => { result = r; return Task.FromResult(0); });
+
+            // Char 22 is inside "NonExistentTable".
+            await _langService.HandleSqlRenameRequest(
+                new SqlSymbolRenameParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = ghostUri },
+                    Position = new Position { Line = 0, Character = 22 },
+                    NewName = "SomeName"
+                },
+                ctx.Object);
+
+            Assert.That(result?.Message, Is.EqualTo(SR.RenameNotSupported),
+                $"Expected not-supported message. Got: {result?.Message}");
+        }
+
+        // Cursor on the schema prefix of a qualified name (e.g. "dbo" in "dbo.Customers").
+        // The FAR scan must NOT run — we should get the schema error immediately.
+        [Test]
+        public async Task HandleRenameRequest_ReturnsNotSupportedMessage_WhenCursorOnSchemaPrefix()
+        {
+            LoadAllFilesIntoWorkspace();
+            string fileUri = GetFileUri("StoredProcedures/GetCustomer.sql");
+
+            SqlSymbolRenameResponse result = null;
+            var ctx = new Mock<RequestContext<SqlSymbolRenameResponse>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlSymbolRenameResponse>()))
+               .Returns<SqlSymbolRenameResponse>(r => { result = r; return Task.FromResult(0); });
+
+            // Line 5 of GetCustomerScript: "    FROM dbo.Customers"
+            // "dbo" starts at char 9.
+            await _langService.HandleSqlRenameRequest(
+                new SqlSymbolRenameParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = fileUri },
+                    Position = new Position { Line = 5, Character = 10 },
+                    NewName = "sales"
+                },
+                ctx.Object);
+
+            Assert.That(result?.Message, Is.EqualTo(SR.RenameNotSupported),
+                $"Expected not-supported message. Got: {result?.Message}");
+        }
+
+        // File connected to a live server must be rejected before any project-model work runs.
+        [Test]
+        public async Task HandleRenameRequest_ReturnsLiveServerMessage_WhenFileConnectedToServer()
+        {
+            const string connectedUri = "file:///test_live_server.sql";
+            _workspaceService.Workspace.GetFileBuffer(connectedUri, "SELECT * FROM dbo.Customers");
+
+            // Stamp the file as a live-connection context (IsConnected = true, IsProject = false).
+            var parseInfo = new Microsoft.SqlTools.LanguageService.LanguageServices.ScriptParseInfo
+            {
+                BindingContextKind = BindingContextKindEnum.LiveConnection,
+                ConnectionKey = "some-live-connection-key"
+            };
+            _langService.AddOrUpdateScriptParseInfo(connectedUri, parseInfo);
+
+            SqlSymbolRenameResponse result = null;
+            var ctx = new Mock<RequestContext<SqlSymbolRenameResponse>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlSymbolRenameResponse>()))
+               .Returns<SqlSymbolRenameResponse>(r => { result = r; return Task.FromResult(0); });
+
+            await _langService.HandleSqlRenameRequest(
+                new SqlSymbolRenameParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = connectedUri },
+                    Position = new Position { Line = 0, Character = 20 },
+                    NewName = "NewName"
+                },
+                ctx.Object);
+
+            Assert.That(result?.Message, Is.EqualTo(SR.RenameNotSupportedLiveServer),
+                $"Expected live-server message. Got: {result?.Message}");
         }
 
     }

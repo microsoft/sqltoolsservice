@@ -132,7 +132,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FlatFile
                         return await Task.Run(() => process.CreateTableAndInsertDataIntoDb(
                             connectionString,
                             parameters.BatchSize,
-                            null));
+                            parameters.AzureAccessToken));
                     });
                 if (!result.Success)
                 {

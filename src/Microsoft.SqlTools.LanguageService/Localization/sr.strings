@@ -77,6 +77,13 @@ PeekDefinitionNotConnectedError = Please connect to a server.
 PeekDefinitionTimedoutError = Operation timed out.
 
 ############################################################################
+# Rename
+
+RenameNotSupportedLiveServer = Rename is only supported in SQL project files. To rename objects on a connected server, use sp_rename.
+
+RenameNotSupported = Renaming an object of this type is not supported.
+
+############################################################################
 # AutoParameterization for Always Encrypted
 
 ParameterizationDetails (string variableName, string sqlDbType, int size, int precision, int scale, string sqlValue) = {0} will be converted to a Microsoft.Data.SqlClient.SqlParameter object with the following properties: SqlDbType = {1}, Size = {2}, Precision = {3}, Scale = {4}, SqlValue = {5}
