@@ -813,7 +813,7 @@ public sealed record ResultSetStarted(int ResultSetId, IReadOnlyList<ColumnInfo>
 public sealed record RowsPage(int ResultSetId, int PageSeq, long RowOffset, CellPage Cells) : ExecEvent;
 public sealed record ServerMessage(MessageClass Class, int Number, int Severity, string Text, int? Line) : ExecEvent;
 public sealed record ResultSetCompleted(int ResultSetId, long RowCount) : ExecEvent;
-public sealed record ExecCompleted(IReadOnlyList<long> RowsAffected) : ExecEvent;
+public sealed record ExecCompleted(IReadOnlyList<long> RowsAffected, string? Database = null) : ExecEvent;
 ```
 
 Port rules:

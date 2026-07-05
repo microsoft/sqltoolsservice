@@ -47,9 +47,11 @@ Microsoft.SqlTools.Sts2.Abstractions.DriverCapabilities.Equals(Microsoft.SqlTool
 Microsoft.SqlTools.Sts2.Abstractions.DriverCapabilities.Production.get -> bool
 Microsoft.SqlTools.Sts2.Abstractions.DriverCapabilities.Production.init -> void
 Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted
-Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.Deconstruct(out System.Collections.Generic.IReadOnlyList<long>! RowsAffected) -> void
+Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.Deconstruct(out System.Collections.Generic.IReadOnlyList<long>! RowsAffected, out string? Database) -> void
 Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.Equals(Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted? other) -> bool
-Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.ExecCompleted(System.Collections.Generic.IReadOnlyList<long>! RowsAffected) -> void
+Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.ExecCompleted(System.Collections.Generic.IReadOnlyList<long>! RowsAffected, string? Database = null) -> void
+Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.Database.get -> string?
+Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.Database.init -> void
 Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.RowsAffected.get -> System.Collections.Generic.IReadOnlyList<long>!
 Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.RowsAffected.init -> void
 Microsoft.SqlTools.Sts2.Abstractions.ExecEvent

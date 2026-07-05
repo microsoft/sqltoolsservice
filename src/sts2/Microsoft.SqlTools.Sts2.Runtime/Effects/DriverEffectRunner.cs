@@ -435,7 +435,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
 
                         case ExecCompleted completed:
                             await PostQueryEventAsync(inbox, effect, queryId, string.Create(CultureInfo.InvariantCulture,
-                                $$"""{"eventType":"completed","rowsAffected":{{completed.RowsAffected.Sum()}}}""")).ConfigureAwait(false);
+                                $$"""{"eventType":"completed","rowsAffected":{{completed.RowsAffected.Sum()}},"database":{{JsonSerializer.Serialize(completed.Database)}}}""")).ConfigureAwait(false);
                             break;
 
                         default:

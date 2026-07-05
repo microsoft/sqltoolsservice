@@ -100,7 +100,12 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                         {
                             yield return pending;
                         }
-                        yield return new ExecCompleted([reader.RecordsAffected >= 0 ? reader.RecordsAffected : totalAffected]);
+                        // connection.Database tracks ENVCHANGE, so a USE inside
+                        // the batch is reflected here — the client's database
+                        // source of truth on completion.
+                        yield return new ExecCompleted(
+                            [reader.RecordsAffected >= 0 ? reader.RecordsAffected : totalAffected],
+                            connection.Database);
                     }
                 }
             }

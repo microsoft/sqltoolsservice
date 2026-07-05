@@ -25,8 +25,12 @@ namespace Microsoft.SqlTools.Sts2.Abstractions
     /// <summary>A result set finished.</summary>
     public sealed record ResultSetCompleted(int ResultSetId, long RowCount) : ExecEvent;
 
-    /// <summary>Execution finished.</summary>
-    public sealed record ExecCompleted(IReadOnlyList<long> RowsAffected) : ExecEvent;
+    /// <summary>
+    /// Execution finished. Database is the connection's CURRENT database when
+    /// the driver can observe it (SqlClient tracks ENVCHANGE) — the client's
+    /// source of truth for USE statements executed in scripts.
+    /// </summary>
+    public sealed record ExecCompleted(IReadOnlyList<long> RowsAffected, string? Database = null) : ExecEvent;
 
     /// <summary>Column metadata: engine type names verbatim plus normalized fields (SPEC §7.7).</summary>
     public sealed record ColumnInfo

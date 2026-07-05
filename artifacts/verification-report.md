@@ -2,6 +2,17 @@
 
 Newest entries first (AGENT-RUNBOOK.md §6).
 
+## Database context on query.complete - 2026-07-05 - cbd1e688+
+Query Studio USE-tracking parity: a USE executed inside a script changes the
+connection's database, but the client had no truth source (no ENVCHANGE on
+the wire). Additive change: ExecCompleted gains `Database` (SqlClient's
+connection.Database — driver-tracked ENVCHANGE state — read at completion);
+DriverEffectRunner emits it; v2/query.complete carries `"database"` (null
+when the driver has none). FakeQueryStep.Database for tests; new unit test
+CompleteCarriesCurrentDatabaseWhenDriverReportsIt (value + null cases).
+SPEC §10.1 record shape updated (additive, default-null — not a one-way
+door). verify.sh --quick green.
+
 ## Info-message delivery + line passthrough - 2026-07-05 - 7f97a765+
 Client-side worksheet verification (vscode-mssql Query Studio, row 1: verbatim
 result-stream messages) found the message TEXT path verbatim by construction but

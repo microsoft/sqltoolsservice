@@ -50,6 +50,9 @@ namespace Microsoft.SqlTools.Sts2.Testing
         /// <summary>Rows affected for completed steps.</summary>
         public long RowsAffected { get; init; }
 
+        /// <summary>Current database reported on completed steps; null when unchanged/unknown.</summary>
+        public string? Database { get; init; }
+
         /// <summary>Delay before this step materializes.</summary>
         public int DelayMs { get; init; }
     }

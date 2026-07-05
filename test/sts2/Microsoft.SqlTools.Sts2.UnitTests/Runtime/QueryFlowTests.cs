@@ -91,6 +91,27 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
         }
 
         [Fact]
+        public async Task CompleteCarriesCurrentDatabaseWhenDriverReportsIt()
+        {
+            string connectionId = await session.OpenConnectionAsync();
+            session.Driver.EnqueueQuery(new FakeQueryScript
+            {
+                Steps = [new FakeQueryStep { Type = "completed", RowsAffected = 0, Database = "OtherDb" }],
+            });
+            await session.RequestAsync("v2/query.execute", $$"""{"connectionId":"{{connectionId}}","sql":"use OtherDb"}""");
+            List<OutboundRpcMessage> completes = await session.WaitForNotificationsAsync("v2/query.complete", 1);
+            Assert.Equal("OtherDb", completes[0].Body!.Value.GetProperty("database").GetString());
+
+            session.Driver.EnqueueQuery(new FakeQueryScript
+            {
+                Steps = [new FakeQueryStep { Type = "completed", RowsAffected = 1 }],
+            });
+            await session.RequestAsync("v2/query.execute", $$"""{"connectionId":"{{connectionId}}","sql":"select 1"}""");
+            completes = await session.WaitForNotificationsAsync("v2/query.complete", 2);
+            Assert.Equal(JsonValueKind.Null, completes[1].Body!.Value.GetProperty("database").ValueKind);
+        }
+
+        [Fact]
         public async Task ExactlyOneCompletePerQueryAndOrderingHolds()
         {
             string connectionId = await session.OpenConnectionAsync();

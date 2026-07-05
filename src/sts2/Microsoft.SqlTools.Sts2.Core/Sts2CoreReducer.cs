@@ -699,7 +699,7 @@ namespace Microsoft.SqlTools.Sts2.Core
                             $$""","error":{"code":{{GetRaw(payload, "code", "\"Sts2.QueryFailed.Server\"")}},"message":{{GetRaw(payload, "message", "\"Query failed.\"")}},"server":{{GetRaw(payload, "server", "null")}}}""")
                         : string.Empty;
                     string notify = string.Create(CultureInfo.InvariantCulture, $$"""
-                        {"queryId":{{JsonSerializer.Serialize(queryId)}},"status":{{JsonSerializer.Serialize(status)}},"rowsAffected":{{GetRaw(payload, "rowsAffected", "null")}}{{errorPart}}}
+                        {"queryId":{{JsonSerializer.Serialize(queryId)}},"status":{{JsonSerializer.Serialize(status)}},"rowsAffected":{{GetRaw(payload, "rowsAffected", "null")}},"database":{{GetRaw(payload, "database", "null")}}{{errorPart}}}
                         """);
 
                     QueryInfo terminal = query with { Phase = QueryPhase.Completed, CompleteSent = true };

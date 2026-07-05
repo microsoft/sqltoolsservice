@@ -162,7 +162,7 @@ namespace Microsoft.SqlTools.Sts2.Testing
                             break;
 
                         case "completed":
-                            yield return new ExecCompleted([step.RowsAffected]);
+                            yield return new ExecCompleted([step.RowsAffected], step.Database);
                             break;
 
                         case "error":
