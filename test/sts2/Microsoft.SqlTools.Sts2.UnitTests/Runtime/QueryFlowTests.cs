@@ -62,6 +62,35 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
         }
 
         [Fact]
+        public async Task ServerMessagePassesThroughVerbatimWithLine()
+        {
+            string connectionId = await session.OpenConnectionAsync();
+            // Text with quote/backslash proves JSON-escaping-only passthrough (worksheet row 1:
+            // verbatim, no rewording/truncation); line rides as a structured nullable field.
+            const string verbatim = "Warning: Null value is eliminated by an aggregate or other SET operation. \"x\\y\"";
+            session.Driver.EnqueueQuery(new FakeQueryScript
+            {
+                Steps =
+                [
+                    new FakeQueryStep { Type = "message", Text = verbatim, Number = 8153, Severity = 0, Line = 3 },
+                    new FakeQueryStep { Type = "message", Text = "no line", Number = 0, Severity = 0 },
+                    new FakeQueryStep { Type = "completed", RowsAffected = 0 },
+                ],
+            });
+            await session.RequestAsync("v2/query.execute", $$"""{"connectionId":"{{connectionId}}","sql":"print"}""");
+            await session.WaitForNotificationsAsync("v2/query.complete", 1);
+
+            List<OutboundRpcMessage> messages = await session.WaitForNotificationsAsync("v2/query.message", 2);
+            JsonElement first = messages[0].Body!.Value;
+            Assert.Equal(verbatim, first.GetProperty("text").GetString());
+            Assert.Equal(8153, first.GetProperty("number").GetInt32());
+            Assert.Equal(0, first.GetProperty("severity").GetInt32());
+            Assert.Equal(3, first.GetProperty("line").GetInt32());
+            Assert.Equal("info", first.GetProperty("messageClass").GetString());
+            Assert.Equal(JsonValueKind.Null, messages[1].Body!.Value.GetProperty("line").ValueKind);
+        }
+
+        [Fact]
         public async Task ExactlyOneCompletePerQueryAndOrderingHolds()
         {
             string connectionId = await session.OpenConnectionAsync();

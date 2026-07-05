@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -43,9 +44,26 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             }
             activeCommand = command;
 
+            // Info-class engine messages (PRINT, RAISERROR severity <= 10, DBCC output)
+            // are raised on InfoMessage while the reader pumps the TDS stream (SPEC §10.2:
+            // map info messages to ServerMessage). Text passes through verbatim. Queue and
+            // drain at pump boundaries so messages hold stream order relative to result sets.
+            var pendingMessages = new ConcurrentQueue<ServerMessage>();
+            SqlInfoMessageEventHandler onInfoMessage = (_, args) =>
+            {
+                foreach (SqlError error in args.Errors)
+                {
+                    pendingMessages.Enqueue(new ServerMessage(
+                        "info", error.Number, error.Class, error.Message,
+                        error.LineNumber > 0 ? error.LineNumber : null));
+                }
+            };
+            connection.InfoMessage += onInfoMessage;
+
             // Clear activeCommand in finally so a faulted reader/row read never leaves it
             // pointing at a disposed command (R035). The finally runs when the enumerator is
-            // disposed — on completion, break, or exception.
+            // disposed — on completion, break, or exception. The InfoMessage unsubscribe
+            // rides the same finally (SPEC §10.2: event handlers unsubscribed).
             try
             {
                 await using (command.ConfigureAwait(false))
@@ -58,6 +76,10 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                         bool more;
                         do
                         {
+                            while (pendingMessages.TryDequeue(out ServerMessage? pending))
+                            {
+                                yield return pending;
+                            }
                             if (reader.FieldCount > 0)
                             {
                                 await foreach (ExecEvent execEvent in PumpResultSetAsync(reader, resultSetId, pageRows, cancellationToken).ConfigureAwait(false))
@@ -74,12 +96,17 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                         }
                         while (more);
 
+                        while (pendingMessages.TryDequeue(out ServerMessage? pending))
+                        {
+                            yield return pending;
+                        }
                         yield return new ExecCompleted([reader.RecordsAffected >= 0 ? reader.RecordsAffected : totalAffected]);
                     }
                 }
             }
             finally
             {
+                connection.InfoMessage -= onInfoMessage;
                 activeCommand = null;
             }
         }

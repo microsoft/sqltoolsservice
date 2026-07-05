@@ -154,7 +154,7 @@ namespace Microsoft.SqlTools.Sts2.Testing
                         }
 
                         case "message":
-                            yield return new ServerMessage("info", step.Number, step.Severity, step.Text ?? "message", null);
+                            yield return new ServerMessage("info", step.Number, step.Severity, step.Text ?? "message", step.Line);
                             break;
 
                         case "resultSetDone":

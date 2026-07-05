@@ -425,7 +425,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
 
                         case ServerMessage message:
                             await PostQueryEventAsync(inbox, effect, queryId, string.Create(CultureInfo.InvariantCulture,
-                                $$"""{"eventType":"message","messageClass":{{JsonSerializer.Serialize(message.MessageClass)}},"number":{{message.Number}},"severity":{{message.Severity}},"text":{{JsonSerializer.Serialize(message.Text)}}}""")).ConfigureAwait(false);
+                                $$"""{"eventType":"message","messageClass":{{JsonSerializer.Serialize(message.MessageClass)}},"number":{{message.Number}},"severity":{{message.Severity}},"text":{{JsonSerializer.Serialize(message.Text)}},"line":{{(message.Line?.ToString(CultureInfo.InvariantCulture) ?? "null")}}}""")).ConfigureAwait(false);
                             break;
 
                         case ResultSetCompleted done:

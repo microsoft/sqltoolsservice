@@ -38,6 +38,9 @@ namespace Microsoft.SqlTools.Sts2.Testing
         /// <summary>Severity for message/error steps.</summary>
         public int Severity { get; init; }
 
+        /// <summary>Engine line number for message steps; null when the engine gave none.</summary>
+        public int? Line { get; init; }
+
         /// <summary>Stable Sts2.* code for error steps.</summary>
         public string? ErrorCode { get; init; }
 

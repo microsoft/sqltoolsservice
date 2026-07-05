@@ -2,6 +2,30 @@
 
 Newest entries first (AGENT-RUNBOOK.md §6).
 
+## Info-message delivery + line passthrough - 2026-07-05 - 7f97a765+
+Client-side worksheet verification (vscode-mssql Query Studio, row 1: verbatim
+result-stream messages) found the message TEXT path verbatim by construction but
+exposed two delivery gaps, both fixed:
+- SqlClientSession.ExecuteAsync never subscribed SqlConnection.InfoMessage, so
+  PRINT / RAISERROR severity<=10 / DBCC output never reached v2/query.message
+  against real SQL Server (SPEC §10.2 already mandated the mapping; it existed
+  only on FakeDriver). Now: subscribe before the reader opens, queue
+  ServerMessage("info", number, class, verbatim text, line>0?line:null) from
+  each SqlError, drain at pump boundaries (stream order vs result sets), and
+  unsubscribe in the same finally that clears activeCommand.
+- v2/query.message omitted `line` even though the ServerMessage record and the
+  SPEC §10.1 shape carry it. DriverEffectRunner now emits `"line"` (null when
+  absent); Sts2CoreReducer passes it through raw. No `state` added (record/SPEC
+  have none; terminal error.server already carries state).
+Test support: FakeQueryStep gains `Line`; FakeDriver passes it through. New
+unit test QueryFlowTests.ServerMessagePassesThroughVerbatimWithLine (verbatim
+text incl. quotes/backslashes, structured line, null-line case).
+
+Gates: verify.sh --quick green (build warnings-as-errors, unit+mux+architecture,
+scenarios, Sqlite contract real-I/O, replay, 200-seed simulator, canary scan,
+generated-docs diff, legacy diff budget, E2E disabled+enabled). New test also
+run standalone: passed.
+
 ## External-review hardening pass - 2026-06-19 - 70b66034+
 Acted on a detailed external code review (STS2_REVIEW_PACKAGE, 50 findings) after verifying
 each load-bearing finding against source. 18 commits, tiered real-bug → substrate → privacy →

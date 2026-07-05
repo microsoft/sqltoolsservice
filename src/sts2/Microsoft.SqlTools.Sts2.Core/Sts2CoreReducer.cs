@@ -676,7 +676,7 @@ namespace Microsoft.SqlTools.Sts2.Core
                 case "message":
                 {
                     string notify = string.Create(CultureInfo.InvariantCulture, $$"""
-                        {"queryId":{{JsonSerializer.Serialize(queryId)}},"messageClass":{{GetRaw(payload, "messageClass", "\"info\"")}},"number":{{GetRaw(payload, "number", "0")}},"severity":{{GetRaw(payload, "severity", "0")}},"text":{{GetRaw(payload, "text", "\"\"")}}}
+                        {"queryId":{{JsonSerializer.Serialize(queryId)}},"messageClass":{{GetRaw(payload, "messageClass", "\"info\"")}},"number":{{GetRaw(payload, "number", "0")}},"severity":{{GetRaw(payload, "severity", "0")}},"text":{{GetRaw(payload, "text", "\"\"")}},"line":{{GetRaw(payload, "line", "null")}}}
                         """);
                     return new CoreDecision(state, [new RpcNotifyOutput("v2/query.message", Json(notify))]);
                 }
