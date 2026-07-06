@@ -2,6 +2,69 @@
 
 Newest entries first (AGENT-RUNBOOK.md §6).
 
+## P0 determinism fix: cancel-during-dispose wedged the query machine - 2026-07-06 - 7a99455f+
+Found by the M7 `--full` 10k-seed sweep at 7a99455f (its verify-latest showed
+"10k-seed simulator: FAIL"): seed 7496 intermittently reported "I2: query q-20
+emitted 0 query.complete; I8: 1 driver session(s) still open at run end", and
+in isolation the seed stalled through its full drain/settle budget (reads as a
+deadlock). Temporary repro harness measured 87 hangs / 13 green per 100
+iterations pre-fix.
+
+Root cause (Core, one guard): `DecideQueryCancel`'s idempotency guard omitted
+`QueryPhase.Disposing`. A `v2/query.cancel` arriving while the
+`driver.queryDispose` ack was in flight regressed the phase
+Disposing -> CancelRequested; `DecideDriverQueryDisposeResult` only acts when
+`Phase == Disposing`, so the ack was dropped on the floor. Consequences chain:
+no `query.complete(disposed)` terminal (I2), `ActiveQueryId` pinned forever,
+any `connection.close` on that connection parks with ZERO outputs (visible in
+wedged journals: `r-drainclose-2`'s turn emits nothing), the driver session is
+never closed (I8), and the run wedges. The rpc order is seed-deterministic
+(dispose then cancel back-to-back for the same query); the green/red split is
+scheduler timing — whether the dispose ACK re-enters the pump before or after
+the cancel rpc. Diagnosed from journal forensics plus dumpasync/clrstack of a
+live wedged process (coordinator pump parked idle at MoveNextAsync — the pump
+was never stuck; the wedge is pure Core state). The initial suspect — inline
+`cts.Cancel()` on the effect-dispatch path (driver.cancelOpen) — was
+investigated and exonerated: wedged journals show that dance completing
+normally (effect.req seq 110 -> ack 122 -> open result 123 -> rpc error 124).
+
+Fix: `v2/query.cancel` is idempotent (`{}`) for Disposing queries — dispose
+supersedes cancel, so Disposing can never regress and the dispose ack always
+lands. Wire shape unchanged (cancel already answered `{}` in the adjacent
+terminal phases); CONTRACT.md untouched; STATE-MACHINE.md gained the edge
+`Disposing --> Disposing : v2/query.cancel / result {}`.
+
+Regression vs latent: LATENT. Reproduced at baseline 7f97a765 (pre-QoL
+parent worktree): its wedged journals carry the identical signature
+(query.dispose seq 50 -> query.cancel seq 55 still emitting driver.queryCancel
+-> dispose ack seq 61 dropped -> journal ends seq 134). The M7 sweep surfaced
+a pre-existing bug; dev/query did not introduce it.
+
+New coverage (runbook §4.9):
+- unit: CoreReducerTests.CancelDuringDisposeDoesNotStompTheDisposeAck (the
+  exact interleaving, pure-Core).
+- simulator seed: SimulatorSeedRegressionTests.Seed7496DisposeCancelRaceStaysGreen —
+  pinned seed 7496 x20 iterations with a 60s per-iteration hang guard,
+  Category=Simulator so it runs in both the quick 200-seed gate and the 10k
+  gate. Replaces the temporary Repro7496 harness (deleted).
+
+Evidence: repro harness 100/100 green twice (was 87 hangs / 13 green);
+10k-seed sweep green TWICE consecutively (14m01s, 14m14s); unit suite 269
+green; scenario corpus untouched (no golden encodes cancel-after-dispose).
+
+Gates: verify.sh --quick green @ 7a99455f (working tree):
+- build (sts2 slnf, warnings as errors): ok
+- unit+multiplexer+architecture tests: ok
+- scenario tests (Fake, active corpus): ok
+- contract tests (Sqlite, real I/O): ok
+- replay verify (sts2-replay): ok
+- simulator (200 seeds): ok
+- secret canary scan: ok
+- generated docs diff: ok
+- legacy diff budget: ok
+- build legacy exe (for E2E): ok
+- E2E disabled-mode v1 smoke + enabled-mode v1+v2: ok
+
 ## Database context on query.complete - 2026-07-05 - cbd1e688+
 Query Studio USE-tracking parity: a USE executed inside a script changes the
 connection's database, but the client had no truth source (no ENVCHANGE on

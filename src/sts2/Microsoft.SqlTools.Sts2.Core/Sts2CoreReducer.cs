@@ -518,9 +518,16 @@ namespace Microsoft.SqlTools.Sts2.Core
                 return Error(state, corr, Sts2ErrorCodes.InvalidRequest, "query.cancel requires queryId.");
             }
 
-            // Idempotent: unknown, completed, or disposed queries return {} (SPEC §7.9).
+            // Idempotent: unknown, completed, disposed, or DISPOSING queries return {}
+            // (SPEC §7.9) — dispose supersedes cancel. Disposing MUST be terminal here:
+            // regressing Disposing -> CancelRequested while the driver.queryDispose ack is
+            // in flight makes DecideDriverQueryDisposeResult drop that ack (it requires
+            // Phase == Disposing), so the query never emits query.complete(disposed), the
+            // connection never releases ActiveQueryId, a parked close never proceeds, and
+            // the session leaks (M7 10k sweep, seed 7496: I2 + I8, wedged run).
             if (!state.Queries.TryGetValue(queryId, out QueryInfo? query)
-                || query.Phase is QueryPhase.Completed or QueryPhase.Disposed or QueryPhase.CancelRequested)
+                || query.Phase is QueryPhase.Completed or QueryPhase.Disposed
+                    or QueryPhase.CancelRequested or QueryPhase.Disposing)
             {
                 return new CoreDecision(state, [new RpcResultOutput(corr, Json("{}"))]);
             }

@@ -174,6 +174,36 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Core
         }
 
         [Fact]
+        public void CancelDuringDisposeDoesNotStompTheDisposeAck()
+        {
+            // Regression for the M7 10k-sweep finding (seed 7496, I2 + I8): a
+            // v2/query.cancel arriving while the driver.queryDispose ack is in flight
+            // must NOT regress the phase Disposing -> CancelRequested. The ack handler
+            // only emits the query.complete(disposed) terminal when the phase is still
+            // Disposing; a stomp orphans the terminal, pins ActiveQueryId forever, parks
+            // any close on the connection, and leaks the driver session.
+            CoreState state = Sts2CoreReducer.Decide(OpenConnectionState(),
+                Request(3, "v2/query.execute", "r-q", """{"connectionId":"c-1","sql":"select 1"}""")).NewState;
+
+            CoreDecision dispose = Sts2CoreReducer.Decide(state, Request(4, "v2/query.dispose", "r-d", """{"queryId":"q-3"}"""));
+            Assert.Equal(QueryPhase.Disposing, dispose.NewState.Queries["q-3"].Phase);
+
+            // Cancel lands between the dispose request and the dispose ack.
+            CoreDecision cancel = Sts2CoreReducer.Decide(dispose.NewState, Request(5, "v2/query.cancel", "r-c", """{"queryId":"q-3"}"""));
+            Assert.IsType<RpcResultOutput>(Assert.Single(cancel.Outputs)); // idempotent {}: no driver.queryCancel
+            Assert.Equal(QueryPhase.Disposing, cancel.NewState.Queries["q-3"].Phase);
+
+            // The dispose ack still lands: exactly one terminal, connection released.
+            CoreDecision acked = Sts2CoreReducer.Decide(cancel.NewState, EffectResponse(6, "driver.queryDispose", "drv-qdispose-4",
+                """{"queryId":"q-3","status":"ok"}"""));
+            RpcNotifyOutput terminal = Assert.IsType<RpcNotifyOutput>(Assert.Single(acked.Outputs));
+            Assert.Equal("v2/query.complete", terminal.Method);
+            Assert.Equal("disposed", terminal.Params.GetProperty("status").GetString());
+            Assert.Equal(QueryPhase.Disposed, acked.NewState.Queries["q-3"].Phase);
+            Assert.Null(acked.NewState.Connections["c-1"].ActiveQueryId);
+        }
+
+        [Fact]
         public void CloseWithActiveQueryCancelsThenCloses()
         {
             CoreState state = Sts2CoreReducer.Decide(OpenConnectionState(),
