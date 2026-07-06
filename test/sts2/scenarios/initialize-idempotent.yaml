@@ -10,7 +10,7 @@ steps:
       params: { clientName: "scenario", requestedSpecVersion: "2.0" }
     expectResult:
       specVersion: "2.0.0-preview.1"
-      capabilities: { forwardOnlyStreaming: true, oneActiveQueryPerConnection: true, redactedReplay: true, exportLog: true, setCapture: true }
+      capabilities: { forwardOnlyStreaming: true, oneActiveQueryPerConnection: true, redactedReplay: true, exportLog: true, setCapture: true, maxCellBytesHonored: true }
   - request:
       method: v2/initialize
       params: { clientName: "scenario-again" }

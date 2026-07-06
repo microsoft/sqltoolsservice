@@ -362,7 +362,9 @@ Result:
     "forwardOnlyStreaming": true,
     "oneActiveQueryPerConnection": true,
     "redactedReplay": true,
-    "exportLog": true
+    "exportLog": true,
+    "setCapture": true,
+    "maxCellBytesHonored": true
   },
   "drivers": [
     { "name": "sqlclient", "dialects": ["tsql"], "production": true },
@@ -446,6 +448,7 @@ The RPC gateway MUST tokenize secrets before creating envelopes. Core sees only 
     "queryTimeoutMs": 0,
     "pageRows": 1000,
     "pageBytes": 262144,
+    "maxCellBytes": 65536,
     "includeStatistics": false
   }
 }
@@ -458,6 +461,8 @@ Result:
 ```
 
 `query.execute` accepts or rejects the query. Execution completion is reported only by `v2/query.complete`.
+
+`options.maxCellBytes` (OPTIONAL, SPEC-CHANGE-0001) lowers the per-cell wire bound for this query below the pinned `sts2.results.maxCellBytes` default. Absent, `0`, negative, or non-integer values mean the default applies (the pre-existing behavior); a value above the default clamps to it — a client can never raise the service's memory/frame protection. Cells above the effective bound arrive as `truncated` wrappers (§7.7); truncation is never silent. The `maxCellBytesHonored` capability (§7.3) advertises this behavior.
 
 Ordering guarantees for one query:
 
@@ -534,7 +539,7 @@ Encoding rules:
 - Typed wrapper values are invariant strings. Binary uses base64.
 - Column metadata carries engine type names verbatim plus normalized fields where known: precision, scale, nullable, length, collation.
 - `DBNull` becomes JSON `null`.
-- Cells above `maxCellBytes` become `{"$t":"truncated", "bytes": N, "digest": "sha256:...", "v": "prefix..."}`. Prefix bytes are capped by `sts2.results.truncatedPrefixBytes`.
+- Cells above the effective `maxCellBytes` (the pinned `sts2.results.maxCellBytes` default, lowered per query by `options.maxCellBytes`, §7.5) become `{"$t":"truncated", "of": "string"|"binary", "bytes": N, "digest": "sha256:...", "v": "prefix..."}` (SPEC-CHANGE-0001): `of` says how to decode the retained prefix (`binary` prefixes are base64), `bytes` is the full value's byte count, and `digest` is the sha256 of the full value bytes. Prefix bytes are capped by `min(effective maxCellBytes, sts2.results.truncatedPrefixBytes)`, never split a UTF-8 code point, and bound the raw value bytes (base64 expansion applies on top for binary). Truncation is always client-detectable via the wrapper; it is never silent.
 - Core state MUST NOT contain row cell payloads.
 
 ### 7.8 Backpressure

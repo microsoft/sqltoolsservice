@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.Sts2.Contracts;
 using Microsoft.SqlTools.Sts2.Runtime.Coordination;
 using Microsoft.SqlTools.Sts2.Runtime.Journaling;
 using Microsoft.SqlTools.Sts2.Runtime.Replay;
@@ -109,6 +110,151 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
             await session.RequestAsync("v2/query.execute", $$"""{"connectionId":"{{connectionId}}","sql":"select 1"}""");
             completes = await session.WaitForNotificationsAsync("v2/query.complete", 2);
             Assert.Equal(JsonValueKind.Null, completes[1].Body!.Value.GetProperty("database").ValueKind);
+        }
+
+        [Fact]
+        public async Task WideCellsArriveBoundedWithTruncationHonesty() // STS2-3
+        {
+            string connectionId = await session.OpenConnectionAsync();
+            // A huge NVARCHAR/XML-shaped cell with a 2-byte 'é' straddling the 4096-byte
+            // bound, plus a 100000-byte blob page: both must arrive bounded and HONEST.
+            string xml = "<blob>" + new string('a', 4089) + "é" + new string('b', 60000) + "</blob>";
+            byte[] blob = new byte[100000];
+            for (int i = 0; i < blob.Length; i++)
+            {
+                blob[i] = unchecked((byte)i);
+            }
+            session.Driver.EnqueueQuery(new FakeQueryScript
+            {
+                Steps =
+                [
+                    new FakeQueryStep { Type = "resultSet", ResultSetId = 0, Columns = 2 },
+                    new FakeQueryStep { Type = "rows", ResultSetId = 0, Rows = 1, CellValue = xml },
+                    new FakeQueryStep { Type = "rows", ResultSetId = 0, Rows = 1, CellBytes = blob.Length, CellBinary = true },
+                    new FakeQueryStep { Type = "completed", RowsAffected = 2 },
+                ],
+            });
+            await session.RequestAsync("v2/query.execute",
+                $$$"""{"connectionId":"{{{connectionId}}}","sql":"select wide","options":{"maxCellBytes":4096}}""");
+            await session.WaitForNotificationsAsync("v2/query.complete", 1);
+            List<OutboundRpcMessage> rows = await session.WaitForNotificationsAsync("v2/query.rows", 2);
+
+            // String cell: wrapper with full-value bytes+digest; the prefix respects the
+            // bound AND the 'é' code point ("<blob>" is 6 bytes, so 4095 fit, not 4096).
+            JsonElement cell = rows[0].Body!.Value.GetProperty("rows")[0][1];
+            Assert.Equal("truncated", cell.GetProperty("$t").GetString());
+            Assert.Equal("string", cell.GetProperty("of").GetString());
+            Assert.Equal(System.Text.Encoding.UTF8.GetByteCount(xml), cell.GetProperty("bytes").GetInt32());
+            Assert.Equal("sha256:" + Convert.ToHexStringLower(
+                    System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(xml))),
+                cell.GetProperty("digest").GetString());
+            string prefix = cell.GetProperty("v").GetString()!;
+            Assert.Equal("<blob>" + new string('a', 4089), prefix); // 4095 bytes: never split 'é'
+            Assert.True(System.Text.Encoding.UTF8.GetByteCount(prefix) <= 4096);
+            Assert.StartsWith(prefix, xml, StringComparison.Ordinal);
+
+            // Binary cell: bounded raw prefix (base64 on the wire), honest full-size metadata.
+            JsonElement binaryCell = rows[1].Body!.Value.GetProperty("rows")[0][1];
+            Assert.Equal("truncated", binaryCell.GetProperty("$t").GetString());
+            Assert.Equal("binary", binaryCell.GetProperty("of").GetString());
+            Assert.Equal(blob.Length, binaryCell.GetProperty("bytes").GetInt32());
+            Assert.Equal(blob.AsSpan(0, 4096).ToArray(), Convert.FromBase64String(binaryCell.GetProperty("v").GetString()!));
+
+            // The page payloads themselves are bounded (no 100KB frames slipped through).
+            Assert.All(rows, page => Assert.True(page.Body!.Value.GetRawText().Length < 3 * 4096,
+                "rows page exceeded the bounded-payload expectation"));
+        }
+
+        [Fact]
+        public async Task ExactBoundCellPassesThroughAndOneOverTruncates() // STS2-3 boundary
+        {
+            string connectionId = await session.OpenConnectionAsync();
+            string atBound = new('x', 64);
+            string oneOver = new('x', 65);
+            session.Driver.EnqueueQuery(new FakeQueryScript
+            {
+                Steps =
+                [
+                    new FakeQueryStep { Type = "resultSet", ResultSetId = 0, Columns = 2 },
+                    new FakeQueryStep { Type = "rows", ResultSetId = 0, Rows = 1, CellValue = atBound },
+                    new FakeQueryStep { Type = "rows", ResultSetId = 0, Rows = 1, CellValue = oneOver },
+                    new FakeQueryStep { Type = "completed", RowsAffected = 2 },
+                ],
+            });
+            await session.RequestAsync("v2/query.execute",
+                $$$"""{"connectionId":"{{{connectionId}}}","sql":"select edge","options":{"maxCellBytes":64}}""");
+            await session.WaitForNotificationsAsync("v2/query.complete", 1);
+            List<OutboundRpcMessage> rows = await session.WaitForNotificationsAsync("v2/query.rows", 2);
+
+            JsonElement exact = rows[0].Body!.Value.GetProperty("rows")[0][1];
+            Assert.Equal(JsonValueKind.String, exact.ValueKind); // exactly at bound: untouched
+            Assert.Equal(atBound, exact.GetString());
+
+            JsonElement over = rows[1].Body!.Value.GetProperty("rows")[0][1];
+            Assert.Equal("truncated", over.GetProperty("$t").GetString());
+            Assert.Equal(65, over.GetProperty("bytes").GetInt32());
+            Assert.Equal(new string('x', 64), over.GetProperty("v").GetString());
+        }
+
+        [Fact]
+        public async Task AbsentOrZeroMaxCellBytesKeepsTodaysBehavior() // STS2-3
+        {
+            string connectionId = await session.OpenConnectionAsync();
+            // 100KB is far below the pinned 1 MiB service default: with no client bound
+            // (absent options, then an explicit 0) the cell arrives whole, untouched.
+            string wide = new('w', 100_000);
+            string[] optionVariants = ["", ""","options":{"maxCellBytes":0}"""];
+            for (int i = 0; i < optionVariants.Length; i++)
+            {
+                session.Driver.EnqueueQuery(new FakeQueryScript
+                {
+                    Steps =
+                    [
+                        new FakeQueryStep { Type = "resultSet", ResultSetId = 0, Columns = 2 },
+                        new FakeQueryStep { Type = "rows", ResultSetId = 0, Rows = 1, CellValue = wide },
+                        new FakeQueryStep { Type = "completed", RowsAffected = 1 },
+                    ],
+                });
+                OutboundRpcMessage execute = await session.RequestAsync("v2/query.execute",
+                    $$"""{"connectionId":"{{connectionId}}","sql":"select wide"{{optionVariants[i]}}}""");
+                Assert.Equal("rpc.out.result", execute.Kind);
+                await session.WaitForNotificationsAsync("v2/query.complete", i + 1); // one active query per connection
+            }
+            List<OutboundRpcMessage> rows = await session.WaitForNotificationsAsync("v2/query.rows", 2);
+            Assert.All(rows, page =>
+            {
+                JsonElement cell = page.Body!.Value.GetProperty("rows")[0][1];
+                Assert.Equal(JsonValueKind.String, cell.ValueKind);
+                Assert.Equal(wide, cell.GetString());
+            });
+        }
+
+        [Fact]
+        public async Task OversizedMaxCellBytesRequestClampsToTheServiceLimit() // STS2-3
+        {
+            string connectionId = await session.OpenConnectionAsync();
+            // The client asks for 8 MiB; the service limit stays 1 MiB, so a cell one page
+            // over the pinned default still truncates (with the pinned 64KB retained prefix).
+            string huge = new('h', Sts2Defaults.MaxCellBytes + 8);
+            session.Driver.EnqueueQuery(new FakeQueryScript
+            {
+                Steps =
+                [
+                    new FakeQueryStep { Type = "resultSet", ResultSetId = 0, Columns = 2 },
+                    new FakeQueryStep { Type = "rows", ResultSetId = 0, Rows = 1, CellValue = huge },
+                    new FakeQueryStep { Type = "completed", RowsAffected = 1 },
+                ],
+            });
+            await session.RequestAsync("v2/query.execute",
+                $$$"""{"connectionId":"{{{connectionId}}}","sql":"select huge","options":{"maxCellBytes":8388608}}""");
+            await session.WaitForNotificationsAsync("v2/query.complete", 1);
+            List<OutboundRpcMessage> rows = await session.WaitForNotificationsAsync("v2/query.rows", 1);
+
+            JsonElement cell = rows[0].Body!.Value.GetProperty("rows")[0][1];
+            Assert.Equal("truncated", cell.GetProperty("$t").GetString());
+            Assert.Equal(huge.Length, cell.GetProperty("bytes").GetInt32());
+            Assert.Equal(Sts2Defaults.TruncatedPrefixBytes,
+                System.Text.Encoding.UTF8.GetByteCount(cell.GetProperty("v").GetString()!));
         }
 
         [Fact]

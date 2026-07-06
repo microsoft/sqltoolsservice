@@ -108,6 +108,9 @@ namespace Microsoft.SqlTools.Sts2.Core
                     ["redactedReplay"] = true,
                     ["exportLog"] = true, // v2/diagnostics.exportLog is registered and implemented
                     ["setCapture"] = true,
+                    // STS2-3: query.execute options.maxCellBytes is honored (cells arrive
+                    // bounded, oversized cells as truncated wrappers, SPEC §7.7).
+                    ["maxCellBytesHonored"] = true,
                 },
                 ["drivers"] = driverArray,
                 ["limits"] = new JsonObject
@@ -440,8 +443,9 @@ namespace Microsoft.SqlTools.Sts2.Core
 
             string queryId = string.Create(CultureInfo.InvariantCulture, $"q-{envelope.Seq}");
             string startEffectId = string.Create(CultureInfo.InvariantCulture, $"drv-qstart-{envelope.Seq}");
+            int maxCellBytes = EffectiveMaxCellBytes(envelope.Payload);
             string startArgs = string.Create(CultureInfo.InvariantCulture, $$"""
-                {"queryId":{{JsonSerializer.Serialize(queryId)}},"connectionId":{{JsonSerializer.Serialize(connectionId)}},"handleId":{{JsonSerializer.Serialize(connection.HandleId)}},"sql":{{sqlRaw}},"credit":{{Sts2Defaults.WindowPages}}}
+                {"queryId":{{JsonSerializer.Serialize(queryId)}},"connectionId":{{JsonSerializer.Serialize(connectionId)}},"handleId":{{JsonSerializer.Serialize(connection.HandleId)}},"sql":{{sqlRaw}},"credit":{{Sts2Defaults.WindowPages}},"maxCellBytes":{{maxCellBytes}}}
                 """);
 
             CoreState next = state with
@@ -464,6 +468,28 @@ namespace Microsoft.SqlTools.Sts2.Core
                 new RpcResultOutput(corr, Json(result)),
                 new EffectRequestOutput(startEffectId, "driver.queryStart", Json(startArgs), corr),
             ]);
+        }
+
+        /// <summary>
+        /// The per-cell wire bound for one query (STS2-3, SPEC §7.5/§7.7): a client may
+        /// LOWER the bound below the pinned <c>sts2.results.maxCellBytes</c> default via
+        /// <c>options.maxCellBytes</c>. Absent, zero, negative, or non-integer values mean
+        /// the default (today's behavior); larger values clamp to the default — the client
+        /// can never raise the service's memory/frame protection. Total, never throws.
+        /// </summary>
+        private static int EffectiveMaxCellBytes(JsonElement? payload)
+        {
+            if (payload is { ValueKind: JsonValueKind.Object } p
+                && p.TryGetProperty("options", out JsonElement options)
+                && options.ValueKind == JsonValueKind.Object
+                && options.TryGetProperty("maxCellBytes", out JsonElement value)
+                && value.ValueKind == JsonValueKind.Number
+                && value.TryGetInt32(out int requested)
+                && requested > 0)
+            {
+                return Math.Min(requested, Sts2Defaults.MaxCellBytes);
+            }
+            return Sts2Defaults.MaxCellBytes;
         }
 
         private static CoreDecision DecideQueryAck(CoreState state, CoreEnvelope envelope)

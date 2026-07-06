@@ -1,9 +1,36 @@
-# STS2 scenario stub (SPEC $14.2). Created at M1; the scenario runner executes it in
-# the milestone below. Header fields (name/tags/status/milestone/adapter) are
-# machine-read for SCENARIO-MATRIX.md. Body TBD when the scenario goes active --
-# editing expectations to match broken behavior is forbidden (SPEC $2.12).
+# STS2 scenario (SPEC $14.2). Editing expectations to match broken behavior is forbidden.
+# STS2-3: options.maxCellBytes is honored on the wire — wide/blob cells arrive bounded,
+# oversized cells as honest truncated wrappers (SPEC $7.7), never silently clipped.
 name: cell-truncation-max-cell-bytes
 tags: [query, types, limits, dialect:neutral]
-status: stub
+status: active
 milestone: M3
 adapter: fake
+driver:
+  query:
+    - steps:
+        - { type: resultSet, resultSetId: 0, columns: 2 }
+        - { type: rows, resultSetId: 0, rows: 1, cellBytes: 100000, cellBinary: true }
+        - { type: rows, resultSetId: 0, rows: 1, cellBytes: 200000 }
+        - { type: resultSetDone, resultSetId: 0, rowCount: 2 }
+        - { type: completed, rowsAffected: 2 }
+steps:
+  - request:
+      method: v2/connection.open
+      params: { openId: open-1, profile: $profiles.fakeBasic }
+    bind: { connectionId: $c }
+  - request:
+      method: v2/query.execute
+      params: { connectionId: $c, sql: "select wide from t", options: { maxCellBytes: 64 } }
+    bind: { queryId: $q }
+  - waitForNotify: { method: v2/query.complete, count: 1 }
+  # Last rows page carries the 200000-byte string cell truncated at 64 bytes: honesty
+  # metadata ($t/of/bytes) rides in the cell; the first page's blob is covered by
+  # QueryFlowTests.WideCellsArriveBoundedWithTruncationHonesty.
+  - assertNotify:
+      method: v2/query.rows
+      count: 2
+      match: { rows: [[~, { $t: truncated, of: string, bytes: 200000 }]] }
+  - assertNotify: { method: v2/query.complete, count: 1, match: { status: succeeded } }
+expect:
+  invariants: [I1, I2, I3, I5, I6, I7, I9, I12]

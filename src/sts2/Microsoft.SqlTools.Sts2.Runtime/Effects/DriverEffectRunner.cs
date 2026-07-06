@@ -364,6 +364,12 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
             int initialCredit = effect.Args.TryGetProperty("credit", out JsonElement c) && c.ValueKind == JsonValueKind.Number
                 ? c.GetInt32()
                 : 1;
+            // Core normalized options.maxCellBytes into the journaled effect args (STS2-3);
+            // an absent/invalid value falls back to the pinned default (older journals).
+            int maxCellBytes = effect.Args.TryGetProperty("maxCellBytes", out JsonElement m)
+                && m.ValueKind == JsonValueKind.Number && m.TryGetInt32(out int bound) && bound > 0
+                    ? bound
+                    : Sts2Defaults.MaxCellBytes;
 
             if (handleId is null || !sessions.TryGetValue(handleId, out IDbSession? session))
             {
@@ -374,10 +380,10 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
 
             var pump = new QueryPump { Session = session, Credits = new SemaphoreSlim(initialCredit) };
             queryPumps[queryId] = pump;
-            pump.PumpTask = Task.Run(() => StreamQueryPumpAsync(effect, inbox, queryId, sql, pump));
+            pump.PumpTask = Task.Run(() => StreamQueryPumpAsync(effect, inbox, queryId, sql, maxCellBytes, pump));
         }
 
-        private async Task StreamQueryPumpAsync(EffectWorkItem effect, ICoordinatorInbox inbox, string queryId, string sql, QueryPump pump)
+        private async Task StreamQueryPumpAsync(EffectWorkItem effect, ICoordinatorInbox inbox, string queryId, string sql, int maxCellBytes, QueryPump pump)
         {
             await PostQueryEventAsync(inbox, effect, queryId, """{"eventType":"started"}""").ConfigureAwait(false);
 
@@ -420,7 +426,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                                 break;
                             }
                             await PostQueryEventAsync(inbox, effect, queryId, string.Create(CultureInfo.InvariantCulture,
-                                $$"""{"eventType":"rows","resultSetId":{{page.ResultSetId}},"pageSeq":{{page.PageSeq}},"rowOffset":{{page.RowOffset}},"rows":{{SerializeRows(page.Cells)}}}""")).ConfigureAwait(false);
+                                $$"""{"eventType":"rows","resultSetId":{{page.ResultSetId}},"pageSeq":{{page.PageSeq}},"rowOffset":{{page.RowOffset}},"rows":{{SerializeRows(page.Cells, maxCellBytes)}}}""")).ConfigureAwait(false);
                             break;
 
                         case ServerMessage message:
@@ -491,7 +497,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
             return array.ToJsonString();
         }
 
-        private static string SerializeRows(IReadOnlyList<IReadOnlyList<object?>> rows)
+        private static string SerializeRows(IReadOnlyList<IReadOnlyList<object?>> rows, int maxCellBytes)
         {
             var array = new System.Text.Json.Nodes.JsonArray();
             foreach (IReadOnlyList<object?> row in rows)
@@ -499,9 +505,10 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                 var cells = new System.Text.Json.Nodes.JsonArray();
                 foreach (object? cell in row)
                 {
-                    // SPEC §7.7 wire encoding, with maxCellBytes truncation so one giant cell
-                    // cannot break the memory/frame bound (R024).
-                    cells.Add(WireValueEncoder.Encode(cell, Sts2Defaults.MaxCellBytes));
+                    // SPEC §7.7 wire encoding at the query's effective bound (R024/STS2-3):
+                    // one giant cell cannot break the memory/frame bound, and an oversized
+                    // cell arrives as an honest truncated wrapper, never silently clipped.
+                    cells.Add(WireValueEncoder.Encode(cell, maxCellBytes));
                 }
                 array.Add(cells);
             }

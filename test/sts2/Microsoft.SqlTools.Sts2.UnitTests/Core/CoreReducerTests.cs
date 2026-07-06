@@ -4,6 +4,7 @@
 //
 
 using System.Text.Json;
+using Microsoft.SqlTools.Sts2.Contracts;
 using Microsoft.SqlTools.Sts2.Core;
 using Xunit;
 
@@ -65,6 +66,31 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Core
             Assert.Equal(QueryPhase.Running, query.Phase);
             Assert.Equal(4, query.CreditOutstanding);
             Assert.Equal("q-3", decision.NewState.Connections["c-1"].ActiveQueryId);
+        }
+
+        [Fact]
+        public void QueryExecuteNormalizesMaxCellBytesIntoTheStartEffect() // STS2-3
+        {
+            static int StartBound(string payload)
+            {
+                CoreDecision decision = Sts2CoreReducer.Decide(OpenConnectionState(),
+                    Request(3, "v2/query.execute", "r-q", payload));
+                EffectRequestOutput start = Assert.IsType<EffectRequestOutput>(decision.Outputs[1]);
+                return start.Args.GetProperty("maxCellBytes").GetInt32();
+            }
+
+            // Absent options / absent field / zero / negative / non-numeric: the pinned
+            // default applies (today's behavior — the client asked for no bound).
+            Assert.Equal(Sts2Defaults.MaxCellBytes, StartBound("""{"connectionId":"c-1","sql":"select 1"}"""));
+            Assert.Equal(Sts2Defaults.MaxCellBytes, StartBound("""{"connectionId":"c-1","sql":"select 1","options":{}}"""));
+            Assert.Equal(Sts2Defaults.MaxCellBytes, StartBound("""{"connectionId":"c-1","sql":"select 1","options":{"maxCellBytes":0}}"""));
+            Assert.Equal(Sts2Defaults.MaxCellBytes, StartBound("""{"connectionId":"c-1","sql":"select 1","options":{"maxCellBytes":-5}}"""));
+            Assert.Equal(Sts2Defaults.MaxCellBytes, StartBound("""{"connectionId":"c-1","sql":"select 1","options":{"maxCellBytes":"big"}}"""));
+
+            // A positive bound lowers; it can never RAISE the service protection.
+            Assert.Equal(64, StartBound("""{"connectionId":"c-1","sql":"select 1","options":{"maxCellBytes":64}}"""));
+            Assert.Equal(Sts2Defaults.MaxCellBytes, StartBound("""{"connectionId":"c-1","sql":"select 1","options":{"maxCellBytes":999999999}}"""));
+            Assert.Equal(Sts2Defaults.MaxCellBytes, StartBound("""{"connectionId":"c-1","sql":"select 1","options":{"maxCellBytes":8589934592}}"""));
         }
 
         [Fact]

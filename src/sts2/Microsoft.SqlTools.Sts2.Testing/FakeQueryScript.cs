@@ -29,6 +29,21 @@ namespace Microsoft.SqlTools.Sts2.Testing
         /// <summary>True to fabricate typed-wrapper edge values instead of natives.</summary>
         public bool EdgeValues { get; init; }
 
+        /// <summary>
+        /// Explicit wide-cell value for rows steps (STS2-3 cell truncation): every non-key
+        /// column (ordinal &gt; 0) carries exactly this string. Overrides <see cref="CellBytes"/>.
+        /// </summary>
+        public string? CellValue { get; init; }
+
+        /// <summary>
+        /// When &gt; 0, rows steps fabricate wide cells of exactly this many bytes in every
+        /// non-key column (STS2-3 cell truncation; scenario YAML cannot inline huge values).
+        /// </summary>
+        public int CellBytes { get; init; }
+
+        /// <summary>True to fabricate the wide cells as binary (<c>byte[]</c>) instead of strings.</summary>
+        public bool CellBinary { get; init; }
+
         /// <summary>Message text for message steps.</summary>
         public string? Text { get; init; }
 

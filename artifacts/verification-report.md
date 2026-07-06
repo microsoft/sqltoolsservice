@@ -2,6 +2,78 @@
 
 Newest entries first (AGENT-RUNBOOK.md §6).
 
+## STS2-3: maxCellBytes honored on the wire - 2026-07-06 - 328b47b6+ (working tree, uncommitted)
+Remaining-tasks pass item STS2-3 (central_remaining_docs_review_pack/remaining_tasks.md
+§5.1, P1): "Service truncates or wraps oversized cells with honesty flags, rather
+than relying on QS display clamp. Acceptance: wide/blob query scenario shows bounded
+payload and correct truncation metadata." Owner-directed; left UNCOMMITTED for the
+SPEC-CHANGE human review (SPEC-CHANGE-0001 in DECISIONS.md).
+
+Wire (all additive/optional, SPEC §7.3/§7.5/§7.7 updated):
+- `v2/query.execute` accepts `options.maxCellBytes` (pageRows/pageBytes precedent).
+  Absent/0/negative/non-integer = the pinned 1 MiB default (pre-existing behavior);
+  positive values LOWER the bound; values above the default clamp to it (the client
+  can never raise the service's memory/frame protection). Core normalizes the
+  effective bound into the journaled `driver.queryStart` args (replay-deterministic);
+  the runner truncates at the encode edge, covering every driver.
+- Truncation honesty: the per-cell wrapper the page encoding already supported —
+  `{"$t":"truncated","of":"string"|"binary","bytes":N,"digest":"sha256:...","v":prefix}`.
+  `digest` (SPEC-promised, previously unimplemented) is sha256 of the full value;
+  the retained prefix now honors the pinned `sts2.results.truncatedPrefixBytes`
+  (65536) cap and never splits a UTF-8 code point. Never silent.
+- `v2/initialize` capabilities gains `maxCellBytesHonored: true`.
+
+New coverage:
+- Scenario cell-truncation-max-cell-bytes ACTIVATED (was the stub the R024 commit
+  deferred pending FakeDriver value-injection): 200KB string + 100KB blob pages at a
+  64-byte bound; wrapper metadata asserted. FakeQueryStep gains cellValue/cellBytes/
+  cellBinary (scenario YAML + C# injection). initialize-idempotent pins the capability.
+- QueryFlowTests +4 (wire-level, FakeDriver through coordinator):
+  WideCellsArriveBoundedWithTruncationHonesty (huge NVARCHAR/XML-shaped multibyte cell
+  with a 2-byte char straddling the bound + blob page; digest + bounded page bytes),
+  ExactBoundCellPassesThroughAndOneOverTruncates, AbsentOrZeroMaxCellBytesKeepsTodaysBehavior,
+  OversizedMaxCellBytesRequestClampsToTheServiceLimit (8 MiB ask -> 1 MiB clamp + 64KB prefix cap).
+- CoreReducerTests +1: QueryExecuteNormalizesMaxCellBytesIntoTheStartEffect
+  (absent/{}/0/-5/"big"/64/999999999/8589934592 normalization matrix).
+- WireValueEncoderTests +4: TruncatedWrapperCarriesFullValueDigest,
+  ExactBoundIsNotTruncatedAndOneOverIs, TruncationNeverSplitsACodePoint (incl. astral
+  '𐍈'), RetainedPrefixIsCappedByTruncatedPrefixBytes.
+Targeted runs: encoder+queryflow+reducer suites 50/50; scenario corpus 53/53
+(47 active, incl. the new scenario); E2E 5/5.
+
+PublicAPI: no tracked-surface changes (encoder overload signature unchanged; new
+members are private or in untracked Sts2.Testing). Pinned defaults unchanged.
+Generated docs: SCENARIO-MATRIX.md regenerated (46->47 active, 8->7 stub).
+Decisions: SPEC-CHANGE-0001 (options considered, lower-only semantics, evidence).
+
+Client follow-up (vscode-mssql, NOT touched here): sts2Backend can flip
+maxCellBytesHonored to true (or derive from initialize capabilities), send
+options.maxCellBytes on v2/query.execute, and decode `$t:"truncated"` cells into
+CellValue.truncated (TruncationInfo already models originalBytes/digest/reason).
+
+Gates: verify.sh --quick green @ 328b47b6 (working tree):
+- build (sts2 slnf, warnings as errors): ok
+- unit+multiplexer+architecture tests: ok
+- scenario tests (Fake, active corpus): ok
+- contract tests (Sqlite, real I/O): ok
+- replay verify (sts2-replay): ok
+- simulator (200 seeds): ok
+- secret canary scan: ok
+- generated docs diff: ok
+- legacy diff budget: ok
+- build legacy exe (for E2E): ok
+- E2E disabled-mode v1 smoke + enabled-mode v1+v2: ok
+
+Risk notes:
+- Truncated cells that exceed the old 1 MiB default now retain a 64KB prefix (not
+  1 MiB) — SPEC-faithful (truncatedPrefixBytes was pinned but unenforced) but a
+  behavior change for >1 MiB cells; called out in SPEC-CHANGE-0001.
+- The binary prefix bound applies to raw value bytes; base64 expands the wire text
+  by 4/3 on top (documented in SPEC §7.7).
+- Client currently passes wire cells raw into CompactPage values; until the decode
+  path handles `$t:"truncated"`, a truncated cell would stringify as an object —
+  the capability flag stays client-gated until that lands.
+
 ## P0 determinism fix: cancel-during-dispose wedged the query machine - 2026-07-06 - 7a99455f+
 Found by the M7 `--full` 10k-seed sweep at 7a99455f (its verify-latest showed
 "10k-seed simulator: FAIL"): seed 7496 intermittently reported "I2: query q-20

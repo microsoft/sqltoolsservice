@@ -203,6 +203,16 @@ namespace Microsoft.SqlTools.Sts2.Testing
                 return columns;
             }
 
+            private static byte[] FabricateBlob(int bytes)
+            {
+                byte[] blob = new byte[bytes];
+                for (int i = 0; i < bytes; i++)
+                {
+                    blob[i] = unchecked((byte)i);
+                }
+                return blob;
+            }
+
             private static IReadOnlyList<IReadOnlyList<object?>> FabricateRows(FakeQueryStep step, long rowOffset)
             {
                 var rows = new List<IReadOnlyList<object?>>(step.Rows);
@@ -222,6 +232,15 @@ namespace Microsoft.SqlTools.Sts2.Testing
                                 2 => null, // DBNull -> JSON null
                                 _ => System.Text.Json.Nodes.JsonNode.Parse("""{"$t":"binary","v":"AQID"}"""),
                             });
+                        }
+                        else if (c > 0 && step.CellValue is not null)
+                        {
+                            cells.Add(step.CellValue); // explicit wide/edge cell (STS2-3)
+                        }
+                        else if (c > 0 && step.CellBytes > 0)
+                        {
+                            // Deterministic wide cell of exactly CellBytes bytes (STS2-3).
+                            cells.Add(step.CellBinary ? FabricateBlob(step.CellBytes) : new string('x', step.CellBytes));
                         }
                         else
                         {
