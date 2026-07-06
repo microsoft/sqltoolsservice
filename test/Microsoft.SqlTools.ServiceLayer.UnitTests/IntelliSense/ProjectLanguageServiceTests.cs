@@ -28,6 +28,7 @@ using Microsoft.SqlTools.SqlCore.IntelliSense;
 using Moq;
 using NUnit.Framework;
 using WsLocation = Microsoft.SqlTools.LanguageService.Workspace.Contracts.Location;
+using LanguageServiceSR = Microsoft.SqlTools.LanguageService.SR;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.IntelliSense
 {
@@ -2173,7 +2174,7 @@ END
                 },
                 ctx.Object);
 
-            Assert.That(result?.Message, Is.EqualTo(SR.RenameNotSupported),
+            Assert.That(result?.Message, Is.EqualTo(LanguageServiceSR.RenameNotSupported),
                 $"Expected not-supported message. Got: {result?.Message}");
         }
 
@@ -2201,7 +2202,7 @@ END
                 },
                 ctx.Object);
 
-            Assert.That(result?.Message, Is.EqualTo(SR.RenameNotSupported),
+            Assert.That(result?.Message, Is.EqualTo(LanguageServiceSR.RenameNotSupported),
                 $"Expected not-supported message. Got: {result?.Message}");
         }
 
@@ -2229,7 +2230,7 @@ END
                 },
                 ctx.Object);
 
-            Assert.That(result?.Message, Is.EqualTo(SR.RenameNotSupported),
+            Assert.That(result?.Message, Is.EqualTo(LanguageServiceSR.RenameNotSupported),
                 $"Expected not-supported message. Got: {result?.Message}");
         }
 
@@ -2262,7 +2263,7 @@ END
                 },
                 ctx.Object);
 
-            Assert.That(result?.Message, Is.EqualTo(SR.RenameNotSupportedLiveServer),
+            Assert.That(result?.Message, Is.EqualTo(LanguageServiceSR.RenameNotSupportedLiveServer),
                 $"Expected live-server message. Got: {result?.Message}");
         }
 
