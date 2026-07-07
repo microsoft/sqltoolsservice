@@ -51,6 +51,17 @@ namespace Microsoft.SqlTools.LanguageService.UnitTests.Utility
             Assert.NotNull(LanguageServiceSr.PeekDefinitionNoResultsError);
             Assert.NotNull(LanguageServiceSr.PeekDefinitionDatabaseError);
             Assert.NotNull(LanguageServiceSr.PeekDefinitionTypeNotSupportedError);
+            Assert.NotNull(LanguageServiceSr.PeekDefinitionNotConnectedError);
+            Assert.NotNull(LanguageServiceSr.PeekDefinitionTimedoutError);
+
+            // AutoParameterization for Always Encrypted
+            Assert.NotNull(LanguageServiceSr.ParameterizationDetails("", "", 0, 0, 0, ""));
+            Assert.NotNull(LanguageServiceSr.ErrorMessageHeader(0));
+            Assert.NotNull(LanguageServiceSr.ErrorMessage("", "", ""));
+            Assert.NotNull(LanguageServiceSr.DateTimeErrorMessage("", "", ""));
+            Assert.NotNull(LanguageServiceSr.BinaryLiteralPrefixMissingError("", "", ""));
+            Assert.NotNull(LanguageServiceSr.ParsingErrorHeader(0, 0));
+            Assert.NotNull(LanguageServiceSr.ScriptTooLarge(0, 0));
         }
     }
 }

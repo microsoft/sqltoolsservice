@@ -173,17 +173,6 @@ SerializationServiceRequestInProgress (string filePath) = A request for file {0}
 SerializationServiceRequestNotFound (string filePath) = Cannot serialize more data as no request for file {0} could be found
 
 ############################################################################
-# Language Service
-
-PeekDefinitionNotConnectedError = Please connect to a server.
-
-PeekDefinitionTimedoutError = Operation timed out.
-
-RenameNotSupportedLiveServer = Rename is only supported in SQL project files. To rename objects on a connected server, use sp_rename.
-
-RenameNotSupported = Renaming an object of this type is not supported.
-
-############################################################################
 # Edit Data Service
 
 EditDataObjectNotFound = Table or view requested for edit could not be found

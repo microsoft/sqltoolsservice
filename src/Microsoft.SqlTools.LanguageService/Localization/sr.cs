@@ -103,6 +103,38 @@ namespace Microsoft.SqlTools.LanguageService
             }
         }
 
+        public static string PeekDefinitionNotConnectedError
+        {
+            get
+            {
+                return Keys.GetString(Keys.PeekDefinitionNotConnectedError);
+            }
+        }
+
+        public static string PeekDefinitionTimedoutError
+        {
+            get
+            {
+                return Keys.GetString(Keys.PeekDefinitionTimedoutError);
+            }
+        }
+
+        public static string RenameNotSupportedLiveServer
+        {
+            get
+            {
+                return Keys.GetString(Keys.RenameNotSupportedLiveServer);
+            }
+        }
+
+        public static string RenameNotSupported
+        {
+            get
+            {
+                return Keys.GetString(Keys.RenameNotSupported);
+            }
+        }
+
         public static string WorkspaceServiceBufferPositionOutOfOrder(int sLine, int sCol, int eLine, int eCol)
         {
             return Keys.GetString(Keys.WorkspaceServiceBufferPositionOutOfOrder, sLine, sCol, eLine, eCol);
@@ -267,6 +299,18 @@ namespace Microsoft.SqlTools.LanguageService
 
 
             public const string PeekDefinitionTypeNotSupportedError = "PeekDefinitionTypeNotSupportedError";
+
+
+            public const string PeekDefinitionNotConnectedError = "PeekDefinitionNotConnectedError";
+
+
+            public const string PeekDefinitionTimedoutError = "PeekDefinitionTimedoutError";
+
+
+            public const string RenameNotSupportedLiveServer = "RenameNotSupportedLiveServer";
+
+
+            public const string RenameNotSupported = "RenameNotSupported";
 
 
             public const string ParameterizationDetails = "ParameterizationDetails";

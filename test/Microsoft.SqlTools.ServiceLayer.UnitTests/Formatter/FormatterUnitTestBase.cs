@@ -24,11 +24,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
         {
             HostMock = new Mock<IProtocolEndpoint>();
             WorkspaceServiceMock = new Mock<WorkspaceService<SqlToolsSettings>>();
-            LanguageServiceMock = new Mock<LanguageServices.LanguageService>();
+            LanguageServiceMock = new Mock<TSqlLanguageService>();
             ServiceProvider = ExtensionServiceProvider.CreateDefaultServiceProvider();
             ServiceProvider.RegisterSingleService(WorkspaceServiceMock.Object);
             ServiceProvider.RegisterSingleService(LanguageServiceMock.Object);
-            ServiceProvider.RegisterSingleService<ILanguageFileFilter>(LanguageServiceMock.Object);
             HostLoader.InitializeHostedServices(ServiceProvider, HostMock.Object);
             FormatterService = ServiceProvider.GetService<TSqlFormatterService>();
             FormatterService.SetFileResolver(uri => WorkspaceServiceMock.Object.Workspace?.GetFile(uri));
@@ -37,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
         protected ExtensionServiceProvider ServiceProvider { get; private set; }
         protected Mock<IProtocolEndpoint> HostMock { get; private set; }
         protected Mock<WorkspaceService<SqlToolsSettings>> WorkspaceServiceMock { get; private set; }
-        protected Mock<LanguageServices.LanguageService> LanguageServiceMock { get; private set; }
+        protected Mock<TSqlLanguageService> LanguageServiceMock { get; private set; }
 
         protected TSqlFormatterService FormatterService { get; private set; }
 

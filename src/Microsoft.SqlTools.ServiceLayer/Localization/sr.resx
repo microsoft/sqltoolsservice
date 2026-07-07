@@ -381,22 +381,6 @@
     <comment>.
  Parameters: 0 - filePath (string) </comment>
   </data>
-  <data name="PeekDefinitionNotConnectedError" xml:space="preserve">
-    <value>Please connect to a server.</value>
-    <comment></comment>
-  </data>
-  <data name="PeekDefinitionTimedoutError" xml:space="preserve">
-    <value>Operation timed out.</value>
-    <comment></comment>
-  </data>
-  <data name="RenameNotSupportedLiveServer" xml:space="preserve">
-    <value>Rename is only supported in SQL project files. To rename objects on a connected server, use sp_rename.</value>
-    <comment></comment>
-  </data>
-  <data name="RenameNotSupported" xml:space="preserve">
-    <value>Renaming an object of this type is not supported.</value>
-    <comment></comment>
-  </data>
   <data name="EditDataObjectNotFound" xml:space="preserve">
     <value>Table or view requested for edit could not be found</value>
     <comment></comment>
