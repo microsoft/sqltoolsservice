@@ -12,7 +12,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.LanguageService.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Scripting;
 using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
@@ -51,8 +51,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
 
 #region Test Helpers
 
-        private static Func<Task<(string token, DateTimeOffset expiresOn)>> MakeFetcher()
-            => () => Task.FromResult(("fake-token", FarFuture));
+        private static Func<string, Task<(string token, DateTimeOffset expiresOn)>> MakeFetcher()
+            => _ => Task.FromResult(("fake-token", FarFuture));
 
         /// <summary>
         /// Returns a ScriptingParams that routes through ShouldCreateScriptAsOperation = true.
@@ -181,7 +181,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Scripting
                 out CapturingConnectionService _);
 
             int fetcherCallCount = 0;
-            connInfo.AzureTokenFetcher = () =>
+            connInfo.AzureTokenFetcher = _ =>
             {
                 fetcherCallCount++;
                 return Task.FromResult(("fetched-tok", FarFuture));

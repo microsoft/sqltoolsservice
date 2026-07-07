@@ -10,11 +10,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.SqlParser.Common;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
+using Microsoft.SqlTools.LanguageService.LanguageServices;
+using Microsoft.SqlTools.LanguageService.LanguageServices.Completion;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using NUnit.Framework;
 
@@ -25,7 +24,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
     /// </summary>
     public class LanguageServiceTests
     {
-        private sealed class TestLanguageService : LanguageServices.LanguageService
+        private sealed class TestLanguageService : TSqlLanguageService
         {
             internal Func<string, ParseResult, ParseOptions, ParseResult> IncrementalParseOverride { get; set; }
 
@@ -56,7 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             const string sqlWithErrors = "SELECT * FROM sys.objects";
 
             // get the test service 
-            LanguageServices.LanguageService service = TestObjects.GetTestLanguageService();
+            TSqlLanguageService service = TestObjects.GetTestLanguageService();
 
             // parse the sql statement
             var scriptFile = new ScriptFile();
@@ -77,7 +76,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             const string sqlWithErrors = "SELECT *** FROM sys.objects";
 
             // get test service
-            LanguageServices.LanguageService service = TestObjects.GetTestLanguageService();
+            TSqlLanguageService service = TestObjects.GetTestLanguageService();
 
             // parse sql statement
             var scriptFile = new ScriptFile();
@@ -107,7 +106,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                 "SELECT *** FROM sys.objects;\n";
 
             // get test service
-            LanguageServices.LanguageService service = TestObjects.GetTestLanguageService();
+            TSqlLanguageService service = TestObjects.GetTestLanguageService();
 
             // parse sql
             var scriptFile = new ScriptFile();
@@ -139,7 +138,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         {
             // Given service doesn't have parseinfo intialized for a document
             const string docContent = "SELECT * FROM sys.objects";
-            LanguageServices.LanguageService service = TestObjects.GetTestLanguageService();
+            TSqlLanguageService service = TestObjects.GetTestLanguageService();
             var scriptFile = new ScriptFile();
             scriptFile.SetFileContents(docContent);
 
@@ -224,7 +223,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             scriptFile.SetFileContents("SELECT 1");
 
             var parseOptions = new ParseOptions(
-                batchSeparator: LanguageServices.LanguageService.DefaultBatchSeperator,
+                batchSeparator: TSqlLanguageService.DefaultBatchSeperator,
                 isQuotedIdentifierSet: true,
                 compatibilityLevel: DatabaseCompatibilityLevel.Current,
                 transactSqlVersion: TransactSqlVersion.Current);
@@ -289,7 +288,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             scriptFile.SetFileContents("SELECT 1");
 
             var parseOptions = new ParseOptions(
-                batchSeparator: LanguageServices.LanguageService.DefaultBatchSeperator,
+                batchSeparator: TSqlLanguageService.DefaultBatchSeperator,
                 isQuotedIdentifierSet: true,
                 compatibilityLevel: DatabaseCompatibilityLevel.Current,
                 transactSqlVersion: TransactSqlVersion.Current);

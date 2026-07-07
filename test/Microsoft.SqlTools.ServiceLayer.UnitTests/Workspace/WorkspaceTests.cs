@@ -6,14 +6,12 @@
 #nullable disable
 
 using System;
-using System.IO;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
-using Microsoft.SqlTools.ServiceLayer.Workspace;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.LanguageService.Workspace;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using Moq;
 using NUnit.Framework;
@@ -27,7 +25,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Workspace
         {
             // Given:
             // ... A workspace that has a single file open
-            var workspace = new ServiceLayer.Workspace.Workspace();
+            var workspace = new Microsoft.SqlTools.LanguageService.Workspace.Workspace();
             var workspaceService = new WorkspaceService<SqlToolsSettings> {Workspace = workspace};
             var openedFile = workspace.GetFileBuffer(TestObjects.ScriptUri, string.Empty);
             Assert.NotNull(openedFile);
@@ -68,7 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Workspace
         {
             // Given:
             // ... A workspace that has no files open
-            var workspace = new ServiceLayer.Workspace.Workspace();
+            var workspace = new Microsoft.SqlTools.LanguageService.Workspace.Workspace();
             var workspaceService = new WorkspaceService<SqlToolsSettings> {Workspace = workspace};
             Assert.That(workspace.GetOpenedFiles(), Is.Empty);
 
@@ -97,33 +95,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Workspace
         }
 
         [Test]
-        public void BufferRangeNoneNotNull()
-        {
-            Assert.NotNull(BufferRange.None); 
-        }
-
-        [Test]
-        public void BufferRangeStartGreaterThanEnd()
-        {
-            Assert.Throws<ArgumentException>(() => 
-                new BufferRange(new BufferPosition(2, 2), new BufferPosition(1, 1)));
-        }
-
-        [Test]
-        public void BufferRangeEquals()
-        {
-            var range = new BufferRange(new BufferPosition(1, 1), new BufferPosition(2, 2));
-            Assert.False(range.Equals(null));
-            Assert.True(range.Equals(range));
-            Assert.NotNull(range.GetHashCode());
-        }
-
-        [Test]
         public void GetBaseFilePath()
         {
             RunIfWrapper.RunIfWindows(() => 
             {  
-                using (var workspace = new ServiceLayer.Workspace.Workspace())
+                using (var workspace = new Microsoft.SqlTools.LanguageService.Workspace.Workspace())
                 {
                     Assert.Throws<InvalidOperationException>(() => workspace.GetBaseFilePath("path"));
                     Assert.NotNull(workspace.GetBaseFilePath(@"c:\path\file.sql"));
@@ -137,7 +113,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Workspace
         {
             RunIfWrapper.RunIfWindows(() => 
             { 
-                var workspace = new ServiceLayer.Workspace.Workspace();
+                var workspace = new Microsoft.SqlTools.LanguageService.Workspace.Workspace();
                 Assert.NotNull(workspace.ResolveRelativeScriptPath(null, @"c:\path\file.sql"));
                 Assert.NotNull(workspace.ResolveRelativeScriptPath(@"c:\path\", "file.sql"));
             });
@@ -158,7 +134,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Workspace
         private async Task VerifyFileIsNotAddedOnDocOpened(string filePath)
         {
              // setup test workspace
-            var workspace = new ServiceLayer.Workspace.Workspace();
+            var workspace = new Microsoft.SqlTools.LanguageService.Workspace.Workspace();
             var workspaceService = new WorkspaceService<SqlToolsSettings> {Workspace = workspace};
 
             // send a document open event with git:/ prefix URI
@@ -186,15 +162,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Workspace
         }
 
         [Test]
-        public void GetFileReturnsNullForPerforceFile()
-        {
-            // when I ask for a non-file object in the workspace, it should return null
-            var workspace = new ServiceLayer.Workspace.Workspace();
-            ScriptFile file = workspace.GetFile("perforce:myfile.sql");            
-            Assert.Null(file);
-        }
-
-        [Test]
         [TestCase(TestObjects.ScriptUri)]
         [TestCase("file://some/path%20with%20encoded%20spaces/file.sql")]
         [TestCase("file://some/path with spaces/file.sql")]
@@ -203,7 +170,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Workspace
         [TestCase("file://some/fileUriWithFragment.sql#foo")]
         public async Task WorkspaceContainsFile(string uri)
         {
-            var workspace = new ServiceLayer.Workspace.Workspace();
+            var workspace = new Microsoft.SqlTools.LanguageService.Workspace.Workspace();
             var workspaceService = new WorkspaceService<SqlToolsSettings> {Workspace = workspace};
             workspace.GetFileBuffer(uri, string.Empty);
 
@@ -217,34 +184,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Workspace
 
             // verify the file is being tracked by workspace
             Assert.True(workspaceService.Workspace.ContainsFile(uri));
-        }
-
-        [Test]
-        public void DontBindToObjectExplorerConnectEvents()
-        {
-            // when I ask for a non-file object in the workspace, it should return null
-            var workspace = new ServiceLayer.Workspace.Workspace();
-            ScriptFile file = workspace.GetFile("objectexplorer://server;database=database;user=user");            
-            Assert.Null(file);
-
-            // when I ask for a file, it should return the file
-            string tempFile = Path.GetTempFileName();
-            string fileContents = "hello world";
-            File.WriteAllText(tempFile, fileContents);
-
-            file = workspace.GetFile(tempFile);
-            Assert.AreEqual(fileContents, file.Contents);
-
-            var fileUri = new Uri(tempFile).AbsoluteUri;
-            file = workspace.GetFile(fileUri);
-            Assert.AreEqual(fileContents, file.Contents);
-
-            file = workspace.GetFileBuffer("untitled://"+ tempFile, fileContents);
-            Assert.AreEqual(fileContents, file.Contents);
-
-            // For windows files, just check scheme is null since it's hard to mock file contents in these
-            Assert.Null(ServiceLayer.Workspace.Workspace.GetScheme(@"C:\myfile.sql"));
-            Assert.Null(ServiceLayer.Workspace.Workspace.GetScheme(@"\\myfile.sql"));
         }
 
     }

@@ -8,10 +8,11 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
-using Microsoft.SqlTools.ServiceLayer.Scripting;
+using Microsoft.SqlTools.LanguageService.LanguageServices;
+using Microsoft.SqlTools.LanguageService.Scripting;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.LanguageService.Workspace;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using Moq;
 using System;
@@ -25,6 +26,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using System.Linq;
+using PeekDefSR = Microsoft.SqlTools.LanguageService.SR;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServices
 {
@@ -209,7 +211,7 @@ GO";
 
             Assert.NotNull(result);
             Assert.True(result.IsErrorResult);
-            Assert.AreEqual(SR.PeekDefinitionNoResultsError, result.Message);
+            Assert.AreEqual(PeekDefSR.PeekDefinitionNoResultsError, result.Message);
         }
 
         /// <summary>
@@ -219,7 +221,7 @@ GO";
         public void GetDefinitionTimeoutTest()
         {
             // Given a binding queue that will automatically time out
-            var langSvc = new ServiceLayer.LanguageServices.LanguageService();
+            var langSvc = new TSqlLanguageService();
             Mock<ConnectedBindingQueue> queueMock = new Mock<ConnectedBindingQueue>();
             langSvc.BindingQueue = queueMock.Object;
             ManualResetEvent mre = new ManualResetEvent(true); // Do not block
@@ -271,7 +273,7 @@ GO";
             Assert.NotNull(result);
             Assert.True(result.IsErrorResult);
             // Check timeout message
-            Assert.AreEqual(SR.PeekDefinitionTimedoutError, result.Message);
+            Assert.AreEqual(Microsoft.SqlTools.LanguageService.SR.PeekDefinitionTimedoutError, result.Message);
         }
 
         /// <summary>
@@ -791,9 +793,12 @@ GO";
             bindingQueue.AddConnectionContext(connInfo);
             scriptFile.Contents = fileContents;
 
-            var service = new ServiceLayer.LanguageServices.LanguageService();
+            var service = new TSqlLanguageService();
             service.RemoveScriptParseInfo(OwnerUri);
             service.BindingQueue = bindingQueue;
+            service.ConnectionServiceInstance = ConnectionService.Instance;
+            service.ServiceHostInstance = Hosting.ServiceHost.Instance;
+            service.WorkspaceServiceInstance = WorkspaceService<SqlToolsSettings>.Instance;
             await service.UpdateLanguageServiceOnConnection(connectionResult.ConnectionInfo);
 
             ScriptParseInfo scriptInfo = new ScriptParseInfo { BindingContextKind = BindingContextKindEnum.LiveConnection };

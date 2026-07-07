@@ -16,6 +16,7 @@ using Microsoft.SqlServer.Dac.Projects;
 using Microsoft.SqlServer.Management.SqlParser.Common;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.LanguageService.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.SqlCore.IntelliSense;
 using Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts;
@@ -27,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
     /// <summary>
     /// Main class for SqlProjects service
     /// </summary>
-    public sealed class SqlProjectsService : BaseService
+    public sealed class SqlProjectsService : BaseService, IProjectIntelliSenseService
     {
         private static readonly Lazy<SqlProjectsService> instance = new Lazy<SqlProjectsService>(() => new SqlProjectsService());
         private const string RunSqlCodeAnalysisPropertyName = "RunSqlCodeAnalysis";
@@ -162,7 +163,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 // 3. Dispose TSqlModel to free DacFx unmanaged resources
                 if (projectIntelliSense.TryRemove(requestParams.ProjectUri, out var intelliSense))
                 {
-                    LanguageServices.LanguageService.Instance.TearDownProjectContext(
+                    TSqlLanguageService.Instance.TearDownProjectContext(
                         requestParams.ProjectUri,
                         intelliSense.ContextKey,
                         intelliSense.FileUris);
@@ -188,8 +189,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 SqlProject project = GetProject(projectUri);
 
                 string databaseName = Path.GetFileNameWithoutExtension(projectUri);
-                string contextKey = $"{LanguageServices.LanguageService.ProjectContextKeyPrefix}{projectUri}";
-                string projectDir = Path.GetDirectoryName(UriToLocalPath(new Uri(projectUri)))
+                string contextKey = $"{TSqlLanguageService.ProjectContextKeyPrefix}{projectUri}";
+                string projectDir = Path.GetDirectoryName(ToLocalPath(projectUri))
                     ?? throw new InvalidOperationException($"Cannot determine project directory from URI: {projectUri}");
 
                 // Include all SQL files: Build items, PreDeploy, and PostDeploy
@@ -208,9 +209,15 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 }
 
                 var fileUriList = new HashSet<string>(
-                    allScripts.Select(path => new Uri(Path.IsPathRooted(path)
-                        ? path
-                        : Path.Combine(projectDir, path)).AbsoluteUri),
+                    allScripts.Select(p =>
+                    {
+                        // .sqlproj files always store relative paths with Windows backslashes.
+                        // On macOS/Linux, Path.Combine does not treat '\\' as a separator,
+                        // so we must normalise first or the resulting file URI will contain
+                        // literal backslashes that never match VS Code's forward-slash URIs.
+                        string norm = p.Replace('\\', Path.DirectorySeparatorChar);
+                        return Utility.FileUtilities.LocalPathToFileUri(Path.IsPathRooted(norm) ? norm : Path.Combine(projectDir, norm));
+                    }),
                     StringComparer.OrdinalIgnoreCase);
 
                 model = await Task.Run(() => TSqlModelBuilder.LoadModel(project));
@@ -225,7 +232,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 var projectMetadataProvider = new TSqlModelMetadataProvider(model, databaseName);
 
                 var parseOptions = new ParseOptions(
-                    batchSeparator: LanguageServices.LanguageService.DefaultBatchSeperator,
+                    batchSeparator: TSqlLanguageService.DefaultBatchSeperator,
                     isQuotedIdentifierSet: true,
                     compatibilityLevel: DatabaseCompatibilityLevel.Current,
                     transactSqlVersion: TransactSqlVersion.Current);
@@ -242,7 +249,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     return;
                 }
 
-                await LanguageServices.LanguageService.Instance.UpdateLanguageServiceOnProjectOpen(
+                await TSqlLanguageService.Instance.UpdateLanguageServiceOnProjectOpen(
                     projectUri, projectMetadataProvider, parseOptions, databaseName, fileUriList);
             }
             catch (Exception ex)
@@ -490,40 +497,55 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             }, requestContext);
         }
 
-        internal async Task UpdateProjectIntelliSenseAsync(string projectUri, string filePathOrUri, bool deleted)
+        internal async Task UpdateProjectIntelliSenseAsync(string projectUri, string filePathOrUri, bool deleted, string? sqlTextOverride = null)
         {
             if (!projectIntelliSense.TryGetValue(projectUri, out var state)) return;
             try
             {
                 string sourceName = GetAbsoluteFilePath(projectUri, filePathOrUri);
+                bool parseSucceeded = false;
+                
                 if (!deleted)
                 {
-                    if (!File.Exists(sourceName)) return;
-                    string sqlText = await File.ReadAllTextAsync(sourceName).ConfigureAwait(false);
+                    string? sqlText = sqlTextOverride ?? (File.Exists(sourceName)
+                        ? await File.ReadAllTextAsync(sourceName).ConfigureAwait(false)
+                        : null);
+                    if (sqlText == null) return;
                     if (!projectIntelliSense.ContainsKey(projectUri)) return; // closed during await
-                    state.Model.AddOrUpdateObjects(sqlText, sourceName, new TSqlObjectOptions());
+                    
+                    try
+                    {
+                        state.Model.AddOrUpdateObjects(sqlText, sourceName, new TSqlObjectOptions { SkipExistingModelValidation = true });
+                        parseSucceeded = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error($"UpdateProjectIntelliSenseAsync parse error for {sourceName}: {ex}");
+                    }
                 }
                 else
                 {
                     if (!projectIntelliSense.ContainsKey(projectUri)) return;
-                    state.Model.DeleteObjects(sourceName);
+                    state.Model.DeleteObjects(sourceName, new TSqlObjectOptions { SkipExistingModelValidation = true });
                 }
-                state.Provider.UpdateForFileChange(sourceName, deleted);
+                
+                // Update provider: deleted=true for actual deletes OR failed parses
+                state.Provider.UpdateForFileChange(sourceName, deleted || !parseSucceeded);
 
                 // The binder built at project-open time holds a snapshot of the metadata.
                 // After mutating the provider, recreate the binder so alias resolution (e.g.
                 // "p." after "FROM sss.packages p") and object enumeration ("sss.") pick up
                 // the updated schema.
                 var newBinder = Microsoft.SqlServer.Management.SqlParser.Binder.BinderProvider.CreateBinder(state.Provider);
-                LanguageServices.LanguageService.Instance.BindingQueue.AddProjectContext(state.ContextKey, newBinder, state.ParseOptions, state.Provider);
+                TSqlLanguageService.Instance.BindingQueue.AddProjectContext(state.ContextKey, newBinder, state.ParseOptions, state.Provider);
 
                 // Stamp the file URI with the project context so IntelliSense works when the
                 // user opens the file. For deletes the file is gone so nothing to stamp.
                 if (!deleted)
                 {
-                    string fileUri = new Uri(sourceName).AbsoluteUri;
+                    string fileUri = Utility.FileUtilities.LocalPathToFileUri(sourceName);
                     lock (state.FileUris) { state.FileUris.Add(fileUri); }
-                    LanguageServices.LanguageService.Instance.InitializeProjectFileContexts(
+                    TSqlLanguageService.Instance.InitializeProjectFileContexts(
                         new[] { fileUri }, state.ContextKey, state.DatabaseName);
                 }
                 else
@@ -531,9 +553,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     // Immediately remove the stale ScriptParseInfo so the context key for this
                     // file does not outlive the file's presence in the project. Also drop it
                     // from the FileUris set so TearDownProjectContext won't try it again on close.
-                    string fileUri = new Uri(sourceName).AbsoluteUri;
+                    string fileUri = Utility.FileUtilities.LocalPathToFileUri(sourceName);
                     lock (state.FileUris) { state.FileUris.Remove(fileUri); }
-                    LanguageServices.LanguageService.Instance.RemoveScriptParseInfo(fileUri);
+                    TSqlLanguageService.Instance.RemoveScriptParseInfo(fileUri);
                 }
             }
             catch (Exception ex) { Logger.Error($"UpdateProjectIntelliSenseAsync error for {filePathOrUri}: {ex}"); }
@@ -592,35 +614,45 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             }
         }
 
+        // Explicit IProjectIntelliSenseService implementation. These forward to the existing
+        // internal members so the language service can consume the projects service through the
+        // lib-side abstraction without widening this class's public surface.
+        Task IProjectIntelliSenseService.UpdateProjectIntelliSenseAsync(string projectUri, string filePathOrUri, bool deleted, string sqlTextOverride)
+            => UpdateProjectIntelliSenseAsync(projectUri, filePathOrUri, deleted, sqlTextOverride);
+
+        bool IProjectIntelliSenseService.TryIsDuplicate(string projectUri, string name, out bool isDuplicate)
+            => TryIsDuplicate(projectUri, name, out isDuplicate);
+
+        IReadOnlyList<string> IProjectIntelliSenseService.GetSiblingProjectFileUris(string projectUri, string excludeUri)
+            => GetSiblingProjectFileUris(projectUri, excludeUri);
+
         private static string GetAbsoluteFilePath(string projectUri, string filePathOrUri)
         {
             // Handle file:// URIs from LSP (e.g. "file:///c:/Users/..." or "file:///home/...")
             if (Uri.TryCreate(filePathOrUri, UriKind.Absolute, out Uri? parsedUri) && parsedUri.IsFile)
-                return Path.GetFullPath(UriToLocalPath(parsedUri));
+                return Path.GetFullPath(Utility.FileUtilities.UriToLocalPath(parsedUri));
 
             // Already an absolute OS path — normalise separators/casing via Path.GetFullPath.
             if (Path.IsPathRooted(filePathOrUri))
                 return Path.GetFullPath(filePathOrUri);
 
             // Relative path — resolve against the project directory.
-            // Use UriToLocalPath so the same "/c:/..." stripping applies to projectUri.
-            string projectLocal = new Uri(projectUri) is Uri pu ? UriToLocalPath(pu) : projectUri;
+            // Use ToLocalPath so both file:// URIs and plain OS paths work on all platforms.
+            string projectLocal = ToLocalPath(projectUri);
             string projectDir = Path.GetDirectoryName(projectLocal) ?? string.Empty;
             return Path.GetFullPath(Path.Combine(projectDir, filePathOrUri));
         }
 
         /// <summary>
-        /// Converts a <see cref="Uri"/> with <see cref="Uri.IsFile"/> == true to an OS-native
-        /// absolute path, stripping the spurious leading '/' that some .NET runtimes return from
-        /// <see cref="Uri.LocalPath"/> on Windows (e.g. "/c:/Users/..." → "c:/Users/...").
+        /// Returns the OS-native local path from either a <c>file://</c> URI string or a plain
+        /// OS path (e.g. <c>/Users/...</c> on macOS or <c>c:\</c> on Windows), so IntelliSense
+        /// bootstrap works regardless of whether the caller passes a URI or a raw path.
         /// </summary>
-        private static string UriToLocalPath(Uri uri)
+        private static string ToLocalPath(string uriOrPath)
         {
-            string localPath = uri.LocalPath;
-            // On Windows, Uri.LocalPath can start with "/c:/" — strip the leading slash.
-            int start = (localPath.Length >= 3 && localPath[0] == '/' &&
-                         char.IsLetter(localPath[1]) && localPath[2] == ':') ? 1 : 0;
-            return localPath.Substring(start);
+            if (Uri.TryCreate(uriOrPath, UriKind.Absolute, out Uri? uri) && uri.IsFile)
+                return Utility.FileUtilities.UriToLocalPath(uri);
+            return uriOrPath; // already a plain OS path
         }
 
         #endregion

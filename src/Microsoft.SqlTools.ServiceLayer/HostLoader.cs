@@ -46,7 +46,9 @@ using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.SqlProjects;
 using Microsoft.SqlTools.ServiceLayer.TableDesigner;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Microsoft.SqlTools.LanguageService.Formatter;
+using Microsoft.SqlTools.LanguageService.LanguageServices;
+using Microsoft.SqlTools.LanguageService.Workspace;
 
 namespace Microsoft.SqlTools.ServiceLayer
 {
@@ -89,7 +91,8 @@ namespace Microsoft.SqlTools.ServiceLayer
                 "microsofsqltoolscredentials.dll",
                 "microsoft.sqltools.hosting.dll",
                 "microsoftsqltoolsservicelayer.dll",
-                "microsoft.sqltools.sqlcore.dll"
+                "microsoft.sqltools.sqlcore.dll",
+                "microsoft.sqltools.languageservice.dll"
             });
             serviceProvider.RegisterSingleService(sqlToolsContext);
             serviceProvider.RegisterSingleService(serviceHost);
@@ -98,13 +101,17 @@ namespace Microsoft.SqlTools.ServiceLayer
             // could be updated to be IComposableServices, which would avoid the requirement to define a singleton instance
             // and instead have MEF handle discovery & loading
             WorkspaceService<SqlToolsSettings>.Instance.InitializeService(serviceHost);
+            // Wire the workspace lifecycle callbacks here since the LanguageService project cannot
+            // reference the concrete ServiceHost (inverted control).
+            serviceHost.RegisterInitializeTask(WorkspaceService<SqlToolsSettings>.Instance.HandleInitialize);
+            serviceHost.RegisterShutdownTask(WorkspaceService<SqlToolsSettings>.Instance.HandleShutdown);
             serviceProvider.RegisterSingleService(WorkspaceService<SqlToolsSettings>.Instance);
-
-            LanguageServices.LanguageService.Instance.InitializeService(serviceHost, sqlToolsContext);
-            serviceProvider.RegisterSingleService(LanguageServices.LanguageService.Instance);
 
             ConnectionService.Instance.InitializeService(serviceHost, commandOptions);
             serviceProvider.RegisterSingleService(ConnectionService.Instance);
+
+            TSqlLanguageService.Instance.InitializeService(serviceHost, sqlToolsContext, ConnectionService.Instance, SqlProjectsService.Instance, WorkspaceService<SqlToolsSettings>.Instance);
+            serviceProvider.RegisterSingleService(TSqlLanguageService.Instance);
 
             CredentialService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(CredentialService.Instance);
@@ -177,6 +184,19 @@ namespace Microsoft.SqlTools.ServiceLayer
 
             InitializeHostedServices(serviceProvider, serviceHost);
             serviceHost.ServiceProvider = serviceProvider;
+
+            // Wire the formatter's host-specific seams here (inverted control) since the formatter lives in the
+            // LanguageService library and cannot reference the concrete SqlToolsSettings/WorkspaceService types.
+            TSqlFormatterService formatterService = serviceProvider.GetService<TSqlFormatterService>();
+            if (formatterService != null)
+            {
+                formatterService.SetFileResolver(uri => WorkspaceService<SqlToolsSettings>.Instance.Workspace?.GetFile(uri));
+                WorkspaceService<SqlToolsSettings>.Instance.RegisterConfigChangeCallback((newSettings, oldSettings, eventContext) =>
+                {
+                    formatterService.UpdateFormatterSettings(newSettings?.SqlTools?.Format);
+                    return Task.FromResult(true);
+                });
+            }
 
             ExecutionPlanService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(ExecutionPlanService.Instance);

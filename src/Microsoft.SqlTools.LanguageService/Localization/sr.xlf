@@ -8,6 +8,23 @@
         <note>.
  Parameters: 0 - sLine (int), 1 - sCol (int), 2 - eLine (int), 3 - eCol (int) </note>
       </trans-unit>
+      <trans-unit id="ErrorEmptyStringReplacement">
+        <source>Replacement of an empty string by an empty string.</source>
+        <target state="new">Replacement of an empty string by an empty string.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="StarExpansionLabel">
+        <source>Expand {0}</source>
+        <target state="new">Expand {0}</target>
+        <note>.
+ Parameters: 0 - starExpression (string) </note>
+      </trans-unit>
+      <trans-unit id="StarExpansionDescription">
+        <source>Replace {0} with {1} columns: {2}</source>
+        <target state="new">Replace {0} with {1} columns: {2}</target>
+        <note>.
+ Parameters: 0 - starExpression (string), 1 - columnCount (string), 2 - columnPreview (string) </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

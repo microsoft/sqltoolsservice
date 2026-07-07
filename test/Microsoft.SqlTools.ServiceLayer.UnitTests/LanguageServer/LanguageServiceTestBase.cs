@@ -13,12 +13,11 @@ using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
+using Microsoft.SqlTools.LanguageService.LanguageServices;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
-using Microsoft.SqlTools.ServiceLayer.Workspace;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.LanguageService.Workspace;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using GlobalCommon = Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Moq;
@@ -36,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 
         protected readonly string testConnectionKey = "testdbcontextkey";
 
-        protected LanguageServices.LanguageService langService;
+        protected TSqlLanguageService langService;
 
         protected Mock<ConnectedBindingQueue> bindingQueue;
 
@@ -83,13 +82,19 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             bindingQueue.Setup(q => q.AddConnectionContext(It.IsAny<ConnectionInfo>(), It.IsAny<string>(), It.IsAny<bool>()))
                 .Returns(this.testConnectionKey);
 
-            langService = new LanguageServices.LanguageService();
+            langService = new TSqlLanguageService();
             // inject mock instances into the Language Service
             langService.WorkspaceServiceInstance = workspaceService.Object;
-            langService.ConnectionServiceInstance = TestObjects.GetTestConnectionService();
-            ConnectionInfo connectionInfo = TestObjects.GetTestConnectionInfo();
-            langService.ConnectionServiceInstance.OwnerToConnectionMap.TryAdd(this.testScriptUri, connectionInfo);
+            var serviceHostMock = new Mock<ILanguageServiceHost>();
+            serviceHostMock.SetupGet(host => host.ProviderName).Returns("MSSQL");
+            langService.ServiceHostInstance = serviceHostMock.Object;
+            // Set the binding queue before the connection service so the connection service
+            // registers the mock queue (registration happens in the ConnectionServiceInstance setter).
             langService.BindingQueue = bindingQueue.Object;
+            ConnectionService testConnectionService = TestObjects.GetTestConnectionService();
+            langService.ConnectionServiceInstance = testConnectionService;
+            ConnectionInfo connectionInfo = TestObjects.GetTestConnectionInfo();
+            testConnectionService.OwnerToConnectionMap.TryAdd(this.testScriptUri, connectionInfo);
 
             // setup the mock for SendResult
             requestContext = new Mock<RequestContext<T[]>>();

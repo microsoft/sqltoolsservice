@@ -34,6 +34,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         /// Error message returned from the engine for a object explorer expand failure reason, if any.
         /// </summary>
         public string ErrorMessage { get; set; } = null!;
+
+        /// <summary>
+        /// Error code identifying the failure reason
+        /// </summary>
+        public string? ErrorCode { get; set; }
     }
 
     /// <summary>

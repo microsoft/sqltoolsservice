@@ -11,8 +11,8 @@
     <!-- Deprecated: TODO Migrate to Azure.Core -->
     <PackageReference Update="Microsoft.Rest.ClientRuntime.Azure" Version="3.3.19" />
 
-    <PackageReference Update="Microsoft.Identity.Client" Version="4.81.0" />
-    <PackageReference Update="Microsoft.Identity.Client.Extensions.Msal" Version="4.81.0" />
+    <PackageReference Update="Microsoft.Identity.Client" Version="4.82.0" />
+    <PackageReference Update="Microsoft.Identity.Client.Extensions.Msal" Version="4.82.0" />
 
     <!-- Deprecated: TODO Migrate to Azure.ResourceManager -->
     <PackageReference Update="Microsoft.Azure.Management.ResourceManager" Version="3.7.1-preview" />
@@ -24,7 +24,7 @@
     <PackageReference Update="Microsoft.SqlServer.Management.SmoMetadataProvider" Version="181.15.0" />
     <PackageReference Update="Microsoft.SqlServer.DacFx" Version="170.5.38-preview" />
     <PackageReference Update="Microsoft.SqlPackage.Core" Version="0.1.75-preview" />
-    <PackageReference Update="Microsoft.SqlServer.DacFx.Projects" Version="0.6.3-preview" />
+    <PackageReference Update="Microsoft.SqlServer.DacFx.Projects" Version="0.6.18-preview" />
     <PackageReference Update="Microsoft.Azure.Kusto.Data" Version="14.0.3" />
     <PackageReference Update="Microsoft.Azure.Kusto.Language" Version="9.0.4" />
     <PackageReference Update="Microsoft.SqlServer.Assessment" Version="[1.1.17]" />

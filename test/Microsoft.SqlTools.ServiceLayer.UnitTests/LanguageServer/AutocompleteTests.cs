@@ -10,15 +10,15 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
+using Microsoft.SqlTools.LanguageService.LanguageServices;
+using Microsoft.SqlTools.LanguageService.LanguageServices.Completion;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using Moq;
 using NUnit.Framework;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.LanguageService.Connection.Contracts;
 using Location = Microsoft.SqlTools.LanguageService.Workspace.Contracts.Location;
+using LanguageServiceSR = Microsoft.SqlTools.LanguageService.SR;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 {
@@ -32,7 +32,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         public void HandleCompletionRequestDisabled()
         {
             InitializeTestObjects();
-            langService.CurrentWorkspaceSettings.SqlTools.IntelliSense.EnableIntellisense = false;
+            workspaceService.Object.CurrentSettings.SqlTools.IntelliSense.EnableIntellisense = false;
             Assert.NotNull(langService.HandleCompletionRequest(null, null));
         }
 
@@ -40,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         public void HandleCompletionResolveRequestDisabled()
         {
             InitializeTestObjects();
-            langService.CurrentWorkspaceSettings.SqlTools.IntelliSense.EnableIntellisense = false;
+            workspaceService.Object.CurrentSettings.SqlTools.IntelliSense.EnableIntellisense = false;
             Assert.NotNull(langService.HandleCompletionResolveRequest(null, null));
         }
 
@@ -48,7 +48,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         public void HandleSignatureHelpRequestDisabled()
         {
             InitializeTestObjects();
-            langService.CurrentWorkspaceSettings.SqlTools.IntelliSense.EnableIntellisense = false;
+            workspaceService.Object.CurrentSettings.SqlTools.IntelliSense.EnableIntellisense = false;
             Assert.NotNull(langService.HandleSignatureHelpRequest(null, null));
         }
 
@@ -69,11 +69,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             signatureRequestContext.Setup(rc => rc.SendError(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>())).Returns(Task.FromResult(0));
 
 
-            langService.CurrentWorkspaceSettings.SqlTools.IntelliSense.EnableIntellisense = true;
+            workspaceService.Object.CurrentSettings.SqlTools.IntelliSense.EnableIntellisense = true;
             await langService.HandleDidChangeLanguageFlavorNotification(new LanguageFlavorChangeParams
             {
                 Uri = textDocument.TextDocument.Uri,
-                Language = LanguageServices.LanguageService.SQL_LANG.ToLower(System.Globalization.CultureInfo.InvariantCulture),
+                Language = TSqlLanguageService.SQL_LANG.ToLower(System.Globalization.CultureInfo.InvariantCulture),
                 Flavor = "NotMSSQL"
             }, null);
             await langService.HandleSignatureHelpRequest(textDocument, signatureRequestContext.Object);
@@ -279,8 +279,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                 startCharacter: 7,
                 endCharacter: 8);
 
-            Assert.AreEqual(SR.StarExpansionLabel("*"), completionItem.Label);
-            Assert.AreEqual(SR.StarExpansionDescription("*", "4", "[BusinessEntityID], [PersonType], [NameStyle], ..."), completionItem.Detail);
+            Assert.AreEqual(LanguageServiceSR.StarExpansionLabel("*"), completionItem.Label);
+            Assert.AreEqual(LanguageServiceSR.StarExpansionDescription("*", "4", "[BusinessEntityID], [PersonType], [NameStyle], ..."), completionItem.Detail);
             Assert.AreEqual(CompletionItemKind.Snippet, completionItem.Kind);
             Assert.AreEqual("*", completionItem.FilterText);
             Assert.True(completionItem.Preselect);
