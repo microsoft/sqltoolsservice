@@ -5,7 +5,7 @@
 
 #nullable disable
 
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
+using Microsoft.SqlTools.LanguageService.LanguageServices;
 using System;
 using System.Collections.Generic;
 using System.Threading;

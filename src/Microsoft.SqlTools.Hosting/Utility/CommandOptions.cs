@@ -96,7 +96,7 @@ namespace Microsoft.SqlTools.Utility
                                 RequestMfaTokenFromClient = true;
                                 break;
                             case "-enable-connection-pooling":
-                                EnableConnectionPooling = true;
+                                EnableGlobalConnectionPooling = true;
                                 break;
                             case "-parent-pid":
                                 string pid = args[++i];
@@ -232,7 +232,7 @@ namespace Microsoft.SqlTools.Utility
         /// This option is enabled by default during initialization.
         /// NOTE: Keep the value 'false' by default, as this option is only 'enabled' during initialization, not 'disabled'.
         /// </summary>
-        public bool EnableConnectionPooling { get; private set; } = false;
+        public bool EnableGlobalConnectionPooling { get; private set; } = false;
 
         /// <summary>
         /// The ID of the process that started this service. This is used to check when the parent

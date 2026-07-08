@@ -13,17 +13,17 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
+using Microsoft.SqlTools.LanguageService.LanguageServices;
+using Microsoft.SqlTools.LanguageService.Formatter;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Completion.Extension;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Microsoft.SqlTools.LanguageService.Workspace;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.LanguageService.Connection.Contracts;
 using Moq;
 using NUnit.Framework;
 
@@ -36,7 +36,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
     public class LanguageServiceTests
     {
         private const int NonTSqlTestTimeoutMs = 180_000;
-        private readonly List<ServiceLayer.LanguageServices.LanguageService> createdLanguageServices = new();
+        private readonly List<TSqlLanguageService> createdLanguageServices = new();
 
         [SetUp]
         public void SetUpTest()
@@ -90,10 +90,10 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             {
 
             }
-            Assert.True(ServiceLayer.LanguageServices.LanguageService.Instance.Context != null);
-            Assert.True(ServiceLayer.LanguageServices.LanguageService.Instance.ConnectionServiceInstance != null);
-            Assert.True(ServiceLayer.LanguageServices.LanguageService.Instance.CurrentWorkspaceSettings != null);
-            Assert.True(ServiceLayer.LanguageServices.LanguageService.Instance.CurrentWorkspace != null);
+            Assert.True(TSqlLanguageService.Instance.Context != null);
+            Assert.True(TSqlLanguageService.Instance.ConnectionServiceInstance != null);
+            Assert.True(TSqlLanguageService.Instance.CurrentWorkspaceSettings != null);
+            Assert.True(TSqlLanguageService.Instance.CurrentWorkspace != null);
         }
 
         /// <summary>
@@ -109,7 +109,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
 
                 ScriptParseInfo scriptInfo = new ScriptParseInfo { BindingContextKind = BindingContextKindEnum.LiveConnection };
 
-                ServiceLayer.LanguageServices.LanguageService.Instance.PrepopulateCommonMetadata(connInfo, scriptInfo, null);
+                TSqlLanguageService.Instance.PrepopulateCommonMetadata(connInfo, scriptInfo, null);
             }
         }
 
@@ -319,17 +319,17 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             var result = LiveConnectionHelper.InitLiveConnectionInfo();
 
             // add a new connection context
-            var connectionKey = ServiceLayer.LanguageServices.LanguageService.Instance.BindingQueue.AddConnectionContext(result.ConnectionInfo, overwrite: true);
-            Assert.True(ServiceLayer.LanguageServices.LanguageService.Instance.BindingQueue.BindingContextMap.ContainsKey(connectionKey));
+            var connectionKey = TSqlLanguageService.Instance.BindingQueue.AddConnectionContext(result.ConnectionInfo, overwrite: true);
+            Assert.True(TSqlLanguageService.Instance.BindingQueue.BindingContextMap.ContainsKey(connectionKey));
 
             // cache the server connection
-            var orgServerConnection = ServiceLayer.LanguageServices.LanguageService.Instance.BindingQueue.BindingContextMap[connectionKey].ServerConnection;
+            var orgServerConnection = TSqlLanguageService.Instance.BindingQueue.BindingContextMap[connectionKey].ServerConnection;
             Assert.NotNull(orgServerConnection);
 
             // add a new connection context
-            connectionKey = ServiceLayer.LanguageServices.LanguageService.Instance.BindingQueue.AddConnectionContext(result.ConnectionInfo, overwrite: true);
-            Assert.True(ServiceLayer.LanguageServices.LanguageService.Instance.BindingQueue.BindingContextMap.ContainsKey(connectionKey));
-            Assert.False(object.ReferenceEquals(ServiceLayer.LanguageServices.LanguageService.Instance.BindingQueue.BindingContextMap[connectionKey].ServerConnection, orgServerConnection));
+            connectionKey = TSqlLanguageService.Instance.BindingQueue.AddConnectionContext(result.ConnectionInfo, overwrite: true);
+            Assert.True(TSqlLanguageService.Instance.BindingQueue.BindingContextMap.ContainsKey(connectionKey));
+            Assert.False(object.ReferenceEquals(TSqlLanguageService.Instance.BindingQueue.BindingContextMap[connectionKey].ServerConnection, orgServerConnection));
         }
 
         /// <summary>
@@ -624,7 +624,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
 
                 // Add a connection to ensure the intellisense building works            
                 ConnectionInfo connectionInfo = GetLiveAutoCompleteTestObjects().ConnectionInfo;
-                langService.ConnectionServiceInstance.OwnerToConnectionMap.TryAdd(scriptFile.ClientUri, connectionInfo);
+                ((ConnectionService)langService.ConnectionServiceInstance).OwnerToConnectionMap.TryAdd(scriptFile.ClientUri, connectionInfo);
 
                 // Test SQL
                 int countOfValidationCalls = 0;
@@ -633,7 +633,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
                 await langService.HandleDidChangeLanguageFlavorNotification(new LanguageFlavorChangeParams
                 {
                     Uri = scriptFile.ClientUri,
-                    Language = ServiceLayer.LanguageServices.LanguageService.SQL_LANG.ToLower(System.Globalization.CultureInfo.InvariantCulture),
+                    Language = TSqlLanguageService.SQL_LANG.ToLower(System.Globalization.CultureInfo.InvariantCulture),
                     Flavor = "MSSQL"
                 }, eventContextSql.Object);
                 await langService.DelayedDiagnosticsTask; // to ensure completion and validation before moveing to next step
@@ -644,7 +644,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
                 await langService.HandleDidChangeLanguageFlavorNotification(new LanguageFlavorChangeParams
                 {
                     Uri = scriptFile.ClientUri,
-                    Language = ServiceLayer.LanguageServices.LanguageService.SQL_CMD_LANG.ToLower(System.Globalization.CultureInfo.InvariantCulture),
+                    Language = TSqlLanguageService.SQL_CMD_LANG.ToLower(System.Globalization.CultureInfo.InvariantCulture),
                     Flavor = "MSSQL"
                 }, eventContextSqlCmd.Object);
                 await langService.DelayedDiagnosticsTask;
@@ -734,21 +734,24 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         /// </summary>
         /// <param name="scriptFile">The initial script file to initialize in the workspace</param>
         /// <returns></returns>
-        private ServiceLayer.LanguageServices.LanguageService CreateLanguageService(ScriptFile scriptFile, bool lowerCaseSuggestions = true)
+        private TSqlLanguageService CreateLanguageService(ScriptFile scriptFile, bool lowerCaseSuggestions = true)
         {
-            var langService = new ServiceLayer.LanguageServices.LanguageService()
+            var workspaceService = new WorkspaceService<SqlToolsSettings>()
             {
-                WorkspaceServiceInstance = new WorkspaceService<SqlToolsSettings>()
-                {
-                    Workspace = new ServiceLayer.Workspace.Workspace()
-                }
+                Workspace = new Microsoft.SqlTools.LanguageService.Workspace.Workspace()
             };
+            var langService = new TSqlLanguageService()
+            {
+                WorkspaceServiceInstance = workspaceService
+            };
+            langService.ConnectionServiceInstance = ConnectionService.Instance;
+            langService.ServiceHostInstance = Hosting.ServiceHost.Instance;
             langService.CurrentWorkspace.GetFile(scriptFile.ClientUri);
-            langService.CurrentWorkspaceSettings.SqlTools.IntelliSense.EnableIntellisense = true;
-            langService.CurrentWorkspaceSettings.SqlTools.Format.KeywordCasing = 
+            workspaceService.CurrentSettings.SqlTools.IntelliSense.EnableIntellisense = true;
+            workspaceService.CurrentSettings.SqlTools.Format.KeywordCasing =
                 lowerCaseSuggestions ?
-                Formatter.CasingOptions.Lowercase :
-                Formatter.CasingOptions.Uppercase;
+                CasingOptions.Lowercase :
+                CasingOptions.Uppercase;
             createdLanguageServices.Add(langService);
             return langService;
         }

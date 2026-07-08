@@ -20,9 +20,11 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.LanguageService.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
+using Microsoft.SqlTools.LanguageService.LanguageServices;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;
+using Microsoft.SqlTools.LanguageService.Workspace;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 using static Microsoft.SqlTools.Utility.SqlConstants;
@@ -38,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
     /// <summary>
     /// Main class for the Connection Management services
     /// </summary>
-    public class ConnectionService
+    public class ConnectionService : IConnectionService
     {
         public const string AdminConnectionPrefix = "ADMIN:";
         internal const string PasswordPlaceholder = "******";
@@ -99,10 +101,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         private ConcurrentDictionary<string, IConnectedBindingQueue> connectedQueues = new ConcurrentDictionary<string, IConnectedBindingQueue>();
 
         /// <summary>
-        /// Map of <see cref="CachingTokenFetcher"/> instances keyed by {accountId, tenantId}
-        /// enabling multiple connections for the same account to share the a cached token + fetcher.
+        /// Map of <see cref="ResourceAwareAzureTokenFetcher"/> instances keyed by
+        /// {accountId, tenantId}. Each fetcher internally caches per-resource
+        /// <see cref="CachingTokenFetcher"/> instances so a single SqlConnection can request
+        /// tokens for different resources (e.g. SQL vs Dataverse) without losing the shared
+        /// cache, and so multiple connections for the same account + tenant share state.
         /// </summary>
-        private readonly ConcurrentDictionary<(string accountId, string tenantId), CachingTokenFetcher>
+        private readonly ConcurrentDictionary<(string accountId, string tenantId), ResourceAwareAzureTokenFetcher>
             _azureTokenFetcherCache = new();
 
         /// <summary>
@@ -151,6 +156,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             {
                 { SqlColumnEncryptionAzureKeyVaultProvider.ProviderName, sqlColumnEncryptionAzureKeyVaultProvider }
             });
+
+            // Wire up the language service library seams that depend on the connection service so the
+            // library does not take a dependency on this assembly. This runs before any binding context
+            // is created because the connection service type is touched first.
+            SqlConnectionOpener.ServerConnectionFactory = (connInfo, featureName) =>
+            {
+                if (connInfo is ConnectionInfo serviceLayerConnInfo)
+                {
+                    return OpenServerConnection(serviceLayerConnInfo, featureName);
+                }
+
+                throw new InvalidOperationException(
+                    $"Expected connection info of type '{typeof(ConnectionInfo).FullName}' but received '{connInfo?.GetType().FullName ?? "<null>"}'.");
+            };
+            ConnectedBindingQueue.UseLowercaseKeywordCasingProvider = () =>
+                WorkspaceService<SqlContext.SqlToolsSettings>.Instance.CurrentSettings.SqlTools.Format.KeywordCasing
+                    == Microsoft.SqlTools.LanguageService.Formatter.CasingOptions.Lowercase;
         }
 
 
@@ -201,7 +223,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         /// Enables connection pooling for all SQL connections, removing feature name identifier from application name to prevent unwanted connection pools.
         /// </summary>
-        public static bool EnableConnectionPooling { get; set; }
+        public static bool EnableGlobalConnectionPooling { get; set; }
 
         /// <summary>
         /// Returns a connection queue for given type
@@ -236,11 +258,35 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <param name="connectedQueue"></param>
         public virtual void RegisterConnectedQueue(string type, IConnectedBindingQueue connectedQueue)
         {
-            if (!connectedQueues.ContainsKey(type))
-            {
-                connectedQueues.AddOrUpdate(type, connectedQueue, (key, old) => connectedQueue);
-            }
+            connectedQueues.TryAdd(type, connectedQueue);
         }
+
+        #region IConnectionService explicit implementation
+
+        bool IConnectionService.EnableGlobalConnectionPooling => EnableGlobalConnectionPooling;
+
+        ConcurrentDictionary<string, bool> IConnectionService.TokenUpdateUris => TokenUpdateUris;
+
+        void IConnectionService.RegisterOnConnectionTask(ConnectionHandler activity)
+            => RegisterOnConnectionTask(info => activity(info));
+
+        void IConnectionService.RegisterOnDisconnectTask(DisconnectionHandler activity)
+            => RegisterOnDisconnectTask((summary, ownerUri) => activity(summary, ownerUri));
+
+        Task<bool> IConnectionService.TryRequestRefreshAuthToken(string ownerUri)
+            => TryRequestRefreshAuthToken(ownerUri);
+
+        bool IConnectionService.TryFindConnection(string ownerUri, out Microsoft.SqlTools.LanguageService.LanguageServices.ConnectionInfoBase connectionInfo)
+        {
+            bool found = TryFindConnection(ownerUri, out ConnectionInfo info);
+            connectionInfo = info;
+            return found;
+        }
+
+        void IConnectionService.UpdateAuthToken(string uri, string token, int expiresOn)
+            => UpdateAuthToken(new TokenRefreshedParams() { Uri = uri, Token = token, ExpiresOn = expiresOn });
+
+        #endregion
 
         /// <summary>
         /// Callback for onconnection handler
@@ -488,7 +534,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             string appNameWithFeature = applicationName;
             // Connection Service will not set custom application name if connection pooling is enabled on service.
             // Make sure the application name does not already contain the feature name to avoid appending it multiple times.
-            if (!EnableConnectionPooling && !string.IsNullOrWhiteSpace(applicationName) && !string.IsNullOrWhiteSpace(featureName) && !applicationName.Contains(featureName))
+            if (!EnableGlobalConnectionPooling && !string.IsNullOrWhiteSpace(applicationName) && !string.IsNullOrWhiteSpace(featureName) && !applicationName.Contains(featureName))
             {
                 int appNameStartIndex = applicationName.IndexOf(ApplicationName);
                 string originalAppName = appNameStartIndex != -1
@@ -708,43 +754,85 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         }
 
         /// <summary>
-        /// Returns a delegate that provides a valid Entra access token for the given account and
-        /// tenant, fetching one from the client via <c>account/securityTokenRequest</c>
-        /// only when a token is not already cached.
+        /// Returns a delegate that, given a target resource URI, provides a valid Entra access
+        /// token for <paramref name="accountId"/>/<paramref name="tenantId"/>. Multiple
+        /// connections sharing the same account + tenant share the same underlying
+        /// <see cref="ResourceAwareAzureTokenFetcher"/> instance.
         /// </summary>
-        private Func<Task<(string token, DateTimeOffset expiresOn)>>
+        private Func<string, Task<(string token, DateTimeOffset expiresOn)>>
             CreateAzureTokenFetcher(string accountId, string tenantId)
         {
             var fetcher = _azureTokenFetcherCache.GetOrAdd(
                 (accountId, tenantId),
-                _ => new CachingTokenFetcher(async () =>
-                {
-                    var request = new RequestSecurityTokenParams
-                    {
-                        Provider = "Azure",
-                        AccountId = accountId,
-                        TenantId = tenantId,
-                    };
-
-                    RequestSecurityTokenResponse response =
-                        await this.ServiceHost.SendRequest(SecurityTokenRequest.Type, request, waitForResponse: true)
-                        .ConfigureAwait(continueOnCapturedContext: false);
-
-                    return (response.Token, DateTimeOffset.FromUnixTimeSeconds(response.ExpiresOn));
-                }));
+                _ => new ResourceAwareAzureTokenFetcher(this, accountId, tenantId));
 
             return fetcher.GetTokenAsync;
         }
 
         /// <summary>
-        /// Wraps a token fetcher as a <see cref="SqlConnection.AccessTokenCallback"/>.
+        /// Token fetcher for a account + tenant tuple that supports per-resource token caching.
+        /// </summary>
+        private sealed class ResourceAwareAzureTokenFetcher
+        {
+            private readonly ConnectionService _service;
+            private readonly string _accountId;
+            private readonly string _tenantId;
+            private readonly ConcurrentDictionary<string, CachingTokenFetcher> _perResource = new();
+
+            internal ResourceAwareAzureTokenFetcher(ConnectionService service, string accountId, string tenantId)
+            {
+                _service = service;
+                _accountId = accountId;
+                _tenantId = tenantId;
+            }
+
+            public Task<(string token, DateTimeOffset expiresOn)> GetTokenAsync(string resource)
+            {
+                if (string.IsNullOrEmpty(resource))
+                {
+                    throw new ArgumentException(
+                        "Cannot acquire an Azure access token without a target resource.",
+                        nameof(resource));
+                }
+
+                var fetcher = _perResource.GetOrAdd(resource, r => new CachingTokenFetcher(async () =>
+                {
+                    var request = new RequestSecurityTokenParams
+                    {
+                        Provider = "Azure",
+                        AccountId = _accountId,
+                        TenantId = _tenantId,
+                        Resource = r,
+                    };
+
+                    RequestSecurityTokenResponse response =
+                        await _service.ServiceHost.SendRequest(SecurityTokenRequest.Type, request, waitForResponse: true)
+                        .ConfigureAwait(continueOnCapturedContext: false);
+
+                    return (response.Token, DateTimeOffset.FromUnixTimeSeconds(response.ExpiresOn));
+                }));
+
+                return fetcher.GetTokenAsync();
+            }
+        }
+
+        /// <summary>
+        /// Wraps a resource-aware token fetcher as a <see cref="SqlConnection.AccessTokenCallback"/>.
         /// </summary>
         private static Func<SqlAuthenticationParameters, CancellationToken, Task<SqlAuthenticationToken>>
-            ToSqlAccessTokenCallback(Func<Task<(string token, DateTimeOffset expiresOn)>> tokenFetcher)
+            ToSqlAccessTokenCallback(
+                Func<string, Task<(string token, DateTimeOffset expiresOn)>> tokenFetcher,
+                ConnectionInfo connInfo = null)
         {
-            return async (_, cancellationToken) =>
+            return async (parameters, cancellationToken) =>
             {
-                var (token, expiresOn) = await tokenFetcher().ConfigureAwait(continueOnCapturedContext: false);
+                if (connInfo != null && !string.IsNullOrEmpty(parameters.Resource))
+                {
+                    // Capture resource URI because SMO doesn't provide that info with its callback
+                    connInfo.AzureResourceUri = parameters.Resource;
+                }
+
+                var (token, expiresOn) = await tokenFetcher(parameters.Resource).ConfigureAwait(continueOnCapturedContext: false);
                 return new SqlAuthenticationToken(token, expiresOn);
             };
         }
@@ -763,7 +851,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
             try
             {
-                if (!EnableConnectionPooling)
+                if (!EnableGlobalConnectionPooling)
                 {
                     connectionInfo.ConnectionDetails.Pooling = false;
                 }
@@ -782,7 +870,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
                     connectionInfo.AzureTokenFetcher = tokenFetcher;
                     connection = connectionInfo.Factory.CreateSqlConnection(connectionString, null, SqlRetryProviders.ServerlessDBRetryProvider());
-                    ((ReliableSqlConnection)connection).AccessTokenCallback = ToSqlAccessTokenCallback(tokenFetcher);
+                    ((ReliableSqlConnection)connection).AccessTokenCallback = ToSqlAccessTokenCallback(tokenFetcher, connectionInfo);
                 }
                 else // otherwise create a normal static connection
                 {
@@ -1221,9 +1309,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     Logger.Information("MFA token acquisition delegated to client via account/securityTokenRequest.");
                 }
 
-                if (commandOptions.EnableConnectionPooling)
+                if (commandOptions.EnableGlobalConnectionPooling)
                 {
-                    ConnectionService.EnableConnectionPooling = true;
+                    ConnectionService.EnableGlobalConnectionPooling = true;
                     Logger.Information("Connection pooling will be enabled for all SQL connections.");
                 }
             }
@@ -1462,338 +1550,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public static bool IsDedicatedAdminConnection(ConnectionDetails connectionDetails)
         {
             Validate.IsNotNull(nameof(connectionDetails), connectionDetails);
-            SqlConnectionStringBuilder builder = CreateConnectionStringBuilder(connectionDetails);
-            string serverName = builder.DataSource;
-            return serverName != null && serverName.StartsWith(AdminConnectionPrefix, StringComparison.OrdinalIgnoreCase);
+            return Microsoft.SqlTools.LanguageService.Connection.ConnectionStringHelper.IsDedicatedAdminConnection(connectionDetails, Instance.EnableSqlAuthenticationProvider, !EnableGlobalConnectionPooling);
         }
 
         /// <summary>
         /// Build a connection string from a connection details instance
         /// </summary>
         /// <param name="connectionDetails">Connection details</param>
-        /// <param name="forceDisablePooling">Whether to disable connection pooling, defaults to true.</param>
-        public static string BuildConnectionString(ConnectionDetails connectionDetails, bool forceDisablePooling = true)
+        /// <param name="disablePoolingByDefault">Whether to disable connection pooling for this connection. Ignored when connection pooling is globally enabled via <see cref="EnableGlobalConnectionPooling"/>.</param>
+        public static string BuildConnectionString(ConnectionDetails connectionDetails, bool disablePoolingByDefault = true)
         {
-            return CreateConnectionStringBuilder(connectionDetails, forceDisablePooling).ToString();
+            return Microsoft.SqlTools.LanguageService.Connection.ConnectionStringHelper.BuildConnectionString(connectionDetails, Instance.EnableSqlAuthenticationProvider, !EnableGlobalConnectionPooling && disablePoolingByDefault);
         }
 
         /// <summary>
         /// Build a connection string builder a connection details instance
         /// </summary>
         /// <param name="connectionDetails">Connection details</param>
-        /// <param name="forceDisablePooling">Whether to disable connection pooling, defaults to true.</param>
-        public static SqlConnectionStringBuilder CreateConnectionStringBuilder(ConnectionDetails connectionDetails, bool forceDisablePooling = true)
+        /// <param name="disablePoolingByDefault">Whether to disable connection pooling for this connection. Ignored when connection pooling is globally enabled via <see cref="EnableGlobalConnectionPooling"/>.</param>
+        public static SqlConnectionStringBuilder CreateConnectionStringBuilder(ConnectionDetails connectionDetails, bool disablePoolingByDefault = true)
         {
-            SqlConnectionStringBuilder connectionBuilder;
-
-            // If connectionDetails has a connection string already, use it to initialize the connection builder, then override any provided options.
-            // Otherwise use the server name, username, and password from the connection details.
-            if (!string.IsNullOrEmpty(connectionDetails.ConnectionString))
-            {
-                connectionBuilder = new SqlConnectionStringBuilder(connectionDetails.ConnectionString);
-            }
-            else
-            {
-                // add alternate port to data source property if provided
-                string dataSource = !connectionDetails.Port.HasValue
-                    ? connectionDetails.ServerName
-                    : string.Format("{0},{1}", connectionDetails.ServerName, connectionDetails.Port.Value);
-
-                connectionBuilder = new SqlConnectionStringBuilder
-                {
-                    DataSource = dataSource
-                };
-            }
-
-            // Check for any optional parameters
-            if (!string.IsNullOrEmpty(connectionDetails.DatabaseName))
-            {
-                connectionBuilder.InitialCatalog = connectionDetails.DatabaseName;
-            }
-            if (!string.IsNullOrEmpty(connectionDetails.AuthenticationType))
-            {
-                switch (connectionDetails.AuthenticationType)
-                {
-                    case Integrated:
-                        connectionBuilder.IntegratedSecurity = true;
-                        break;
-                    case SqlLogin:
-                        // Don't erase username from connection string.
-                        if (string.IsNullOrEmpty(connectionBuilder.UserID))
-                        {
-                            connectionBuilder.UserID = connectionDetails.UserName;
-                        }
-                        // Don't erase password from connection string.
-                        if (string.IsNullOrEmpty(connectionBuilder.Password))
-                        {
-                            connectionBuilder.Password = string.IsNullOrEmpty(connectionDetails.Password)
-                            ? string.Empty // Support empty password for accounts without password
-                            : connectionDetails.Password;
-                        }
-                        connectionBuilder.Authentication = SqlAuthenticationMethod.SqlPassword;
-                        break;
-                    case AzureMFA:
-                        if (Instance.EnableSqlAuthenticationProvider)
-                        {
-                            if (string.IsNullOrEmpty(connectionBuilder.UserID))
-                            {
-                                connectionBuilder.UserID = connectionDetails.UserName;
-                            }
-                            // Only delegate to SqlAuthenticationProvider (MSAL) when no token
-                            // has been pre-acquired by the client (e.g., VS Code sessions).
-                            // When a token is already provided, keep Authentication as
-                            // NotSpecified so ReliableSqlConnection can inject it via AccessToken.
-                            if (string.IsNullOrEmpty(connectionDetails.AzureAccountToken))
-                            {
-                                connectionDetails.AuthenticationType = ActiveDirectoryInteractive;
-                                connectionBuilder.Authentication = SqlAuthenticationMethod.ActiveDirectoryInteractive;
-                            }
-                            else
-                            {
-                                // To work with the provided token, UserID must be unset and the auth method must be NotSpecified.
-                                connectionBuilder.UserID = "";
-                                connectionBuilder.Authentication = SqlAuthenticationMethod.NotSpecified;
-                            }
-                        }
-                        break;
-                    case ActiveDirectoryInteractive:
-                        if (string.IsNullOrEmpty(connectionDetails.AzureAccountToken))
-                        {
-                            // Don't erase username from connection string.
-                            if (string.IsNullOrEmpty(connectionBuilder.UserID))
-                            {
-                                connectionBuilder.UserID = connectionDetails.UserName;
-                            }
-                            connectionBuilder.Authentication = SqlAuthenticationMethod.ActiveDirectoryInteractive;
-                        }
-                        else
-                        {
-                            // Cannot set UserID when a token has been pre-acquired.
-                            // Do not mutate connectionDetails.UserName — only clear the builder field.
-                            connectionBuilder.UserID = "";
-                            // Explicitly clear Authentication in case the builder was initialized
-                            // from a connection string that already includes an Authentication value.
-                            connectionBuilder.Authentication = SqlAuthenticationMethod.NotSpecified;
-                        }
-                        break;
-                    case ActiveDirectoryPassword:
-                        // Don't erase username from connection string.
-                        if (string.IsNullOrEmpty(connectionBuilder.UserID))
-                        {
-                            connectionBuilder.UserID = connectionDetails.UserName;
-                        }
-                        // Don't erase password from connection string.
-                        if (string.IsNullOrEmpty(connectionBuilder.Password))
-                        {
-                            connectionBuilder.Password = connectionDetails.Password;
-                        }
-                        connectionBuilder.Authentication = SqlAuthenticationMethod.ActiveDirectoryPassword;
-                        break;
-                    case ActiveDirectoryDefault:
-                        // UserID is optional, but if provided it can be used by the driver
-                        // as the client ID for a user-assigned managed identity.
-                        if (string.IsNullOrEmpty(connectionBuilder.UserID) && !string.IsNullOrEmpty(connectionDetails.UserName))
-                        {
-                            connectionBuilder.UserID = connectionDetails.UserName;
-                        }
-                        connectionBuilder.Authentication = SqlAuthenticationMethod.ActiveDirectoryDefault;
-                        break;
-                    case ActiveDirectoryServicePrincipal:
-                        // UserID is the Application (Client) ID; Password is the client secret.
-                        // SqlClient performs the OAuth client-credentials flow natively.
-                        if (string.IsNullOrEmpty(connectionBuilder.UserID))
-                        {
-                            connectionBuilder.UserID = connectionDetails.UserName;
-                        }
-                        if (string.IsNullOrEmpty(connectionBuilder.Password))
-                        {
-                            connectionBuilder.Password = connectionDetails.Password;
-                        }
-                        connectionBuilder.Authentication = SqlAuthenticationMethod.ActiveDirectoryServicePrincipal;
-                        break;
-                    default:
-                        throw new ArgumentException(SR.ConnectionServiceConnStringInvalidAuthType(connectionDetails.AuthenticationType));
-                }
-            }
-            if (!string.IsNullOrEmpty(connectionDetails.ColumnEncryptionSetting))
-            {
-                if (Enum.TryParse<SqlConnectionColumnEncryptionSetting>(connectionDetails.ColumnEncryptionSetting, true, out var value))
-                {
-                    connectionBuilder.ColumnEncryptionSetting = value;
-                }
-                else
-                {
-                    throw new ArgumentException(SR.ConnectionServiceConnStringInvalidColumnEncryptionSetting(connectionDetails.ColumnEncryptionSetting));
-                }
-            }
-            if (!string.IsNullOrEmpty(connectionDetails.SecureEnclaves))
-            {
-                // Secure Enclaves is not mapped to SqlConnection, it's only used for throwing validation errors
-                // when Enclave Attestation Protocol is missing.
-                switch (connectionDetails.SecureEnclaves.ToUpper(CultureInfo.InvariantCulture))
-                {
-                    case "ENABLED":
-                        if (string.IsNullOrEmpty(connectionDetails.EnclaveAttestationProtocol))
-                        {
-                            throw new ArgumentException(SR.ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves);
-                        }
-                        break;
-                    case "DISABLED":
-                        break;
-                    default:
-                        throw new ArgumentException(SR.ConnectionServiceConnStringInvalidSecureEnclaves(connectionDetails.SecureEnclaves));
-                }
-            }
-            if (!string.IsNullOrEmpty(connectionDetails.EnclaveAttestationProtocol))
-            {
-                if (connectionBuilder.ColumnEncryptionSetting != SqlConnectionColumnEncryptionSetting.Enabled
-                    || string.IsNullOrEmpty(connectionDetails.SecureEnclaves) || connectionDetails.SecureEnclaves.ToUpper(CultureInfo.InvariantCulture) == "DISABLED")
-                {
-                    throw new ArgumentException(SR.ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination);
-                }
-
-                if (Enum.TryParse<SqlConnectionAttestationProtocol>(connectionDetails.EnclaveAttestationProtocol, true, out var value))
-                {
-                    connectionBuilder.AttestationProtocol = value;
-                }
-                else
-                {
-                    throw new ArgumentException(SR.ConnectionServiceConnStringInvalidEnclaveAttestationProtocol(connectionDetails.EnclaveAttestationProtocol));
-                }
-            }
-            if (!string.IsNullOrEmpty(connectionDetails.EnclaveAttestationUrl))
-            {
-                if (connectionBuilder.ColumnEncryptionSetting != SqlConnectionColumnEncryptionSetting.Enabled
-                    || string.IsNullOrEmpty(connectionDetails.SecureEnclaves) || connectionDetails.SecureEnclaves.ToUpper(CultureInfo.InvariantCulture) == "DISABLED")
-                {
-                    throw new ArgumentException(SR.ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination);
-                }
-
-                if (connectionBuilder.AttestationProtocol == SqlConnectionAttestationProtocol.None)
-                {
-                    throw new ArgumentException(SR.ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl);
-                }
-
-                connectionBuilder.EnclaveAttestationUrl = connectionDetails.EnclaveAttestationUrl;
-            }
-            else if (connectionBuilder.AttestationProtocol == SqlConnectionAttestationProtocol.AAS
-                || connectionBuilder.AttestationProtocol == SqlConnectionAttestationProtocol.HGS)
-            {
-                throw new ArgumentException(SR.ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol);
-            }
-
-            if (!string.IsNullOrEmpty(connectionDetails.Encrypt))
-            {
-                connectionBuilder.Encrypt = connectionDetails.Encrypt.ToLowerInvariant() switch
-                {
-                    "optional" or "false" or "no" => SqlConnectionEncryptOption.Optional,
-                    "mandatory" or "true" or "yes" => SqlConnectionEncryptOption.Mandatory,
-                    "strict" => SqlConnectionEncryptOption.Strict,
-                    _ => throw new ArgumentException(SR.ConnectionServiceConnStringInvalidEncryptOption(connectionDetails.Encrypt))
-                };
-            }
-
-            if (connectionDetails.TrustServerCertificate.HasValue)
-            {
-                connectionBuilder.TrustServerCertificate = connectionDetails.TrustServerCertificate.Value;
-            }
-            if (!string.IsNullOrEmpty(connectionDetails.HostNameInCertificate))
-            {
-                connectionBuilder.HostNameInCertificate = connectionDetails.HostNameInCertificate;
-            }
-            if (connectionDetails.PersistSecurityInfo.HasValue)
-            {
-                connectionBuilder.PersistSecurityInfo = connectionDetails.PersistSecurityInfo.Value;
-            }
-            if (connectionDetails.ConnectTimeout.HasValue)
-            {
-                connectionBuilder.ConnectTimeout = connectionDetails.ConnectTimeout.Value;
-            }
-            if (connectionDetails.CommandTimeout.HasValue)
-            {
-                connectionBuilder.CommandTimeout = connectionDetails.CommandTimeout.Value;
-            }
-            if (connectionDetails.ConnectRetryCount.HasValue)
-            {
-                connectionBuilder.ConnectRetryCount = connectionDetails.ConnectRetryCount.Value;
-            }
-            if (connectionDetails.ConnectRetryInterval.HasValue)
-            {
-                connectionBuilder.ConnectRetryInterval = connectionDetails.ConnectRetryInterval.Value;
-            }
-            if (!string.IsNullOrEmpty(connectionDetails.ApplicationName))
-            {
-                connectionBuilder.ApplicationName = connectionDetails.ApplicationName;
-            }
-            if (!string.IsNullOrEmpty(connectionDetails.WorkstationId))
-            {
-                connectionBuilder.WorkstationID = connectionDetails.WorkstationId;
-            }
-            if (!string.IsNullOrEmpty(connectionDetails.ApplicationIntent))
-            {
-                if (Enum.TryParse<ApplicationIntent>(connectionDetails.ApplicationIntent, true, out ApplicationIntent value))
-                {
-                    connectionBuilder.ApplicationIntent = value;
-                }
-                else
-                {
-                    throw new ArgumentException(SR.ConnectionServiceConnStringInvalidIntent(connectionDetails.ApplicationIntent));
-                }
-            }
-            if (!string.IsNullOrEmpty(connectionDetails.CurrentLanguage))
-            {
-                connectionBuilder.CurrentLanguage = connectionDetails.CurrentLanguage;
-            }
-            if (connectionDetails.Pooling.HasValue)
-            {
-                connectionBuilder.Pooling = connectionDetails.Pooling.Value;
-            }
-            if (connectionDetails.MaxPoolSize.HasValue)
-            {
-                connectionBuilder.MaxPoolSize = connectionDetails.MaxPoolSize.Value;
-            }
-            if (connectionDetails.MinPoolSize.HasValue)
-            {
-                connectionBuilder.MinPoolSize = connectionDetails.MinPoolSize.Value;
-            }
-            if (connectionDetails.LoadBalanceTimeout.HasValue)
-            {
-                connectionBuilder.LoadBalanceTimeout = connectionDetails.LoadBalanceTimeout.Value;
-            }
-            if (connectionDetails.Replication.HasValue)
-            {
-                connectionBuilder.Replication = connectionDetails.Replication.Value;
-            }
-            if (!string.IsNullOrEmpty(connectionDetails.AttachDbFilename))
-            {
-                connectionBuilder.AttachDBFilename = connectionDetails.AttachDbFilename;
-            }
-            if (!string.IsNullOrEmpty(connectionDetails.FailoverPartner))
-            {
-                connectionBuilder.FailoverPartner = connectionDetails.FailoverPartner;
-            }
-            if (connectionDetails.MultiSubnetFailover.HasValue)
-            {
-                connectionBuilder.MultiSubnetFailover = connectionDetails.MultiSubnetFailover.Value;
-            }
-            if (connectionDetails.MultipleActiveResultSets.HasValue)
-            {
-                connectionBuilder.MultipleActiveResultSets = connectionDetails.MultipleActiveResultSets.Value;
-            }
-            if (connectionDetails.PacketSize.HasValue)
-            {
-                connectionBuilder.PacketSize = connectionDetails.PacketSize.Value;
-            }
-            if (!string.IsNullOrEmpty(connectionDetails.TypeSystemVersion))
-            {
-                connectionBuilder.TypeSystemVersion = connectionDetails.TypeSystemVersion;
-            }
-            if (!EnableConnectionPooling && forceDisablePooling)
-            {
-                connectionBuilder.Pooling = false;
-            }
-
-            return connectionBuilder;
+            return Microsoft.SqlTools.LanguageService.Connection.ConnectionStringHelper.CreateConnectionStringBuilder(connectionDetails, Instance.EnableSqlAuthenticationProvider, !EnableGlobalConnectionPooling && disablePoolingByDefault);
         }
 
         /// <summary>
@@ -1859,17 +1636,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// Handles a request to parse a connection string into a ConnectionDetails object.
         /// If parsing fails, sends an error.
         /// </summary>
-        /// <param name="connectionString"></param>
+        /// <param name="requestParams"></param>
         /// <param name="requestContext"></param>
         /// <returns></returns>
         public async Task HandleParseConnectionStringRequest(
-            string connectionString,
+            ParseConnectionStringParams requestParams,
             RequestContext<ConnectionDetails> requestContext)
         {
             Logger.Verbose("ParseConnectionStringRequest");
             try
             {
-                await requestContext.SendResult(ParseConnectionString(connectionString));
+                await requestContext.SendResult(ParseConnectionString(requestParams.ConnectionString));
             }
             catch (Exception ex)
             {
@@ -1990,6 +1767,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     {
                         DbConnection conn;
                         info.TryGetConnection(key, out conn);
+
                         if (conn != null && conn.Database != newDatabaseName && conn.State == ConnectionState.Open)
                         {
                             if (info.IsCloud && force)
@@ -2000,8 +1778,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
                                 string connectionString = BuildConnectionString(info.ConnectionDetails);
 
+                                // In RequestMfaTokenFromClient mode, fetch a fresh token from the client.
+                                string azureToken = info.ConnectionDetails.AzureAccountToken;
+                                if (info.AzureTokenFetcher != null)
+                                {
+                                    azureToken = info.AzureTokenFetcher(info.AzureResourceUri).GetAwaiter().GetResult().token;
+                                }
+
                                 // create a sql connection instance
-                                DbConnection connection = info.Factory.CreateSqlConnection(connectionString, info.ConnectionDetails.AzureAccountToken);
+                                DbConnection connection = info.Factory.CreateSqlConnection(connectionString, azureToken);
                                 connection.Open();
                                 info.AddConnection(key, connection);
                             }
@@ -2106,6 +1891,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <returns>A SqlConnection created with the given connection info</returns>
         /// <exception cref="Exception">When an error occurs.</exception>
         public static SqlConnection OpenSqlConnection(ConnectionInfo connInfo, string featureName = null)
+            => OpenSqlConnection(connInfo, featureName, isSmoServerConnection: false);
+
+        private static SqlConnection OpenSqlConnection(ConnectionInfo connInfo, string featureName, bool isSmoServerConnection)
         {
             try
             {
@@ -2114,13 +1902,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 bool? originalPooling = connInfo.ConnectionDetails.Pooling;
 
                 // allow pooling connections for language service feature to improve intellisense connection retention and performance.
-                bool shouldForceDisablePooling = !EnableConnectionPooling && featureName != Constants.LanguageServiceFeature;
+                bool shouldDisablePooling = !EnableGlobalConnectionPooling && featureName != Constants.LanguageServiceFeature;
 
                 // enable PersistSecurityInfo to handle issues in SMO where the connection context is lost in reconnections
                 connInfo.ConnectionDetails.PersistSecurityInfo = true;
 
                 // turn off connection pool to avoid hold locks on server resources after calling SqlConnection Close method
-                if (shouldForceDisablePooling)
+                if (shouldDisablePooling)
                 {
                     connInfo.ConnectionDetails.Pooling = false;
                 }
@@ -2129,7 +1917,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 connInfo.ConnectionDetails = FillInDefaultDetailsForConnections(connInfo.ConnectionDetails, featureName);
 
                 // generate connection string
-                string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails, shouldForceDisablePooling);
+                string connectionString = ConnectionService.BuildConnectionString(connInfo.ConnectionDetails, shouldDisablePooling);
 
                 // restore original values
                 connInfo.ConnectionDetails.PersistSecurityInfo = originalPersistSecurityInfo;
@@ -2138,7 +1926,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 // open a dedicated binding server connection
                 SqlConnection sqlConn = new SqlConnection(connectionString);
                 sqlConn.RetryLogicProvider = SqlRetryProviders.ServerlessDBRetryProvider();
-                ConfigureSqlConnectionAuth(sqlConn, connInfo);
+                ConfigureSqlConnectionAuth(sqlConn, connInfo, isSmoServerConnection);
                 sqlConn.Open();
                 return sqlConn;
             }
@@ -2176,7 +1964,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// </summary>
         internal virtual ServerConnection OpenServerConnectionInternal(ConnectionInfo connInfo, string featureName = null)
         {
-            SqlConnection sqlConnection = OpenSqlConnection(connInfo, featureName);
+            SqlConnection sqlConnection = OpenSqlConnection(connInfo, featureName, isSmoServerConnection: true);
             return CreateServerConnection(sqlConnection, connInfo);
         }
 
@@ -2187,7 +1975,14 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         {
             if (connInfo.AzureTokenFetcher != null && connInfo.ConnectionDetails.AuthenticationType == AzureMFA)
             {
-                return new ServerConnection(sqlConnection, new CallbackAzureAccessToken(connInfo.AzureTokenFetcher));
+                // Request a token for the connection's target resource
+                // because Dataverse connections use a different resource URI than Azure SQL DB
+                var fetcher = connInfo.AzureTokenFetcher;
+
+                return new ServerConnection(
+                    sqlConnection,
+                    new CallbackAzureAccessToken(
+                        () => fetcher(connInfo.AzureResourceUri)));
             }
             if (connInfo.ConnectionDetails.AzureAccountToken != null && connInfo.ConnectionDetails.AuthenticationType == AzureMFA)
             {
@@ -2199,12 +1994,23 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         /// Sets the Azure auth token or callback on a <see cref="SqlConnection"/> based on whether
         /// <see cref="ConnectionInfo.AzureTokenFetcher"/> or <see cref="ConnectionDetails.AzureAccountToken"/> is present.
+        /// Direct <see cref="OpenSqlConnection"/> callers keep <see cref="SqlConnection.AccessTokenCallback"/>
+        /// so SqlClient can refresh tokens. SMO-bound connections use a pre-fetched static token because
+        /// SMO refreshes through <see cref="IRenewableToken"/> and then writes <see cref="SqlConnection.AccessToken"/>.
         /// </summary>
-        internal static void ConfigureSqlConnectionAuth(SqlConnection sqlConn, ConnectionInfo connInfo)
+        internal static void ConfigureSqlConnectionAuth(SqlConnection sqlConn, ConnectionInfo connInfo, bool isSmoServerConnection = false)
         {
             if (connInfo.AzureTokenFetcher != null && connInfo.ConnectionDetails.AuthenticationType == AzureMFA)
             {
-                sqlConn.AccessTokenCallback = ToSqlAccessTokenCallback(connInfo.AzureTokenFetcher);
+                if (isSmoServerConnection)
+                {
+                    var (token, _) = connInfo.AzureTokenFetcher(connInfo.AzureResourceUri).GetAwaiter().GetResult();
+                    sqlConn.AccessToken = token;
+                }
+                else
+                {
+                    sqlConn.AccessTokenCallback = ToSqlAccessTokenCallback(connInfo.AzureTokenFetcher, connInfo);
+                }
             }
             else if (connInfo.ConnectionDetails.AzureAccountToken != null && connInfo.ConnectionDetails.AuthenticationType == AzureMFA)
             {

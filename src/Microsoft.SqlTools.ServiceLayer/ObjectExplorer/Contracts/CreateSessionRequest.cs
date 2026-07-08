@@ -6,7 +6,7 @@
 #nullable disable
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.LanguageService.Connection.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
 {
@@ -57,6 +57,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         /// Error message returned from the engine for a object explorer session failure reason, if any.
         /// </summary>
         public string ErrorMessage { get; set; }
+
+        /// <summary>
+        /// Error code identifying the failure reason
+        /// </summary>
+        public string ErrorCode { get; set; }
     }
     /// <summary>
     /// Establishes an Object Explorer tree session for a specific connection.

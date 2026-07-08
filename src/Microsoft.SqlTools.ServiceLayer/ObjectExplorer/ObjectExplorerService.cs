@@ -22,12 +22,13 @@ using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
+using Microsoft.SqlTools.LanguageService.Connection.Contracts;
+using Microsoft.SqlTools.LanguageService.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.TableDesigner;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Microsoft.SqlTools.LanguageService.Workspace;
 using Microsoft.SqlTools.SqlCore.Connection;
 using Microsoft.SqlTools.SqlCore.ObjectExplorer;
 using Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes;
@@ -170,7 +171,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 Validate.IsNotNull(nameof(context), context);
                 return await Task.Run(() =>
                 {
-                    string key = ConnectedBindingQueue.GetConnectionContextKey(connectionDetails);
+                    string key = ConnectionInfo.GetConnectionContextKey(connectionDetails);
                     return new GetSessionIdResponse { SessionId = key };
                 });
             };
@@ -340,7 +341,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                             Success = false,
                             SessionId = uri,
                             ErrorNumber = result.Exception != null && result.Exception is SqlException sqlEx ? sqlEx.ErrorCode : null,
-                            ErrorMessage = result.Exception != null ? result.Exception.Message : $"Failed to create session for session id {uri}"
+                            ErrorMessage = result.Exception != null ? result.Exception.Message : $"Failed to create session for session id {uri}",
+                            ErrorCode = result.Exception is TimeoutException ? ObjectExplorerErrorCodes.CreateSessionTimeout : null
 
                         };
                         await serviceHost.SendEvent(CreateSessionCompleteNotification.Type, response);
@@ -417,7 +419,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                             // when the static AzureAccountToken on ConnectionDetails has become stale.
                             if (session.ConnectionInfo.AzureTokenFetcher != null)
                             {
-                                azureToken = session.ConnectionInfo.AzureTokenFetcher().GetAwaiter().GetResult().token;
+                                azureToken = session.ConnectionInfo.AzureTokenFetcher(session.ConnectionInfo.AzureResourceUri).GetAwaiter().GetResult().token;
                             }
                             else
                             {
@@ -448,7 +450,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 response = new ExpandResponse { Nodes = new NodeInfo[] { }, ErrorMessage = node.ErrorMessage, SessionId = session.Uri, NodePath = nodePath };
             }
             Logger.Verbose($"Before enter BuildingMetadataLock for {nodePath}");
-            if (node != null && Monitor.TryEnter(node.BuildingMetadataLock, LanguageServices.LanguageService.OnConnectionWaitTimeout))
+            if (node != null && Monitor.TryEnter(node.BuildingMetadataLock, TSqlLanguageService.OnConnectionWaitTimeout))
             {
                 Logger.Verbose($"After enter BuildingMetadataLock for {nodePath}");
                 try
@@ -661,6 +663,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                     cancellationTokenSource.Cancel();
                     ExpandResponse response = CreateExpandResponse(session, expandParams);
                     response.ErrorMessage = result.Exception != null ? result.Exception.Message : $"Failed to expand node: {expandParams.NodePath} in session {session.Uri}";
+                    if (result.Exception is TimeoutException)
+                    {
+                        response.ErrorCode = ObjectExplorerErrorCodes.ExpandTimeout;
+                    }
                     await serviceHost.SendEvent(ExpandCompleteNotification.Type, response);
                 }
                 return result;
@@ -722,7 +728,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         /// <remarks>Internal for testing purposes only</remarks>
         internal static string GenerateUri(ConnectionDetails details)
         {
-            return ConnectedBindingQueue.GetConnectionContextKey(details);
+            return ConnectionInfo.GetConnectionContextKey(details);
         }
 
         private void VerifyServicesInitialized()
@@ -816,7 +822,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 var connInfo = session.ConnectionInfo;
                 if (connInfo != null)
                 {
-                    string currentKey = ConnectedBindingQueue.GetConnectionContextKey(connInfo.ConnectionDetails);
+                    string currentKey = ConnectionInfo.GetConnectionContextKey(connInfo.ConnectionDetails);
                     if (queueKey == currentKey)
                     {
                         return session.Uri;

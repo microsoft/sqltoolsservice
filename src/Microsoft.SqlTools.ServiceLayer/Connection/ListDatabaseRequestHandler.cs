@@ -11,6 +11,7 @@ using System.Data.Common;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlTools.ServiceLayer.Admin.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.LanguageService.Connection.Contracts;
 using Microsoft.SqlTools.SqlCore.Utility;
 using Microsoft.SqlTools.Utility;
 

@@ -71,7 +71,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             serviceHost.SetRequestHandler(GetObjectsFromTSqlModelRequest.Type, this.HandleGetObjectsFromTSqlModelRequest, true);
             serviceHost.SetRequestHandler(SavePublishProfileRequest.Type, this.HandleSavePublishProfileRequest, true);
             serviceHost.SetRequestHandler(GetCodeAnalysisRulesRequest.Type, this.HandleGetCodeAnalysisRulesRequest, true);
-            Workspace.WorkspaceService<SqlToolsSettings>.Instance.RegisterConfigChangeCallback(UpdateSettings);
+            Microsoft.SqlTools.LanguageService.Workspace.WorkspaceService<SqlToolsSettings>.Instance.RegisterConfigChangeCallback(UpdateSettings);
             telemetryApplicationName = string.IsNullOrEmpty(commandOptions?.ApplicationName) ? TelemetryDefaultApplicationName : commandOptions.ApplicationName;
         }
 

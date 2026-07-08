@@ -123,5 +123,29 @@ namespace Microsoft.SqlTools.Utility
             }
             return tokenText;
         }
+
+        /// <summary>
+        /// Returns <paramref name="newName"/> bracket-quoted (e.g. <c>[NewName]</c>) when the
+        /// token at the given position in <paramref name="lineText"/> was itself bracket-quoted,
+        /// and <paramref name="newName"/> does not already start with <c>[</c>.
+        /// Any <c>]</c> characters inside <paramref name="newName"/> are escaped as <c>]]</c>.
+        /// Otherwise returns <paramref name="newName"/> unchanged.
+        /// </summary>
+        /// <param name="lineText">The source line text (1-based line, already retrieved).</param>
+        /// <param name="startChar">0-based start character of the token on that line.</param>
+        /// <param name="endChar">0-based exclusive end character of the token on that line.</param>
+        /// <param name="newName">The replacement name to optionally bracket-quote.</param>
+        /// <returns>The replacement text to use for the rename edit.</returns>
+        public static string ApplyBracketQuoting(string lineText, int startChar, int endChar, string newName)
+        {
+            if (lineText != null &&
+                startChar < lineText.Length && lineText[startChar] == '[' &&
+                endChar > 0 && endChar - 1 < lineText.Length && lineText[endChar - 1] == ']' &&
+                !newName.StartsWith("[", System.StringComparison.Ordinal))
+            {
+                return $"[{newName.Replace("]", "]]")}]";
+            }
+            return newName;
+        }
     }
 }

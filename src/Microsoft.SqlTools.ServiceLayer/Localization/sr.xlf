@@ -819,11 +819,6 @@
         <target state="new">This object type is currently not supported by this feature.</target>
         <note></note>
       </trans-unit>
-      <trans-unit id="ErrorEmptyStringReplacement">
-        <source>Replacement of an empty string by an empty string.</source>
-        <target state="new">Replacement of an empty string by an empty string.</target>
-        <note></note>
-      </trans-unit>
       <trans-unit id="WorkspaceServicePositionLineOutOfRange">
         <source>Position is outside of file line range</source>
         <target state="new">Position is outside of file line range</target>

@@ -19,3 +19,83 @@
 # Workspace Service
 
 WorkspaceServiceBufferPositionOutOfOrder(int sLine, int sCol, int eLine, int eCol) = Start position ({0}, {1}) must come before or be equal to the end position ({2}, {3})
+
+WorkspaceServicePositionLineOutOfRange = Position is outside of file line range
+
+WorkspaceServicePositionColumnOutOfRange(int line) = Position is outside of column range for line {0}
+
+############################################################################
+# Formatter
+
+ErrorEmptyStringReplacement = Replacement of an empty string by an empty string.
+
+############################################################################
+# Completion - Star Expansion
+
+StarExpansionLabel(string starExpression) = Expand {0}
+
+StarExpansionDescription(string starExpression, string columnCount, string columnPreview) = Replace {0} with {1} columns: {2}
+
+############################################################################
+# Connection - Connection String Building
+
+ConnectionServiceConnStringInvalidAuthType(string authType) = Invalid value '{0}' for AuthenticationType.  Valid values are 'Integrated' and 'SqlLogin'.
+
+ConnectionServiceConnStringInvalidColumnEncryptionSetting(string columnEncryptionSetting) = Invalid value '{0}' for Column Encryption Setting. Valid values are 'Enabled' and 'Disabled'.
+
+ConnectionServiceConnStringInvalidSecureEnclaves(string secureEnclaves) = Invalid value '{0}' for Secure enclaves. Valid values are 'Enabled' and 'Disabled'.
+
+ConnectionServiceConnStringInvalidEncryptOption(string encrypt) = Invalid value '{0}' for Encrypt. Valid values are 'Optional', 'Mandatory', 'Strict', 'True', 'False', 'Yes' and 'No'.
+
+ConnectionServiceConnStringInvalidEnclaveAttestationProtocol(string enclaveAttestationProtocol) = Invalid value '{0}' for Attestation protocol. Valid values are 'AAS', 'HGS' and 'None'.
+
+ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves = Attestation protocol cannot be empty with Secure enclaves enabled.
+
+ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol = Attestation URL cannot be empty with the selected value of Attestation protocol.
+
+ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination = The Attestation protocol and Attestation URL requires Always Encrypted with Secure enclaves to be set to Enabled.
+
+ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl = The Attestation URL must not be specified with Attestation protocol 'None'. Either set appropriate Attestation protocol or remove Attestation URL from connection properties.
+
+ConnectionServiceConnStringInvalidIntent(string intent) = Invalid value '{0}' for ApplicationIntent. Valid values are 'ReadWrite' and 'ReadOnly'.
+
+############################################################################
+# Scripting - Peek Definition
+
+PeekDefinitionAzureError(string errorMessage) = This feature is currently not supported on Azure SQL DB and Data Warehouse: {0}
+
+PeekDefinitionError(string errorMessage) = An unexpected error occurred during Peek Definition execution: {0}
+
+PeekDefinitionNoResultsError = No results were found.
+
+PeekDefinitionDatabaseError = No database object was retrieved.
+
+PeekDefinitionTypeNotSupportedError = This object type is currently not supported by this feature.
+
+PeekDefinitionNotConnectedError = Please connect to a server.
+
+PeekDefinitionTimedoutError = Operation timed out.
+
+############################################################################
+# Rename
+
+RenameNotSupportedLiveServer = Rename is only supported in SQL project files. To rename objects on a connected server, use sp_rename.
+
+RenameNotSupported = Renaming an object of this type is not supported.
+
+############################################################################
+# AutoParameterization for Always Encrypted
+
+ParameterizationDetails (string variableName, string sqlDbType, int size, int precision, int scale, string sqlValue) = {0} will be converted to a Microsoft.Data.SqlClient.SqlParameter object with the following properties: SqlDbType = {1}, Size = {2}, Precision = {3}, Scale = {4}, SqlValue = {5}
+
+ErrorMessageHeader(int lineNumber) = Line {0}
+
+ErrorMessage (string variableName, string sqlDataType, string literalValue) = Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType). Literal value: {2}
+
+DateTimeErrorMessage (string variableName, string sqlDataType, string literalValue) = Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType), as it used an unsupported date/time format. Use one of the supported date/time formats. Literal value: {2}
+
+BinaryLiteralPrefixMissingError (string variableName, string sqlDataType, string literalValue) = Unable to convert {0} to a Microsoft.Data.SqlClient.SqlParameter object. The specified literal cannot be converted to {1}(Microsoft.Data.SqlDbType), as prefix 0x is expected for a binary literals.  Literal value: {2}
+
+ParsingErrorHeader (int lineNumber, int columnNumber) = Line {0}, column {1}
+
+ScriptTooLarge (int maxChars, int currentChars) = The current script is too large for Parameterization for Always Encrypted, please disable Parameterization for Always Encrypted in Query Options (Query > Query Options > Execution > Advanced). Maximum allowable length: {0} characters, Current script length: {1} characters
