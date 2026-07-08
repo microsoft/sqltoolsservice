@@ -51,6 +51,18 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
 
             if (difference.DifferenceType == SchemaDifferenceType.Object)
             {
+                // Fabric Warehouse (SqlDwUnified) never inlines PK/FK/UNIQUE/CHECK/DEFAULT
+                // constraints into CREATE TABLE — every constraint is emitted as a standalone
+                // "ALTER TABLE ... ADD CONSTRAINT ..." script. The legacy filter below skips
+                // child scripts that start with "alter" on the assumption that they're
+                // duplicates of inline constraints already present in the parent's CREATE.
+                // For platforms that emit standalone constraints that assumption is wrong: the
+                // ALTER script is the ONLY place the constraint is defined, so we must keep it.
+                // DacFx tells us this per-difference via the public SchemaDifference
+                // .IsStandaloneConstraint signal (true only on SqlDwUnified today), so STS no
+                // longer needs to match object-type-name suffixes against a platform string.
+                bool keepAlterScript = difference.IsStandaloneConstraint;
+
                 // set source and target scripts
                 if (difference.SourceObject != null)
                 {
@@ -58,7 +70,7 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
 
                     // Child scripts that do not use alter need to be added if they are being changed, ex: "EXECUTE sp_addextendedproperty...".
                     // Don't add scripts that start with alter because those are handled by a top level element's create
-                    if (!sourceScript.ToLowerInvariant().StartsWith("alter"))
+                    if (keepAlterScript || !sourceScript.ToLowerInvariant().StartsWith("alter"))
                     {
                         diffEntry.SourceScript = FormatScript(sourceScript);
                     }
@@ -69,7 +81,7 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
 
                     // Child scripts that do not use alter need to be added if they are being changed, ex: "EXECUTE sp_addextendedproperty...".
                     // Don't add scripts that start with alter because those are handled by a top level element's create
-                    if (!targetScript.ToLowerInvariant().StartsWith("alter"))
+                    if (keepAlterScript || !targetScript.ToLowerInvariant().StartsWith("alter"))
                     {
                         diffEntry.TargetScript = FormatScript(targetScript);
                     }
