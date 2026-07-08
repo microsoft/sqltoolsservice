@@ -36,6 +36,23 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
 
         public List<DiffEntry> Differences;
 
+        /// <summary>
+        /// The SQL platform (T-SQL dialect) the source model targets, as the short
+        /// <see cref="Microsoft.SqlServer.Dac.Model.SqlServerVersion"/> name (e.g. "Sql160",
+        /// "SqlAzureV12", "SqlDwUnified"). Read directly from the public
+        /// <c>ComparisonResult.SourceModel.Version</c>. This is reliable now that DacFx maps
+        /// the SqlDwUnified platform to <c>SqlServerVersion.SqlDwUnified</c> (previously it
+        /// returned <c>Sql150</c>, which forced a reflection workaround). Null if the
+        /// comparison was never run.
+        /// </summary>
+        public string SourcePlatform { get; set; }
+
+        /// <summary>
+        /// The SQL platform the target model targets. See <see cref="SourcePlatform"/>.
+        /// Source and Target are read per-model and can legitimately differ.
+        /// </summary>
+        public string TargetPlatform { get; set; }
+
         public SchemaCompareOperation(SchemaCompareParams parameters, ISchemaCompareConnectionProvider connectionProvider)
         {
             Validate.IsNotNull("parameters", parameters);
@@ -116,6 +133,15 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
                         this.Differences.Add(diffEntry);
                     }
                 }
+
+                // Surface the SQL platform (T-SQL dialect) the comparison ran under so the UI can
+                // tell the user which dialect Schema Compare is using (e.g. "SqlDwUnified" when
+                // comparing Fabric Warehouse endpoints). Read directly from the public
+                // TSqlModel.Version on each model — no reflection needed. DacFx now maps
+                // SqlDwUnified to SqlServerVersion.SqlDwUnified (InternalModelUtils
+                // .CalculateVersionsForPlatform), so this value is correct for Fabric Warehouse.
+                this.SourcePlatform = this.ComparisonResult.SourceModel?.Version.ToString();
+                this.TargetPlatform = this.ComparisonResult.TargetModel?.Version.ToString();
 
                 // Appending the set of errors that are stopping the schema compare to the ErrorMessage
                 // GetErrors return all type of warnings, and error messages. Only filtering the error type messages here
