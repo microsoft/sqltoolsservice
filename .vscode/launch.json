@@ -14,15 +14,6 @@
             }
         },
         {
-            "name": "Attach to Running STS",
-            "type": "coreclr",
-            "request": "attach",
-            "processId": "${command:pickProcess}",
-            "requireExactSource": true,
-            "justMyCode": false,
-            "enableStepFiltering": false
-        },
-        {
             "name": ".NET Core Attach",
             "type": "coreclr",
             "request": "attach",
