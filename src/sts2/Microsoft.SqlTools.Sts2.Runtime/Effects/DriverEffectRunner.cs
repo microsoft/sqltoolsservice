@@ -390,12 +390,15 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                 return;
             }
 
+            bool compactRows = effect.Args.TryGetProperty("compactRows", out JsonElement compactFlag)
+                && compactFlag.ValueKind == JsonValueKind.True;
+
             var pump = new QueryPump { Session = session, Credits = new SemaphoreSlim(initialCredit) };
             queryPumps[queryId] = pump;
-            pump.PumpTask = Task.Run(() => StreamQueryPumpAsync(effect, inbox, queryId, sql, maxCellBytes, pageRows, pageBytes, queryTimeoutMs, pump));
+            pump.PumpTask = Task.Run(() => StreamQueryPumpAsync(effect, inbox, queryId, sql, maxCellBytes, pageRows, pageBytes, queryTimeoutMs, compactRows, pump));
         }
 
-        private async Task StreamQueryPumpAsync(EffectWorkItem effect, ICoordinatorInbox inbox, string queryId, string sql, int maxCellBytes, int pageRows, int pageBytes, int queryTimeoutMs, QueryPump pump)
+        private async Task StreamQueryPumpAsync(EffectWorkItem effect, ICoordinatorInbox inbox, string queryId, string sql, int maxCellBytes, int pageRows, int pageBytes, int queryTimeoutMs, bool compactRows, QueryPump pump)
         {
             await PostQueryEventAsync(inbox, effect, queryId, """{"eventType":"started"}""").ConfigureAwait(false);
 
@@ -420,6 +423,9 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                 // are measured exactly. Stats ride the journaled event payloads only — the
                 // reducer never forwards them onto v2/query.rows.
                 long lastEventDoneTicks = Stopwatch.GetTimestamp();
+                // QO-5 compact rows: type hints computed once per result set
+                // (from the driver's column metadata) ride every compact page.
+                var typeHintsBySet = new Dictionary<int, string>();
                 // Backpressure (SPEC §7.8): a rows page may only POST when the window has
                 // credit; the WaitAsync below is what parks the enumerator. NOTE (R012): the
                 // enumerator materializes the next page during MoveNext before this gate, so
@@ -439,6 +445,10 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                             break; // already announced
 
                         case ResultSetStarted resultSet:
+                            if (compactRows)
+                            {
+                                typeHintsBySet[resultSet.ResultSetId] = SerializeTypeHints(resultSet.Columns);
+                            }
                             await PostQueryEventAsync(inbox, effect, queryId, string.Create(CultureInfo.InvariantCulture,
                                 $$"""{"eventType":"resultSet","resultSetId":{{resultSet.ResultSetId}},"columns":{{SerializeColumns(resultSet.Columns)}}}""")).ConfigureAwait(false);
                             break;
@@ -455,6 +465,16 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                             }
                             long encodeStartTicks = Stopwatch.GetTimestamp();
                             string rowsJson = SerializeRows(page.Cells, maxCellBytes);
+                            // QO-5: the compact shape carries the null bitmap +
+                            // type hints computed HERE (once), so the client
+                            // stops rebuilding pages and re-measuring bytes.
+                            string pageBody = compactRows
+                                ? string.Create(CultureInfo.InvariantCulture, $$"""
+                                    "compact":{"values":{{rowsJson}},"nullBitmap":{{JsonSerializer.Serialize(PackNullBitmap(page.Cells))}},"typeHints":{{typeHintsBySet.GetValueOrDefault(page.ResultSetId, "[]")}} },"approxBytes":{{rowsJson.Length}},"encodedBytes":{{rowsJson.Length}}
+                                    """)
+                                : string.Create(CultureInfo.InvariantCulture, $$"""
+                                    "rows":{{rowsJson}}
+                                    """);
                             double encodeMs = ElapsedMs(encodeStartTicks);
                             pump.StatsPages++;
                             pump.StatsRows += page.Cells.Count;
@@ -463,7 +483,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                             pump.StatsCreditWaitMsTotal += creditWaitMs;
                             pump.StatsEncodeMsTotal += encodeMs;
                             await PostQueryEventAsync(inbox, effect, queryId, string.Create(CultureInfo.InvariantCulture,
-                                $$"""{"eventType":"rows","resultSetId":{{page.ResultSetId}},"pageSeq":{{page.PageSeq}},"rowOffset":{{page.RowOffset}},"rows":{{rowsJson}},"stats":{"rowCount":{{page.Cells.Count}},"encodedBytes":{{rowsJson.Length}},"readMs":{{FormatMs(readMs)}},"creditWaitMs":{{FormatMs(creditWaitMs)}},"encodeMs":{{FormatMs(encodeMs)}} } }""")).ConfigureAwait(false);
+                                $$"""{"eventType":"rows","resultSetId":{{page.ResultSetId}},"pageSeq":{{page.PageSeq}},"rowOffset":{{page.RowOffset}},{{pageBody}},"stats":{"rowCount":{{page.Cells.Count}},"encodedBytes":{{rowsJson.Length}},"readMs":{{FormatMs(readMs)}},"creditWaitMs":{{FormatMs(creditWaitMs)}},"encodeMs":{{FormatMs(encodeMs)}} } }""")).ConfigureAwait(false);
                             break;
                         }
 
@@ -519,6 +539,58 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
             {
                 queryPumps.TryRemove(queryId, out _);
             }
+        }
+
+        /// <summary>
+        /// Row-major LSB-first null bitmap over the page's cells (QO-5) —
+        /// byte[i>>3] bit (i&7), matching the client's packBitmap layout
+        /// exactly (sts2Backend.ts): the client consumes it verbatim.
+        /// </summary>
+        private static string PackNullBitmap(IReadOnlyList<IReadOnlyList<object?>> rows)
+        {
+            int columns = rows.Count > 0 ? rows[0].Count : 0;
+            var bytes = new byte[(rows.Count * columns + 7) / 8];
+            int index = 0;
+            foreach (IReadOnlyList<object?> row in rows)
+            {
+                foreach (object? cell in row)
+                {
+                    if (cell is null or DBNull)
+                    {
+                        bytes[index >> 3] |= (byte)(1 << (index & 7));
+                    }
+                    index++;
+                }
+            }
+            return Convert.ToBase64String(bytes);
+        }
+
+        /// <summary>
+        /// engineType → compact type hint (QO-5), the same taxonomy the client
+        /// binding used to compute per page (typeHintFor in sts2Backend.ts) —
+        /// computed ONCE per result set here. Keep the two mappings identical.
+        /// </summary>
+        private static string SerializeTypeHints(IReadOnlyList<ColumnInfo> columns)
+        {
+            var array = new System.Text.Json.Nodes.JsonArray();
+            foreach (ColumnInfo column in columns)
+            {
+                string t = column.EngineType.ToLowerInvariant();
+                string hint = t switch
+                {
+                    "bit" => "boolean",
+                    "int" or "smallint" or "tinyint" or "float" or "real" => "number",
+                    "bigint" or "decimal" or "numeric" or "money" or "smallmoney" => "number:approx",
+                    "varbinary" or "binary" or "image" or "timestamp" or "rowversion" => "binary",
+                    "xml" => "xml",
+                    _ when t.StartsWith("date", StringComparison.Ordinal)
+                        || t.StartsWith("time", StringComparison.Ordinal)
+                        || t == "smalldatetime" => "datetime",
+                    _ => "string",
+                };
+                array.Add((System.Text.Json.Nodes.JsonNode)hint);
+            }
+            return array.ToJsonString();
         }
 
         private static string SerializeColumns(IReadOnlyList<ColumnInfo> columns)

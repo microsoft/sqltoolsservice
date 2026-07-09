@@ -367,7 +367,8 @@ Result:
     "maxCellBytesHonored": true,
     "pageRowsHonored": true,
     "pageBytesHonored": true,
-    "queryTimeoutHonored": true
+    "queryTimeoutHonored": true,
+    "compactRows": true
   },
   "drivers": [
     { "name": "sqlclient", "dialects": ["tsql"], "production": true },
@@ -468,6 +469,8 @@ Result:
 `options.maxCellBytes` (OPTIONAL, SPEC-CHANGE-0001) lowers the per-cell wire bound for this query below the pinned `sts2.results.maxCellBytes` default. Absent, `0`, negative, or non-integer values mean the default applies (the pre-existing behavior); a value above the default clamps to it — a client can never raise the service's memory/frame protection. Cells above the effective bound arrive as `truncated` wrappers (§7.7); truncation is never silent. The `maxCellBytesHonored` capability (§7.3) advertises this behavior.
 
 `options.pageRows` and `options.pageBytes` (OPTIONAL, D-0014) lower this query's page limits below the pinned `sts2.results.pageRows`/`sts2.results.pageBytes` defaults, with the same normalization as `maxCellBytes` (absent/`0`/negative/non-integer = default; larger clamps to the default). A page completes when EITHER limit is reached first; byte accounting is an approximation measured at page construction, and a single row larger than `pageBytes` arrives as its own one-row page (its cells still bounded per `maxCellBytes`). `options.queryTimeoutMs` (OPTIONAL, D-0014) passes a positive value through to the provider command timeout; absent/`0`/negative/non-integer means the provider default. Core normalizes all three into the journaled `driver.queryStart` args (replay-deterministic). The `pageRowsHonored`/`pageBytesHonored`/`queryTimeoutHonored` capabilities (§7.3) advertise this behavior; page-limit enforcement lives in the production driver's page builder.
+
+`options.compactRows` (OPTIONAL, literal `true` only; D-0016) switches this query's `v2/query.rows` notifications to the compact page shape: `rows` is replaced by `compact: { values, nullBitmap, typeHints }` plus service-measured `approxBytes`/`encodedBytes`. `values` carries the same wire-encoded cells as the legacy shape; `nullBitmap` is a base64 row-major LSB-first bitmap over the page's cells; `typeHints` is the per-column display-type taxonomy computed once per result set. Exactly one of `rows`/`compact` is present per notification. Queries without the opt-in keep the legacy shape byte-for-byte. The `compactRows` capability (§7.3) advertises support.
 
 Ordering guarantees for one query:
 

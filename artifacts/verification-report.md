@@ -2,6 +2,35 @@
 
 Newest entries first (AGENT-RUNBOOK.md §6).
 
+## QO-5: compact row pages on the wire (opt-in) - 2026-07-09 - 56665ea4+ (working tree)
+Query-optimization batch QO-5, recorded as two-way door D-0016.
+
+Behavior (additive, opt-in per query; legacy shape byte-for-byte otherwise):
+- `options.compactRows=true` (literal true only) journals into the
+  `driver.queryStart` args; the runner emits rows event payloads carrying
+  `compact:{values,nullBitmap,typeHints}` + `approxBytes`/`encodedBytes`
+  instead of `rows`; the reducer routes by payload shape (no Core state).
+- `nullBitmap` is row-major LSB-first (byte-identical to the client's
+  packBitmap layout); `typeHints` computed ONCE per result set with the same
+  taxonomy as the client's typeHintFor (parity documented on both sides).
+- Capability `compactRows: true`; SPEC §7.3/§7.5 updated; DECISIONS D-0016.
+
+Coverage: QueryFlowTests CompactRowsOptInSwitchesTheWireShape (compact shape
+for opted-in query, legacy untouched for a second query on the same
+connection); quick unit 294/294; verify.sh --quick green. Client side
+(vscode-mssql): binding opts in when negotiated, consumes the wire bitmap/
+hints/bytes with an in-place null normalization pass, and DELETES both the
+per-page compact rebuild and the `JSON.stringify(rows).length` byte
+re-measure (legacy fallback retained + tested); 23/23 binding conformance,
+full suite 4342/3-pre-existing. Live 100k-narrow on the compact wire green
+(run 2026-07-09T21-37-04Z_8125d6af); wallclock neutral at 4 reps — the
+binding CPU/allocation reduction is a QO-9b distribution/profiler question,
+recorded honestly rather than claimed from noise.
+
+One build slip caught by the suite mid-batch: a 4-quote raw-string delimiter
+ate the leading quote of "compact" (35 unit failures) — fixed to multi-line
+raw strings; lesson noted for future payload templating.
+
 ## QO-4: large-cell streaming in the SqlClient driver - 2026-07-09 - 13bf8ec7+ (working tree)
 Query-optimization batch QO-4: large values are never fully materialized just
 to be truncated (EXECUTION_PLAN invariant 6).

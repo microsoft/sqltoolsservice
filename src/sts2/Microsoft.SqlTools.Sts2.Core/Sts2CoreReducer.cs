@@ -116,6 +116,10 @@ namespace Microsoft.SqlTools.Sts2.Core
                     ["pageRowsHonored"] = true,
                     ["pageBytesHonored"] = true,
                     ["queryTimeoutHonored"] = true,
+                    // QO-5: options.compactRows=true switches v2/query.rows to
+                    // the compact page shape (values+nullBitmap+typeHints with
+                    // service-measured bytes) for that query (D-0016).
+                    ["compactRows"] = true,
                 },
                 ["drivers"] = driverArray,
                 ["limits"] = new JsonObject
@@ -455,8 +459,11 @@ namespace Microsoft.SqlTools.Sts2.Core
             int pageRows = EffectiveLoweredOption(envelope.Payload, "pageRows", Sts2Defaults.PageRows);
             int pageBytes = EffectiveLoweredOption(envelope.Payload, "pageBytes", Sts2Defaults.PageBytes);
             int queryTimeoutMs = EffectiveQueryTimeoutMs(envelope.Payload);
+            // QO-5: compact rows are opt-in per query; the runner emits the
+            // compact payload shape and the rows case routes on its presence.
+            bool compactRows = OptionIsTrue(envelope.Payload, "compactRows");
             string startArgs = string.Create(CultureInfo.InvariantCulture, $$"""
-                {"queryId":{{JsonSerializer.Serialize(queryId)}},"connectionId":{{JsonSerializer.Serialize(connectionId)}},"handleId":{{JsonSerializer.Serialize(connection.HandleId)}},"sql":{{sqlRaw}},"credit":{{Sts2Defaults.WindowPages}},"maxCellBytes":{{maxCellBytes}},"pageRows":{{pageRows}},"pageBytes":{{pageBytes}},"queryTimeoutMs":{{queryTimeoutMs}}}
+                {"queryId":{{JsonSerializer.Serialize(queryId)}},"connectionId":{{JsonSerializer.Serialize(connectionId)}},"handleId":{{JsonSerializer.Serialize(connection.HandleId)}},"sql":{{sqlRaw}},"credit":{{Sts2Defaults.WindowPages}},"maxCellBytes":{{maxCellBytes}},"pageRows":{{pageRows}},"pageBytes":{{pageBytes}},"queryTimeoutMs":{{queryTimeoutMs}},"compactRows":{{(compactRows ? "true" : "false")}}}
                 """);
 
             CoreState next = state with
@@ -512,6 +519,14 @@ namespace Microsoft.SqlTools.Sts2.Core
             }
             return defaultValue;
         }
+
+        /// <summary>True only when options.{name} is literal true (QO-5 opt-ins).</summary>
+        private static bool OptionIsTrue(JsonElement? payload, string name) =>
+            payload is { ValueKind: JsonValueKind.Object } p
+            && p.TryGetProperty("options", out JsonElement options)
+            && options.ValueKind == JsonValueKind.Object
+            && options.TryGetProperty(name, out JsonElement value)
+            && value.ValueKind == JsonValueKind.True;
 
         /// <summary>
         /// `options.queryTimeoutMs` (SPEC §7.5): positive passes through to the provider
@@ -741,9 +756,17 @@ namespace Microsoft.SqlTools.Sts2.Core
                         CreditOutstanding = Math.Max(0, query.CreditOutstanding - 1),
                     };
                     CoreState next = state with { Queries = state.Queries.SetItem(queryId, updated) };
-                    string notify = string.Create(CultureInfo.InvariantCulture, $$"""
-                        {"queryId":{{JsonSerializer.Serialize(queryId)}},"resultSetId":{{GetRaw(payload, "resultSetId", "0")}},"pageSeq":{{GetRaw(payload, "pageSeq", "0")}},"rowOffset":{{GetRaw(payload, "rowOffset", "0")}},"rows":{{GetRaw(payload, "rows", "[]")}},"last":false}
-                        """);
+                    // QO-5: a compact payload (opted-in query) forwards the
+                    // compact page + byte facts; legacy payloads keep today's
+                    // shape byte-for-byte. Routing is by payload shape — the
+                    // runner emits exactly one of the two.
+                    string notify = payload.TryGetProperty("compact", out JsonElement compact)
+                        ? string.Create(CultureInfo.InvariantCulture, $$"""
+                            {"queryId":{{JsonSerializer.Serialize(queryId)}},"resultSetId":{{GetRaw(payload, "resultSetId", "0")}},"pageSeq":{{GetRaw(payload, "pageSeq", "0")}},"rowOffset":{{GetRaw(payload, "rowOffset", "0")}},"compact":{{compact.GetRawText()}},"approxBytes":{{GetRaw(payload, "approxBytes", "0")}},"encodedBytes":{{GetRaw(payload, "encodedBytes", "0")}},"last":false}
+                            """)
+                        : string.Create(CultureInfo.InvariantCulture, $$"""
+                            {"queryId":{{JsonSerializer.Serialize(queryId)}},"resultSetId":{{GetRaw(payload, "resultSetId", "0")}},"pageSeq":{{GetRaw(payload, "pageSeq", "0")}},"rowOffset":{{GetRaw(payload, "rowOffset", "0")}},"rows":{{GetRaw(payload, "rows", "[]")}},"last":false}
+                            """);
                     return new CoreDecision(next, [new RpcNotifyOutput("v2/query.rows", Json(notify))]);
                 }
 

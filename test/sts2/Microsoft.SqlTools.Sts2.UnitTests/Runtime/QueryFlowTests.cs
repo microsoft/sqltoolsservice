@@ -93,6 +93,35 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
         }
 
         [Fact]
+        public async Task CompactRowsOptInSwitchesTheWireShape() // QO-5 / D-0016
+        {
+            string connectionId = await session.OpenConnectionAsync();
+            await session.RequestAsync("v2/query.execute",
+                $$"""{"connectionId":"{{connectionId}}","sql":"select 1","options":{"compactRows":true} }""");
+            await session.WaitForNotificationsAsync("v2/query.complete", 1);
+
+            List<OutboundRpcMessage> rows = await session.WaitForNotificationsAsync("v2/query.rows", 1);
+            JsonElement body = rows[0].Body!.Value;
+            Assert.False(body.TryGetProperty("rows", out _));
+            JsonElement compact = body.GetProperty("compact");
+            Assert.Equal(3, compact.GetProperty("values").GetArrayLength());
+            Assert.Equal(2, compact.GetProperty("typeHints").GetArrayLength());
+            Assert.NotNull(compact.GetProperty("nullBitmap").GetString());
+            Assert.True(body.GetProperty("approxBytes").GetInt64() > 0);
+            Assert.True(body.GetProperty("encodedBytes").GetInt64() > 0);
+            Assert.Equal(0, body.GetProperty("pageSeq").GetInt32());
+
+            // A query WITHOUT the opt-in keeps the legacy shape byte-for-byte.
+            await session.RequestAsync("v2/query.execute",
+                $$"""{"connectionId":"{{connectionId}}","sql":"select 2"}""");
+            await session.WaitForNotificationsAsync("v2/query.complete", 2);
+            List<OutboundRpcMessage> allRows = await session.WaitForNotificationsAsync("v2/query.rows", 2);
+            JsonElement legacy = allRows[1].Body!.Value;
+            Assert.True(legacy.TryGetProperty("rows", out _));
+            Assert.False(legacy.TryGetProperty("compact", out _));
+        }
+
+        [Fact]
         public async Task ServerMessagePassesThroughVerbatimWithLine()
         {
             string connectionId = await session.OpenConnectionAsync();
