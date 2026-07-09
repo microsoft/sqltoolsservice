@@ -47,29 +47,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
         }
 
         [Test]
-        public void FormatShouldPreserveDominantCrLfLineEndings()
+        [TestCase("\r\n")]
+        [TestCase("\n")]
+        public void FormatShouldUseEnvironmentLineEnding(string inputLineEnding)
         {
-            string sql = "create table dbo.T (id int not null,\r\nname int null)";
+            string sql = "create table dbo.T (id int not null," + inputLineEnding + "name int null)";
 
             ScriptDomFormatterResult result = new ScriptDomSqlFormatter().Format(sql, new FormatOptions());
 
             Assert.AreEqual(ScriptDomFormatterOutcome.Formatted, result.Outcome);
             Assert.NotNull(result.FormattedText);
-            StringAssert.Contains("\r\n", result.FormattedText);
-            Assert.False(result.FormattedText!.Replace("\r\n", string.Empty).Contains("\n"));
-        }
-
-        [Test]
-        public void FormatShouldPreserveDominantLfLineEndings()
-        {
-            string sql = "create table dbo.T (id int not null,\nname int null)";
-
-            ScriptDomFormatterResult result = new ScriptDomSqlFormatter().Format(sql, new FormatOptions());
-
-            Assert.AreEqual(ScriptDomFormatterOutcome.Formatted, result.Outcome);
-            Assert.NotNull(result.FormattedText);
-            Assert.False(result.FormattedText!.Contains("\r\n"));
-            StringAssert.Contains("\n", result.FormattedText);
+            AssertUsesEnvironmentLineEndings(result.FormattedText!);
         }
 
         [Test]
@@ -81,8 +69,20 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
 
             Assert.AreEqual(ScriptDomFormatterOutcome.Formatted, result.Outcome);
             Assert.NotNull(result.FormattedText);
-            StringAssert.Contains(Environment.NewLine, result.FormattedText);
-            Assert.False(result.FormattedText!.Replace(Environment.NewLine, string.Empty).Contains("\n"));
+            AssertUsesEnvironmentLineEndings(result.FormattedText!);
+        }
+
+        private static void AssertUsesEnvironmentLineEndings(string text)
+        {
+            StringAssert.Contains(Environment.NewLine, text);
+            if (Environment.NewLine == "\r\n")
+            {
+                Assert.False(text.Replace("\r\n", string.Empty).Contains("\n"));
+            }
+            else
+            {
+                Assert.False(text.Contains("\r\n"));
+            }
         }
     }
 }

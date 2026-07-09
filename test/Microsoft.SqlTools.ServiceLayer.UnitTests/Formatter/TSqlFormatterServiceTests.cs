@@ -184,6 +184,33 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
         }
 
         [Test]
+        public async Task PreviewFormatDocumentShouldUseEnvironmentLineEndings()
+        {
+            SetupLanguageService();
+            FormatterService.UpdateFormatterSettings(new FormatterSettings
+            {
+                EnablePreviewFormatter = true
+            });
+            SetupScriptFile("create table dbo.T (id int not null,\nname int null)");
+
+            await TestUtils.RunAndVerify<TextEdit[]>(
+                test: (requestContext) => FormatterService.HandleDocFormatRequest(docFormatParams, requestContext),
+                verify: (edits =>
+                {
+                    Assert.AreEqual(1, edits.Length);
+                    StringAssert.Contains(Environment.NewLine, edits[0].NewText);
+                    if (Environment.NewLine == "\r\n")
+                    {
+                        Assert.False(edits[0].NewText.Replace("\r\n", string.Empty).Contains("\n"));
+                    }
+                    else
+                    {
+                        Assert.False(edits[0].NewText.Contains("\r\n"));
+                    }
+                }));
+        }
+
+        [Test]
         public async Task PreviewFormatRangeShouldReturnNoEditsForPartialSelection()
         {
             SetupLanguageService();

@@ -42,7 +42,7 @@ namespace Microsoft.SqlTools.LanguageService.Formatter.ScriptDom
                 SqlScriptGenerator generator = CreateScriptGenerator(generatorOptions);
                 generator.GenerateScript(fragment, out string generatedText);
 
-                string lineEnding = GetDominantLineEnding(text);
+                string lineEnding = Environment.NewLine;
                 string formattedText = NormalizeLineEndings(generatedText.Trim(), lineEnding);
                 string normalizedInput = NormalizeLineEndings(text.Trim(), lineEnding);
                 if (normalizedInput == formattedText)
@@ -113,31 +113,6 @@ namespace Microsoft.SqlTools.LanguageService.Formatter.ScriptDom
                 default:
                     return new Sql170ScriptGenerator(options);
             }
-        }
-
-        private static string GetDominantLineEnding(string text)
-        {
-            int crlfCount = 0;
-            int lfCount = 0;
-            for (int index = 0; index < text.Length; index++)
-            {
-                if (text[index] == '\r' && index + 1 < text.Length && text[index + 1] == '\n')
-                {
-                    crlfCount++;
-                    index++;
-                }
-                else if (text[index] == '\n')
-                {
-                    lfCount++;
-                }
-            }
-
-            if (crlfCount == 0 && lfCount == 0)
-            {
-                return Environment.NewLine;
-            }
-
-            return crlfCount >= lfCount ? "\r\n" : "\n";
         }
 
         private static string NormalizeLineEndings(string text, string lineEnding)
