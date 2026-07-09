@@ -33,6 +33,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
         {
             ArgumentNullException.ThrowIfNull(request);
             int pageRows = request.PageRows > 0 ? request.PageRows : Sts2Defaults.PageRows;
+            int pageBytes = request.PageBytes > 0 ? request.PageBytes : Sts2Defaults.PageBytes;
 
             yield return new ExecStarted(request.QueryId);
 
@@ -82,7 +83,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                             }
                             if (reader.FieldCount > 0)
                             {
-                                await foreach (ExecEvent execEvent in PumpResultSetAsync(reader, resultSetId, pageRows, cancellationToken).ConfigureAwait(false))
+                                await foreach (ExecEvent execEvent in PumpResultSetAsync(reader, resultSetId, pageRows, pageBytes, cancellationToken).ConfigureAwait(false))
                                 {
                                     yield return execEvent;
                                 }
@@ -142,7 +143,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
 
         /// <summary>Streams one result set page-by-page (no full-result buffering).</summary>
         private static async IAsyncEnumerable<ExecEvent> PumpResultSetAsync(
-            SqlDataReader reader, int resultSetId, int pageRows, [EnumeratorCancellation] CancellationToken cancellationToken)
+            SqlDataReader reader, int resultSetId, int pageRows, int pageBytes, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             var columns = await ReadColumnsAsync(reader).ConfigureAwait(false);
             yield return new ResultSetStarted(resultSetId, columns);
@@ -150,7 +151,9 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             int pageSeq = 0;
             long rowOffset = 0;
             long rowCount = 0;
-            var page = new List<IReadOnlyList<object?>>(pageRows);
+            // QO-3: rows and bytes both bound page construction — whichever limit
+            // is reached first completes the page (SqlRowsPageBuilder).
+            var builder = new SqlRowsPageBuilder(pageRows, pageBytes);
 
             while (await ReadRowAsync(reader, cancellationToken).ConfigureAwait(false))
             {
@@ -159,21 +162,19 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                 {
                     cells[i] = reader.IsDBNull(i) ? null : reader.GetValue(i);
                 }
-                page.Add(cells);
                 rowCount++;
-
-                if (page.Count >= pageRows)
+                foreach (IReadOnlyList<IReadOnlyList<object?>> page in builder.Add(cells))
                 {
                     yield return new RowsPage(resultSetId, pageSeq, rowOffset, page);
                     rowOffset += page.Count;
                     pageSeq++;
-                    page = new List<IReadOnlyList<object?>>(pageRows);
                 }
             }
 
-            if (page.Count > 0)
+            IReadOnlyList<IReadOnlyList<object?>>? tail = builder.Flush();
+            if (tail is not null)
             {
-                yield return new RowsPage(resultSetId, pageSeq, rowOffset, page);
+                yield return new RowsPage(resultSetId, pageSeq, rowOffset, tail);
             }
             yield return new ResultSetCompleted(resultSetId, rowCount);
         }

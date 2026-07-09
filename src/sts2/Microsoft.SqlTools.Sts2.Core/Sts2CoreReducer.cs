@@ -111,6 +111,11 @@ namespace Microsoft.SqlTools.Sts2.Core
                     // STS2-3: query.execute options.maxCellBytes is honored (cells arrive
                     // bounded, oversized cells as truncated wrappers, SPEC §7.7).
                     ["maxCellBytesHonored"] = true,
+                    // QO-3: query.execute options.pageRows/pageBytes (lower-only) and
+                    // options.queryTimeoutMs are honored end to end (D-0014).
+                    ["pageRowsHonored"] = true,
+                    ["pageBytesHonored"] = true,
+                    ["queryTimeoutHonored"] = true,
                 },
                 ["drivers"] = driverArray,
                 ["limits"] = new JsonObject
@@ -444,8 +449,14 @@ namespace Microsoft.SqlTools.Sts2.Core
             string queryId = string.Create(CultureInfo.InvariantCulture, $"q-{envelope.Seq}");
             string startEffectId = string.Create(CultureInfo.InvariantCulture, $"drv-qstart-{envelope.Seq}");
             int maxCellBytes = EffectiveMaxCellBytes(envelope.Payload);
+            // QO-3: page sizing and timeout follow the same normalize-into-journaled-args
+            // pattern (STS2-3 precedent) so replay stays deterministic and the runner never
+            // re-derives options.
+            int pageRows = EffectiveLoweredOption(envelope.Payload, "pageRows", Sts2Defaults.PageRows);
+            int pageBytes = EffectiveLoweredOption(envelope.Payload, "pageBytes", Sts2Defaults.PageBytes);
+            int queryTimeoutMs = EffectiveQueryTimeoutMs(envelope.Payload);
             string startArgs = string.Create(CultureInfo.InvariantCulture, $$"""
-                {"queryId":{{JsonSerializer.Serialize(queryId)}},"connectionId":{{JsonSerializer.Serialize(connectionId)}},"handleId":{{JsonSerializer.Serialize(connection.HandleId)}},"sql":{{sqlRaw}},"credit":{{Sts2Defaults.WindowPages}},"maxCellBytes":{{maxCellBytes}}}
+                {"queryId":{{JsonSerializer.Serialize(queryId)}},"connectionId":{{JsonSerializer.Serialize(connectionId)}},"handleId":{{JsonSerializer.Serialize(connection.HandleId)}},"sql":{{sqlRaw}},"credit":{{Sts2Defaults.WindowPages}},"maxCellBytes":{{maxCellBytes}},"pageRows":{{pageRows}},"pageBytes":{{pageBytes}},"queryTimeoutMs":{{queryTimeoutMs}}}
                 """);
 
             CoreState next = state with
@@ -477,19 +488,49 @@ namespace Microsoft.SqlTools.Sts2.Core
         /// the default (today's behavior); larger values clamp to the default — the client
         /// can never raise the service's memory/frame protection. Total, never throws.
         /// </summary>
-        private static int EffectiveMaxCellBytes(JsonElement? payload)
+        private static int EffectiveMaxCellBytes(JsonElement? payload) =>
+            EffectiveLoweredOption(payload, "maxCellBytes", Sts2Defaults.MaxCellBytes);
+
+        /// <summary>
+        /// Lower-only option normalization (STS2-3 semantics, reused for pageRows and
+        /// pageBytes in QO-3): a positive integer LOWERS the pinned default; absent,
+        /// zero, negative, or non-integer values mean the default; larger values clamp
+        /// to the default — the client can never raise the service's memory/frame
+        /// protection. Total, never throws.
+        /// </summary>
+        private static int EffectiveLoweredOption(JsonElement? payload, string name, int defaultValue)
         {
             if (payload is { ValueKind: JsonValueKind.Object } p
                 && p.TryGetProperty("options", out JsonElement options)
                 && options.ValueKind == JsonValueKind.Object
-                && options.TryGetProperty("maxCellBytes", out JsonElement value)
+                && options.TryGetProperty(name, out JsonElement value)
                 && value.ValueKind == JsonValueKind.Number
                 && value.TryGetInt32(out int requested)
                 && requested > 0)
             {
-                return Math.Min(requested, Sts2Defaults.MaxCellBytes);
+                return Math.Min(requested, defaultValue);
             }
-            return Sts2Defaults.MaxCellBytes;
+            return defaultValue;
+        }
+
+        /// <summary>
+        /// `options.queryTimeoutMs` (SPEC §7.5): positive passes through to the provider
+        /// command timeout; absent/zero/negative/non-integer means 0 = provider default.
+        /// No upper clamp — a long timeout raises no service memory risk.
+        /// </summary>
+        private static int EffectiveQueryTimeoutMs(JsonElement? payload)
+        {
+            if (payload is { ValueKind: JsonValueKind.Object } p
+                && p.TryGetProperty("options", out JsonElement options)
+                && options.ValueKind == JsonValueKind.Object
+                && options.TryGetProperty("queryTimeoutMs", out JsonElement value)
+                && value.ValueKind == JsonValueKind.Number
+                && value.TryGetInt32(out int requested)
+                && requested > 0)
+            {
+                return requested;
+            }
+            return 0;
         }
 
         private static CoreDecision DecideQueryAck(CoreState state, CoreEnvelope envelope)

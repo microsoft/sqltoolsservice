@@ -43,6 +43,9 @@ namespace Microsoft.SqlTools.Sts2.Testing
         /// <summary>Live session count; I8 asserts this returns to zero by run end.</summary>
         public int OpenSessionCount => Volatile.Read(ref openSessions);
 
+        /// <summary>The most recent ExecuteAsync request — lets tests assert option pass-through (QO-3).</summary>
+        public QueryExecuteRequest? LastExecuteRequest { get; private set; }
+
         /// <summary>Server facts every successful open reports.</summary>
         public ServerInfo ServerInfo { get; init; } = new()
         {
@@ -120,6 +123,7 @@ namespace Microsoft.SqlTools.Sts2.Testing
 
             public async IAsyncEnumerable<ExecEvent> ExecuteAsync(QueryExecuteRequest request, [EnumeratorCancellation] CancellationToken cancellationToken)
             {
+                owner.LastExecuteRequest = request;
                 FakeQueryScript script = owner.queryScripts.TryDequeue(out FakeQueryScript? scripted)
                     ? scripted
                     : FakeQueryScript.Default;

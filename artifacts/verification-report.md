@@ -2,6 +2,44 @@
 
 Newest entries first (AGENT-RUNBOOK.md §6).
 
+## QO-3: pageRows/pageBytes/queryTimeoutMs honored end to end - 2026-07-09 - ab640e6a+ (working tree)
+Query-optimization batch QO-3 (coding-docs/query-optimization/EXECUTION_PLAN.md),
+recorded as two-way door D-0014: the SPEC §7.5 execute options that were documented
+but dropped in the middle are now honored.
+
+Behavior:
+- Core `DecideQueryExecute` normalizes `options.pageRows`/`options.pageBytes`
+  (STS2-3 lower-only pattern via the shared `EffectiveLoweredOption`: positive
+  lowers, larger clamps to the pinned default) and `options.queryTimeoutMs`
+  (positive passthrough, else 0 = provider default) into the journaled
+  `driver.queryStart` args — replay-deterministic, runner never re-derives.
+- `DriverEffectRunner` reads them from the effect args (hardcoded
+  `Sts2Defaults.PageRows/PageBytes` deleted; older journals fall back via ArgsInt)
+  into `QueryExecuteRequest` including `QueryTimeoutMs` (previously always 0 —
+  `SqlCommand.CommandTimeout` plumbing existed but was dead).
+- New `SqlRowsPageBuilder` (Drivers.SqlClient, public like SqlClientConnectionString
+  for server-free tests): rows AND bytes bound page construction, whichever first;
+  an oversized single row becomes its own one-row page (cells still bounded by
+  maxCellBytes); byte accounting is a cheap construction-time approximation —
+  exact encoded bytes observable via QO-2 sts2.query.stats.
+- Capabilities gain `pageRowsHonored`/`pageBytesHonored`/`queryTimeoutHonored`
+  (additive; initialize-idempotent scenario pins them; SPEC §7.3 example +
+  §7.5 prose updated; D-0014 in DECISIONS.md). Raising page maxima above the
+  pinned defaults remains a SPEC-CHANGE and was NOT done.
+- FakeDriver records `LastExecuteRequest` so wire-level tests assert pass-through.
+
+New coverage (+9): CoreReducerTests QueryExecuteNormalizesPageOptionsAndTimeout
+(normalization matrix) + InitializeAdvertisesPageAndTimeoutCapabilities;
+QueryFlowTests PageAndTimeoutOptionsReachTheDriverExecuteRequest +
+AbsentOptionsReachTheDriverAsPinnedDefaults; SqlRowsPageBuilderTests x5
+(row-limit parity, byte-split before row limit, oversized one-row page,
+flush-once, estimator shapes).
+
+Residual: an Engine-category (real SQL) byte-split test is deferred — the builder
+is covered server-free; wide/blob perf scenarios (QO-9) will exercise it live.
+
+verify.sh --quick 2026-07-09 (post-change): green, all steps ok.
+
 ## QO-2: query row-pipeline attribution stats - 2026-07-09 - 7532d145+ (working tree)
 Query-optimization effort batch QO-2 (coding-docs/query-optimization/EXECUTION_PLAN.md),
 service side: make every slow query explainable by stage without changing the wire.

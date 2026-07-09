@@ -63,6 +63,36 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
         }
 
         [Fact]
+        public async Task PageAndTimeoutOptionsReachTheDriverExecuteRequest() // QO-3
+        {
+            string connectionId = await session.OpenConnectionAsync();
+            await session.RequestAsync("v2/query.execute",
+                $$"""{"connectionId":"{{connectionId}}","sql":"select 1","options":{"pageRows":128,"pageBytes":65536,"queryTimeoutMs":45000,"maxCellBytes":4096} }""");
+            await session.WaitForNotificationsAsync("v2/query.complete", 1);
+
+            Abstractions.QueryExecuteRequest? request = session.Driver.LastExecuteRequest;
+            Assert.NotNull(request);
+            Assert.Equal(128, request.PageRows);
+            Assert.Equal(65536, request.PageBytes);
+            Assert.Equal(45000, request.QueryTimeoutMs);
+        }
+
+        [Fact]
+        public async Task AbsentOptionsReachTheDriverAsPinnedDefaults() // QO-3
+        {
+            string connectionId = await session.OpenConnectionAsync();
+            await session.RequestAsync("v2/query.execute",
+                $$"""{"connectionId":"{{connectionId}}","sql":"select 1"}""");
+            await session.WaitForNotificationsAsync("v2/query.complete", 1);
+
+            Abstractions.QueryExecuteRequest? request = session.Driver.LastExecuteRequest;
+            Assert.NotNull(request);
+            Assert.Equal(Sts2Defaults.PageRows, request.PageRows);
+            Assert.Equal(Sts2Defaults.PageBytes, request.PageBytes);
+            Assert.Equal(0, request.QueryTimeoutMs);
+        }
+
+        [Fact]
         public async Task ServerMessagePassesThroughVerbatimWithLine()
         {
             string connectionId = await session.OpenConnectionAsync();

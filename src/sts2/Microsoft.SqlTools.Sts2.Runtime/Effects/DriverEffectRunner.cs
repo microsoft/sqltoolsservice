@@ -377,10 +377,11 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                 : 1;
             // Core normalized options.maxCellBytes into the journaled effect args (STS2-3);
             // an absent/invalid value falls back to the pinned default (older journals).
-            int maxCellBytes = effect.Args.TryGetProperty("maxCellBytes", out JsonElement m)
-                && m.ValueKind == JsonValueKind.Number && m.TryGetInt32(out int bound) && bound > 0
-                    ? bound
-                    : Sts2Defaults.MaxCellBytes;
+            // QO-3: pageRows/pageBytes/queryTimeoutMs ride the same journaled args.
+            int maxCellBytes = ArgsInt(effect.Args, "maxCellBytes", Sts2Defaults.MaxCellBytes);
+            int pageRows = ArgsInt(effect.Args, "pageRows", Sts2Defaults.PageRows);
+            int pageBytes = ArgsInt(effect.Args, "pageBytes", Sts2Defaults.PageBytes);
+            int queryTimeoutMs = ArgsInt(effect.Args, "queryTimeoutMs", 0);
 
             if (handleId is null || !sessions.TryGetValue(handleId, out IDbSession? session))
             {
@@ -391,21 +392,25 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
 
             var pump = new QueryPump { Session = session, Credits = new SemaphoreSlim(initialCredit) };
             queryPumps[queryId] = pump;
-            pump.PumpTask = Task.Run(() => StreamQueryPumpAsync(effect, inbox, queryId, sql, maxCellBytes, pump));
+            pump.PumpTask = Task.Run(() => StreamQueryPumpAsync(effect, inbox, queryId, sql, maxCellBytes, pageRows, pageBytes, queryTimeoutMs, pump));
         }
 
-        private async Task StreamQueryPumpAsync(EffectWorkItem effect, ICoordinatorInbox inbox, string queryId, string sql, int maxCellBytes, QueryPump pump)
+        private async Task StreamQueryPumpAsync(EffectWorkItem effect, ICoordinatorInbox inbox, string queryId, string sql, int maxCellBytes, int pageRows, int pageBytes, int queryTimeoutMs, QueryPump pump)
         {
             await PostQueryEventAsync(inbox, effect, queryId, """{"eventType":"started"}""").ConfigureAwait(false);
 
             try
             {
+                // QO-3: page sizing and timeout come from the journaled effect args
+                // (Core-normalized, lower-only for page limits) — the hardcoded
+                // defaults are gone; older journals fall back via ArgsInt.
                 var request = new QueryExecuteRequest
                 {
                     QueryId = queryId,
                     Sql = sql,
-                    PageRows = Sts2Defaults.PageRows,
-                    PageBytes = Sts2Defaults.PageBytes,
+                    PageRows = pageRows,
+                    PageBytes = pageBytes,
+                    QueryTimeoutMs = queryTimeoutMs,
                 };
                 // Row-pipeline attribution (QO-2): readMs approximates driver/enumerator time
                 // as the gap since the previous event finished posting; credit wait and encode
@@ -545,6 +550,15 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
             }
             return array.ToJsonString();
         }
+
+        /// <summary>Positive-int effect arg with fallback (absent/invalid/non-positive = default).</summary>
+        private static int ArgsInt(JsonElement args, string name, int defaultValue) =>
+            args.TryGetProperty(name, out JsonElement value)
+            && value.ValueKind == JsonValueKind.Number
+            && value.TryGetInt32(out int parsed)
+            && parsed > 0
+                ? parsed
+                : defaultValue;
 
         private static double ElapsedMs(long startTicks) =>
             (Stopwatch.GetTimestamp() - startTicks) * 1000.0 / Stopwatch.Frequency;

@@ -94,6 +94,47 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Core
         }
 
         [Fact]
+        public void QueryExecuteNormalizesPageOptionsAndTimeoutIntoTheStartEffect() // QO-3
+        {
+            static (int PageRows, int PageBytes, int TimeoutMs) StartOptions(string payload)
+            {
+                CoreDecision decision = Sts2CoreReducer.Decide(OpenConnectionState(),
+                    Request(3, "v2/query.execute", "r-q", payload));
+                EffectRequestOutput start = Assert.IsType<EffectRequestOutput>(decision.Outputs[1]);
+                return (start.Args.GetProperty("pageRows").GetInt32(),
+                        start.Args.GetProperty("pageBytes").GetInt32(),
+                        start.Args.GetProperty("queryTimeoutMs").GetInt32());
+            }
+
+            // Absent/empty/invalid: pinned defaults, timeout 0 (= provider default).
+            Assert.Equal((Sts2Defaults.PageRows, Sts2Defaults.PageBytes, 0),
+                StartOptions("""{"connectionId":"c-1","sql":"select 1"}"""));
+            Assert.Equal((Sts2Defaults.PageRows, Sts2Defaults.PageBytes, 0),
+                StartOptions("""{"connectionId":"c-1","sql":"select 1","options":{"pageRows":0,"pageBytes":-3,"queryTimeoutMs":"soon"}}"""));
+
+            // Positive values LOWER page limits; timeout passes through.
+            Assert.Equal((512, 65536, 30000),
+                StartOptions("""{"connectionId":"c-1","sql":"select 1","options":{"pageRows":512,"pageBytes":65536,"queryTimeoutMs":30000}}"""));
+
+            // Page limits can never be raised above the pinned defaults.
+            Assert.Equal((Sts2Defaults.PageRows, Sts2Defaults.PageBytes, 0),
+                StartOptions("""{"connectionId":"c-1","sql":"select 1","options":{"pageRows":999999,"pageBytes":999999999,"queryTimeoutMs":-1}}"""));
+        }
+
+        [Fact]
+        public void InitializeAdvertisesPageAndTimeoutCapabilities() // QO-3
+        {
+            CoreDecision decision = Sts2CoreReducer.Decide(CoreState.Initial,
+                Request(1, "v2/initialize", "r-init", """{"clientName":"t"}"""));
+            RpcResultOutput result = Assert.IsType<RpcResultOutput>(Assert.Single(decision.Outputs));
+            JsonElement capabilities = result.Result.GetProperty("capabilities");
+            Assert.True(capabilities.GetProperty("pageRowsHonored").GetBoolean());
+            Assert.True(capabilities.GetProperty("pageBytesHonored").GetBoolean());
+            Assert.True(capabilities.GetProperty("queryTimeoutHonored").GetBoolean());
+            Assert.True(capabilities.GetProperty("maxCellBytesHonored").GetBoolean());
+        }
+
+        [Fact]
         public void SecondQueryOnSameConnectionIsBusy()
         {
             CoreState state = Sts2CoreReducer.Decide(OpenConnectionState(),
