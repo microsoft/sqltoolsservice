@@ -566,6 +566,8 @@ or high-water credit:
 { "queryId": "q-1", "resultSetId": 0, "throughPageSeq": 12 }
 ```
 
+Ack ordinals are PER QUERY (D-0015): the window and the credit ledger count pages per query, so `throughPageSeq` is the cumulative per-query page ordinal — NOT the per-result-set `pageSeq` carried by `v2/query.rows` (which restarts at 0 for every result set). A client that acks the per-set seq freezes its high-water after the first result set and deadlocks any multi-result-set query longer than the window. `resultSetId` in the ack is diagnostic metadata; Core does not scope credit by result set.
+
 When the window is exhausted, the effect runner MUST stop advancing the driver's async enumerator for that query. This is the backpressure mechanism. It is not a busy sleep and not an unbounded memory queue.
 
 ### 7.9 Idempotency and lifecycle rules

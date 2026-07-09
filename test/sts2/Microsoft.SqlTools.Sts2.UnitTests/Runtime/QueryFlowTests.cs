@@ -347,6 +347,48 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
         }
 
         [Fact]
+        public async Task MultiResultSetStreamCompletesWithPerQueryOrdinalAcks() // D-0015
+        {
+            // Six result sets, one page each: the WIRE pageSeq is 0 for every
+            // page (per-set numbering), but the credit ledger counts pages per
+            // QUERY — the ack's throughPageSeq is the per-query page ordinal.
+            // A client acking the per-set seq freezes its high-water after the
+            // first set and deadlocks at the 4-page window (found live by the
+            // querystudio-query-100-resultsets perf scenario).
+            string connectionId = await session.OpenConnectionAsync();
+            var steps = new List<FakeQueryStep>();
+            for (int i = 0; i < 6; i++)
+            {
+                steps.Add(new FakeQueryStep { Type = "resultSet", ResultSetId = i, Columns = 1 });
+                steps.Add(new FakeQueryStep { Type = "rows", ResultSetId = i, Rows = 1 });
+            }
+            steps.Add(new FakeQueryStep { Type = "completed", RowsAffected = 6 });
+            session.Driver.EnqueueQuery(new FakeQueryScript { Steps = steps });
+
+            OutboundRpcMessage execute = await session.RequestAsync("v2/query.execute",
+                $$"""{"connectionId":"{{connectionId}}","sql":"select many sets"}""");
+            string queryId = execute.Body!.Value.GetProperty("queryId").GetString()!;
+
+            // Window exhausts after 4 pages even though every page is pageSeq 0.
+            await session.WaitForNotificationsAsync("v2/query.rows", 4);
+            await Task.Delay(200);
+            Assert.Equal(4, session.Emitted.Count(m => m.Type == "v2/query.rows"));
+
+            // Per-query ordinal high-water (pages 0..3 accepted) reopens the window.
+            await session.NotifyAsync("v2/query.ack",
+                $$"""{"queryId":"{{queryId}}","resultSetId":3,"throughPageSeq":3}""");
+            await session.WaitForNotificationsAsync("v2/query.rows", 6);
+            await session.WaitForNotificationsAsync("v2/query.complete", 1);
+
+            List<OutboundRpcMessage> rows = [.. session.Emitted.Where(m => m.Type == "v2/query.rows")];
+            Assert.Equal(6, rows.Count);
+            Assert.All(rows, r => Assert.Equal(0, r.Body!.Value.GetProperty("pageSeq").GetInt32()));
+            Assert.Equal(
+                Enumerable.Range(0, 6),
+                rows.Select(r => r.Body!.Value.GetProperty("resultSetId").GetInt32()));
+        }
+
+        [Fact]
         public async Task CancelMidStreamCompletesWithCanceledStatus()
         {
             string connectionId = await session.OpenConnectionAsync();
