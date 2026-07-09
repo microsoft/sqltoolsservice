@@ -9,8 +9,10 @@ using System;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.SqlTools.LanguageService.Formatter;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.LanguageService.Formatter.Contracts;
+using Microsoft.SqlTools.LanguageService.Formatter.ScriptDom;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
@@ -104,6 +106,102 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
         }
 
         [Test]
+        public async Task PreviewFormatDocumentShouldReturnSingleEdit()
+        {
+            SetupLanguageService();
+            FormatterService.UpdateFormatterSettings(new FormatterSettings
+            {
+                EnablePreviewFormatter = true,
+                KeywordCasing = CasingOptions.Uppercase
+            });
+            SetupScriptFile("select 1 as value");
+
+            await TestUtils.RunAndVerify<TextEdit[]>(
+                test: (requestContext) => FormatterService.HandleDocFormatRequest(docFormatParams, requestContext),
+                verify: (edits =>
+                {
+                    Assert.AreEqual(1, edits.Length);
+                    StringAssert.Contains("SELECT", edits[0].NewText);
+                    StringAssert.Contains(" AS ", edits[0].NewText);
+                }));
+        }
+
+        [Test]
+        public async Task PreviewFormatDocumentShouldReturnNoEditsForParseError()
+        {
+            SetupLanguageService();
+            FormatterService.UpdateFormatterSettings(new FormatterSettings
+            {
+                EnablePreviewFormatter = true
+            });
+            SetupScriptFile("select from");
+
+            await TestUtils.RunAndVerify<TextEdit[]>(
+                test: (requestContext) => FormatterService.HandleDocFormatRequest(docFormatParams, requestContext),
+                verify: (edits =>
+                {
+                    Assert.AreEqual(0, edits.Length);
+                }));
+        }
+
+        [Test]
+        public async Task PreviewFormatDocumentShouldReturnNoEditsWhenNoChangeNeeded()
+        {
+            SetupLanguageService();
+            FormatterService.UpdateFormatterSettings(new FormatterSettings
+            {
+                EnablePreviewFormatter = true
+            });
+            ScriptDomFormatterResult formattedSql = new ScriptDomSqlFormatter().Format("select 1 as value", new FormatOptions());
+            SetupScriptFile(formattedSql.FormattedText);
+
+            await TestUtils.RunAndVerify<TextEdit[]>(
+                test: (requestContext) => FormatterService.HandleDocFormatRequest(docFormatParams, requestContext),
+                verify: (edits =>
+                {
+                    Assert.AreEqual(0, edits.Length);
+                }));
+        }
+
+        [Test]
+        public async Task PreviewFormatDocumentShouldUseFormattingTabSize()
+        {
+            SetupLanguageService();
+            FormatterService.UpdateFormatterSettings(new FormatterSettings
+            {
+                EnablePreviewFormatter = true
+            });
+            docFormatParams.Options = new FormattingOptions { InsertSpaces = true, TabSize = 2 };
+            SetupScriptFile("create table dbo.T (id int not null, name int null)");
+
+            await TestUtils.RunAndVerify<TextEdit[]>(
+                test: (requestContext) => FormatterService.HandleDocFormatRequest(docFormatParams, requestContext),
+                verify: (edits =>
+                {
+                    Assert.AreEqual(1, edits.Length);
+                    StringAssert.Contains("\n  ", edits[0].NewText);
+                }));
+        }
+
+        [Test]
+        public async Task PreviewFormatRangeShouldReturnNoEditsForPartialSelection()
+        {
+            SetupLanguageService();
+            FormatterService.UpdateFormatterSettings(new FormatterSettings
+            {
+                EnablePreviewFormatter = true
+            });
+            SetupScriptFile(defaultSqlContents);
+
+            await TestUtils.RunAndVerify<TextEdit[]>(
+                test: (requestContext) => FormatterService.HandleDocRangeFormatRequest(rangeFormatParams, requestContext),
+                verify: (edits =>
+                {
+                    Assert.AreEqual(0, edits.Length);
+                }));
+        }
+
+        [Test]
         public async Task FormatRangeShouldReturnSingleEdit()
         {
             // Given a document that we want to format
@@ -152,6 +250,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                     Assert.NotNull(actualParams);
                     Assert.AreEqual(TelemetryEventNames.FormatCode, actualParams.Params.EventName);
                     Assert.AreEqual(TelemetryPropertyNames.DocumentFormatType, actualParams.Params.Properties[TelemetryPropertyNames.FormatType]);
+                    AssertFormatterTelemetry(
+                        actualParams,
+                        TelemetryPropertyNames.LegacyFormatterImplementation,
+                        TelemetryPropertyNames.FormatterOutcomeApplied);
                 });
         }
 
@@ -169,6 +271,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                     Assert.NotNull(actualParams);
                     Assert.AreEqual(TelemetryEventNames.FormatCode, actualParams.Params.EventName);
                     Assert.AreEqual(TelemetryPropertyNames.RangeFormatType, actualParams.Params.Properties[TelemetryPropertyNames.FormatType]);
+                    AssertFormatterTelemetry(
+                        actualParams,
+                        TelemetryPropertyNames.LegacyFormatterImplementation,
+                        TelemetryPropertyNames.FormatterOutcomeApplied);
 
                     // And expect range to have been correctly formatted
                     Assert.AreEqual(1, result.Length);
@@ -176,10 +282,60 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 });
         }
 
+        [Test]
+        public async Task PreviewFormatDocumentTelemetryShouldIncludeScriptDomOutcome()
+        {
+            await RunAndVerifyTelemetryTest(
+                preRunSetup: () =>
+                {
+                    SetupLanguageService();
+                    FormatterService.UpdateFormatterSettings(new FormatterSettings
+                    {
+                        EnablePreviewFormatter = true
+                    });
+                },
+                test: (requestContext) => FormatterService.HandleDocFormatRequest(docFormatParams, requestContext),
+                verify: (result, actualParams) =>
+                {
+                    Assert.AreEqual(1, result.Length);
+                    AssertFormatterTelemetry(
+                        actualParams,
+                        TelemetryPropertyNames.ScriptDomFormatterImplementation,
+                        TelemetryPropertyNames.FormatterOutcomeApplied);
+                },
+                scriptContents: "select 1 as value");
+        }
+
+        [Test]
+        public async Task PreviewFormatDocumentTelemetryShouldIncludeParseFailureOutcome()
+        {
+            await RunAndVerifyTelemetryTest(
+                preRunSetup: () =>
+                {
+                    SetupLanguageService();
+                    FormatterService.UpdateFormatterSettings(new FormatterSettings
+                    {
+                        EnablePreviewFormatter = true
+                    });
+                },
+                test: (requestContext) => FormatterService.HandleDocFormatRequest(docFormatParams, requestContext),
+                verify: (result, actualParams) =>
+                {
+                    Assert.AreEqual(0, result.Length);
+                    AssertFormatterTelemetry(
+                        actualParams,
+                        TelemetryPropertyNames.ScriptDomFormatterImplementation,
+                        TelemetryPropertyNames.FormatterOutcomeParseFailed);
+                    Assert.Greater(actualParams.Params.Measures[TelemetryMeasureNames.ParseErrorCount], 0);
+                },
+                scriptContents: "select from");
+        }
+
         private async Task RunAndVerifyTelemetryTest(
             Action preRunSetup,
             Func<RequestContext<TextEdit[]>, Task> test,
-            Action<TextEdit[], TelemetryParams> verify)
+            Action<TextEdit[], TelemetryParams> verify,
+            string scriptContents = null)
         {
             SemaphoreSlim semaphore = new SemaphoreSlim(0, 1);
             TelemetryParams actualParams = null;
@@ -200,7 +356,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
             {
                 preRunSetup();
             }
-            SetupScriptFile(defaultSqlContents);
+            SetupScriptFile(scriptContents ?? defaultSqlContents);
 
             // When format document is called
             await RunAndVerify<TextEdit[]>(
@@ -212,6 +368,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                     semaphore.Wait(TimeSpan.FromSeconds(10));
                     verify(result, actualParams);
                 });
+        }
+
+        private static void AssertFormatterTelemetry(
+            TelemetryParams actualParams,
+            string expectedImplementation,
+            string expectedOutcome)
+        {
+            Assert.AreEqual(expectedImplementation, actualParams.Params.Properties[TelemetryPropertyNames.FormatterImplementation]);
+            Assert.AreEqual(expectedOutcome, actualParams.Params.Properties[TelemetryPropertyNames.FormatterOutcome]);
+            Assert.GreaterOrEqual(actualParams.Params.Measures[TelemetryMeasureNames.FormatterDurationMs], 0);
+            Assert.GreaterOrEqual(actualParams.Params.Measures[TelemetryMeasureNames.ParseErrorCount], 0);
         }
 
         public static async Task RunAndVerify<T>(Func<RequestContext<T>, Task> test, Mock<RequestContext<T>> contextMock, Action verify)
