@@ -60,6 +60,19 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
         }
 
         [Test]
+        public void FormatShouldPreserveDominantLfLineEndings()
+        {
+            string sql = "create table dbo.T (id int not null,\nname int null)";
+
+            ScriptDomFormatterResult result = new ScriptDomSqlFormatter().Format(sql, new FormatOptions());
+
+            Assert.AreEqual(ScriptDomFormatterOutcome.Formatted, result.Outcome);
+            Assert.NotNull(result.FormattedText);
+            Assert.False(result.FormattedText!.Contains("\r\n"));
+            StringAssert.Contains("\n", result.FormattedText);
+        }
+
+        [Test]
         public void FormatShouldUseEnvironmentLineEndingWhenInputHasNoLineEndings()
         {
             string sql = "create table dbo.T (id int not null, name int null)";

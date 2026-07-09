@@ -41,8 +41,9 @@ namespace Microsoft.SqlTools.LanguageService.Formatter.ScriptDom
                 SqlScriptGenerator generator = CreateScriptGenerator(generatorOptions);
                 generator.GenerateScript(fragment, out string generatedText);
 
-                string formattedText = NormalizeLineEndings(generatedText.Trim(), GetDominantLineEnding(text));
-                string normalizedInput = NormalizeLineEndings(text.Trim(), GetDominantLineEnding(text));
+                string lineEnding = GetDominantLineEnding(text);
+                string formattedText = NormalizeLineEndings(generatedText.Trim(), lineEnding);
+                string normalizedInput = NormalizeLineEndings(text.Trim(), lineEnding);
                 if (normalizedInput == formattedText)
                 {
                     return new ScriptDomFormatterResult(ScriptDomFormatterOutcome.NoChange);
@@ -114,28 +115,27 @@ namespace Microsoft.SqlTools.LanguageService.Formatter.ScriptDom
 
         private static string GetDominantLineEnding(string text)
         {
-            int crlfCount = CountOccurrences(text, "\r\n");
-            string withoutCrLf = text.Replace("\r\n", string.Empty);
-            int lfCount = CountOccurrences(withoutCrLf, "\n");
+            int crlfCount = 0;
+            int lfCount = 0;
+            for (int index = 0; index < text.Length; index++)
+            {
+                if (text[index] == '\r' && index + 1 < text.Length && text[index + 1] == '\n')
+                {
+                    crlfCount++;
+                    index++;
+                }
+                else if (text[index] == '\n')
+                {
+                    lfCount++;
+                }
+            }
+
             if (crlfCount == 0 && lfCount == 0)
             {
                 return Environment.NewLine;
             }
 
             return crlfCount >= lfCount ? "\r\n" : "\n";
-        }
-
-        private static int CountOccurrences(string text, string value)
-        {
-            int count = 0;
-            int index = 0;
-            while ((index = text.IndexOf(value, index, StringComparison.Ordinal)) >= 0)
-            {
-                count++;
-                index += value.Length;
-            }
-
-            return count;
         }
 
         private static string NormalizeLineEndings(string text, string lineEnding)

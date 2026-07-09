@@ -179,7 +179,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 verify: (edits =>
                 {
                     Assert.AreEqual(1, edits.Length);
-                    StringAssert.Contains("\n  ", edits[0].NewText);
+                    StringAssert.Contains(Environment.NewLine + "  ", edits[0].NewText);
                 }));
         }
 
