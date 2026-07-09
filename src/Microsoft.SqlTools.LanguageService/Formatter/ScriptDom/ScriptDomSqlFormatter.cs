@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.SqlServer.TransactSql.ScriptDom;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.LanguageService.Formatter.ScriptDom
 {
@@ -51,8 +52,9 @@ namespace Microsoft.SqlTools.LanguageService.Formatter.ScriptDom
 
                 return new ScriptDomFormatterResult(ScriptDomFormatterOutcome.Formatted, formattedText);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Logger.Error(ex);
                 return new ScriptDomFormatterResult(ScriptDomFormatterOutcome.Exception);
             }
         }
