@@ -411,6 +411,9 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                     PageRows = pageRows,
                     PageBytes = pageBytes,
                     QueryTimeoutMs = queryTimeoutMs,
+                    // QO-4: the driver streams large values bounded by this;
+                    // the encoder stays authoritative for anything it didn't.
+                    MaxCellBytes = maxCellBytes,
                 };
                 // Row-pipeline attribution (QO-2): readMs approximates driver/enumerator time
                 // as the gap since the previous event finished posting; credit wait and encode

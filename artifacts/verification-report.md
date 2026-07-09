@@ -2,6 +2,42 @@
 
 Newest entries first (AGENT-RUNBOOK.md §6).
 
+## QO-4: large-cell streaming in the SqlClient driver - 2026-07-09 - 13bf8ec7+ (working tree)
+Query-optimization batch QO-4: large values are never fully materialized just
+to be truncated (EXECUTION_PLAN invariant 6).
+
+Behavior:
+- `SqlClientSession` opens readers with `CommandBehavior.SequentialAccess`
+  (cells were already read in ordinal order).
+- New `SqlLargeValueReader`: MAX-typed/unbounded columns (xml, text/ntext,
+  image, and (n)varchar/varbinary/json at MAX length) stream in fixed chunks —
+  GetChars with a stateful UTF-8 Encoder (surrogate pairs split across chunk
+  boundaries hash/count correctly) or GetBytes. Values within `maxCellBytes`
+  return as ordinary CLR values (encoder path unchanged); oversized values
+  return as the new `DriverTruncatedValue` (bounded prefix + full-value byte
+  count + sha256 computed WHILE streaming). Peak per-cell memory = prefix +
+  one chunk, never the value.
+- `QueryExecuteRequest` gains `MaxCellBytes` (journaled via the existing
+  queryStart args; runner passes it) — additive driver-port change,
+  PublicAPI updated.
+- `WireValueEncoder` emits the SPEC §7.7 wrapper VERBATIM from driver facts
+  (bytes is long-safe past int.MaxValue) and re-caps only the retained prefix
+  with the same UTF-8-boundary rules. Digest semantics unchanged (sha256 of
+  the full value) — no SPEC question; a digestPolicy knob remains a future
+  option gated on QO-9b data.
+
+Coverage: WireValueEncoderTests +1 (driver-wrapper verbatim emission,
+long bytes, multi-byte re-cap, binary prefix cap); quick unit suite 293/293;
+verify.sh --quick green. LIVE proof on real SQL Server:
+querystudio-query-large-cells (20 rows x two ~1 MiB-char MAX cells ->
+truncated wrappers) **3.98-4.32 s baseline -> 1.53-1.79 s (~2.5x)**, run
+2026-07-09T21-01-40Z_9c41f3c9; querystudio-query-blob (256 KB values within
+bound -> complete values) 4/4 green ~0.55 s, run 2026-07-09T21-04-09Z_8496c2cc.
+
+Residual: xml streams via GetChars (validated live through PerfBlobs
+XmlPayload); an Engine-category unit fact for per-type streaming remains
+follow-up alongside QO-9b calibration.
+
 ## QO-3: pageRows/pageBytes/queryTimeoutMs honored end to end - 2026-07-09 - ab640e6a+ (working tree)
 Query-optimization batch QO-3 (coding-docs/query-optimization/EXECUTION_PLAN.md),
 recorded as two-way door D-0014: the SPEC §7.5 execute options that were documented

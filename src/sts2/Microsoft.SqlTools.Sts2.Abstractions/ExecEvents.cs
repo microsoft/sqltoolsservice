@@ -32,6 +32,33 @@ namespace Microsoft.SqlTools.Sts2.Abstractions
     /// </summary>
     public sealed record ExecCompleted(IReadOnlyList<long> RowsAffected, string? Database = null) : ExecEvent;
 
+    /// <summary>
+    /// A large cell the DRIVER pre-bounded by streaming (QO-4): the retained
+    /// prefix plus honest metadata, produced without ever materializing the
+    /// full value. Exactly one of <see cref="PrefixText"/>/<see cref="PrefixBytes"/>
+    /// is set per <see cref="Kind"/>. <see cref="TotalBytes"/> counts the full
+    /// value's bytes (UTF-8 for text) and <see cref="DigestHex"/> is the
+    /// sha256 of the full value, both computed while streaming — the encoder
+    /// emits the SPEC §7.7 truncation wrapper from these fields verbatim.
+    /// </summary>
+    public sealed record DriverTruncatedValue
+    {
+        /// <summary>"string" or "binary" — how the prefix decodes.</summary>
+        public required string Kind { get; init; }
+
+        /// <summary>Retained text prefix (Kind == "string").</summary>
+        public string? PrefixText { get; init; }
+
+        /// <summary>Retained binary prefix (Kind == "binary").</summary>
+        public byte[]? PrefixBytes { get; init; }
+
+        /// <summary>Full value byte count (UTF-8 for text), streamed.</summary>
+        public required long TotalBytes { get; init; }
+
+        /// <summary>sha256 hex of the full value bytes, streamed.</summary>
+        public required string DigestHex { get; init; }
+    }
+
     /// <summary>Column metadata: engine type names verbatim plus normalized fields (SPEC §7.7).</summary>
     public sealed record ColumnInfo
     {

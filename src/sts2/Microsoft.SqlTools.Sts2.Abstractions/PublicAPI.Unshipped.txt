@@ -1,5 +1,4 @@
 #nullable enable
-abstract Microsoft.SqlTools.Sts2.Abstractions.ExecEvent.<Clone>$() -> Microsoft.SqlTools.Sts2.Abstractions.ExecEvent!
 Microsoft.SqlTools.Sts2.Abstractions.ColumnInfo
 Microsoft.SqlTools.Sts2.Abstractions.ColumnInfo.<Clone>$() -> Microsoft.SqlTools.Sts2.Abstractions.ColumnInfo!
 Microsoft.SqlTools.Sts2.Abstractions.ColumnInfo.Collation.get -> string?
@@ -24,9 +23,9 @@ Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest.ApplicationName.get -
 Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest.ApplicationName.init -> void
 Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest.Auth.get -> Microsoft.SqlTools.Sts2.Abstractions.SecretMaterial!
 Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest.Auth.init -> void
-Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest.ConnectionOpenRequest() -> void
 Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest.ConnectTimeoutMs.get -> int
 Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest.ConnectTimeoutMs.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest.ConnectionOpenRequest() -> void
 Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest.Database.get -> string?
 Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest.Database.init -> void
 Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest.Equals(Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest? other) -> bool
@@ -46,12 +45,26 @@ Microsoft.SqlTools.Sts2.Abstractions.DriverCapabilities.DriverCapabilities() -> 
 Microsoft.SqlTools.Sts2.Abstractions.DriverCapabilities.Equals(Microsoft.SqlTools.Sts2.Abstractions.DriverCapabilities? other) -> bool
 Microsoft.SqlTools.Sts2.Abstractions.DriverCapabilities.Production.get -> bool
 Microsoft.SqlTools.Sts2.Abstractions.DriverCapabilities.Production.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.DriverTruncatedValue
+Microsoft.SqlTools.Sts2.Abstractions.DriverTruncatedValue.<Clone>$() -> Microsoft.SqlTools.Sts2.Abstractions.DriverTruncatedValue!
+Microsoft.SqlTools.Sts2.Abstractions.DriverTruncatedValue.DigestHex.get -> string!
+Microsoft.SqlTools.Sts2.Abstractions.DriverTruncatedValue.DigestHex.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.DriverTruncatedValue.DriverTruncatedValue() -> void
+Microsoft.SqlTools.Sts2.Abstractions.DriverTruncatedValue.Equals(Microsoft.SqlTools.Sts2.Abstractions.DriverTruncatedValue? other) -> bool
+Microsoft.SqlTools.Sts2.Abstractions.DriverTruncatedValue.Kind.get -> string!
+Microsoft.SqlTools.Sts2.Abstractions.DriverTruncatedValue.Kind.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.DriverTruncatedValue.PrefixBytes.get -> byte[]?
+Microsoft.SqlTools.Sts2.Abstractions.DriverTruncatedValue.PrefixBytes.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.DriverTruncatedValue.PrefixText.get -> string?
+Microsoft.SqlTools.Sts2.Abstractions.DriverTruncatedValue.PrefixText.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.DriverTruncatedValue.TotalBytes.get -> long
+Microsoft.SqlTools.Sts2.Abstractions.DriverTruncatedValue.TotalBytes.init -> void
 Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted
+Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.Database.get -> string?
+Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.Database.init -> void
 Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.Deconstruct(out System.Collections.Generic.IReadOnlyList<long>! RowsAffected, out string? Database) -> void
 Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.Equals(Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted? other) -> bool
 Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.ExecCompleted(System.Collections.Generic.IReadOnlyList<long>! RowsAffected, string? Database = null) -> void
-Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.Database.get -> string?
-Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.Database.init -> void
 Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.RowsAffected.get -> System.Collections.Generic.IReadOnlyList<long>!
 Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.RowsAffected.init -> void
 Microsoft.SqlTools.Sts2.Abstractions.ExecEvent
@@ -74,6 +87,8 @@ Microsoft.SqlTools.Sts2.Abstractions.IDbSession.Server.get -> Microsoft.SqlTools
 Microsoft.SqlTools.Sts2.Abstractions.QueryExecuteRequest
 Microsoft.SqlTools.Sts2.Abstractions.QueryExecuteRequest.<Clone>$() -> Microsoft.SqlTools.Sts2.Abstractions.QueryExecuteRequest!
 Microsoft.SqlTools.Sts2.Abstractions.QueryExecuteRequest.Equals(Microsoft.SqlTools.Sts2.Abstractions.QueryExecuteRequest? other) -> bool
+Microsoft.SqlTools.Sts2.Abstractions.QueryExecuteRequest.MaxCellBytes.get -> int
+Microsoft.SqlTools.Sts2.Abstractions.QueryExecuteRequest.MaxCellBytes.init -> void
 Microsoft.SqlTools.Sts2.Abstractions.QueryExecuteRequest.PageBytes.get -> int
 Microsoft.SqlTools.Sts2.Abstractions.QueryExecuteRequest.PageBytes.init -> void
 Microsoft.SqlTools.Sts2.Abstractions.QueryExecuteRequest.PageRows.get -> int
@@ -161,6 +176,7 @@ Microsoft.SqlTools.Sts2.Abstractions.ServerMessage.Severity.get -> int
 Microsoft.SqlTools.Sts2.Abstractions.ServerMessage.Severity.init -> void
 Microsoft.SqlTools.Sts2.Abstractions.ServerMessage.Text.get -> string!
 Microsoft.SqlTools.Sts2.Abstractions.ServerMessage.Text.init -> void
+abstract Microsoft.SqlTools.Sts2.Abstractions.ExecEvent.<Clone>$() -> Microsoft.SqlTools.Sts2.Abstractions.ExecEvent!
 override Microsoft.SqlTools.Sts2.Abstractions.ColumnInfo.Equals(object? obj) -> bool
 override Microsoft.SqlTools.Sts2.Abstractions.ColumnInfo.GetHashCode() -> int
 override Microsoft.SqlTools.Sts2.Abstractions.ColumnInfo.ToString() -> string!
@@ -170,6 +186,9 @@ override Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest.ToString() -
 override Microsoft.SqlTools.Sts2.Abstractions.DriverCapabilities.Equals(object? obj) -> bool
 override Microsoft.SqlTools.Sts2.Abstractions.DriverCapabilities.GetHashCode() -> int
 override Microsoft.SqlTools.Sts2.Abstractions.DriverCapabilities.ToString() -> string!
+override Microsoft.SqlTools.Sts2.Abstractions.DriverTruncatedValue.Equals(object? obj) -> bool
+override Microsoft.SqlTools.Sts2.Abstractions.DriverTruncatedValue.GetHashCode() -> int
+override Microsoft.SqlTools.Sts2.Abstractions.DriverTruncatedValue.ToString() -> string!
 override Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.<Clone>$() -> Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted!
 override Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.Equals(object? obj) -> bool
 override Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.GetHashCode() -> int
@@ -221,6 +240,8 @@ static Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest.operator !=(Mi
 static Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest.operator ==(Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest? left, Microsoft.SqlTools.Sts2.Abstractions.ConnectionOpenRequest? right) -> bool
 static Microsoft.SqlTools.Sts2.Abstractions.DriverCapabilities.operator !=(Microsoft.SqlTools.Sts2.Abstractions.DriverCapabilities? left, Microsoft.SqlTools.Sts2.Abstractions.DriverCapabilities? right) -> bool
 static Microsoft.SqlTools.Sts2.Abstractions.DriverCapabilities.operator ==(Microsoft.SqlTools.Sts2.Abstractions.DriverCapabilities? left, Microsoft.SqlTools.Sts2.Abstractions.DriverCapabilities? right) -> bool
+static Microsoft.SqlTools.Sts2.Abstractions.DriverTruncatedValue.operator !=(Microsoft.SqlTools.Sts2.Abstractions.DriverTruncatedValue? left, Microsoft.SqlTools.Sts2.Abstractions.DriverTruncatedValue? right) -> bool
+static Microsoft.SqlTools.Sts2.Abstractions.DriverTruncatedValue.operator ==(Microsoft.SqlTools.Sts2.Abstractions.DriverTruncatedValue? left, Microsoft.SqlTools.Sts2.Abstractions.DriverTruncatedValue? right) -> bool
 static Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.operator !=(Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted? left, Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted? right) -> bool
 static Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.operator ==(Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted? left, Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted? right) -> bool
 static Microsoft.SqlTools.Sts2.Abstractions.ExecEvent.operator !=(Microsoft.SqlTools.Sts2.Abstractions.ExecEvent? left, Microsoft.SqlTools.Sts2.Abstractions.ExecEvent? right) -> bool

@@ -118,6 +118,15 @@ namespace Microsoft.SqlTools.Sts2.Abstractions
 
         /// <summary>Max bytes per page.</summary>
         public int PageBytes { get; init; }
+
+        /// <summary>
+        /// Per-cell byte bound (QO-4): lets the driver STREAM large values —
+        /// bounded prefix plus honest truncation metadata — instead of
+        /// materializing them for the encoder to truncate later. 0 means the
+        /// pinned default. The encoder remains the authoritative bound for
+        /// values the driver did not pre-bound.
+        /// </summary>
+        public int MaxCellBytes { get; init; }
     }
 
     /// <summary>

@@ -33,6 +33,14 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
         /// </summary>
         public static JsonNode? Encode(object? cell, int maxCellBytes)
         {
+            // A large value the DRIVER already pre-bounded by streaming (QO-4):
+            // bytes/digest were computed over the full stream, so the wrapper
+            // is emitted verbatim — only the retained prefix is re-capped by
+            // the same rules as encoder-side truncation.
+            if (cell is Abstractions.DriverTruncatedValue driverTruncated)
+            {
+                return DriverTruncated(driverTruncated, maxCellBytes);
+            }
             if (maxCellBytes > 0)
             {
                 switch (cell)
@@ -44,6 +52,36 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                 }
             }
             return Encode(cell);
+        }
+
+        /// <summary>SPEC §7.7 wrapper from driver-streamed truncation facts (QO-4).</summary>
+        private static JsonObject DriverTruncated(Abstractions.DriverTruncatedValue value, int maxCellBytes)
+        {
+            int cap = maxCellBytes > 0 ? PrefixLength(maxCellBytes) : Sts2Defaults.TruncatedPrefixBytes;
+            string prefix;
+            if (value.Kind == "binary")
+            {
+                byte[] raw = value.PrefixBytes ?? [];
+                prefix = Convert.ToBase64String(raw.Length > cap ? raw.AsSpan(0, cap) : raw);
+            }
+            else
+            {
+                byte[] raw = Encoding.UTF8.GetBytes(value.PrefixText ?? string.Empty);
+                int len = Math.Min(cap, raw.Length);
+                while (len > 0 && len < raw.Length && (raw[len] & 0xC0) == 0x80)
+                {
+                    len--;
+                }
+                prefix = Encoding.UTF8.GetString(raw, 0, len);
+            }
+            return new JsonObject
+            {
+                ["$t"] = "truncated",
+                ["of"] = value.Kind == "binary" ? "binary" : "string",
+                ["bytes"] = value.TotalBytes,
+                ["digest"] = "sha256:" + value.DigestHex,
+                ["v"] = prefix,
+            };
         }
 
         /// <summary>Encodes one cell. Null maps to JSON null.</summary>

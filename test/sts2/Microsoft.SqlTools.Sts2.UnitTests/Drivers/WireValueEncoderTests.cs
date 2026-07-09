@@ -69,6 +69,47 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
         }
 
         [Fact]
+        public void DriverTruncatedValuesEmitTheWrapperVerbatimWithRecappedPrefix() // QO-4
+        {
+            // The driver streamed the full value: bytes/digest arrive as facts;
+            // the encoder re-caps only the retained prefix.
+            var text = new Abstractions.DriverTruncatedValue
+            {
+                Kind = "string",
+                PrefixText = new string('x', 100),
+                TotalBytes = 5_000_000_000, // > int.MaxValue: long-safe on the wire
+                DigestHex = "abc123",
+            };
+            JsonNode wrapper = WireValueEncoder.Encode(text, maxCellBytes: 10)!;
+            Assert.Equal("truncated", wrapper["$t"]!.GetValue<string>());
+            Assert.Equal("string", wrapper["of"]!.GetValue<string>());
+            Assert.Equal(5_000_000_000, wrapper["bytes"]!.GetValue<long>());
+            Assert.Equal("sha256:abc123", wrapper["digest"]!.GetValue<string>());
+            Assert.Equal(new string('x', 10), wrapper["v"]!.GetValue<string>());
+
+            // Multi-byte prefix re-cap never splits a code point.
+            var unicode = new Abstractions.DriverTruncatedValue
+            {
+                Kind = "string",
+                PrefixText = new string('é', 20),
+                TotalBytes = 999,
+                DigestHex = "dd",
+            };
+            Assert.Equal("éé", WireValueEncoder.Encode(unicode, 5)!["v"]!.GetValue<string>());
+
+            var binary = new Abstractions.DriverTruncatedValue
+            {
+                Kind = "binary",
+                PrefixBytes = new byte[100],
+                TotalBytes = 123456,
+                DigestHex = "ff00",
+            };
+            JsonNode binaryWrapper = WireValueEncoder.Encode(binary, 10)!;
+            Assert.Equal("binary", binaryWrapper["of"]!.GetValue<string>());
+            Assert.Equal(10, Convert.FromBase64String(binaryWrapper["v"]!.GetValue<string>()).Length);
+        }
+
+        [Fact]
         public void ExactBoundIsNotTruncatedAndOneOverIs() // STS2-3 boundary
         {
             string atBound = new('x', 64);

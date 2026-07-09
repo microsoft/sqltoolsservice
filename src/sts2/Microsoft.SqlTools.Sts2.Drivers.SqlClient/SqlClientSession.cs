@@ -34,6 +34,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             ArgumentNullException.ThrowIfNull(request);
             int pageRows = request.PageRows > 0 ? request.PageRows : Sts2Defaults.PageRows;
             int pageBytes = request.PageBytes > 0 ? request.PageBytes : Sts2Defaults.PageBytes;
+            int maxCellBytes = request.MaxCellBytes > 0 ? request.MaxCellBytes : Sts2Defaults.MaxCellBytes;
 
             yield return new ExecStarted(request.QueryId);
 
@@ -83,7 +84,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                             }
                             if (reader.FieldCount > 0)
                             {
-                                await foreach (ExecEvent execEvent in PumpResultSetAsync(reader, resultSetId, pageRows, pageBytes, cancellationToken).ConfigureAwait(false))
+                                await foreach (ExecEvent execEvent in PumpResultSetAsync(reader, resultSetId, pageRows, pageBytes, maxCellBytes, cancellationToken).ConfigureAwait(false))
                                 {
                                     yield return execEvent;
                                 }
@@ -121,7 +122,10 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
         {
             try
             {
-                return await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
+                // SequentialAccess (QO-4): cells are read in ordinal order (the
+                // pump already does) and large values can STREAM — bounded
+                // prefix + streaming digest instead of full materialization.
+                return await command.ExecuteReaderAsync(System.Data.CommandBehavior.SequentialAccess, cancellationToken).ConfigureAwait(false);
             }
             catch (SqlException ex)
             {
@@ -143,9 +147,12 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
 
         /// <summary>Streams one result set page-by-page (no full-result buffering).</summary>
         private static async IAsyncEnumerable<ExecEvent> PumpResultSetAsync(
-            SqlDataReader reader, int resultSetId, int pageRows, int pageBytes, [EnumeratorCancellation] CancellationToken cancellationToken)
+            SqlDataReader reader, int resultSetId, int pageRows, int pageBytes, int maxCellBytes, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             var columns = await ReadColumnsAsync(reader).ConfigureAwait(false);
+            // QO-4: MAX-typed columns stream under SequentialAccess — bounded
+            // prefix + streaming digest/byte count, never full materialization.
+            SqlLargeValueReader.CellRead[] readKinds = SqlLargeValueReader.ClassifyColumns(columns);
             yield return new ResultSetStarted(resultSetId, columns);
 
             int pageSeq = 0;
@@ -160,7 +167,16 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                 var cells = new object?[reader.FieldCount];
                 for (int i = 0; i < reader.FieldCount; i++)
                 {
-                    cells[i] = reader.IsDBNull(i) ? null : reader.GetValue(i);
+                    cells[i] = reader.IsDBNull(i)
+                        ? null
+                        : readKinds[i] switch
+                        {
+                            SqlLargeValueReader.CellRead.Text =>
+                                SqlLargeValueReader.ReadText(reader, i, maxCellBytes),
+                            SqlLargeValueReader.CellRead.Binary =>
+                                SqlLargeValueReader.ReadBinary(reader, i, maxCellBytes),
+                            _ => reader.GetValue(i),
+                        };
                 }
                 rowCount++;
                 foreach (IReadOnlyList<IReadOnlyList<object?>> page in builder.Add(cells))
