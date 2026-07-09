@@ -9735,6 +9735,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string compatibilityLevel_sqlv180
+        {
+            get
+            {
+                return Keys.GetString(Keys.compatibilityLevel_sqlv180);
+            }
+        }
+
         public static string general_containmentType_None
         {
             get
@@ -14758,6 +14766,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string compatibilityLevel_sqlv170 = "compatibilityLevel_sqlv170";
+
+
+            public const string compatibilityLevel_sqlv180 = "compatibilityLevel_sqlv180";
 
 
             public const string general_containmentType_None = "general_containmentType_None";
