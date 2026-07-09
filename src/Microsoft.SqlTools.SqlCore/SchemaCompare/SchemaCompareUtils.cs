@@ -51,25 +51,27 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
 
             if (difference.DifferenceType == SchemaDifferenceType.Object)
             {
-                // set source and target scripts
+                // The per-difference "keep standalone constraint vs strip inline/redundant ALTER"
+                // decision now lives entirely in DacFx: GetDiffEntryDisplay{Source,Target}Script
+                // returns the script to render for this difference (or null if it is represented
+                // inline in its parent), already gated per platform on the
+                // DatabaseSchemaProvider.ConstraintsAreStandalone capability. On Fabric Warehouse
+                // (SqlDwUnified) this keeps the standalone ALTER TABLE ... ADD CONSTRAINT script;
+                // on every other platform it reproduces the legacy strip-on-alter behaviour. STS
+                // therefore just renders whatever DacFx returns - no platform, constraint or
+                // "starts with alter" logic of its own.
                 if (difference.SourceObject != null)
                 {
-                    string sourceScript = schemaComparisonResult.GetDiffEntrySourceScript(difference);
-
-                    // Child scripts that do not use alter need to be added if they are being changed, ex: "EXECUTE sp_addextendedproperty...".
-                    // Don't add scripts that start with alter because those are handled by a top level element's create
-                    if (!sourceScript.ToLowerInvariant().StartsWith("alter"))
+                    string sourceScript = schemaComparisonResult.GetDiffEntryDisplaySourceScript(difference);
+                    if (sourceScript != null)
                     {
                         diffEntry.SourceScript = FormatScript(sourceScript);
                     }
                 }
                 if (difference.TargetObject != null)
                 {
-                    string targetScript = schemaComparisonResult.GetDiffEntryTargetScript(difference);
-
-                    // Child scripts that do not use alter need to be added if they are being changed, ex: "EXECUTE sp_addextendedproperty...".
-                    // Don't add scripts that start with alter because those are handled by a top level element's create
-                    if (!targetScript.ToLowerInvariant().StartsWith("alter"))
+                    string targetScript = schemaComparisonResult.GetDiffEntryDisplayTargetScript(difference);
+                    if (targetScript != null)
                     {
                         diffEntry.TargetScript = FormatScript(targetScript);
                     }
