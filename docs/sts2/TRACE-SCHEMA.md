@@ -28,7 +28,7 @@ Whether each kind is emitted in v2.0, and by what. "Reserved" kinds are part of 
 | `cmd` | reserved | no internal command bus in v2.0 |
 | `config.changed` | emitted | setCapture (config change, I15) |
 | `control` | emitted | session.start, lifecycle.shutdown/exit |
-| `diag` | emitted | Core diagnostics (core.unexpectedInput) |
+| `diag` | emitted | Core diagnostics (core.unexpectedInput, sts2.query.stats) |
 | `effect.req` | emitted | Core effect requests (driver.*, diag.export) |
 | `effect.res` | emitted | effect-runner observations (driver.queryEvent, ...) |
 | `evt` | reserved | query events travel as effect.res (driver.queryEvent), not evt |

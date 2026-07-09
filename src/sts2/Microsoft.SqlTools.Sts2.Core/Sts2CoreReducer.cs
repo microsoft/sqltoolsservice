@@ -743,6 +743,20 @@ namespace Microsoft.SqlTools.Sts2.Core
                     };
                     var outputs = new List<CoreOutput> { new RpcNotifyOutput("v2/query.complete", Json(notify)) };
 
+                    // Row-pipeline attribution (QO-2): the runner's per-query aggregate stats
+                    // arrive on the journaled completed payload; surface them as one diagnostic
+                    // envelope. Deterministic under replay (stats replay from the journal);
+                    // per-page detail stays queryable on the journaled rows events. Counts,
+                    // bytes, and durations only — never SQL text or cell values.
+                    if (payload.TryGetProperty("stats", out JsonElement stats)
+                        && stats.ValueKind == JsonValueKind.Object)
+                    {
+                        string statsData = string.Create(CultureInfo.InvariantCulture, $$"""
+                            {"queryId":{{JsonSerializer.Serialize(queryId)}},"connectionId":{{JsonSerializer.Serialize(query.ConnectionId)}},"status":{{JsonSerializer.Serialize(status)}},"pagesSent":{{query.PagesSent}},"stats":{{stats.GetRawText()}}}
+                            """);
+                        outputs.Add(new DiagnosticOutput("sts2.query.stats", Json(statsData)));
+                    }
+
                     // A close was waiting for this query (SPEC §7.9).
                     if (next.Connections.TryGetValue(query.ConnectionId, out ConnectionInfo? connection)
                         && connection.CloseAfterQuery && connection.Phase == ConnectionPhase.Open)

@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -49,6 +50,16 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
 
             /// <summary>True after dispose: no further events may post (I3).</summary>
             public volatile bool Suppressed;
+
+            // Row-pipeline attribution accumulators (QO-2): per-page stats ride the
+            // journaled rows event; these totals ride the completed event and become
+            // the sts2.query.stats diagnostic.
+            public long StatsPages;
+            public long StatsRows;
+            public long StatsEncodedBytes;
+            public double StatsReadMsTotal;
+            public double StatsCreditWaitMsTotal;
+            public double StatsEncodeMsTotal;
         }
 
         private readonly Export.ExportBundleRequest? exportTemplate;
@@ -396,6 +407,11 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                     PageRows = Sts2Defaults.PageRows,
                     PageBytes = Sts2Defaults.PageBytes,
                 };
+                // Row-pipeline attribution (QO-2): readMs approximates driver/enumerator time
+                // as the gap since the previous event finished posting; credit wait and encode
+                // are measured exactly. Stats ride the journaled event payloads only — the
+                // reducer never forwards them onto v2/query.rows.
+                long lastEventDoneTicks = Stopwatch.GetTimestamp();
                 // Backpressure (SPEC §7.8): a rows page may only POST when the window has
                 // credit; the WaitAsync below is what parks the enumerator. NOTE (R012): the
                 // enumerator materializes the next page during MoveNext before this gate, so
@@ -420,14 +436,28 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                             break;
 
                         case RowsPage page:
+                        {
+                            double readMs = ElapsedMs(lastEventDoneTicks);
+                            long creditStartTicks = Stopwatch.GetTimestamp();
                             await pump.Credits.WaitAsync(pump.Cancellation.Token).ConfigureAwait(false);
+                            double creditWaitMs = ElapsedMs(creditStartTicks);
                             if (pump.Suppressed)
                             {
                                 break;
                             }
+                            long encodeStartTicks = Stopwatch.GetTimestamp();
+                            string rowsJson = SerializeRows(page.Cells, maxCellBytes);
+                            double encodeMs = ElapsedMs(encodeStartTicks);
+                            pump.StatsPages++;
+                            pump.StatsRows += page.Cells.Count;
+                            pump.StatsEncodedBytes += rowsJson.Length;
+                            pump.StatsReadMsTotal += readMs;
+                            pump.StatsCreditWaitMsTotal += creditWaitMs;
+                            pump.StatsEncodeMsTotal += encodeMs;
                             await PostQueryEventAsync(inbox, effect, queryId, string.Create(CultureInfo.InvariantCulture,
-                                $$"""{"eventType":"rows","resultSetId":{{page.ResultSetId}},"pageSeq":{{page.PageSeq}},"rowOffset":{{page.RowOffset}},"rows":{{SerializeRows(page.Cells, maxCellBytes)}}}""")).ConfigureAwait(false);
+                                $$"""{"eventType":"rows","resultSetId":{{page.ResultSetId}},"pageSeq":{{page.PageSeq}},"rowOffset":{{page.RowOffset}},"rows":{{rowsJson}},"stats":{"rowCount":{{page.Cells.Count}},"encodedBytes":{{rowsJson.Length}},"readMs":{{FormatMs(readMs)}},"creditWaitMs":{{FormatMs(creditWaitMs)}},"encodeMs":{{FormatMs(encodeMs)}} } }""")).ConfigureAwait(false);
                             break;
+                        }
 
                         case ServerMessage message:
                             await PostQueryEventAsync(inbox, effect, queryId, string.Create(CultureInfo.InvariantCulture,
@@ -441,12 +471,13 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
 
                         case ExecCompleted completed:
                             await PostQueryEventAsync(inbox, effect, queryId, string.Create(CultureInfo.InvariantCulture,
-                                $$"""{"eventType":"completed","rowsAffected":{{completed.RowsAffected.Sum()}},"database":{{JsonSerializer.Serialize(completed.Database)}}}""")).ConfigureAwait(false);
+                                $$"""{"eventType":"completed","rowsAffected":{{completed.RowsAffected.Sum()}},"database":{{JsonSerializer.Serialize(completed.Database)}},"stats":{"pages":{{pump.StatsPages}},"rows":{{pump.StatsRows}},"encodedBytes":{{pump.StatsEncodedBytes}},"readMsTotal":{{FormatMs(pump.StatsReadMsTotal)}},"creditWaitMsTotal":{{FormatMs(pump.StatsCreditWaitMsTotal)}},"encodeMsTotal":{{FormatMs(pump.StatsEncodeMsTotal)}} } }""")).ConfigureAwait(false);
                             break;
 
                         default:
                             break;
                     }
+                    lastEventDoneTicks = Stopwatch.GetTimestamp();
                 }
             }
             catch (OperationCanceledException)
@@ -514,6 +545,13 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
             }
             return array.ToJsonString();
         }
+
+        private static double ElapsedMs(long startTicks) =>
+            (Stopwatch.GetTimestamp() - startTicks) * 1000.0 / Stopwatch.Frequency;
+
+        /// <summary>Invariant, fixed-precision ms for JSON payloads (2 decimals).</summary>
+        private static string FormatMs(double ms) =>
+            Math.Round(ms, 2).ToString(CultureInfo.InvariantCulture);
 
         private static Task PostQueryEventAsync(ICoordinatorInbox inbox, EffectWorkItem effect, string queryId, string eventCore)
         {

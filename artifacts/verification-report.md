@@ -2,6 +2,40 @@
 
 Newest entries first (AGENT-RUNBOOK.md §6).
 
+## QO-2: query row-pipeline attribution stats - 2026-07-09 - 7532d145+ (working tree)
+Query-optimization effort batch QO-2 (coding-docs/query-optimization/EXECUTION_PLAN.md),
+service side: make every slow query explainable by stage without changing the wire.
+
+Behavior (all journal-side; v2 wire shape UNCHANGED):
+- `DriverEffectRunner` measures per-rows-page `readMs` (gap since the previous event
+  finished posting — approximates driver/enumerator time), `creditWaitMs`, `encodeMs`,
+  and `encodedBytes`, and stamps them as a `stats` object on the JOURNALED
+  `driver.queryEvent` rows payload; per-query totals ride the `completed` payload.
+- Core (`DecideQueryEvent` terminal case) surfaces the completed-payload aggregate as
+  ONE `sts2.query.stats` DiagnosticOutput per query (queryId/connectionId/status/
+  pagesSent + stats). Core stays clock-free: all timings originate in the runner and
+  arrive through journaled effect payloads, so replay is byte-identical (stats replay
+  from the journal; the reducer's rows-notification builder reads named fields and
+  never forwards `stats` to `v2/query.rows`).
+- Per-page envelope flood deliberately avoided: per-page detail lives on the journaled
+  rows events (queryable via export/journal collectors); the diagnostic channel gets
+  only the one aggregate. Counts/bytes/durations only — no SQL text, no cell values.
+- Generated docs: `diag` kind description now lists sts2.query.stats
+  (GeneratedDocs.cs, TRACE-SCHEMA.md regenerated via scripts/update-sts2-docs.ps1).
+
+New coverage (Runtime/QueryPipelineStatsTests.cs, +3):
+- RowsEventsCarryJournaledStatsButTheWireShapeIsUnchanged (journal has stats;
+  v2/query.rows params do NOT),
+- CompletedAggregateSurfacesAsOneQueryStatsDiagnostic (single diag envelope, ids +
+  aggregates, privacy canary: no "sql"/text in the payload),
+- StatsJournalReplaysIdentically (JournalReplayer over a stats-bearing journal).
+
+verify.sh --quick 2026-07-09T17:31:19Z: green (build, unit+multiplexer+architecture,
+scenarios, contract, replay, 200-seed simulator, secret canaries, generated docs,
+legacy diff budget, legacy exe, E2E). One earlier run showed a transient
+"build legacy exe" MSB4018 file-lock failure while a parallel vscode-mssql suite held
+legacy binaries; clean rerun green.
+
 ## STS2-3: maxCellBytes honored on the wire - 2026-07-06 - 328b47b6+ (working tree, uncommitted)
 Remaining-tasks pass item STS2-3 (central_remaining_docs_review_pack/remaining_tasks.md
 §5.1, P1): "Service truncates or wraps oversized cells with honesty flags, rather

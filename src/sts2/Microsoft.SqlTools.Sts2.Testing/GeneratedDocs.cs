@@ -112,7 +112,7 @@ namespace Microsoft.SqlTools.Sts2.Testing
             EnvelopeKinds.EffectRequest => ("emitted", "Core effect requests (driver.*, diag.export)"),
             EnvelopeKinds.EffectResponse => ("emitted", "effect-runner observations (driver.queryEvent, ...)"),
             EnvelopeKinds.Control => ("emitted", "session.start, lifecycle.shutdown/exit"),
-            EnvelopeKinds.Diagnostic => ("emitted", "Core diagnostics (core.unexpectedInput)"),
+            EnvelopeKinds.Diagnostic => ("emitted", "Core diagnostics (core.unexpectedInput, sts2.query.stats)"),
             EnvelopeKinds.ConfigChanged => ("emitted", "setCapture (config change, I15)"),
             EnvelopeKinds.Metric => ("emitted (opt-in)", "coordinator metric snapshots when MetricSampleEvery > 0; the live metrics channel always tallies"),
             EnvelopeKinds.Command => ("reserved", "no internal command bus in v2.0"),
