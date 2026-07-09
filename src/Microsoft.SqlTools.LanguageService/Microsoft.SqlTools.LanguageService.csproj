@@ -31,6 +31,7 @@
     <PackageReference Include="Microsoft.SqlServer.DacFx" />
     <PackageReference Include="Microsoft.SqlServer.Management.SmoMetadataProvider" />
     <PackageReference Include="Microsoft.SqlServer.Management.SqlParser" />
+    <PackageReference Include="Microsoft.SqlServer.TransactSql.ScriptDom" />
     <PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' != '$(SsmsDotNetVersion)'">
