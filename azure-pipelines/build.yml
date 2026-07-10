@@ -195,13 +195,6 @@ steps:
     verbose: false
     customCommand: 'install -g gulp-cli'
 
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet pack sqlcore'
-  inputs:
-    command: custom
-    custom: pack
-    arguments: '--output $(Build.SourcesDirectory)\artifacts\nugetPackages --no-build --configuration $(buildConfiguration) -v n src\Microsoft.SqlTools.SqlCore\Microsoft.SqlTools.SqlCore.csproj'
-
 - pwsh: |
     dotnet tool run dotnet-cake -- build.cake --target=NugetPackNuspec
   displayName: 'Package nuspec projects'
