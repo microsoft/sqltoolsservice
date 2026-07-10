@@ -15,6 +15,8 @@
     <AssemblyOriginatorKeyFile>$(RootDir)\SQL2003.snk</AssemblyOriginatorKeyFile>
     <TargetFrameworks>$(SsmsDotNetVersion);$(SqlCoreDotNetVersion);$(SqlToolsServiceDotNetVersion)</TargetFrameworks>
     <LangVersion>9.0</LangVersion>
+    <!-- Placeholder version overwritten by the build pipeline when packing (see azure-pipelines/build.yml). -->
+    <Version>1.0.0</Version>
     <!-- LanguageService intentionally consumes preview DacFx, so allow the "stable package with
          prerelease dependency" pack warning instead of failing the build. -->
     <WarningsNotAsErrors>$(WarningsNotAsErrors);NU5104</WarningsNotAsErrors>
@@ -58,12 +60,9 @@
        in-repo project reference is added above, add its assembly name here as well. -->
   <Target Name="IncludeProjectReferenceDllsInPackage">
     <ItemGroup>
-      <BuildOutputInPackage Include="$(OutputPath)Microsoft.SqlTools.Hosting.dll"
-                            Condition="Exists('$(OutputPath)Microsoft.SqlTools.Hosting.dll')" />
-      <BuildOutputInPackage Include="$(OutputPath)Microsoft.SqlTools.SqlCore.dll"
-                            Condition="Exists('$(OutputPath)Microsoft.SqlTools.SqlCore.dll')" />
-      <BuildOutputInPackage Include="$(OutputPath)Microsoft.SqlTools.ManagedBatchParser.dll"
-                            Condition="Exists('$(OutputPath)Microsoft.SqlTools.ManagedBatchParser.dll')" />
+      <BuildOutputInPackage Include="$(OutputPath)Microsoft.SqlTools.Hosting.dll" Condition="Exists('$(OutputPath)Microsoft.SqlTools.Hosting.dll')" />
+      <BuildOutputInPackage Include="$(OutputPath)Microsoft.SqlTools.SqlCore.dll" Condition="Exists('$(OutputPath)Microsoft.SqlTools.SqlCore.dll')" />
+      <BuildOutputInPackage Include="$(OutputPath)Microsoft.SqlTools.ManagedBatchParser.dll" Condition="Exists('$(OutputPath)Microsoft.SqlTools.ManagedBatchParser.dll')" />
     </ItemGroup>
   </Target>
 </Project>
