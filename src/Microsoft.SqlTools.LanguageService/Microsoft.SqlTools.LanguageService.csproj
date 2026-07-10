@@ -15,8 +15,6 @@
     <AssemblyOriginatorKeyFile>$(RootDir)\SQL2003.snk</AssemblyOriginatorKeyFile>
     <TargetFrameworks>$(SsmsDotNetVersion);$(SqlCoreDotNetVersion);$(SqlToolsServiceDotNetVersion)</TargetFrameworks>
     <LangVersion>9.0</LangVersion>
-    <!-- Placeholder version overwritten by the build pipeline when packing (see azure-pipelines/build.yml). -->
-    <Version>1.0.0</Version>
     <!-- LanguageService intentionally consumes preview DacFx, so allow the "stable package with
          prerelease dependency" pack warning instead of failing the build. -->
     <WarningsNotAsErrors>$(WarningsNotAsErrors);NU5104</WarningsNotAsErrors>

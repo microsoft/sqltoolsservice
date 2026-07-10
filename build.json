@@ -48,13 +48,14 @@
     {
       "Name": "Microsoft.SqlTools.LanguageService",
       "Frameworks": [
-        "net472"
-      ],
-      "SkipPack": true
+        "net472",
+        "net8.0"
+      ]
     }
   ],
   "PackageProjects": [
-    "Microsoft.SqlTools.Hosting"
+    "Microsoft.SqlTools.Hosting",
+    "Microsoft.SqlTools.LanguageService"
   ],
   "DotnetToolProjects": [
     "Microsoft.SqlTools.ServiceLayer"
