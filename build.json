@@ -44,6 +44,13 @@
         "net8.0"
       ],
       "SkipPack": true
+    },
+    {
+      "Name": "Microsoft.SqlTools.LanguageService",
+      "Frameworks": [
+        "net472"
+      ],
+      "SkipPack": true
     }
   ],
   "PackageProjects": [
