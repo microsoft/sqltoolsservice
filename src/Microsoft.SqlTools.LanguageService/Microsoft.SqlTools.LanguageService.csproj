@@ -33,7 +33,10 @@
   </ItemGroup>
   <ItemGroup>
     <!-- PrivateAssets="all" stops these in-repo projects from being emitted as package
-         dependencies; their DLLs are instead bundled directly via the target below. -->
+         dependencies; their DLLs are instead bundled directly via the target below. 
+         This is done to reduce the number of packages needed by consumers of this library
+         If other consumers start using this and it makes sense to, splitting them into separate
+         packages and having these be normal package dependencies would be fine -->
     <ProjectReference Include="..\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj" PrivateAssets="all" />
     <ProjectReference Include="..\Microsoft.SqlTools.SqlCore\Microsoft.SqlTools.SqlCore.csproj" PrivateAssets="all" />
   </ItemGroup>
@@ -60,9 +63,9 @@
        in-repo project reference is added above, add its assembly name here as well. -->
   <Target Name="IncludeProjectReferenceDllsInPackage">
     <ItemGroup>
-      <BuildOutputInPackage Include="$(OutputPath)Microsoft.SqlTools.Hosting.dll" Condition="Exists('$(OutputPath)Microsoft.SqlTools.Hosting.dll')" />
-      <BuildOutputInPackage Include="$(OutputPath)Microsoft.SqlTools.SqlCore.dll" Condition="Exists('$(OutputPath)Microsoft.SqlTools.SqlCore.dll')" />
-      <BuildOutputInPackage Include="$(OutputPath)Microsoft.SqlTools.ManagedBatchParser.dll" Condition="Exists('$(OutputPath)Microsoft.SqlTools.ManagedBatchParser.dll')" />
+      <BuildOutputInPackage Include="$(OutputPath)Microsoft.SqlTools.Hosting.dll" />
+      <BuildOutputInPackage Include="$(OutputPath)Microsoft.SqlTools.SqlCore.dll" />
+      <BuildOutputInPackage Include="$(OutputPath)Microsoft.SqlTools.ManagedBatchParser.dll" />
     </ItemGroup>
   </Target>
 </Project>
