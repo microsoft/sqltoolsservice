@@ -719,10 +719,13 @@ Mode behavior:
 Credential fields are tokenized before journaling:
 
 - `password`, `accessToken`, `token`, connection-string password keys, and any field under `auth` except `kind` and `user` become `SecretRef` tokens.
-- Token format: `secret:sha256:<8-to-16-char-prefix>:<counter>`.
+- Token format: an opaque random reference, currently
+  `secret:ref:<32-hex-random>:<counter>`; it is not derived from the secret.
 - The real secret is stored in an in-memory side table owned by Runtime and passed only to the effect runner.
 - The side table is never serialized, logged, exported, or exposed by diagnostics.
-- Secret table entries are removed when the related open attempt or session closes.
+- Gateway-created refs are tracked per request and removed on every terminal path.
+  The effect runner also removes refs it resolves when the related open attempt
+  completes; cleanup is idempotent.
 
 Canary tests inject known fake secrets and grep every produced artifact.
 

@@ -38,6 +38,10 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                     builder.Password = request.Auth.Secret ?? string.Empty;
                     break;
                 case "accessToken":
+                    // Static access tokens must not participate in SqlClient pools: a
+                    // physical connection can otherwise be reused after the token's
+                    // authentication context has expired or changed.
+                    builder.Pooling = false;
                     accessToken = request.Auth.Secret; // attached to SqlConnection.AccessToken
                     break;
                 case "integrated":

@@ -298,8 +298,13 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
 
             try
             {
-                JsonElement profile = effect.Args.GetProperty("profile");
+                if (!effect.Args.TryGetProperty("profile", out JsonElement profile)
+                    || profile.ValueKind != JsonValueKind.Object)
+                {
+                    throw InvalidAuthRequest("Connection profile is required.");
+                }
                 string driverName = GetString(profile, "driver") ?? "fake";
+                ConnectionOpenRequest request = BuildOpenRequest(profile, resolvedTokens);
                 if (!drivers.TryGetValue(driverName, out IDbDriver? driver))
                 {
                     await PostOpenResultAsync(inbox, effect, connectionId, openId,
@@ -307,7 +312,6 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                     return;
                 }
 
-                ConnectionOpenRequest request = BuildOpenRequest(profile, resolvedTokens);
                 int timeoutMs = request.ConnectTimeoutMs > 0 ? request.ConnectTimeoutMs : Sts2Defaults.ConnectTimeoutMs;
                 using var timeoutSource = new CancellationTokenSource(timeoutMs);
                 using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancelSource.Token, timeoutSource.Token);
@@ -352,18 +356,24 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                 }
                 catch (DbDriverException ex)
                 {
-                    string server = ex.Server is null
-                        ? "null"
-                        : string.Create(CultureInfo.InvariantCulture,
-                            $$"""{"number":{{ex.Server.Number}},"severity":{{ex.Server.Severity}},"state":{{ex.Server.State}},"line":{{(ex.Server.Line?.ToString(CultureInfo.InvariantCulture) ?? "null")}}}""");
-                    await PostOpenResultAsync(inbox, effect, connectionId, openId,
-                        $$"""{"status":"error","code":{{JsonSerializer.Serialize(ex.Code)}},"message":{{JsonSerializer.Serialize(ex.Message)}},"server":{{server}}}""").ConfigureAwait(false);
+                    await PostOpenDriverErrorAsync(inbox, effect, connectionId, openId, ex).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
                     await PostOpenResultAsync(inbox, effect, connectionId, openId,
                         $$"""{"status":"error","code":{{JsonSerializer.Serialize(Sts2ErrorCodes.Internal)}},"message":{{JsonSerializer.Serialize("Driver threw an unclassified exception: " + ex.GetType().Name)}}}""").ConfigureAwait(false);
                 }
+            }
+            catch (DbDriverException ex)
+            {
+                // Request construction happens before the driver try/catch above. Validation
+                // failures must still complete the open effect instead of faulting this task.
+                await PostOpenDriverErrorAsync(inbox, effect, connectionId, openId, ex).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                await PostOpenResultAsync(inbox, effect, connectionId, openId,
+                    $$"""{"status":"error","code":{{JsonSerializer.Serialize(Sts2ErrorCodes.Internal)}},"message":{{JsonSerializer.Serialize("Open request preparation threw an unclassified exception: " + ex.GetType().Name)}}}""").ConfigureAwait(false);
             }
             finally
             {
@@ -757,27 +767,18 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
 
         private ConnectionOpenRequest BuildOpenRequest(JsonElement profile, List<string> resolvedTokens)
         {
-            JsonElement auth = profile.TryGetProperty("auth", out JsonElement a) && a.ValueKind == JsonValueKind.Object
-                ? a
-                : default;
+            JsonElement auth = default;
+            if (profile.TryGetProperty("auth", out JsonElement authValue))
+            {
+                if (authValue.ValueKind != JsonValueKind.Object)
+                {
+                    throw InvalidAuthRequest("Connection profile auth must be an object.");
+                }
+                auth = authValue;
+            }
             string kind = auth.ValueKind == JsonValueKind.Object ? GetString(auth, "kind") ?? "integrated" : "integrated";
             string? user = auth.ValueKind == JsonValueKind.Object ? GetString(auth, "user") : null;
-
-            string? secret = null;
-            if (auth.ValueKind == JsonValueKind.Object)
-            {
-                foreach (JsonProperty property in auth.EnumerateObject())
-                {
-                    if (property.Value.ValueKind == JsonValueKind.String
-                        && property.Value.GetString() is string token
-                        && token.StartsWith("secret:", StringComparison.Ordinal)
-                        && secrets.TryResolve(token, out string resolved))
-                    {
-                        resolvedTokens.Add(token);
-                        secret ??= resolved; // first credential field wins (password or token)
-                    }
-                }
-            }
+            string? secret = ResolveAuthSecret(auth, kind, resolvedTokens);
 
             int connectTimeoutMs = 0;
             var options = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -805,6 +806,166 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                 ApplicationName = options.TryGetValue("applicationName", out string? app) ? app : null,
                 Options = options,
             };
+        }
+
+        /// <summary>
+        /// Resolves only the credential field allowed by <paramref name="kind"/>. The
+        /// canonical access-token field is <c>token</c>; <c>accessToken</c> remains a
+        /// compatibility alias. All side-table references are collected before validation
+        /// so malformed mixed payloads are scrubbed on the same lifecycle as valid opens.
+        /// </summary>
+        private string? ResolveAuthSecret(JsonElement auth, string kind, List<string> resolvedTokens)
+        {
+            CollectResolvedSecretReferences(auth, resolvedTokens);
+
+            var fields = new Dictionary<string, string?>(StringComparer.Ordinal);
+            string? validationError = null;
+            if (auth.ValueKind == JsonValueKind.Object)
+            {
+                foreach (JsonProperty property in auth.EnumerateObject())
+                {
+                    if (property.NameEquals("kind") || property.NameEquals("user"))
+                    {
+                        continue;
+                    }
+
+                    bool isCredential = IsAuthCredentialField(property.Name);
+                    if (!isCredential)
+                    {
+                        validationError ??= "Authentication contains an unsupported field.";
+                        continue;
+                    }
+                    string? resolved = null;
+                    if (property.Value.ValueKind == JsonValueKind.String
+                        && property.Value.GetString() is string tokenReference)
+                    {
+                        if (tokenReference.StartsWith("secret:", StringComparison.Ordinal)
+                            && secrets.TryResolve(tokenReference, out string secretValue))
+                        {
+                            resolved = secretValue;
+                        }
+                        else if (isCredential)
+                        {
+                            validationError ??= "Authentication credential reference could not be resolved.";
+                        }
+                    }
+                    else if (isCredential)
+                    {
+                        validationError ??= "Authentication credentials must be strings.";
+                    }
+
+                    if (!fields.TryAdd(property.Name, resolved))
+                    {
+                        validationError ??= "Authentication credential fields must not be repeated.";
+                    }
+                }
+            }
+
+            if (validationError is not null)
+            {
+                throw InvalidAuthRequest(validationError);
+            }
+
+            bool hasPassword = fields.TryGetValue("password", out string? password);
+            bool hasToken = fields.TryGetValue("token", out string? token);
+            bool hasAccessTokenAlias = fields.TryGetValue("accessToken", out string? accessTokenAlias);
+
+            switch (kind)
+            {
+                case "sqlLogin":
+                    if (hasToken || hasAccessTokenAlias)
+                    {
+                        throw InvalidAuthRequest("SQL login authentication cannot include access-token credentials.");
+                    }
+                    // Empty SQL passwords are valid and intentionally remain distinct from
+                    // an unresolved credential reference, which was rejected above.
+                    return hasPassword ? password : null;
+
+                case "accessToken":
+                    if (hasPassword)
+                    {
+                        throw InvalidAuthRequest("Access-token authentication cannot include a password.");
+                    }
+                    if (hasToken && hasAccessTokenAlias)
+                    {
+                        throw InvalidAuthRequest("Specify either auth.token or auth.accessToken, not both.");
+                    }
+                    if (!hasToken && !hasAccessTokenAlias)
+                    {
+                        throw InvalidAuthRequest("Access-token authentication requires auth.token.");
+                    }
+                    string? accessToken = hasToken ? token : accessTokenAlias;
+                    if (string.IsNullOrEmpty(accessToken))
+                    {
+                        throw InvalidAuthRequest("Access token must not be empty.");
+                    }
+                    return accessToken;
+
+                case "integrated":
+                    if (hasPassword || hasToken || hasAccessTokenAlias)
+                    {
+                        throw InvalidAuthRequest("Integrated authentication cannot include credentials.");
+                    }
+                    return null;
+
+                default:
+                    throw InvalidAuthRequest("Unsupported auth kind: " + kind);
+            }
+        }
+
+        private void CollectResolvedSecretReferences(JsonElement value, List<string> resolvedTokens)
+        {
+            switch (value.ValueKind)
+            {
+                case JsonValueKind.Object:
+                    foreach (JsonProperty property in value.EnumerateObject())
+                    {
+                        // SecretRedactor leaves these auth metadata keys in clear text at
+                        // every nesting level; mirror that boundary here.
+                        if (!property.NameEquals("kind") && !property.NameEquals("user"))
+                        {
+                            CollectResolvedSecretReferences(property.Value, resolvedTokens);
+                        }
+                    }
+                    break;
+
+                case JsonValueKind.Array:
+                    foreach (JsonElement item in value.EnumerateArray())
+                    {
+                        CollectResolvedSecretReferences(item, resolvedTokens);
+                    }
+                    break;
+
+                case JsonValueKind.String:
+                    if (value.GetString() is string tokenReference
+                        && tokenReference.StartsWith("secret:", StringComparison.Ordinal)
+                        && secrets.TryResolve(tokenReference, out _))
+                    {
+                        resolvedTokens.Add(tokenReference);
+                    }
+                    break;
+            }
+        }
+
+        private static bool IsAuthCredentialField(string name) =>
+            name is "password" or "token" or "accessToken";
+
+        private static DbDriverException InvalidAuthRequest(string message) =>
+            new(Sts2ErrorCodes.InvalidRequest, message);
+
+        private static Task PostOpenDriverErrorAsync(
+            ICoordinatorInbox inbox,
+            EffectWorkItem effect,
+            string connectionId,
+            string openId,
+            DbDriverException error)
+        {
+            string server = error.Server is null
+                ? "null"
+                : string.Create(CultureInfo.InvariantCulture,
+                    $$"""{"number":{{error.Server.Number}},"severity":{{error.Server.Severity}},"state":{{error.Server.State}},"line":{{(error.Server.Line?.ToString(CultureInfo.InvariantCulture) ?? "null")}}}""");
+            return PostOpenResultAsync(inbox, effect, connectionId, openId,
+                $$"""{"status":"error","code":{{JsonSerializer.Serialize(error.Code)}},"message":{{JsonSerializer.Serialize(error.Message)}},"server":{{server}}}""");
         }
 
         private static Task PostOpenResultAsync(ICoordinatorInbox inbox, EffectWorkItem effect, string connectionId, string openId, string payloadCore)

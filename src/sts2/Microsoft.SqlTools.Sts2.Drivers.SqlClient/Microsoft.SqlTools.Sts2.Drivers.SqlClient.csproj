@@ -7,4 +7,7 @@
     <ProjectReference Include="..\Microsoft.SqlTools.Sts2.Contracts\Microsoft.SqlTools.Sts2.Contracts.csproj" />
     <PackageReference Include="Microsoft.Data.SqlClient" />
   </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Microsoft.SqlTools.Sts2.UnitTests" />
+  </ItemGroup>
 </Project>

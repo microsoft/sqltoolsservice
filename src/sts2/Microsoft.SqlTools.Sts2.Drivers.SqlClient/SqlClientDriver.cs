@@ -17,6 +17,30 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
     /// </summary>
     public sealed class SqlClientDriver : IDbDriver
     {
+        private readonly Func<SqlConnection, CancellationToken, Task> openConnectionAsync;
+        private readonly Func<SqlConnection, CancellationToken, Task<ServerInfo>> readServerInfoAsync;
+        private readonly Func<SqlConnection, ValueTask> disposeConnectionAsync;
+
+        /// <summary>Creates the production SqlClient driver.</summary>
+        public SqlClientDriver()
+            : this(
+                static (connection, cancellationToken) => connection.OpenAsync(cancellationToken),
+                ReadServerInfoAsync,
+                static connection => connection.DisposeAsync())
+        {
+        }
+
+        /// <summary>Internal lifecycle seam for server-free failure-path tests.</summary>
+        internal SqlClientDriver(
+            Func<SqlConnection, CancellationToken, Task> openConnectionAsync,
+            Func<SqlConnection, CancellationToken, Task<ServerInfo>> readServerInfoAsync,
+            Func<SqlConnection, ValueTask> disposeConnectionAsync)
+        {
+            this.openConnectionAsync = openConnectionAsync ?? throw new ArgumentNullException(nameof(openConnectionAsync));
+            this.readServerInfoAsync = readServerInfoAsync ?? throw new ArgumentNullException(nameof(readServerInfoAsync));
+            this.disposeConnectionAsync = disposeConnectionAsync ?? throw new ArgumentNullException(nameof(disposeConnectionAsync));
+        }
+
         /// <inheritdoc/>
         public string Name => "sqlclient";
 
@@ -30,32 +54,47 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             (string connectionString, string? accessToken) = SqlClientConnectionString.Build(request);
 
             var connection = new SqlConnection(connectionString);
-            if (accessToken is not null)
-            {
-                connection.AccessToken = accessToken;
-            }
 
             try
             {
-                await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
-            }
-            catch (OperationCanceledException)
-            {
-                await connection.DisposeAsync().ConfigureAwait(false);
-                throw;
+                if (accessToken is not null)
+                {
+                    connection.AccessToken = accessToken;
+                }
+
+                await openConnectionAsync(connection, cancellationToken).ConfigureAwait(false);
+                ServerInfo server = await readServerInfoAsync(connection, cancellationToken).ConfigureAwait(false);
+                return new SqlClientSession(connection, server);
             }
             catch (SqlException ex)
             {
-                await connection.DisposeAsync().ConfigureAwait(false);
+                await DisposeFailedConnectionAsync(connection).ConfigureAwait(false);
                 throw new DbDriverException(
                     SqlClientErrorMapping.ClassifyOpen(ex),
                     "Connection failed: " + ex.Message,
                     SqlClientErrorMapping.ServerDetail(ex),
                     ex);
             }
+            catch
+            {
+                // Ownership transfers to SqlClientSession only after server-info read.
+                // Every failure before that point, including cancellation and probe
+                // failures, must release the physical connection here.
+                await DisposeFailedConnectionAsync(connection).ConfigureAwait(false);
+                throw;
+            }
+        }
 
-            ServerInfo server = await ReadServerInfoAsync(connection, cancellationToken).ConfigureAwait(false);
-            return new SqlClientSession(connection, server);
+        private async ValueTask DisposeFailedConnectionAsync(SqlConnection connection)
+        {
+            try
+            {
+                await disposeConnectionAsync(connection).ConfigureAwait(false);
+            }
+            catch (Exception)
+            {
+                // Preserve the original open/probe failure; disposal is best-effort.
+            }
         }
 
         private static async Task<ServerInfo> ReadServerInfoAsync(SqlConnection connection, CancellationToken cancellationToken)

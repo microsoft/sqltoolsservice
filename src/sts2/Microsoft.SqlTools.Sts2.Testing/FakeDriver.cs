@@ -46,6 +46,9 @@ namespace Microsoft.SqlTools.Sts2.Testing
         /// <summary>The most recent ExecuteAsync request — lets tests assert option pass-through (QO-3).</summary>
         public QueryExecuteRequest? LastExecuteRequest { get; private set; }
 
+        /// <summary>The most recent open request — lets tests assert auth material selection at the runtime edge.</summary>
+        public ConnectionOpenRequest? LastOpenRequest { get; private set; }
+
         /// <summary>Server facts every successful open reports.</summary>
         public ServerInfo ServerInfo { get; init; } = new()
         {
@@ -73,6 +76,7 @@ namespace Microsoft.SqlTools.Sts2.Testing
         public async ValueTask<IDbSession> OpenAsync(ConnectionOpenRequest request, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(request);
+            LastOpenRequest = request;
             FakeOpenBehavior behavior = openBehaviors.TryDequeue(out FakeOpenBehavior? scripted) ? scripted : new FakeOpenBehavior();
 
             if (behavior.DelayMs > 0)

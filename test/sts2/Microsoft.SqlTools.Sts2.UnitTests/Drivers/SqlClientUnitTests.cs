@@ -3,7 +3,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.SqlTools.Sts2.Abstractions;
 using Microsoft.SqlTools.Sts2.Drivers.SqlClient;
 using Xunit;
@@ -148,6 +151,28 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
             Assert.Equal("jwt-material", token);
             Assert.DoesNotContain("jwt-material", connectionString);
             Assert.DoesNotContain("Password=", connectionString);
+            Assert.Contains("Pooling=False", connectionString);
+        }
+
+        [Fact]
+        public async Task ServerInfoFailureDisposesConnectionBeforeOwnershipTransfer()
+        {
+            bool disposed = false;
+            var driver = new SqlClientDriver(
+                static (_, _) => Task.CompletedTask,
+                static (_, _) => Task.FromException<ServerInfo>(new InvalidOperationException("probe failed")),
+                connection =>
+                {
+                    disposed = true;
+                    return connection.DisposeAsync();
+                });
+
+            await Assert.ThrowsAsync<InvalidOperationException>(() =>
+                driver.OpenAsync(
+                    Request(new SecretMaterial { Kind = "integrated" }),
+                    CancellationToken.None).AsTask());
+
+            Assert.True(disposed);
         }
 
         [Fact]

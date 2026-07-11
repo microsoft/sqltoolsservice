@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Sts2.Abstractions;
+using Microsoft.SqlTools.Sts2.Contracts;
 using Microsoft.SqlTools.Sts2.Runtime.Coordination;
 using Microsoft.SqlTools.Sts2.Runtime.Effects;
 using Microsoft.SqlTools.Sts2.Runtime.Journaling;
@@ -97,6 +98,22 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
             {"openId":"OPENID","profile":{"server":"fake://local","database":"main","driver":"fake","auth":{"kind":"sqlLogin","user":"sa","password":"PASSWORD"},"options":{"connectTimeoutMs":5000}}}
             """.Replace("OPENID", openId).Replace("PASSWORD", SecretCanaries.Password);
 
+        private static string OpenPayloadWithAuth(string openId, string authJson, string driver = "fake")
+        {
+            return JsonSerializer.Serialize(new
+            {
+                openId,
+                profile = new
+                {
+                    server = "fake://local",
+                    database = "main",
+                    driver,
+                    auth = JsonSerializer.Deserialize<JsonElement>(authJson),
+                    options = new { connectTimeoutMs = 5000 },
+                },
+            });
+        }
+
         [Fact]
         public async Task OpenSucceedsEndToEndAndScrubsSecrets()
         {
@@ -128,6 +145,96 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
             Assert.Equal("Sts2.ConnectionFailed.Auth", body.GetProperty("data").GetProperty("code").GetString());
             Assert.Equal(0, secrets.Count); // secret scrubbed on failure too
             Assert.Equal(0, fakeDriver.OpenSessionCount);
+        }
+
+        [Theory]
+        [InlineData("token")]
+        [InlineData("accessToken")]
+        public async Task AccessTokenCanonicalAndLegacyAliasResolveAtDriverEdge(string field)
+        {
+            string auth = $$"""{"kind":"accessToken","{{field}}":{{JsonSerializer.Serialize(SecretCanaries.AccessToken)}}}""";
+            OutboundRpcMessage open = await RequestAsync(
+                "v2/connection.open",
+                OpenPayloadWithAuth("open-token-" + field, auth));
+
+            Assert.Equal("rpc.out.result", open.Kind);
+            Assert.NotNull(fakeDriver.LastOpenRequest);
+            Assert.Equal("accessToken", fakeDriver.LastOpenRequest!.Auth.Kind);
+            Assert.Equal(SecretCanaries.AccessToken, fakeDriver.LastOpenRequest.Auth.Secret);
+            Assert.Equal(0, secrets.Count);
+        }
+
+        [Fact]
+        public async Task UnknownDriverStillScrubsAuthenticationSecrets()
+        {
+            OutboundRpcMessage error = await RequestAsync(
+                "v2/connection.open",
+                OpenPayloadWithAuth(
+                    "open-unknown-driver",
+                    $$"""{"kind":"accessToken","token":{{JsonSerializer.Serialize(SecretCanaries.AccessToken)}}}""",
+                    "missing"));
+
+            Assert.Equal("rpc.out.error", error.Kind);
+            Assert.Equal(
+                Sts2ErrorCodes.Unavailable,
+                error.Body!.Value.GetProperty("data").GetProperty("code").GetString());
+            Assert.Null(fakeDriver.LastOpenRequest);
+            Assert.Equal(0, secrets.Count);
+        }
+
+        [Theory]
+        [InlineData("""{"kind":"accessToken","password":"pw","token":"jwt"}""")]
+        [InlineData("""{"kind":"accessToken","password":123,"token":"jwt"}""")]
+        [InlineData("""{"kind":"accessToken","token":"jwt-1","accessToken":"jwt-2"}""")]
+        [InlineData("""{"kind":"accessToken","token":"jwt","metadata":"extra"}""")]
+        [InlineData("""{"kind":"sqlLogin","password":"","token":"jwt"}""")]
+        [InlineData("""{"kind":"integrated","accessToken":"jwt"}""")]
+        public async Task MixedAuthenticationCredentialsReturnInvalidRequest(string auth)
+        {
+            OutboundRpcMessage error = await RequestAsync(
+                "v2/connection.open",
+                OpenPayloadWithAuth("open-mixed", auth));
+
+            Assert.Equal("rpc.out.error", error.Kind);
+            Assert.Equal(
+                Sts2ErrorCodes.InvalidRequest,
+                error.Body!.Value.GetProperty("data").GetProperty("code").GetString());
+            Assert.Null(fakeDriver.LastOpenRequest);
+            Assert.Equal(0, secrets.Count);
+        }
+
+        [Theory]
+        [InlineData("""{"kind":"accessToken"}""")]
+        [InlineData("""{"kind":"accessToken","token":""}""")]
+        [InlineData("""{"kind":"accessToken","accessToken":""}""")]
+        [InlineData("""{"kind":"accessToken","metadata":{"refresh":"nested-secret"}}""")]
+        public async Task MissingOrEmptyAccessTokenReturnsInvalidRequest(string auth)
+        {
+            OutboundRpcMessage error = await RequestAsync(
+                "v2/connection.open",
+                OpenPayloadWithAuth("open-empty-token", auth));
+
+            Assert.Equal("rpc.out.error", error.Kind);
+            Assert.Equal(
+                Sts2ErrorCodes.InvalidRequest,
+                error.Body!.Value.GetProperty("data").GetProperty("code").GetString());
+            Assert.Null(fakeDriver.LastOpenRequest);
+            Assert.Equal(0, secrets.Count);
+        }
+
+        [Fact]
+        public async Task EmptySqlPasswordRemainsValid()
+        {
+            OutboundRpcMessage open = await RequestAsync(
+                "v2/connection.open",
+                OpenPayloadWithAuth(
+                    "open-empty-password",
+                    """{"kind":"sqlLogin","user":"sa","password":""}"""));
+
+            Assert.Equal("rpc.out.result", open.Kind);
+            Assert.NotNull(fakeDriver.LastOpenRequest);
+            Assert.Equal(string.Empty, fakeDriver.LastOpenRequest!.Auth.Secret);
+            Assert.Equal(0, secrets.Count);
         }
 
         [Fact]
