@@ -59,6 +59,45 @@ namespace Microsoft.SqlTools.Sts2.Abstractions
         public required string DigestHex { get; init; }
     }
 
+    /// <summary>
+    /// A typed float32 vector cell read natively by the driver (D-0019): explicit
+    /// little-endian IEEE 754 component bytes, produced only for queries that
+    /// negotiated <c>options.vectorEncoding = "binary-v1"</c>. Vectors are never
+    /// truncated — a vector is complete or <see cref="DriverVectorUnavailableValue"/>.
+    /// Provider CLR vector types stop at the driver boundary; this record is the
+    /// provider-neutral form the encoder emits verbatim as the SPEC §7.7 vector tag.
+    /// </summary>
+    public sealed record DriverVectorValue
+    {
+        /// <summary>Component count (authoritative per cell, over column metadata).</summary>
+        public required int Dimensions { get; init; }
+
+        /// <summary>Base component type; "float32" in v1.</summary>
+        public required string BaseType { get; init; }
+
+        /// <summary>Component byte encoding; "f32le" in v1.</summary>
+        public required string Encoding { get; init; }
+
+        /// <summary>Little-endian component bytes; length == Dimensions * 4 for float32.</summary>
+        public required byte[] ComponentBytes { get; init; }
+    }
+
+    /// <summary>
+    /// A vector cell the driver could not transport as typed components (D-0019):
+    /// honest sentinel with a stable reason, never a partial vector.
+    /// </summary>
+    public sealed record DriverVectorUnavailableValue
+    {
+        /// <summary>Component count when determinable.</summary>
+        public int? Dimensions { get; init; }
+
+        /// <summary>Base type when determinable (for example "float16").</summary>
+        public string? BaseType { get; init; }
+
+        /// <summary>"unsupportedBaseType" | "providerValueMismatch" | "decodeFailed" | "cellLimit".</summary>
+        public required string Reason { get; init; }
+    }
+
     /// <summary>Column metadata: engine type names verbatim plus normalized fields (SPEC §7.7).</summary>
     public sealed record ColumnInfo
     {

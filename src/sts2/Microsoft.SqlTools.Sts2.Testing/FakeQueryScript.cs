@@ -30,10 +30,12 @@ namespace Microsoft.SqlTools.Sts2.Testing
         public bool EdgeValues { get; init; }
 
         /// <summary>
-        /// Explicit wide-cell value for rows steps (STS2-3 cell truncation): every non-key
-        /// column (ordinal &gt; 0) carries exactly this string. Overrides <see cref="CellBytes"/>.
+        /// Explicit cell value for rows steps: every non-key column (ordinal &gt; 0)
+        /// carries exactly this value — a wide string (STS2-3 cell truncation) or a
+        /// driver-typed value such as DriverVectorValue (D-0019). Overrides
+        /// <see cref="CellBytes"/>.
         /// </summary>
-        public string? CellValue { get; init; }
+        public object? CellValue { get; init; }
 
         /// <summary>
         /// When &gt; 0, rows steps fabricate wide cells of exactly this many bytes in every

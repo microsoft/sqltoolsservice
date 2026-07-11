@@ -23,6 +23,109 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
             Options = options ?? new Dictionary<string, string>(),
         };
 
+        private static ColumnInfo Column(string engineType, int? length = null) => new()
+        {
+            Name = "c",
+            EngineType = engineType,
+            Nullable = true,
+            Length = length,
+        };
+
+        [Fact]
+        public void ClassifyColumnsRoutesVectorToTextByDefaultAndVectorWhenNegotiated() // D-0018/D-0019
+        {
+            var columns = new List<ColumnInfo> { Column("vector", 20), Column("int"), Column("nvarchar", 50) };
+
+            SqlLargeValueReader.CellRead[] defaults = SqlLargeValueReader.ClassifyColumns(columns);
+            Assert.Equal(SqlLargeValueReader.CellRead.Text, defaults[0]);
+            Assert.Equal(SqlLargeValueReader.CellRead.Value, defaults[1]);
+            Assert.Equal(SqlLargeValueReader.CellRead.Value, defaults[2]); // bounded nvarchar keeps GetValue
+
+            SqlLargeValueReader.CellRead[] negotiated = SqlLargeValueReader.ClassifyColumns(columns, vectorBinary: true);
+            Assert.Equal(SqlLargeValueReader.CellRead.Vector, negotiated[0]);
+            Assert.Equal(SqlLargeValueReader.CellRead.Value, negotiated[1]);
+        }
+
+        [Fact]
+        public void ClassifyColumnsRoutesClrUdtsToBinary() // D-0018: GetValue would FileNotFound the whole query
+        {
+            var columns = new List<ColumnInfo>
+            {
+                Column("master.sys.geometry", int.MaxValue),
+                Column("AppDb.sys.geography", int.MaxValue),
+                Column("tempdb.sys.hierarchyid", 892),
+                Column("geometry"), // bare name accepted defensively
+            };
+            SqlLargeValueReader.CellRead[] kinds = SqlLargeValueReader.ClassifyColumns(columns);
+            Assert.All(kinds, k => Assert.Equal(SqlLargeValueReader.CellRead.Binary, k));
+        }
+
+        [Fact]
+        public void EstimateCellBytesCoversVectorAndTruncatedValues() // D-0019 page byte bound
+        {
+            // A 1,536-dimension float32 vector encodes to ~8.3 KB (base64 of
+            // 6144 bytes + tag fields) — the generic fallback would say 24.
+            var vector = new DriverVectorValue
+            {
+                Dimensions = 1536,
+                BaseType = "float32",
+                Encoding = "f32le",
+                ComponentBytes = new byte[6144],
+            };
+            long vectorEstimate = SqlRowsPageBuilder.EstimateCellBytes(vector);
+            Assert.InRange(vectorEstimate, 8192, 8500);
+
+            var truncatedText = new DriverTruncatedValue
+            {
+                Kind = "string",
+                PrefixText = new string('x', 65536),
+                TotalBytes = 1_000_000,
+                DigestHex = new string('0', 64),
+            };
+            Assert.True(SqlRowsPageBuilder.EstimateCellBytes(truncatedText) >= 65536);
+
+            var truncatedBinary = new DriverTruncatedValue
+            {
+                Kind = "binary",
+                PrefixBytes = new byte[65536],
+                TotalBytes = 1_000_000,
+                DigestHex = new string('0', 64),
+            };
+            Assert.True(SqlRowsPageBuilder.EstimateCellBytes(truncatedBinary) >= 87381); // base64 expansion
+        }
+
+        [Fact]
+        public void VectorRowsPageWithAccurateEstimatesRespectsByteBound() // D-0019 page clamp
+        {
+            // 32 rows of one 1,536-dim vector each at the pinned 256 KiB page
+            // bound: accurate estimates must close pages well before 32 rows
+            // (encoded reality ≈ 8.3 KB/row → ~31 rows/page max, and the
+            // builder pre-closes when the next row would exceed the bound).
+            var builder = new SqlRowsPageBuilder(1000, 262144);
+            var vector = new DriverVectorValue
+            {
+                Dimensions = 1536,
+                BaseType = "float32",
+                Encoding = "f32le",
+                ComponentBytes = new byte[6144],
+            };
+            int pagesYielded = 0;
+            int rowsInFirstPage = 0;
+            for (int r = 0; r < 64; r++)
+            {
+                foreach (var page in builder.Add(new object?[] { 1L, vector }))
+                {
+                    pagesYielded++;
+                    if (pagesYielded == 1)
+                    {
+                        rowsInFirstPage = page.Count;
+                    }
+                }
+            }
+            Assert.True(pagesYielded >= 2, "accurate vector estimates must close pages by bytes");
+            Assert.InRange(rowsInFirstPage, 20, 32);
+        }
+
         [Fact]
         public void SqlLoginBuildsUserAndPasswordWithoutLeakingIntoToken()
         {

@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,6 +30,16 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
     /// </summary>
     public sealed class DriverEffectRunner : ISts2EffectRunner, IEffectRunnerDiagnostics, IAsyncDisposable
     {
+        /// <summary>
+        /// Last-line frame guard (D-0019): the pinned transport frame bound minus
+        /// 1 MiB of slack for the event/envelope wrapper around the rows JSON.
+        /// Page construction (pageBytes + accurate cell estimates) should keep
+        /// pages far below this; the guard turns the pathological case (one row
+        /// of many maximum-size cells) into a typed failure instead of an
+        /// oversized frame.
+        /// </summary>
+        private const int FrameGuardBytes = Sts2Defaults.MaxFrameBytes - 1048576;
+
         private readonly IReadOnlyDictionary<string, IDbDriver> drivers;
         private readonly SecretSideTable secrets;
         private readonly ConcurrentDictionary<string, CancellationTokenSource> opensInFlight = new(StringComparer.Ordinal);
@@ -392,13 +403,17 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
 
             bool compactRows = effect.Args.TryGetProperty("compactRows", out JsonElement compactFlag)
                 && compactFlag.ValueKind == JsonValueKind.True;
+            // D-0019: Core normalized options.vectorEncoding="binary-v1" into this
+            // journaled bool; the driver emits typed vector cells only when set.
+            bool vectorBinary = effect.Args.TryGetProperty("vectorBinary", out JsonElement vectorFlag)
+                && vectorFlag.ValueKind == JsonValueKind.True;
 
             var pump = new QueryPump { Session = session, Credits = new SemaphoreSlim(initialCredit) };
             queryPumps[queryId] = pump;
-            pump.PumpTask = Task.Run(() => StreamQueryPumpAsync(effect, inbox, queryId, sql, maxCellBytes, pageRows, pageBytes, queryTimeoutMs, compactRows, pump));
+            pump.PumpTask = Task.Run(() => StreamQueryPumpAsync(effect, inbox, queryId, sql, maxCellBytes, pageRows, pageBytes, queryTimeoutMs, compactRows, vectorBinary, pump));
         }
 
-        private async Task StreamQueryPumpAsync(EffectWorkItem effect, ICoordinatorInbox inbox, string queryId, string sql, int maxCellBytes, int pageRows, int pageBytes, int queryTimeoutMs, bool compactRows, QueryPump pump)
+        private async Task StreamQueryPumpAsync(EffectWorkItem effect, ICoordinatorInbox inbox, string queryId, string sql, int maxCellBytes, int pageRows, int pageBytes, int queryTimeoutMs, bool compactRows, bool vectorBinary, QueryPump pump)
         {
             await PostQueryEventAsync(inbox, effect, queryId, """{"eventType":"started"}""").ConfigureAwait(false);
 
@@ -417,6 +432,8 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                     // QO-4: the driver streams large values bounded by this;
                     // the encoder stays authoritative for anything it didn't.
                     MaxCellBytes = maxCellBytes,
+                    // D-0019: typed vector cells only for opted-in queries.
+                    VectorBinary = vectorBinary,
                 };
                 // Row-pipeline attribution (QO-2): readMs approximates driver/enumerator time
                 // as the gap since the previous event finished posting; credit wait and encode
@@ -447,7 +464,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                         case ResultSetStarted resultSet:
                             if (compactRows)
                             {
-                                typeHintsBySet[resultSet.ResultSetId] = SerializeTypeHints(resultSet.Columns);
+                                typeHintsBySet[resultSet.ResultSetId] = SerializeTypeHints(resultSet.Columns, vectorBinary);
                             }
                             await PostQueryEventAsync(inbox, effect, queryId, string.Create(CultureInfo.InvariantCulture,
                                 $$"""{"eventType":"resultSet","resultSetId":{{resultSet.ResultSetId}},"columns":{{SerializeColumns(resultSet.Columns)}}}""")).ConfigureAwait(false);
@@ -465,12 +482,27 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                             }
                             long encodeStartTicks = Stopwatch.GetTimestamp();
                             string rowsJson = SerializeRows(page.Cells, maxCellBytes);
+                            // Honest byte accounting (D-0019): encoded page size is
+                            // measured in UTF-8 bytes, not UTF-16 char count (they
+                            // differ on any non-ASCII cell). The final frame guard
+                            // is non-negotiable: one page whose encoded rows exceed
+                            // the frame budget fails typed instead of emitting an
+                            // oversized frame downstream (page construction should
+                            // prevent this; the guard is the last line, not policy).
+                            long encodedBytes = (long)Encoding.UTF8.GetByteCount(rowsJson);
+                            if (encodedBytes > FrameGuardBytes)
+                            {
+                                throw new DbDriverException(
+                                    Sts2ErrorCodes.QueryFailedTransport,
+                                    string.Create(CultureInfo.InvariantCulture,
+                                        $"Encoded rows page ({encodedBytes} bytes) exceeds the frame budget ({FrameGuardBytes} bytes); a single row is too large to transport."));
+                            }
                             // QO-5: the compact shape carries the null bitmap +
                             // type hints computed HERE (once), so the client
                             // stops rebuilding pages and re-measuring bytes.
                             string pageBody = compactRows
                                 ? string.Create(CultureInfo.InvariantCulture, $$"""
-                                    "compact":{"values":{{rowsJson}},"nullBitmap":{{JsonSerializer.Serialize(PackNullBitmap(page.Cells))}},"typeHints":{{typeHintsBySet.GetValueOrDefault(page.ResultSetId, "[]")}} },"approxBytes":{{rowsJson.Length}},"encodedBytes":{{rowsJson.Length}}
+                                    "compact":{"values":{{rowsJson}},"nullBitmap":{{JsonSerializer.Serialize(PackNullBitmap(page.Cells))}},"typeHints":{{typeHintsBySet.GetValueOrDefault(page.ResultSetId, "[]")}} },"approxBytes":{{encodedBytes}},"encodedBytes":{{encodedBytes}}
                                     """)
                                 : string.Create(CultureInfo.InvariantCulture, $$"""
                                     "rows":{{rowsJson}}
@@ -478,12 +510,12 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                             double encodeMs = ElapsedMs(encodeStartTicks);
                             pump.StatsPages++;
                             pump.StatsRows += page.Cells.Count;
-                            pump.StatsEncodedBytes += rowsJson.Length;
+                            pump.StatsEncodedBytes += encodedBytes;
                             pump.StatsReadMsTotal += readMs;
                             pump.StatsCreditWaitMsTotal += creditWaitMs;
                             pump.StatsEncodeMsTotal += encodeMs;
                             await PostQueryEventAsync(inbox, effect, queryId, string.Create(CultureInfo.InvariantCulture,
-                                $$"""{"eventType":"rows","resultSetId":{{page.ResultSetId}},"pageSeq":{{page.PageSeq}},"rowOffset":{{page.RowOffset}},{{pageBody}},"stats":{"rowCount":{{page.Cells.Count}},"encodedBytes":{{rowsJson.Length}},"readMs":{{FormatMs(readMs)}},"creditWaitMs":{{FormatMs(creditWaitMs)}},"encodeMs":{{FormatMs(encodeMs)}} } }""")).ConfigureAwait(false);
+                                $$"""{"eventType":"rows","resultSetId":{{page.ResultSetId}},"pageSeq":{{page.PageSeq}},"rowOffset":{{page.RowOffset}},{{pageBody}},"stats":{"rowCount":{{page.Cells.Count}},"encodedBytes":{{encodedBytes}},"readMs":{{FormatMs(readMs)}},"creditWaitMs":{{FormatMs(creditWaitMs)}},"encodeMs":{{FormatMs(encodeMs)}} } }""")).ConfigureAwait(false);
                             break;
                         }
 
@@ -569,8 +601,13 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
         /// engineType → compact type hint (QO-5), the same taxonomy the client
         /// binding used to compute per page (typeHintFor in sts2Backend.ts) —
         /// computed ONCE per result set here. Keep the two mappings identical.
+        /// D-0019: vector columns hint "vector:f32le:v1" only for queries that
+        /// negotiated the typed encoding (the client's mapping changes in
+        /// lockstep behind the same negotiation); otherwise they stay "string"
+        /// (JSON text cells). Hints route fast paths but are never trusted
+        /// without structural validation — the cell tag is self-describing.
         /// </summary>
-        private static string SerializeTypeHints(IReadOnlyList<ColumnInfo> columns)
+        private static string SerializeTypeHints(IReadOnlyList<ColumnInfo> columns, bool vectorBinary)
         {
             var array = new System.Text.Json.Nodes.JsonArray();
             foreach (ColumnInfo column in columns)
@@ -583,6 +620,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                     "bigint" or "decimal" or "numeric" or "money" or "smallmoney" => "number:approx",
                     "varbinary" or "binary" or "image" or "timestamp" or "rowversion" => "binary",
                     "xml" => "xml",
+                    "vector" when vectorBinary => "vector:f32le:v1",
                     _ when t.StartsWith("date", StringComparison.Ordinal)
                         || t.StartsWith("time", StringComparison.Ordinal)
                         || t == "smalldatetime" => "datetime",
@@ -598,12 +636,33 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
             var array = new System.Text.Json.Nodes.JsonArray();
             foreach (ColumnInfo column in columns)
             {
-                array.Add(new System.Text.Json.Nodes.JsonObject
+                var obj = new System.Text.Json.Nodes.JsonObject
                 {
                     ["name"] = column.Name,
                     ["type"] = column.EngineType,
                     ["nullable"] = column.Nullable,
-                });
+                };
+                // D-0019 (additive, SPEC §7.7 already promised these): normalized
+                // facts serialized only when the driver knows them. For vector
+                // columns, length = 8 + 4*dimensions, so clients can derive the
+                // dimension count from metadata alone.
+                if (column.Precision is int precision)
+                {
+                    obj["precision"] = precision;
+                }
+                if (column.Scale is int scale)
+                {
+                    obj["scale"] = scale;
+                }
+                if (column.Length is int length)
+                {
+                    obj["length"] = length;
+                }
+                if (column.Collation is string collation)
+                {
+                    obj["collation"] = collation;
+                }
+                array.Add(obj);
             }
             return array.ToJsonString();
         }

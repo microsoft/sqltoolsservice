@@ -120,6 +120,10 @@ namespace Microsoft.SqlTools.Sts2.Core
                     // the compact page shape (values+nullBitmap+typeHints with
                     // service-measured bytes) for that query (D-0016).
                     ["compactRows"] = true,
+                    // D-0019: options.vectorEncoding="binary-v1" switches native
+                    // vector cells to the typed {$t:"vector",...,"data"} encoding
+                    // for that query; non-opted-in queries keep JSON text.
+                    ["vectorBinaryV1"] = true,
                 },
                 ["drivers"] = driverArray,
                 ["limits"] = new JsonObject
@@ -462,8 +466,12 @@ namespace Microsoft.SqlTools.Sts2.Core
             // QO-5: compact rows are opt-in per query; the runner emits the
             // compact payload shape and the rows case routes on its presence.
             bool compactRows = OptionIsTrue(envelope.Payload, "compactRows");
+            // D-0019: typed vector cells are opt-in per query via the literal
+            // option vectorEncoding="binary-v1"; normalized to a bool in the
+            // journaled args so the driver never re-derives options.
+            bool vectorBinary = OptionIsLiteral(envelope.Payload, "vectorEncoding", "binary-v1");
             string startArgs = string.Create(CultureInfo.InvariantCulture, $$"""
-                {"queryId":{{JsonSerializer.Serialize(queryId)}},"connectionId":{{JsonSerializer.Serialize(connectionId)}},"handleId":{{JsonSerializer.Serialize(connection.HandleId)}},"sql":{{sqlRaw}},"credit":{{Sts2Defaults.WindowPages}},"maxCellBytes":{{maxCellBytes}},"pageRows":{{pageRows}},"pageBytes":{{pageBytes}},"queryTimeoutMs":{{queryTimeoutMs}},"compactRows":{{(compactRows ? "true" : "false")}}}
+                {"queryId":{{JsonSerializer.Serialize(queryId)}},"connectionId":{{JsonSerializer.Serialize(connectionId)}},"handleId":{{JsonSerializer.Serialize(connection.HandleId)}},"sql":{{sqlRaw}},"credit":{{Sts2Defaults.WindowPages}},"maxCellBytes":{{maxCellBytes}},"pageRows":{{pageRows}},"pageBytes":{{pageBytes}},"queryTimeoutMs":{{queryTimeoutMs}},"compactRows":{{(compactRows ? "true" : "false")}},"vectorBinary":{{(vectorBinary ? "true" : "false")}}}
                 """);
 
             CoreState next = state with
@@ -527,6 +535,15 @@ namespace Microsoft.SqlTools.Sts2.Core
             && options.ValueKind == JsonValueKind.Object
             && options.TryGetProperty(name, out JsonElement value)
             && value.ValueKind == JsonValueKind.True;
+
+        /// <summary>True only when options.{name} is exactly the literal string (D-0019 opt-ins).</summary>
+        private static bool OptionIsLiteral(JsonElement? payload, string name, string literal) =>
+            payload is { ValueKind: JsonValueKind.Object } p
+            && p.TryGetProperty("options", out JsonElement options)
+            && options.ValueKind == JsonValueKind.Object
+            && options.TryGetProperty(name, out JsonElement value)
+            && value.ValueKind == JsonValueKind.String
+            && value.ValueEquals(literal);
 
         /// <summary>
         /// `options.queryTimeoutMs` (SPEC §7.5): positive passes through to the provider

@@ -84,7 +84,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                             }
                             if (reader.FieldCount > 0)
                             {
-                                await foreach (ExecEvent execEvent in PumpResultSetAsync(reader, resultSetId, pageRows, pageBytes, maxCellBytes, cancellationToken).ConfigureAwait(false))
+                                await foreach (ExecEvent execEvent in PumpResultSetAsync(reader, resultSetId, pageRows, pageBytes, maxCellBytes, request.VectorBinary, cancellationToken).ConfigureAwait(false))
                                 {
                                     yield return execEvent;
                                 }
@@ -147,12 +147,13 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
 
         /// <summary>Streams one result set page-by-page (no full-result buffering).</summary>
         private static async IAsyncEnumerable<ExecEvent> PumpResultSetAsync(
-            SqlDataReader reader, int resultSetId, int pageRows, int pageBytes, int maxCellBytes, [EnumeratorCancellation] CancellationToken cancellationToken)
+            SqlDataReader reader, int resultSetId, int pageRows, int pageBytes, int maxCellBytes, bool vectorBinary, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             var columns = await ReadColumnsAsync(reader).ConfigureAwait(false);
             // QO-4: MAX-typed columns stream under SequentialAccess — bounded
             // prefix + streaming digest/byte count, never full materialization.
-            SqlLargeValueReader.CellRead[] readKinds = SqlLargeValueReader.ClassifyColumns(columns);
+            // D-0018/D-0019: vector and CLR UDT columns route to dedicated reads.
+            SqlLargeValueReader.CellRead[] readKinds = SqlLargeValueReader.ClassifyColumns(columns, vectorBinary);
             yield return new ResultSetStarted(resultSetId, columns);
 
             int pageSeq = 0;
@@ -175,6 +176,8 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                                 SqlLargeValueReader.ReadText(reader, i, maxCellBytes),
                             SqlLargeValueReader.CellRead.Binary =>
                                 SqlLargeValueReader.ReadBinary(reader, i, maxCellBytes),
+                            SqlLargeValueReader.CellRead.Vector =>
+                                SqlClientVectorValueReader.Read(reader, i, maxCellBytes),
                             _ => reader.GetValue(i),
                         };
                 }

@@ -59,6 +59,28 @@ Microsoft.SqlTools.Sts2.Abstractions.DriverTruncatedValue.PrefixText.get -> stri
 Microsoft.SqlTools.Sts2.Abstractions.DriverTruncatedValue.PrefixText.init -> void
 Microsoft.SqlTools.Sts2.Abstractions.DriverTruncatedValue.TotalBytes.get -> long
 Microsoft.SqlTools.Sts2.Abstractions.DriverTruncatedValue.TotalBytes.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.DriverVectorUnavailableValue
+Microsoft.SqlTools.Sts2.Abstractions.DriverVectorUnavailableValue.<Clone>$() -> Microsoft.SqlTools.Sts2.Abstractions.DriverVectorUnavailableValue!
+Microsoft.SqlTools.Sts2.Abstractions.DriverVectorUnavailableValue.BaseType.get -> string?
+Microsoft.SqlTools.Sts2.Abstractions.DriverVectorUnavailableValue.BaseType.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.DriverVectorUnavailableValue.Dimensions.get -> int?
+Microsoft.SqlTools.Sts2.Abstractions.DriverVectorUnavailableValue.Dimensions.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.DriverVectorUnavailableValue.DriverVectorUnavailableValue() -> void
+Microsoft.SqlTools.Sts2.Abstractions.DriverVectorUnavailableValue.Equals(Microsoft.SqlTools.Sts2.Abstractions.DriverVectorUnavailableValue? other) -> bool
+Microsoft.SqlTools.Sts2.Abstractions.DriverVectorUnavailableValue.Reason.get -> string!
+Microsoft.SqlTools.Sts2.Abstractions.DriverVectorUnavailableValue.Reason.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.DriverVectorValue
+Microsoft.SqlTools.Sts2.Abstractions.DriverVectorValue.<Clone>$() -> Microsoft.SqlTools.Sts2.Abstractions.DriverVectorValue!
+Microsoft.SqlTools.Sts2.Abstractions.DriverVectorValue.BaseType.get -> string!
+Microsoft.SqlTools.Sts2.Abstractions.DriverVectorValue.BaseType.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.DriverVectorValue.ComponentBytes.get -> byte[]!
+Microsoft.SqlTools.Sts2.Abstractions.DriverVectorValue.ComponentBytes.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.DriverVectorValue.Dimensions.get -> int
+Microsoft.SqlTools.Sts2.Abstractions.DriverVectorValue.Dimensions.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.DriverVectorValue.DriverVectorValue() -> void
+Microsoft.SqlTools.Sts2.Abstractions.DriverVectorValue.Encoding.get -> string!
+Microsoft.SqlTools.Sts2.Abstractions.DriverVectorValue.Encoding.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.DriverVectorValue.Equals(Microsoft.SqlTools.Sts2.Abstractions.DriverVectorValue? other) -> bool
 Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted
 Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.Database.get -> string?
 Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.Database.init -> void
@@ -100,6 +122,8 @@ Microsoft.SqlTools.Sts2.Abstractions.QueryExecuteRequest.QueryTimeoutMs.get -> i
 Microsoft.SqlTools.Sts2.Abstractions.QueryExecuteRequest.QueryTimeoutMs.init -> void
 Microsoft.SqlTools.Sts2.Abstractions.QueryExecuteRequest.Sql.get -> string!
 Microsoft.SqlTools.Sts2.Abstractions.QueryExecuteRequest.Sql.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.QueryExecuteRequest.VectorBinary.get -> bool
+Microsoft.SqlTools.Sts2.Abstractions.QueryExecuteRequest.VectorBinary.init -> void
 Microsoft.SqlTools.Sts2.Abstractions.ResultSetCompleted
 Microsoft.SqlTools.Sts2.Abstractions.ResultSetCompleted.Deconstruct(out int ResultSetId, out long RowCount) -> void
 Microsoft.SqlTools.Sts2.Abstractions.ResultSetCompleted.Equals(Microsoft.SqlTools.Sts2.Abstractions.ResultSetCompleted? other) -> bool
@@ -191,6 +215,12 @@ override Microsoft.SqlTools.Sts2.Abstractions.DriverCapabilities.ToString() -> s
 override Microsoft.SqlTools.Sts2.Abstractions.DriverTruncatedValue.Equals(object? obj) -> bool
 override Microsoft.SqlTools.Sts2.Abstractions.DriverTruncatedValue.GetHashCode() -> int
 override Microsoft.SqlTools.Sts2.Abstractions.DriverTruncatedValue.ToString() -> string!
+override Microsoft.SqlTools.Sts2.Abstractions.DriverVectorUnavailableValue.Equals(object? obj) -> bool
+override Microsoft.SqlTools.Sts2.Abstractions.DriverVectorUnavailableValue.GetHashCode() -> int
+override Microsoft.SqlTools.Sts2.Abstractions.DriverVectorUnavailableValue.ToString() -> string!
+override Microsoft.SqlTools.Sts2.Abstractions.DriverVectorValue.Equals(object? obj) -> bool
+override Microsoft.SqlTools.Sts2.Abstractions.DriverVectorValue.GetHashCode() -> int
+override Microsoft.SqlTools.Sts2.Abstractions.DriverVectorValue.ToString() -> string!
 override Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.<Clone>$() -> Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted!
 override Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.Equals(object? obj) -> bool
 override Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.GetHashCode() -> int
@@ -244,6 +274,10 @@ static Microsoft.SqlTools.Sts2.Abstractions.DriverCapabilities.operator !=(Micro
 static Microsoft.SqlTools.Sts2.Abstractions.DriverCapabilities.operator ==(Microsoft.SqlTools.Sts2.Abstractions.DriverCapabilities? left, Microsoft.SqlTools.Sts2.Abstractions.DriverCapabilities? right) -> bool
 static Microsoft.SqlTools.Sts2.Abstractions.DriverTruncatedValue.operator !=(Microsoft.SqlTools.Sts2.Abstractions.DriverTruncatedValue? left, Microsoft.SqlTools.Sts2.Abstractions.DriverTruncatedValue? right) -> bool
 static Microsoft.SqlTools.Sts2.Abstractions.DriverTruncatedValue.operator ==(Microsoft.SqlTools.Sts2.Abstractions.DriverTruncatedValue? left, Microsoft.SqlTools.Sts2.Abstractions.DriverTruncatedValue? right) -> bool
+static Microsoft.SqlTools.Sts2.Abstractions.DriverVectorUnavailableValue.operator !=(Microsoft.SqlTools.Sts2.Abstractions.DriverVectorUnavailableValue? left, Microsoft.SqlTools.Sts2.Abstractions.DriverVectorUnavailableValue? right) -> bool
+static Microsoft.SqlTools.Sts2.Abstractions.DriverVectorUnavailableValue.operator ==(Microsoft.SqlTools.Sts2.Abstractions.DriverVectorUnavailableValue? left, Microsoft.SqlTools.Sts2.Abstractions.DriverVectorUnavailableValue? right) -> bool
+static Microsoft.SqlTools.Sts2.Abstractions.DriverVectorValue.operator !=(Microsoft.SqlTools.Sts2.Abstractions.DriverVectorValue? left, Microsoft.SqlTools.Sts2.Abstractions.DriverVectorValue? right) -> bool
+static Microsoft.SqlTools.Sts2.Abstractions.DriverVectorValue.operator ==(Microsoft.SqlTools.Sts2.Abstractions.DriverVectorValue? left, Microsoft.SqlTools.Sts2.Abstractions.DriverVectorValue? right) -> bool
 static Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.operator !=(Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted? left, Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted? right) -> bool
 static Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.operator ==(Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted? left, Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted? right) -> bool
 static Microsoft.SqlTools.Sts2.Abstractions.ExecEvent.operator !=(Microsoft.SqlTools.Sts2.Abstractions.ExecEvent? left, Microsoft.SqlTools.Sts2.Abstractions.ExecEvent? right) -> bool

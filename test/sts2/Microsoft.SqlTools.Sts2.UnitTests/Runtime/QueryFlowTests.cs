@@ -93,6 +93,64 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
         }
 
         [Fact]
+        public async Task VectorEncodingOptInFlowsToDriverAndEncodesTypedCells() // D-0019
+        {
+            byte[] componentBytes = new byte[16];
+            for (int i = 0; i < componentBytes.Length; i++)
+            {
+                componentBytes[i] = (byte)(i + 1);
+            }
+            session.Driver.EnqueueQuery(new FakeQueryScript
+            {
+                Steps =
+                [
+                    new FakeQueryStep { Type = "resultSet", ResultSetId = 0, Columns = 2 },
+                    new FakeQueryStep
+                    {
+                        Type = "rows",
+                        ResultSetId = 0,
+                        Rows = 1,
+                        Columns = 2,
+                        CellValue = new Abstractions.DriverVectorValue
+                        {
+                            Dimensions = 4,
+                            BaseType = "float32",
+                            Encoding = "f32le",
+                            ComponentBytes = componentBytes,
+                        },
+                    },
+                    new FakeQueryStep { Type = "resultSetDone", ResultSetId = 0, RowCount = 1 },
+                    new FakeQueryStep { Type = "completed", RowsAffected = 0 },
+                ],
+            });
+
+            string connectionId = await session.OpenConnectionAsync();
+            await session.RequestAsync("v2/query.execute",
+                $$"""{"connectionId":"{{connectionId}}","sql":"select embedding from t","options":{"vectorEncoding":"binary-v1"} }""");
+            await session.WaitForNotificationsAsync("v2/query.complete", 1);
+
+            // The normalized opt-in reached the driver request.
+            Assert.NotNull(session.Driver.LastExecuteRequest);
+            Assert.True(session.Driver.LastExecuteRequest!.VectorBinary);
+
+            // The wire cell is the typed tag with the "data" payload field.
+            List<OutboundRpcMessage> rows = await session.WaitForNotificationsAsync("v2/query.rows", 1);
+            JsonElement cell = rows[0].Body!.Value.GetProperty("rows")[0][1];
+            Assert.Equal("vector", cell.GetProperty("$t").GetString());
+            Assert.Equal("ok", cell.GetProperty("status").GetString());
+            Assert.Equal(4, cell.GetProperty("dimensions").GetInt32());
+            Assert.Equal(16, cell.GetProperty("byteLength").GetInt32());
+            Assert.Equal(componentBytes, Convert.FromBase64String(cell.GetProperty("data").GetString()!));
+            Assert.False(cell.TryGetProperty("v", out _));
+
+            // A query WITHOUT the exact literal keeps VectorBinary false.
+            await session.RequestAsync("v2/query.execute",
+                $$"""{"connectionId":"{{connectionId}}","sql":"select 2","options":{"vectorEncoding":"binary-v2"} }""");
+            await session.WaitForNotificationsAsync("v2/query.complete", 2);
+            Assert.False(session.Driver.LastExecuteRequest!.VectorBinary);
+        }
+
+        [Fact]
         public async Task CompactRowsOptInSwitchesTheWireShape() // QO-5 / D-0016
         {
             string connectionId = await session.OpenConnectionAsync();

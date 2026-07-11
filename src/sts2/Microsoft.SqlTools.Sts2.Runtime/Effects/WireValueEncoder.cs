@@ -89,6 +89,25 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
         {
             null or DBNull => null,
 
+            // Typed vector cells (D-0019, SPEC §7.7): emitted only for queries that
+            // negotiated vectorEncoding=binary-v1 (the driver produces these values
+            // only then). The payload field is "data", NEVER "v" — "v" would collide
+            // with the generic {$t,v} scalar-wrapper handling in clients. Vectors are
+            // never truncated: complete or an unavailable sentinel (the driver
+            // enforces the cell bound with reason "cellLimit").
+            Abstractions.DriverVectorValue vector => new JsonObject
+            {
+                ["$t"] = "vector",
+                ["version"] = 1,
+                ["status"] = "ok",
+                ["dimensions"] = vector.Dimensions,
+                ["baseType"] = vector.BaseType,
+                ["encoding"] = vector.Encoding,
+                ["byteLength"] = vector.ComponentBytes.Length,
+                ["data"] = Convert.ToBase64String(vector.ComponentBytes),
+            },
+            Abstractions.DriverVectorUnavailableValue unavailable => VectorUnavailable(unavailable),
+
             // Lossless JSON natives.
             bool b => JsonValue.Create(b),
             long l => JsonValue.Create(l),
@@ -121,6 +140,27 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
             ["$t"] = type,
             ["v"] = value,
         };
+
+        /// <summary>Honest vector sentinel (D-0019): stable reason, facts only when determinable.</summary>
+        private static JsonObject VectorUnavailable(Abstractions.DriverVectorUnavailableValue value)
+        {
+            var node = new JsonObject
+            {
+                ["$t"] = "vector",
+                ["version"] = 1,
+                ["status"] = "unavailable",
+                ["reason"] = value.Reason,
+            };
+            if (value.Dimensions is int dimensions)
+            {
+                node["dimensions"] = dimensions;
+            }
+            if (value.BaseType is string baseType)
+            {
+                node["baseType"] = baseType;
+            }
+            return node;
+        }
 
         /// <summary>
         /// The truncation-honesty wrapper (SPEC §7.7): <c>bytes</c> and <c>digest</c> describe

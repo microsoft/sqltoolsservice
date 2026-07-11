@@ -2,6 +2,65 @@
 
 Newest entries first (AGENT-RUNBOOK.md §6).
 
+## Vector + CLR UDT transport (D-0018/D-0019) - 2026-07-11 - d20d8d7c+ (working tree)
+Vector-workbench PR 3 (foundation for vscode-mssql Query Studio Vector tab).
+
+Behavior (two two-way doors, both additive/opt-in; non-opted queries byte-for-byte
+unchanged except that vector/UDT results now WORK):
+- D-0018: `ClassifyColumns` routes `vector` → streamed text (the engine's JSON
+  array, full float32 shortest-round-trip precision — GetValue boxed a provider
+  SqlVector the encoder shipped as a type NAME) and CLR UDTs
+  (`*.sys.geometry|geography|hierarchyid`, db-qualified three-part names) →
+  streamed binary CLR bytes (GetValue was failing whole queries with
+  FileNotFoundException → Sts2.Internal). Column metadata now carries the SPEC
+  §7.7-promised precision/scale/length/collation when known (vector length =
+  8 + 4*dims → clients derive dimensions from metadata). Page byte accounting
+  measures UTF-8 (was UTF-16 chars) + a last-line typed frame guard
+  (Sts2.QueryFailed.Transport at MaxFrameBytes − 1 MiB).
+- D-0019: capability `vectorBinaryV1` + per-execute `vectorEncoding:"binary-v1"`
+  (literal only; Core-normalized into journaled startArgs as `vectorBinary`,
+  compactRows pattern) switches vector cells to
+  `{$t:"vector",version:1,status:"ok",dimensions,baseType:"float32",
+  encoding:"f32le",byteLength,data:<base64 LE>}` — payload field is `data`,
+  never `v` (client scalar-wrapper collision). Vectors never truncate:
+  sentinels `{$t:"vector",status:"unavailable",reason:...}`; float16 stays
+  text fallback. Compact typeHints say `vector:f32le:v1` only when negotiated
+  (client mapping changes in lockstep behind the same negotiation — no client
+  opts in yet). `SqlRowsPageBuilder.EstimateCellBytes` learns vector
+  (~8.3 KB / 1536-dim; generic fallback said 24) + driver-truncated values.
+
+Coverage: WireValueEncoderTests (typed cell shape, data-not-v, never-truncated,
+sentinel facts); SqlClientUnitTests (classify matrix incl. bare/3-part UDT
+names; estimate accuracy; page byte-bound clamp ~31 rows/page at 256 KiB);
+QueryFlowTests VectorEncodingOptInFlowsToDriverAndEncodesTypedCells (opt-in
+reaches the driver request, typed cell on the wire, wrong literal stays off);
+LIVE engine tests on SQL Server 2025 17.0.1000.7 (vector text/typed byte-exact
+round-trip + NULL, 44 ms; geometry/geography/hierarchyid as SRID-tagged bytes
+instead of query failure, 250 ms). FakeQueryStep.CellValue widened
+string→object for driver-typed cells. PublicAPI.Unshipped updated (RS0016
+clean). Gates (verbatim):
+- build (sts2 slnf, warnings as errors): ok
+- unit+multiplexer+architecture tests: ok
+- scenario tests (Fake, active corpus): ok
+- contract tests (Sqlite, real I/O): ok
+- replay verify (sts2-replay): ok
+- simulator (200 seeds): ok
+- secret canary scan: ok
+- generated docs diff: ok
+- legacy diff budget: ok
+- E2E disabled-mode v1 smoke + enabled-mode v1+v2: ok
+Decisions: D-0018, D-0019 (both two-way). Blockers: none.
+Risk notes:
+- Provider/RID matrix verified on win-x64 only (evidence:
+  coding-docs/query-result-tabs/_build/evidence/vector-provider-matrix.md);
+  Linux/macOS/Azure lanes are honest CI follow-ups — engine tests skip-not-fail.
+- float16 vector base type untestable locally (preview): policy is text
+  fallback or `unsupportedBaseType` sentinel — fails honest, never wrong.
+- The frame guard threshold (MaxFrameBytes − 1 MiB slack) is a last line, not
+  policy; the exact-encoded page repacker remains the platform fix.
+Next: vscode-mssql shared cell codec + metadata + negotiation (EXECUTION_PLAN
+VEC-2), then sparse projection (VEC-3).
+
 ## Digest capture: QO-5 compact pages elided - 2026-07-11 - 559d2596+ (working tree)
 Privacy fix (vector-workbench prerequisite PR 1; no wire or SPEC change —
 SPEC §8.4's "row pages elide cells" was already shape-agnostic; this closes

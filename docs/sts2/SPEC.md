@@ -368,7 +368,8 @@ Result:
     "pageRowsHonored": true,
     "pageBytesHonored": true,
     "queryTimeoutHonored": true,
-    "compactRows": true
+    "compactRows": true,
+    "vectorBinaryV1": true
   },
   "drivers": [
     { "name": "sqlclient", "dialects": ["tsql"], "production": true },
@@ -480,6 +481,8 @@ Result:
 
 `options.compactRows` (OPTIONAL, literal `true` only; D-0016) switches this query's `v2/query.rows` notifications to the compact page shape: `rows` is replaced by `compact: { values, nullBitmap, typeHints }` plus service-measured `approxBytes`/`encodedBytes`. `values` carries the same wire-encoded cells as the legacy shape; `nullBitmap` is a base64 row-major LSB-first bitmap over the page's cells; `typeHints` is the per-column display-type taxonomy computed once per result set. Exactly one of `rows`/`compact` is present per notification. Queries without the opt-in keep the legacy shape byte-for-byte. The `compactRows` capability (§7.3) advertises support.
 
+`options.vectorEncoding` (OPTIONAL, literal string `"binary-v1"` only; D-0019) switches this query's native vector cells to the typed vector encoding (§7.7). Any other value — absent, wrong type, unknown literal — means the default applies: vector cells arrive as their JSON-array text representation (full float32 shortest-round-trip precision, D-0018). Core normalizes the option into the journaled `driver.queryStart` args as `vectorBinary` (replay-deterministic); the typed tag is never emitted to a query that did not opt in. With `compactRows`, an opted-in query's vector columns hint `vector:f32le:v1` in `typeHints`. The `vectorBinaryV1` capability (§7.3) advertises support.
+
 Ordering guarantees for one query:
 
 1. `query.resultSet` for a result set precedes any `query.rows` for that result set.
@@ -557,6 +560,13 @@ Encoding rules:
 - `DBNull` becomes JSON `null`.
 - Cells above the effective `maxCellBytes` (the pinned `sts2.results.maxCellBytes` default, lowered per query by `options.maxCellBytes`, §7.5) become `{"$t":"truncated", "of": "string"|"binary", "bytes": N, "digest": "sha256:...", "v": "prefix..."}` (SPEC-CHANGE-0001): `of` says how to decode the retained prefix (`binary` prefixes are base64), `bytes` is the full value's byte count, and `digest` is the sha256 of the full value bytes. Prefix bytes are capped by `min(effective maxCellBytes, sts2.results.truncatedPrefixBytes)`, never split a UTF-8 code point, and bound the raw value bytes (base64 expansion applies on top for binary). Truncation is always client-detectable via the wrapper; it is never silent.
 - Core state MUST NOT contain row cell payloads.
+
+Native vector values (D-0018/D-0019):
+
+- Default (no opt-in): a vector cell is its JSON-array TEXT representation as produced by the engine/provider (full float32 shortest-round-trip precision), an ordinary string cell subject to the ordinary bounds. CLR UDT cells (`geometry`, `geography`, `hierarchyid`) are the engine's CLR serialization bytes as an ordinary `binary` wrapper (or `truncated` above the bound).
+- With `options.vectorEncoding = "binary-v1"` (§7.5), a vector cell is the typed tag: `{"$t":"vector", "version":1, "status":"ok", "dimensions": D, "baseType":"float32", "encoding":"f32le", "byteLength": D*4, "data":"<base64>"}`. The payload field is `data` (never `v` — clients treat generic `{$t, v}` objects as scalar wrappers). `data` decodes to exactly `byteLength` little-endian IEEE 754 float32 component bytes. Per-cell `dimensions` is authoritative over column metadata.
+- Vectors are never truncated: a cell the driver cannot transport completely becomes `{"$t":"vector", "version":1, "status":"unavailable", "reason": "unsupportedBaseType"|"providerValueMismatch"|"decodeFailed"|"cellLimit"}` with optional `dimensions`/`baseType` facts. Ordinary NULL uses JSON `null`, not a vector status.
+- Base types other than float32 (for example preview float16) are not transported as typed cells in v1: they keep the text representation when the provider yields one, else the `unsupportedBaseType` sentinel.
 
 ### 7.8 Backpressure
 

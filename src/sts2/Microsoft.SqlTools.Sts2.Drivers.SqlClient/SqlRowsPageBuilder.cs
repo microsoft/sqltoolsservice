@@ -75,7 +75,10 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
         /// <summary>
         /// Cheap per-cell wire-size approximation — no allocation, no encoding
         /// pass. Strings count UTF-16 char length (exact for ASCII, low for
-        /// multibyte); binary counts base64 expansion.
+        /// multibyte); binary counts base64 expansion. Typed vector cells and
+        /// driver-truncated values estimate their real encoded size (D-0019) —
+        /// the generic 24-byte fallback would under-count a 1,536-dimension
+        /// vector (~8.3 KB encoded) by ~340x and defeat the page byte bound.
         /// </summary>
         public static long EstimateCellBytes(object? cell) => cell switch
         {
@@ -88,6 +91,12 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             TimeSpan => 20,
             decimal or double or float or long or int or short or byte => 20,
             char[] c => c.Length + 2,
+            // base64 of the component bytes + the fixed tag fields
+            Abstractions.DriverVectorValue v => ((long)v.ComponentBytes.Length * 4 + 2) / 3 + 128,
+            // retained prefix (text verbatim, binary as base64) + wrapper facts
+            Abstractions.DriverTruncatedValue t => t.Kind == "binary"
+                ? ((long)(t.PrefixBytes?.Length ?? 0) * 4 + 2) / 3 + 128
+                : (t.PrefixText?.Length ?? 0) + 128,
             _ => 24,
         };
     }

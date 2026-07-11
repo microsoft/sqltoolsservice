@@ -56,11 +56,11 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
             };
         }
 
-        private static async Task<List<ExecEvent>> ExecuteAsync(IDbSession session, string sql)
+        private static async Task<List<ExecEvent>> ExecuteAsync(IDbSession session, string sql, bool vectorBinary = false)
         {
             var events = new List<ExecEvent>();
             await foreach (ExecEvent execEvent in session.ExecuteAsync(
-                new QueryExecuteRequest { QueryId = "q-1", Sql = sql, PageRows = 1000 }, CancellationToken.None))
+                new QueryExecuteRequest { QueryId = "q-1", Sql = sql, PageRows = 1000, VectorBinary = vectorBinary }, CancellationToken.None))
             {
                 events.Add(execEvent);
             }
@@ -107,6 +107,83 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
             Assert.IsType<byte[]>(row[3]);
             Assert.IsType<Guid>(row[4]);
             Assert.Null(row[5]);
+        }
+
+        [Fact]
+        public async Task VectorReadsAsJsonTextByDefaultAndTypedWhenNegotiated() // D-0018/D-0019
+        {
+            if (!EngineGate.ShouldRun(output))
+            {
+                return;
+            }
+            var driver = new SqlClientDriver();
+            await using IDbSession session = await driver.OpenAsync(OpenRequest(), CancellationToken.None);
+            const string Sql = "select cast('[1.5,-2.5,3.25]' as vector(3)) as v";
+
+            // Default (no opt-in): the JSON-array text, full precision, as an
+            // ordinary string cell — never a provider type name.
+            List<ExecEvent> textEvents = await ExecuteAsync(session, Sql);
+            RowsPage textPage = Assert.Single(textEvents.OfType<RowsPage>());
+            string text = Assert.IsType<string>(textPage.Cells[0][0]);
+            float[] parsed = System.Text.Json.JsonSerializer.Deserialize<float[]>(text)!;
+            Assert.Equal([1.5f, -2.5f, 3.25f], parsed);
+
+            // Vector column metadata: length = 8 + 4 * dimensions.
+            ResultSetStarted resultSet = Assert.Single(textEvents.OfType<ResultSetStarted>());
+            Assert.Equal("vector", resultSet.Columns[0].EngineType.ToLowerInvariant());
+            Assert.Equal(20, resultSet.Columns[0].Length);
+
+            // Negotiated: typed little-endian component bytes, exact.
+            List<ExecEvent> typedEvents = await ExecuteAsync(session, Sql, vectorBinary: true);
+            RowsPage typedPage = Assert.Single(typedEvents.OfType<RowsPage>());
+            DriverVectorValue vector = Assert.IsType<DriverVectorValue>(typedPage.Cells[0][0]);
+            Assert.Equal(3, vector.Dimensions);
+            Assert.Equal("float32", vector.BaseType);
+            Assert.Equal("f32le", vector.Encoding);
+            Assert.Equal(12, vector.ComponentBytes.Length);
+            float[] decoded = new float[3];
+            for (int i = 0; i < decoded.Length; i++)
+            {
+                decoded[i] = BitConverter.Int32BitsToSingle(
+                    System.Buffers.Binary.BinaryPrimitives.ReadInt32LittleEndian(
+                        vector.ComponentBytes.AsSpan(i * 4, 4)));
+            }
+            Assert.Equal([1.5f, -2.5f, 3.25f], decoded);
+
+            // NULL vector stays an ordinary null cell either way.
+            List<ExecEvent> nullEvents = await ExecuteAsync(session, "select cast(null as vector(3)) as v", vectorBinary: true);
+            Assert.Null(Assert.Single(nullEvents.OfType<RowsPage>()).Cells[0][0]);
+        }
+
+        [Fact]
+        public async Task ClrUdtColumnsTransportAsBinaryInsteadOfFailingTheQuery() // D-0018
+        {
+            if (!EngineGate.ShouldRun(output))
+            {
+                return;
+            }
+            var driver = new SqlClientDriver();
+            await using IDbSession session = await driver.OpenAsync(OpenRequest(), CancellationToken.None);
+
+            List<ExecEvent> events = await ExecuteAsync(session, """
+                select
+                    geometry::Point(1, 2, 0) as geom,
+                    geography::Point(47.6, -122.3, 4326) as geog,
+                    hierarchyid::GetRoot() as h
+                """);
+            RowsPage page = Assert.Single(events.OfType<RowsPage>());
+            IReadOnlyList<object?> row = page.Cells[0];
+
+            // geometry point: CLR serialization = SRID int32 LE + version 01 + ...
+            byte[] geom = Assert.IsType<byte[]>(row[0]);
+            Assert.Equal(22, geom.Length);
+            Assert.Equal(0, BitConverter.ToInt32(geom, 0)); // SRID 0
+            Assert.Equal(0x01, geom[4]);
+
+            byte[] geog = Assert.IsType<byte[]>(row[1]);
+            Assert.Equal(4326, BitConverter.ToInt32(geog, 0)); // SRID 4326
+
+            Assert.IsType<byte[]>(row[2]); // hierarchyid root serializes (possibly empty)
         }
 
         [Fact]

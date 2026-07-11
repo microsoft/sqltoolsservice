@@ -155,6 +155,76 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
         }
 
         [Fact]
+        public void VectorCellsEncodeTypedWithDataFieldNeverV() // D-0019
+        {
+            float[] components = [0.1f, -2.5f, float.MaxValue, float.Epsilon];
+            byte[] bytes = new byte[components.Length * 4];
+            for (int i = 0; i < components.Length; i++)
+            {
+                System.Buffers.Binary.BinaryPrimitives.WriteInt32LittleEndian(
+                    bytes.AsSpan(i * 4, 4), BitConverter.SingleToInt32Bits(components[i]));
+            }
+            var cell = new Abstractions.DriverVectorValue
+            {
+                Dimensions = components.Length,
+                BaseType = "float32",
+                Encoding = "f32le",
+                ComponentBytes = bytes,
+            };
+
+            JsonNode node = WireValueEncoder.Encode(cell)!;
+            Assert.Equal("vector", node["$t"]!.GetValue<string>());
+            Assert.Equal(1, node["version"]!.GetValue<int>());
+            Assert.Equal("ok", node["status"]!.GetValue<string>());
+            Assert.Equal(4, node["dimensions"]!.GetValue<int>());
+            Assert.Equal("float32", node["baseType"]!.GetValue<string>());
+            Assert.Equal("f32le", node["encoding"]!.GetValue<string>());
+            Assert.Equal(16, node["byteLength"]!.GetValue<int>());
+            // The payload field is "data" — "v" would collide with the generic
+            // {$t,v} scalar-wrapper handling in clients.
+            Assert.Null(node["v"]);
+            Assert.Equal(bytes, Convert.FromBase64String(node["data"]!.GetValue<string>()));
+        }
+
+        [Fact]
+        public void VectorCellsAreNeverTruncated() // D-0019: complete or unavailable
+        {
+            var cell = new Abstractions.DriverVectorValue
+            {
+                Dimensions = 100,
+                BaseType = "float32",
+                Encoding = "f32le",
+                ComponentBytes = new byte[400],
+            };
+            // A bound far below the encoded size must not produce a truncated
+            // wrapper — the driver enforces the bound with a typed sentinel.
+            JsonNode node = WireValueEncoder.Encode(cell, maxCellBytes: 10)!;
+            Assert.Equal("vector", node["$t"]!.GetValue<string>());
+            Assert.Equal("ok", node["status"]!.GetValue<string>());
+            Assert.Equal(400, Convert.FromBase64String(node["data"]!.GetValue<string>()).Length);
+        }
+
+        [Fact]
+        public void VectorUnavailableSentinelCarriesReasonAndOptionalFacts() // D-0019
+        {
+            JsonNode bare = WireValueEncoder.Encode(
+                new Abstractions.DriverVectorUnavailableValue { Reason = "unsupportedBaseType" })!;
+            Assert.Equal("vector", bare["$t"]!.GetValue<string>());
+            Assert.Equal(1, bare["version"]!.GetValue<int>());
+            Assert.Equal("unavailable", bare["status"]!.GetValue<string>());
+            Assert.Equal("unsupportedBaseType", bare["reason"]!.GetValue<string>());
+            Assert.Null(bare["dimensions"]);
+            Assert.Null(bare["baseType"]);
+            Assert.Null(bare["data"]);
+
+            JsonNode withFacts = WireValueEncoder.Encode(
+                new Abstractions.DriverVectorUnavailableValue { Dimensions = 1536, BaseType = "float16", Reason = "cellLimit" })!;
+            Assert.Equal(1536, withFacts["dimensions"]!.GetValue<int>());
+            Assert.Equal("float16", withFacts["baseType"]!.GetValue<string>());
+            Assert.Equal("cellLimit", withFacts["reason"]!.GetValue<string>());
+        }
+
+        [Fact]
         public void LosslessNativesStayNative()
         {
             Assert.Equal("true", Json(true));

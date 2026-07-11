@@ -20,20 +20,39 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
     /// value's byte count and sha256, both computed while streaming fixed-size
     /// chunks. Peak memory per cell is prefix + one chunk, never the value.
     /// </summary>
-    internal static class SqlLargeValueReader
+    public static class SqlLargeValueReader
     {
-        internal enum CellRead
+        /// <summary>How one column's cells are read from the SqlDataReader.</summary>
+        public enum CellRead
         {
+            /// <summary>Ordinary GetValue.</summary>
             Value,
+
+            /// <summary>Streamed characters (QO-4 / D-0018).</summary>
             Text,
+
+            /// <summary>Streamed bytes (QO-4 / D-0018).</summary>
             Binary,
+
+            /// <summary>Typed vector read (D-0019, negotiated queries only).</summary>
+            Vector,
         }
 
         private const int ChunkChars = 8192;
         private const int ChunkBytes = 32768;
 
-        /// <summary>MAX-typed (or unbounded) columns stream; everything else keeps GetValue.</summary>
-        internal static CellRead[] ClassifyColumns(IReadOnlyList<ColumnInfo> columns)
+        /// <summary>
+        /// MAX-typed (or unbounded) columns stream; everything else keeps GetValue.
+        /// D-0018: native vector columns read as streamed TEXT (the JSON array
+        /// string, full float32 shortest-round-trip precision) unless the query
+        /// negotiated the typed binary encoding (D-0019, CellRead.Vector) —
+        /// GetValue would box a provider SqlVector the encoder cannot represent.
+        /// CLR UDT columns (db-qualified "*.sys.geometry|geography|hierarchyid")
+        /// read as streamed BINARY (the engine's CLR serialization bytes):
+        /// GetValue needs Microsoft.SqlServer.Types, absent on .NET, and would
+        /// fail the whole query with an unclassified FileNotFoundException.
+        /// </summary>
+        public static CellRead[] ClassifyColumns(IReadOnlyList<ColumnInfo> columns, bool vectorBinary = false)
         {
             var kinds = new CellRead[columns.Count];
             for (int i = 0; i < columns.Count; i++)
@@ -42,16 +61,29 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                 bool unbounded = columns[i].Length is null or <= 0 or >= 1_073_741_823;
                 kinds[i] = type switch
                 {
+                    "vector" => vectorBinary ? CellRead.Vector : CellRead.Text,
                     "xml" => CellRead.Text,
                     "text" or "ntext" => CellRead.Text,
                     "varchar" or "nvarchar" or "json" when unbounded => CellRead.Text,
                     "image" => CellRead.Binary,
                     "varbinary" when unbounded => CellRead.Binary,
+                    _ when IsClrUdt(type) => CellRead.Binary,
                     _ => CellRead.Value,
                 };
             }
             return kinds;
         }
+
+        /// <summary>
+        /// System CLR UDTs surface db-qualified three-part type names
+        /// ("master.sys.geometry"); bare names accepted defensively (legacy
+        /// precedent: DbColumnWrapper matches ".sys.hierarchyid" by suffix).
+        /// </summary>
+        private static bool IsClrUdt(string loweredType) =>
+            loweredType.EndsWith(".sys.geometry", StringComparison.Ordinal)
+            || loweredType.EndsWith(".sys.geography", StringComparison.Ordinal)
+            || loweredType.EndsWith(".sys.hierarchyid", StringComparison.Ordinal)
+            || loweredType is "geometry" or "geography" or "hierarchyid";
 
         /// <summary>Streams a character column: full string when within bound, else prefix + facts.</summary>
         internal static object ReadText(SqlDataReader reader, int ordinal, int maxCellBytes)

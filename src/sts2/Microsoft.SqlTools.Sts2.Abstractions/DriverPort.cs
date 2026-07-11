@@ -135,6 +135,13 @@ namespace Microsoft.SqlTools.Sts2.Abstractions
         /// values the driver did not pre-bound.
         /// </summary>
         public int MaxCellBytes { get; init; }
+
+        /// <summary>
+        /// True when the query negotiated <c>options.vectorEncoding = "binary-v1"</c>
+        /// (D-0019): native vector columns come back as <see cref="DriverVectorValue"/>
+        /// typed cells instead of the JSON-text representation.
+        /// </summary>
+        public bool VectorBinary { get; init; }
     }
 
     /// <summary>
