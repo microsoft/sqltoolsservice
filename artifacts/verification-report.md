@@ -2,6 +2,44 @@
 
 Newest entries first (AGENT-RUNBOOK.md §6).
 
+## Digest capture: QO-5 compact pages elided - 2026-07-11 - 559d2596+ (working tree)
+Privacy fix (vector-workbench prerequisite PR 1; no wire or SPEC change —
+SPEC §8.4's "row pages elide cells" was already shape-agnostic; this closes
+an implementation gap).
+
+Behavior:
+- `CaptureElision.ElideInput` wrapped only the legacy top-level `rows` node
+  of `driver.queryEvent` rows payloads; QO-5 opt-in compact pages journaled
+  `compact.values` + `nullBitmap` in full in digest mode.
+- Now the whole `compact` node becomes the standard authoritative-digest
+  wrapper (`kind:"compact"`, digest, bytes, plus `rows` count parity taken
+  from `compact.values.length`). Core routing is unaffected (rows-page
+  routing keys on property presence, which the wrapper preserves); the wire
+  is unaffected (Substitute restores the original node at the RPC/effect
+  edges); replay stays digest-identical (I7 in digest mode).
+
+Coverage: new DigestCaptureTests.DigestModeElidesCompactPagesFromJournal —
+wire carries real compact values + nullBitmap; journal contains no cell
+canary and no values/nullBitmap under the wrapper; wrapper facts asserted
+(kind, sha256 digest shape, rows=3); replay identical. Gates:
+- build (sts2 slnf, warnings as errors): ok
+- unit+multiplexer+architecture tests: ok
+- scenario tests (Fake, active corpus): ok
+- contract tests (Sqlite, real I/O): ok
+- replay verify (sts2-replay): ok
+- simulator (200 seeds): ok
+- secret canary scan: ok
+- generated docs diff: ok
+- legacy diff budget: ok
+- E2E disabled-mode v1 smoke + enabled-mode v1+v2: ok
+Decisions: none (two-way implementation fix). Blockers: none.
+Risk notes:
+- Journals lose per-page typeHints visibility in digest mode (whole compact
+  node elided); acceptable — over-elision is the safe direction and stats
+  ride the untouched `stats` field.
+Next: STS2 typed vector transport (vectorBinaryV1) per
+coding-docs/query-result-tabs/_build/EXECUTION_PLAN.md VEC-1.
+
 ## serverInfo.engineEditionId (additive) - 2026-07-11 - d9aca04e+ (working tree)
 Dogfood fix, recorded as two-way door D-0017.
 

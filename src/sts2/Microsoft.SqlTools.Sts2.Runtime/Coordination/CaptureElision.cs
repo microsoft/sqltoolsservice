@@ -68,6 +68,16 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
                 addedKeys?.Add(wrapper["digest"]!.GetValue<string>());
                 obj["rows"] = wrapper;
             }
+            if (elideRows && obj["compact"] is JsonNode compact)
+            {
+                // QO-5 compact pages nest the same capture-sensitive cells under
+                // compact.values (+ nullBitmap); the whole node is elided so the
+                // journal never sees them. Core routes rows pages by property
+                // presence only, which the wrapper preserves.
+                JsonObject wrapper = Wrap("compact", compact, sideTable);
+                addedKeys?.Add(wrapper["digest"]!.GetValue<string>());
+                obj["compact"] = wrapper;
+            }
             if (elideSql && obj["sql"] is JsonNode sql)
             {
                 JsonObject wrapper = Wrap("sql", sql, sideTable);
@@ -131,6 +141,12 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
             if (fieldKind == "rows" && element.ValueKind == JsonValueKind.Array)
             {
                 wrapper["rows"] = element.GetArrayLength();
+            }
+            else if (fieldKind == "compact" && element.ValueKind == JsonValueKind.Object
+                && element.TryGetProperty("values", out JsonElement values)
+                && values.ValueKind == JsonValueKind.Array)
+            {
+                wrapper["rows"] = values.GetArrayLength();
             }
             return wrapper;
         }

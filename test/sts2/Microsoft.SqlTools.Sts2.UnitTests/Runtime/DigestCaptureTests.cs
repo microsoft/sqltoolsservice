@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Sts2.Runtime.Coordination;
 using Microsoft.SqlTools.Sts2.Runtime.Envelopes;
@@ -77,6 +78,50 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
             Assert.True(wrapper.GetProperty("$redacted").GetBoolean());
             Assert.Matches("^sha256:[0-9a-f]{64}$", wrapper.GetProperty("digest").GetString()!);
             Assert.Equal(3, wrapper.GetProperty("rows").GetInt32());
+        }
+
+        [Fact]
+        public async Task DigestModeElidesCompactPagesFromJournal() // QO-5 pages are as sensitive as legacy rows
+        {
+            const string SecretishSql = "select * from VerySensitiveTable where x = 'PRIVATE-LITERAL'";
+            List<OutboundRpcMessage> wireRows;
+
+            await using (var session = new Sts2TestSession(directory, "digest-capture-compact", rowCapture: "digest", sqlCapture: "digest"))
+            {
+                string connectionId = await session.OpenConnectionAsync();
+                await session.RequestAsync("v2/query.execute",
+                    $$"""{"connectionId":"{{connectionId}}","sql":"{{SecretishSql}}","options":{"compactRows":true} }""");
+                await session.WaitForNotificationsAsync("v2/query.complete", 1);
+                wireRows = await session.WaitForNotificationsAsync("v2/query.rows", 1);
+                await session.RequestAsync("v2/connection.close", $$"""{"connectionId":"{{connectionId}}"}""");
+            }
+
+            // The WIRE carried the real compact page (values + null bitmap).
+            JsonElement wireCompact = wireRows[0].Body!.Value.GetProperty("compact");
+            Assert.Contains("s0-1", wireCompact.GetProperty("values").GetRawText());
+            Assert.NotNull(wireCompact.GetProperty("nullBitmap").GetString());
+
+            // The JOURNAL carries no cell values and no compact payload, only the wrapper.
+            string journalText = string.Join("\n",
+                Directory.EnumerateFiles(directory, "*.jsonl").Select(File.ReadAllText));
+            Assert.DoesNotContain("PRIVATE-LITERAL", journalText);
+            Assert.DoesNotContain("s0-1", journalText);
+
+            List<Sts2Envelope> journal = JournalReader.ReadAll(directory).ToList();
+            Sts2Envelope rowsEnvelope = journal.First(e => e.Type == "driver.queryEvent"
+                && e.Payload!.Value.TryGetProperty("eventType", out var et) && et.GetString() == "rows");
+            var wrapper = rowsEnvelope.Payload!.Value.GetProperty("compact");
+            Assert.True(wrapper.GetProperty("$redacted").GetBoolean());
+            Assert.Equal("compact", wrapper.GetProperty("kind").GetString());
+            Assert.Matches("^sha256:[0-9a-f]{64}$", wrapper.GetProperty("digest").GetString()!);
+            Assert.Equal(3, wrapper.GetProperty("rows").GetInt32());
+            Assert.False(wrapper.TryGetProperty("values", out _));
+            Assert.False(wrapper.TryGetProperty("nullBitmap", out _));
+
+            // Replay stays digest-identical (I7 in digest mode) with compact pages elided.
+            ReplayResult replay = JournalReplayer.Replay(JournalReader.ReadAll(directory));
+            Assert.True(replay.Identical,
+                "divergence: " + replay.Divergence?.Recorded + " vs " + replay.Divergence?.Replayed);
         }
 
         [Fact]
