@@ -307,7 +307,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                     string handleId = "h-" + openId;
                     sessions[handleId] = session;
                     string serverInfo = string.Create(CultureInfo.InvariantCulture, $$"""
-                        {"product":{{JsonSerializer.Serialize(session.Server.Product)}},"version":{{JsonSerializer.Serialize(session.Server.Version)}},"engineEdition":{{JsonSerializer.Serialize(session.Server.EngineEdition)}},"dialect":{{JsonSerializer.Serialize(session.Server.Dialect)}}}
+                        {"product":{{JsonSerializer.Serialize(session.Server.Product)}},"version":{{JsonSerializer.Serialize(session.Server.Version)}},"engineEdition":{{JsonSerializer.Serialize(session.Server.EngineEdition)}},"engineEditionId":{{JsonSerializer.Serialize(session.Server.EngineEditionId)}},"dialect":{{JsonSerializer.Serialize(session.Server.Dialect)}}}
                         """);
                     try
                     {

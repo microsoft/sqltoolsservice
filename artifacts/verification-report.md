@@ -2,6 +2,31 @@
 
 Newest entries first (AGENT-RUNBOOK.md §6).
 
+## serverInfo.engineEditionId (additive) - 2026-07-11 - d9aca04e+ (working tree)
+Dogfood fix, recorded as two-way door D-0017.
+
+Behavior (additive optional wire field; SPEC §7.4 text updated in the same
+change, precedent = `database` on `v2/query.complete`):
+- The SqlClient driver's open probe also selects
+  `cast(serverproperty('EngineEdition') as int)`;
+  `ServerInfo.EngineEditionId` (int?) flows through the runner's serverInfo
+  JSON as `engineEditionId`. Core untouched (serverInfo is opaque JSON).
+- Rationale: `engineEdition` has always carried the Edition DISPLAY name
+  ("SQL Azure"), which cannot distinguish Azure SQL Database from Managed
+  Instance; vscode-mssql Query Studio parsed it as a number (NaN), so its
+  Azure database-switch gate never fired and the selector silently ran USE.
+- Probe failure / non-SqlClient drivers: field absent — older clients and
+  services interop unchanged (name-sniff fallback client-side).
+
+Coverage: PublicAPI.Unshipped updated (RS0016 clean); verify.sh --quick
+green (build w/ warnings-as-errors, unit+multiplexer+architecture, Fake
+scenario corpus, Sqlite contract, replay verify, 200-seed simulator, secret
+canary, generated-docs diff, legacy diff budget, disabled/enabled-mode E2E).
+Client side (vscode-mssql 872e992e4): SessionInfo/V2ServerInfo gain
+engineEditionId, isAzureSqlDb prefers it (5 = reconnect, 8/MI keeps USE)
+with /azure/i name fallback, failed switches surface a reason +
+queryStudio.dbSwitch journal event; 4 new detection tests, suite 4552.
+
 ## QO-5: compact row pages on the wire (opt-in) - 2026-07-09 - 56665ea4+ (working tree)
 Query-optimization batch QO-5, recorded as two-way door D-0016.
 

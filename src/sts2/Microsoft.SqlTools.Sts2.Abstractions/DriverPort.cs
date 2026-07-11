@@ -94,8 +94,16 @@ namespace Microsoft.SqlTools.Sts2.Abstractions
         /// <summary>Server version string.</summary>
         public required string Version { get; init; }
 
-        /// <summary>Engine edition when known.</summary>
+        /// <summary>Engine edition display name when known (serverproperty('Edition')).</summary>
         public string? EngineEdition { get; init; }
+
+        /// <summary>
+        /// Numeric engine edition when known (serverproperty('EngineEdition')):
+        /// 5 = Azure SQL Database, 8 = Managed Instance, … Clients use this for
+        /// exact platform gating (USE vs reconnect on database switch) — the
+        /// display name cannot distinguish SQL DB from MI (both "SQL Azure").
+        /// </summary>
+        public int? EngineEditionId { get; init; }
 
         /// <summary>SQL dialect the session speaks.</summary>
         public required string Dialect { get; init; }

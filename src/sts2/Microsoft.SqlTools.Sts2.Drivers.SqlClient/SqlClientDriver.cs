@@ -62,7 +62,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
         {
             await using SqlCommand command = connection.CreateCommand();
             command.CommandText =
-                "select cast(serverproperty('ProductVersion') as nvarchar(128)), cast(serverproperty('Edition') as nvarchar(128))";
+                "select cast(serverproperty('ProductVersion') as nvarchar(128)), cast(serverproperty('Edition') as nvarchar(128)), cast(serverproperty('EngineEdition') as int)";
             try
             {
                 await using SqlDataReader reader = await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
@@ -73,6 +73,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                         Product = "Microsoft SQL Server",
                         Version = reader.IsDBNull(0) ? connection.ServerVersion : reader.GetString(0),
                         EngineEdition = reader.IsDBNull(1) ? null : reader.GetString(1),
+                        EngineEditionId = reader.IsDBNull(2) ? null : reader.GetInt32(2),
                         Dialect = "tsql",
                     };
                 }

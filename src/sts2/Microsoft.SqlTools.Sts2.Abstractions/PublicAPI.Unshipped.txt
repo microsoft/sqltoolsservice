@@ -156,6 +156,8 @@ Microsoft.SqlTools.Sts2.Abstractions.ServerInfo.Dialect.get -> string!
 Microsoft.SqlTools.Sts2.Abstractions.ServerInfo.Dialect.init -> void
 Microsoft.SqlTools.Sts2.Abstractions.ServerInfo.EngineEdition.get -> string?
 Microsoft.SqlTools.Sts2.Abstractions.ServerInfo.EngineEdition.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.ServerInfo.EngineEditionId.get -> int?
+Microsoft.SqlTools.Sts2.Abstractions.ServerInfo.EngineEditionId.init -> void
 Microsoft.SqlTools.Sts2.Abstractions.ServerInfo.Equals(Microsoft.SqlTools.Sts2.Abstractions.ServerInfo? other) -> bool
 Microsoft.SqlTools.Sts2.Abstractions.ServerInfo.Product.get -> string!
 Microsoft.SqlTools.Sts2.Abstractions.ServerInfo.Product.init -> void

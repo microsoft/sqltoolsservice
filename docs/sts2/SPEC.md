@@ -435,10 +435,18 @@ The RPC gateway MUST tokenize secrets before creating envelopes. Core sees only 
     "product": "Microsoft SQL Server",
     "version": "16.0.0",
     "engineEdition": "Developer",
+    "engineEditionId": 3,
     "dialect": "tsql"
   }
 }
 ```
+
+`serverInfo.engineEdition` is the display name (`serverproperty('Edition')`).
+`serverInfo.engineEditionId` (optional, additive 2026-07-11) is the numeric
+`serverproperty('EngineEdition')` — 5 = Azure SQL Database, 8 = Managed
+Instance — for exact platform gating; the display name cannot distinguish
+SQL DB from MI (both report "SQL Azure"). Absent when the probe fails or a
+driver does not know it.
 
 ### 7.5 Query execute
 
