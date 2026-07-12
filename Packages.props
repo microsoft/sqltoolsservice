@@ -84,6 +84,7 @@
   <ItemGroup>
     <PackageReference Update="Azure.Identity" version="1.17.1" />
     <PackageReference Update="Microsoft.Data.SqlClient" Version="6.1.5" />
+    <PackageReference Update="Microsoft.SqlServer.Types" Version="170.1000.7" />
     <PackageReference Update="Microsoft.SqlServer.SqlManagementObjects" Version="181.15.0" />
     <PackageReference Update="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>

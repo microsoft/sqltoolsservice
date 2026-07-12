@@ -84,7 +84,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                             }
                             if (reader.FieldCount > 0)
                             {
-                                await foreach (ExecEvent execEvent in PumpResultSetAsync(reader, resultSetId, pageRows, pageBytes, maxCellBytes, request.VectorBinary, cancellationToken).ConfigureAwait(false))
+                                await foreach (ExecEvent execEvent in PumpResultSetAsync(reader, resultSetId, pageRows, pageBytes, maxCellBytes, request.VectorBinary, request.SpatialWkb, cancellationToken).ConfigureAwait(false))
                                 {
                                     yield return execEvent;
                                 }
@@ -147,13 +147,13 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
 
         /// <summary>Streams one result set page-by-page (no full-result buffering).</summary>
         private static async IAsyncEnumerable<ExecEvent> PumpResultSetAsync(
-            SqlDataReader reader, int resultSetId, int pageRows, int pageBytes, int maxCellBytes, bool vectorBinary, [EnumeratorCancellation] CancellationToken cancellationToken)
+            SqlDataReader reader, int resultSetId, int pageRows, int pageBytes, int maxCellBytes, bool vectorBinary, bool spatialWkb, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            var columns = await ReadColumnsAsync(reader).ConfigureAwait(false);
+            var columns = await ReadColumnsAsync(reader, spatialWkb).ConfigureAwait(false);
             // QO-4: MAX-typed columns stream under SequentialAccess — bounded
             // prefix + streaming digest/byte count, never full materialization.
             // D-0018/D-0019: vector and CLR UDT columns route to dedicated reads.
-            SqlLargeValueReader.CellRead[] readKinds = SqlLargeValueReader.ClassifyColumns(columns, vectorBinary);
+            SqlLargeValueReader.CellRead[] readKinds = SqlLargeValueReader.ClassifyColumns(columns, vectorBinary, spatialWkb);
             yield return new ResultSetStarted(resultSetId, columns);
 
             int pageSeq = 0;
@@ -178,6 +178,12 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                                 SqlLargeValueReader.ReadBinary(reader, i, maxCellBytes),
                             SqlLargeValueReader.CellRead.Vector =>
                                 SqlClientVectorValueReader.Read(reader, i, maxCellBytes),
+                            SqlLargeValueReader.CellRead.Spatial =>
+                                SqlClientSpatialValueReader.Read(
+                                    reader,
+                                    i,
+                                    columns[i].SpatialKind ?? "unknown",
+                                    maxCellBytes),
                             _ => reader.GetValue(i),
                         };
                 }
@@ -198,7 +204,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             yield return new ResultSetCompleted(resultSetId, rowCount);
         }
 
-        private static async Task<IReadOnlyList<ColumnInfo>> ReadColumnsAsync(SqlDataReader reader)
+        private static async Task<IReadOnlyList<ColumnInfo>> ReadColumnsAsync(SqlDataReader reader, bool spatialWkb)
         {
             var columns = new List<ColumnInfo>(reader.FieldCount);
             System.Collections.ObjectModel.ReadOnlyCollection<System.Data.Common.DbColumn> schema =
@@ -206,15 +212,19 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             for (int i = 0; i < reader.FieldCount; i++)
             {
                 var column = schema[i];
+                string engineType = column.DataTypeName ?? reader.GetDataTypeName(i);
+                string? spatialKind = spatialWkb ? SqlLargeValueReader.SpatialKind(engineType) : null;
                 columns.Add(new ColumnInfo
                 {
                     Name = column.ColumnName,
-                    EngineType = column.DataTypeName ?? reader.GetDataTypeName(i),
+                    EngineType = engineType,
                     Nullable = column.AllowDBNull,
                     Precision = column.NumericPrecision,
                     Scale = column.NumericScale,
                     Length = column.ColumnSize,
                     Collation = null,
+                    SpatialKind = spatialKind,
+                    SpatialEncoding = spatialKind is null ? null : "wkb-v1",
                 });
             }
             return columns;

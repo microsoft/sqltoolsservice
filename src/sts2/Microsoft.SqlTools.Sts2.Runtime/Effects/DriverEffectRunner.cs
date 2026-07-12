@@ -417,13 +417,15 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
             // journaled bool; the driver emits typed vector cells only when set.
             bool vectorBinary = effect.Args.TryGetProperty("vectorBinary", out JsonElement vectorFlag)
                 && vectorFlag.ValueKind == JsonValueKind.True;
+            bool spatialWkb = effect.Args.TryGetProperty("spatialWkb", out JsonElement spatialFlag)
+                && spatialFlag.ValueKind == JsonValueKind.True;
 
             var pump = new QueryPump { Session = session, Credits = new SemaphoreSlim(initialCredit) };
             queryPumps[queryId] = pump;
-            pump.PumpTask = Task.Run(() => StreamQueryPumpAsync(effect, inbox, queryId, sql, maxCellBytes, pageRows, pageBytes, queryTimeoutMs, compactRows, vectorBinary, pump));
+            pump.PumpTask = Task.Run(() => StreamQueryPumpAsync(effect, inbox, queryId, sql, maxCellBytes, pageRows, pageBytes, queryTimeoutMs, compactRows, vectorBinary, spatialWkb, pump));
         }
 
-        private async Task StreamQueryPumpAsync(EffectWorkItem effect, ICoordinatorInbox inbox, string queryId, string sql, int maxCellBytes, int pageRows, int pageBytes, int queryTimeoutMs, bool compactRows, bool vectorBinary, QueryPump pump)
+        private async Task StreamQueryPumpAsync(EffectWorkItem effect, ICoordinatorInbox inbox, string queryId, string sql, int maxCellBytes, int pageRows, int pageBytes, int queryTimeoutMs, bool compactRows, bool vectorBinary, bool spatialWkb, QueryPump pump)
         {
             await PostQueryEventAsync(inbox, effect, queryId, """{"eventType":"started"}""").ConfigureAwait(false);
 
@@ -444,6 +446,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                     MaxCellBytes = maxCellBytes,
                     // D-0019: typed vector cells only for opted-in queries.
                     VectorBinary = vectorBinary,
+                    SpatialWkb = spatialWkb,
                 };
                 // Row-pipeline attribution (QO-2): readMs approximates driver/enumerator time
                 // as the gap since the previous event finished posting; credit wait and encode
@@ -474,7 +477,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                         case ResultSetStarted resultSet:
                             if (compactRows)
                             {
-                                typeHintsBySet[resultSet.ResultSetId] = SerializeTypeHints(resultSet.Columns, vectorBinary);
+                                typeHintsBySet[resultSet.ResultSetId] = SerializeTypeHints(resultSet.Columns, vectorBinary, spatialWkb);
                             }
                             await PostQueryEventAsync(inbox, effect, queryId, string.Create(CultureInfo.InvariantCulture,
                                 $$"""{"eventType":"resultSet","resultSetId":{{resultSet.ResultSetId}},"columns":{{SerializeColumns(resultSet.Columns)}}}""")).ConfigureAwait(false);
@@ -617,7 +620,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
         /// (JSON text cells). Hints route fast paths but are never trusted
         /// without structural validation — the cell tag is self-describing.
         /// </summary>
-        private static string SerializeTypeHints(IReadOnlyList<ColumnInfo> columns, bool vectorBinary)
+        private static string SerializeTypeHints(IReadOnlyList<ColumnInfo> columns, bool vectorBinary, bool spatialWkb)
         {
             var array = new System.Text.Json.Nodes.JsonArray();
             foreach (ColumnInfo column in columns)
@@ -631,6 +634,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                     "varbinary" or "binary" or "image" or "timestamp" or "rowversion" => "binary",
                     "xml" => "xml",
                     "vector" when vectorBinary => "vector:f32le:v1",
+                    _ when spatialWkb && column.SpatialEncoding == "wkb-v1" => "spatial:wkb:v1",
                     _ when t.StartsWith("date", StringComparison.Ordinal)
                         || t.StartsWith("time", StringComparison.Ordinal)
                         || t == "smalldatetime" => "datetime",
@@ -671,6 +675,14 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                 if (column.Collation is string collation)
                 {
                     obj["collation"] = collation;
+                }
+                if (column.SpatialKind is string spatialKind && column.SpatialEncoding == "wkb-v1")
+                {
+                    obj["spatial"] = new System.Text.Json.Nodes.JsonObject
+                    {
+                        ["kind"] = spatialKind,
+                        ["encoding"] = "wkb-v1",
+                    };
                 }
                 array.Add(obj);
             }

@@ -108,6 +108,21 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
             },
             Abstractions.DriverVectorUnavailableValue unavailable => VectorUnavailable(unavailable),
 
+            // D-0020: complete AsBinaryZM WKB is opt-in and provider-neutral.
+            // Spatial values are complete or an honest cell-local sentinel.
+            Abstractions.DriverSpatialValue spatial => new JsonObject
+            {
+                ["$t"] = "spatial",
+                ["version"] = 1,
+                ["status"] = "ok",
+                ["kind"] = spatial.Kind,
+                ["encoding"] = "wkb",
+                ["srid"] = spatial.Srid,
+                ["wkbBytes"] = spatial.Wkb.Length,
+                ["wkb"] = Convert.ToBase64String(spatial.Wkb),
+            },
+            Abstractions.DriverSpatialUnavailableValue spatialUnavailable => SpatialUnavailable(spatialUnavailable),
+
             // Lossless JSON natives.
             bool b => JsonValue.Create(b),
             long l => JsonValue.Create(l),
@@ -158,6 +173,27 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
             if (value.BaseType is string baseType)
             {
                 node["baseType"] = baseType;
+            }
+            return node;
+        }
+
+        private static JsonObject SpatialUnavailable(Abstractions.DriverSpatialUnavailableValue value)
+        {
+            var node = new JsonObject
+            {
+                ["$t"] = "spatial",
+                ["version"] = 1,
+                ["status"] = "unrenderable",
+                ["kind"] = value.Kind,
+                ["reason"] = value.Reason,
+            };
+            if (value.Srid is int srid)
+            {
+                node["srid"] = srid;
+            }
+            if (value.SourceBytes is long sourceBytes)
+            {
+                node["sourceBytes"] = sourceBytes;
             }
             return node;
         }

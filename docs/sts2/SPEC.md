@@ -172,7 +172,7 @@ Allowed references:
 | Hosting | Runtime, Core, Contracts, Abstractions, StreamJsonRpc |
 | Multiplexer | BCL only, including System.IO.Pipelines |
 | Bootstrap | Hosting, Runtime, Multiplexer, Drivers.SqlClient, Drivers.Sqlite, Contracts |
-| Drivers.SqlClient | Abstractions, Contracts, Microsoft.Data.SqlClient |
+| Drivers.SqlClient | Abstractions, Contracts, Microsoft.Data.SqlClient, Microsoft.SqlServer.Types |
 | Drivers.Sqlite | Abstractions, Contracts, Microsoft.Data.Sqlite |
 | Testing | Runtime, Core, Contracts, Abstractions |
 | sts2-replay | Runtime, Core, Contracts |
@@ -369,7 +369,8 @@ Result:
     "pageBytesHonored": true,
     "queryTimeoutHonored": true,
     "compactRows": true,
-    "vectorBinaryV1": true
+    "vectorBinaryV1": true,
+    "spatialWkbV1": true
   },
   "drivers": [
     { "name": "sqlclient", "dialects": ["tsql"], "production": true },
@@ -483,6 +484,8 @@ Result:
 
 `options.vectorEncoding` (OPTIONAL, literal string `"binary-v1"` only; D-0019) switches this query's native vector cells to the typed vector encoding (§7.7). Any other value — absent, wrong type, unknown literal — means the default applies: vector cells arrive as their JSON-array text representation (full float32 shortest-round-trip precision, D-0018). Core normalizes the option into the journaled `driver.queryStart` args as `vectorBinary` (replay-deterministic); the typed tag is never emitted to a query that did not opt in. With `compactRows`, an opted-in query's vector columns hint `vector:f32le:v1` in `typeHints`. The `vectorBinaryV1` capability (§7.3) advertises support.
 
+`options.spatialEncoding` (OPTIONAL, literal string `"wkb-v1"` only; D-0020) switches exactly recognized native `geometry` and `geography` cells from the D-0018 SQL Server CLR-serialization binary fallback to the typed spatial encoding (§7.7). Any other value keeps the byte-for-byte default. Core normalizes the option into journaled `driver.queryStart` args as `spatialWkb`; the driver converts native bytes with `AsBinaryZM()` so Z/M ordinates survive, and provider CLR types never cross the driver boundary. Negotiated compact columns hint `spatial:wkb:v1`; result-set metadata adds `spatial:{kind,encoding:"wkb-v1"}` only for those columns. The `spatialWkbV1` capability advertises support.
+
 Ordering guarantees for one query:
 
 1. `query.resultSet` for a result set precedes any `query.rows` for that result set.
@@ -567,6 +570,13 @@ Native vector values (D-0018/D-0019):
 - With `options.vectorEncoding = "binary-v1"` (§7.5), a vector cell is the typed tag: `{"$t":"vector", "version":1, "status":"ok", "dimensions": D, "baseType":"float32", "encoding":"f32le", "byteLength": D*4, "data":"<base64>"}`. The payload field is `data` (never `v` — clients treat generic `{$t, v}` objects as scalar wrappers). `data` decodes to exactly `byteLength` little-endian IEEE 754 float32 component bytes. Per-cell `dimensions` is authoritative over column metadata.
 - Vectors are never truncated: a cell the driver cannot transport completely becomes `{"$t":"vector", "version":1, "status":"unavailable", "reason": "unsupportedBaseType"|"providerValueMismatch"|"decodeFailed"|"cellLimit"}` with optional `dimensions`/`baseType` facts. Ordinary NULL uses JSON `null`, not a vector status.
 - Base types other than float32 (for example preview float16) are not transported as typed cells in v1: they keep the text representation when the provider yields one, else the `unsupportedBaseType` sentinel.
+
+Native spatial values (D-0020):
+
+- Default (no exact opt-in) remains D-0018: `geometry`/`geography` arrive as ordinary SQL Server CLR-serialization binary wrappers. `hierarchyid` is never spatial and always keeps that fallback.
+- With `options.spatialEncoding = "wkb-v1"`, a complete cell is `{"$t":"spatial","version":1,"status":"ok","kind":"geometry"|"geography","encoding":"wkb","srid":N,"wkbBytes":N,"wkb":"<base64>"}`. `wkb` is complete `AsBinaryZM()` OGC/SQL-MM WKB; `wkbBytes` is exact; ordinary NULL remains JSON null.
+- Spatial cells are never truncated or partially decoded. A bounded/conversion failure becomes `{"$t":"spatial","version":1,"status":"unrenderable","kind":...,"reason":"maxCellBytes"|"conversionFailed"|"unsupportedNativeValue"|"unsupportedInterchange","srid"?:N,"sourceBytes"?:N}`. It contains no coordinate material.
+- The driver recognizes spatial columns from exact provider metadata (`geometry`, `geography`, or the database-qualified `.sys.geometry`/`.sys.geography` forms), never from cell values or substring guesses. Curves and FullGlobe may be faithfully transported even when a particular client renderer classifies the WKB type as unsupported.
 
 ### 7.8 Backpressure
 

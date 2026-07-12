@@ -124,6 +124,9 @@ namespace Microsoft.SqlTools.Sts2.Core
                     // vector cells to the typed {$t:"vector",...,"data"} encoding
                     // for that query; non-opted-in queries keep JSON text.
                     ["vectorBinaryV1"] = true,
+                    // D-0020: exact native geometry/geography cells become
+                    // complete AsBinaryZM WKB only for opted-in queries.
+                    ["spatialWkbV1"] = true,
                 },
                 ["drivers"] = driverArray,
                 ["limits"] = new JsonObject
@@ -470,8 +473,9 @@ namespace Microsoft.SqlTools.Sts2.Core
             // option vectorEncoding="binary-v1"; normalized to a bool in the
             // journaled args so the driver never re-derives options.
             bool vectorBinary = OptionIsLiteral(envelope.Payload, "vectorEncoding", "binary-v1");
+            bool spatialWkb = OptionIsLiteral(envelope.Payload, "spatialEncoding", "wkb-v1");
             string startArgs = string.Create(CultureInfo.InvariantCulture, $$"""
-                {"queryId":{{JsonSerializer.Serialize(queryId)}},"connectionId":{{JsonSerializer.Serialize(connectionId)}},"handleId":{{JsonSerializer.Serialize(connection.HandleId)}},"sql":{{sqlRaw}},"credit":{{Sts2Defaults.WindowPages}},"maxCellBytes":{{maxCellBytes}},"pageRows":{{pageRows}},"pageBytes":{{pageBytes}},"queryTimeoutMs":{{queryTimeoutMs}},"compactRows":{{(compactRows ? "true" : "false")}},"vectorBinary":{{(vectorBinary ? "true" : "false")}}}
+                {"queryId":{{JsonSerializer.Serialize(queryId)}},"connectionId":{{JsonSerializer.Serialize(connectionId)}},"handleId":{{JsonSerializer.Serialize(connection.HandleId)}},"sql":{{sqlRaw}},"credit":{{Sts2Defaults.WindowPages}},"maxCellBytes":{{maxCellBytes}},"pageRows":{{pageRows}},"pageBytes":{{pageBytes}},"queryTimeoutMs":{{queryTimeoutMs}},"compactRows":{{(compactRows ? "true" : "false")}},"vectorBinary":{{(vectorBinary ? "true" : "false")}},"spatialWkb":{{(spatialWkb ? "true" : "false")}}}
                 """);
 
             CoreState next = state with

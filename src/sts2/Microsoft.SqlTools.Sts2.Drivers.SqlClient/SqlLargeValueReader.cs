@@ -36,6 +36,9 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
 
             /// <summary>Typed vector read (D-0019, negotiated queries only).</summary>
             Vector,
+
+            /// <summary>Typed geometry/geography WKB read (D-0020, negotiated only).</summary>
+            Spatial,
         }
 
         private const int ChunkChars = 8192;
@@ -52,7 +55,10 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
         /// GetValue needs Microsoft.SqlServer.Types, absent on .NET, and would
         /// fail the whole query with an unclassified FileNotFoundException.
         /// </summary>
-        public static CellRead[] ClassifyColumns(IReadOnlyList<ColumnInfo> columns, bool vectorBinary = false)
+        public static CellRead[] ClassifyColumns(
+            IReadOnlyList<ColumnInfo> columns,
+            bool vectorBinary = false,
+            bool spatialWkb = false)
         {
             var kinds = new CellRead[columns.Count];
             for (int i = 0; i < columns.Count; i++)
@@ -62,6 +68,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                 kinds[i] = type switch
                 {
                     "vector" => vectorBinary ? CellRead.Vector : CellRead.Text,
+                    _ when spatialWkb && SpatialKind(type) is not null => CellRead.Spatial,
                     "xml" => CellRead.Text,
                     "text" or "ntext" => CellRead.Text,
                     "varchar" or "nvarchar" or "json" when unbounded => CellRead.Text,
@@ -84,6 +91,21 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             || loweredType.EndsWith(".sys.geography", StringComparison.Ordinal)
             || loweredType.EndsWith(".sys.hierarchyid", StringComparison.Ordinal)
             || loweredType is "geometry" or "geography" or "hierarchyid";
+
+        /// <summary>Exact system spatial kind from provider metadata; never value-sniffed.</summary>
+        internal static string? SpatialKind(string engineType)
+        {
+            string type = engineType.ToLowerInvariant();
+            if (type.EndsWith(".sys.geometry", StringComparison.Ordinal) || type == "geometry")
+            {
+                return "geometry";
+            }
+            if (type.EndsWith(".sys.geography", StringComparison.Ordinal) || type == "geography")
+            {
+                return "geography";
+            }
+            return null;
+        }
 
         /// <summary>Streams a character column: full string when within bound, else prefix + facts.</summary>
         internal static object ReadText(SqlDataReader reader, int ordinal, int maxCellBytes)

@@ -151,6 +151,52 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
         }
 
         [Fact]
+        public async Task SpatialEncodingOptInFlowsToDriverAndEncodesTypedCells() // D-0020
+        {
+            byte[] wkb = Convert.FromHexString("0101000000000000000000F03F0000000000000040");
+            session.Driver.EnqueueQuery(new FakeQueryScript
+            {
+                Steps =
+                [
+                    new FakeQueryStep { Type = "resultSet", ResultSetId = 0, Columns = 2 },
+                    new FakeQueryStep
+                    {
+                        Type = "rows",
+                        ResultSetId = 0,
+                        Rows = 1,
+                        Columns = 2,
+                        CellValue = new Abstractions.DriverSpatialValue
+                        {
+                            Kind = "geometry",
+                            Srid = 4326,
+                            Wkb = wkb,
+                        },
+                    },
+                    new FakeQueryStep { Type = "resultSetDone", ResultSetId = 0, RowCount = 1 },
+                    new FakeQueryStep { Type = "completed", RowsAffected = 0 },
+                ],
+            });
+
+            string connectionId = await session.OpenConnectionAsync();
+            await session.RequestAsync("v2/query.execute",
+                $$"""{"connectionId":"{{connectionId}}","sql":"select shape from t","options":{"spatialEncoding":"wkb-v1"} }""");
+            await session.WaitForNotificationsAsync("v2/query.complete", 1);
+
+            Assert.True(session.Driver.LastExecuteRequest!.SpatialWkb);
+            List<OutboundRpcMessage> rows = await session.WaitForNotificationsAsync("v2/query.rows", 1);
+            JsonElement cell = rows[0].Body!.Value.GetProperty("rows")[0][1];
+            Assert.Equal("spatial", cell.GetProperty("$t").GetString());
+            Assert.Equal("ok", cell.GetProperty("status").GetString());
+            Assert.Equal(wkb, Convert.FromBase64String(cell.GetProperty("wkb").GetString()!));
+            Assert.False(cell.TryGetProperty("v", out _));
+
+            await session.RequestAsync("v2/query.execute",
+                $$"""{"connectionId":"{{connectionId}}","sql":"select 2","options":{"spatialEncoding":"wkb-v2"} }""");
+            await session.WaitForNotificationsAsync("v2/query.complete", 2);
+            Assert.False(session.Driver.LastExecuteRequest!.SpatialWkb);
+        }
+
+        [Fact]
         public async Task CompactRowsOptInSwitchesTheWireShape() // QO-5 / D-0016
         {
             string connectionId = await session.OpenConnectionAsync();

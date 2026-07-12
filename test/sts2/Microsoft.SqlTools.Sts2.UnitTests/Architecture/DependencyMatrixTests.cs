@@ -36,7 +36,8 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Architecture
                 (["Microsoft.SqlTools.Sts2.Hosting", "Microsoft.SqlTools.Sts2.Runtime", "Microsoft.SqlTools.Sts2.Multiplexer",
                   "Microsoft.SqlTools.Sts2.Drivers.SqlClient", "Microsoft.SqlTools.Sts2.Drivers.Sqlite", "Microsoft.SqlTools.Sts2.Contracts"], []),
             ["Microsoft.SqlTools.Sts2.Drivers.SqlClient"] =
-                (["Microsoft.SqlTools.Sts2.Abstractions", "Microsoft.SqlTools.Sts2.Contracts"], ["Microsoft.Data.SqlClient"]),
+                (["Microsoft.SqlTools.Sts2.Abstractions", "Microsoft.SqlTools.Sts2.Contracts"],
+                 ["Microsoft.Data.SqlClient", "Microsoft.SqlServer.Types"]),
             // SQLitePCLRaw.lib.e_sqlite3: pinned-patched native lib over the vulnerable transitive
             // 2.1.11 (CVE-2025-6965); see Packages.props.
             ["Microsoft.SqlTools.Sts2.Drivers.Sqlite"] =

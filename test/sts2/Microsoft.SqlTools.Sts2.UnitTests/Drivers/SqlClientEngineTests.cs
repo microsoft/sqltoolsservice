@@ -56,11 +56,22 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
             };
         }
 
-        private static async Task<List<ExecEvent>> ExecuteAsync(IDbSession session, string sql, bool vectorBinary = false)
+        private static async Task<List<ExecEvent>> ExecuteAsync(
+            IDbSession session,
+            string sql,
+            bool vectorBinary = false,
+            bool spatialWkb = false)
         {
             var events = new List<ExecEvent>();
             await foreach (ExecEvent execEvent in session.ExecuteAsync(
-                new QueryExecuteRequest { QueryId = "q-1", Sql = sql, PageRows = 1000, VectorBinary = vectorBinary }, CancellationToken.None))
+                new QueryExecuteRequest
+                {
+                    QueryId = "q-1",
+                    Sql = sql,
+                    PageRows = 1000,
+                    VectorBinary = vectorBinary,
+                    SpatialWkb = spatialWkb,
+                }, CancellationToken.None))
             {
                 events.Add(execEvent);
             }
@@ -184,6 +195,46 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
             Assert.Equal(4326, BitConverter.ToInt32(geog, 0)); // SRID 4326
 
             Assert.IsType<byte[]>(row[2]); // hierarchyid root serializes (possibly empty)
+        }
+
+        [Fact]
+        public async Task SpatialWkbOptInPreservesKindSridAndZm() // D-0020
+        {
+            if (!EngineGate.ShouldRun(output))
+            {
+                return;
+            }
+            var driver = new SqlClientDriver();
+            await using IDbSession session = await driver.OpenAsync(OpenRequest(), CancellationToken.None);
+
+            const string Sql = """
+                select
+                    geometry::STGeomFromText('POINT (1 2 3 4)', 0) as geom,
+                    geography::STGeomFromText('POINT (-122.3 47.6 8 9)', 4326) as geog,
+                    cast(null as geometry) as nul
+                """;
+
+            List<ExecEvent> defaultEvents = await ExecuteAsync(session, Sql);
+            Assert.IsType<byte[]>(Assert.Single(defaultEvents.OfType<RowsPage>()).Cells[0][0]);
+
+            List<ExecEvent> typedEvents = await ExecuteAsync(session, Sql, spatialWkb: true);
+            ResultSetStarted resultSet = Assert.Single(typedEvents.OfType<ResultSetStarted>());
+            Assert.Equal("geometry", resultSet.Columns[0].SpatialKind);
+            Assert.Equal("wkb-v1", resultSet.Columns[0].SpatialEncoding);
+            Assert.Equal("geography", resultSet.Columns[1].SpatialKind);
+            Assert.Equal("geometry", resultSet.Columns[2].SpatialKind);
+
+            IReadOnlyList<object?> row = Assert.Single(typedEvents.OfType<RowsPage>()).Cells[0];
+            DriverSpatialValue geometry = Assert.IsType<DriverSpatialValue>(row[0]);
+            Assert.Equal("geometry", geometry.Kind);
+            Assert.Equal(0, geometry.Srid);
+            Assert.Equal(3001u, System.Buffers.Binary.BinaryPrimitives.ReadUInt32LittleEndian(geometry.Wkb.AsSpan(1, 4))); // ISO POINT ZM
+
+            DriverSpatialValue geography = Assert.IsType<DriverSpatialValue>(row[1]);
+            Assert.Equal("geography", geography.Kind);
+            Assert.Equal(4326, geography.Srid);
+            Assert.Equal(3001u, System.Buffers.Binary.BinaryPrimitives.ReadUInt32LittleEndian(geography.Wkb.AsSpan(1, 4)));
+            Assert.Null(row[2]);
         }
 
         [Fact]

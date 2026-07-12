@@ -142,6 +142,13 @@ namespace Microsoft.SqlTools.Sts2.Abstractions
         /// typed cells instead of the JSON-text representation.
         /// </summary>
         public bool VectorBinary { get; init; }
+
+        /// <summary>
+        /// True when the query negotiated <c>options.spatialEncoding = "wkb-v1"</c>
+        /// (D-0020): native geometry/geography columns come back as complete,
+        /// provider-neutral WKB cells instead of SQL Server CLR serialization bytes.
+        /// </summary>
+        public bool SpatialWkb { get; init; }
     }
 
     /// <summary>

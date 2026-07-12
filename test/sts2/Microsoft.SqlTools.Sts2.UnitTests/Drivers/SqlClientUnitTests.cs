@@ -64,6 +64,33 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
         }
 
         [Fact]
+        public void ClassifyColumnsRoutesOnlyExactSpatialTypesToWkbWhenNegotiated() // D-0020
+        {
+            var columns = new List<ColumnInfo>
+            {
+                Column("AppDb.sys.geometry", int.MaxValue),
+                Column("master.sys.geography", int.MaxValue),
+                Column("tempdb.sys.hierarchyid", 892),
+                Column("notgeometry", int.MaxValue),
+            };
+
+            SqlLargeValueReader.CellRead[] defaults = SqlLargeValueReader.ClassifyColumns(columns);
+            Assert.Equal(SqlLargeValueReader.CellRead.Binary, defaults[0]);
+            Assert.Equal(SqlLargeValueReader.CellRead.Binary, defaults[1]);
+
+            SqlLargeValueReader.CellRead[] negotiated = SqlLargeValueReader.ClassifyColumns(
+                columns,
+                spatialWkb: true);
+            Assert.Equal(SqlLargeValueReader.CellRead.Spatial, negotiated[0]);
+            Assert.Equal(SqlLargeValueReader.CellRead.Spatial, negotiated[1]);
+            Assert.Equal(SqlLargeValueReader.CellRead.Binary, negotiated[2]);
+            Assert.Equal(SqlLargeValueReader.CellRead.Value, negotiated[3]);
+            Assert.Equal("geometry", SqlLargeValueReader.SpatialKind("Db.sys.geometry"));
+            Assert.Equal("geography", SqlLargeValueReader.SpatialKind("geography"));
+            Assert.Null(SqlLargeValueReader.SpatialKind("my.geometry"));
+        }
+
+        [Fact]
         public void EstimateCellBytesCoversVectorAndTruncatedValues() // D-0019 page byte bound
         {
             // A 1,536-dimension float32 vector encodes to ~8.3 KB (base64 of
@@ -95,6 +122,14 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
                 DigestHex = new string('0', 64),
             };
             Assert.True(SqlRowsPageBuilder.EstimateCellBytes(truncatedBinary) >= 87381); // base64 expansion
+
+            var spatial = new DriverSpatialValue
+            {
+                Kind = "geometry",
+                Srid = 4326,
+                Wkb = new byte[1000],
+            };
+            Assert.InRange(SqlRowsPageBuilder.EstimateCellBytes(spatial), 1400, 1500);
         }
 
         [Fact]

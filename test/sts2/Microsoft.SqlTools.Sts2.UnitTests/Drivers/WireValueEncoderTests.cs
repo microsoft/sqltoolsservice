@@ -225,6 +225,46 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
         }
 
         [Fact]
+        public void SpatialCellsEncodeCompleteWkbWithoutGenericVCollision() // D-0020
+        {
+            byte[] wkb = Convert.FromHexString("0101000000000000000000F03F0000000000000040");
+            JsonNode node = WireValueEncoder.Encode(new Abstractions.DriverSpatialValue
+            {
+                Kind = "geometry",
+                Srid = 4326,
+                Wkb = wkb,
+            })!;
+
+            Assert.Equal("spatial", node["$t"]!.GetValue<string>());
+            Assert.Equal(1, node["version"]!.GetValue<int>());
+            Assert.Equal("ok", node["status"]!.GetValue<string>());
+            Assert.Equal("geometry", node["kind"]!.GetValue<string>());
+            Assert.Equal("wkb", node["encoding"]!.GetValue<string>());
+            Assert.Equal(4326, node["srid"]!.GetValue<int>());
+            Assert.Equal(wkb.Length, node["wkbBytes"]!.GetValue<int>());
+            Assert.Equal(wkb, Convert.FromBase64String(node["wkb"]!.GetValue<string>()));
+            Assert.Null(node["v"]);
+        }
+
+        [Fact]
+        public void SpatialUnavailableSentinelCarriesOnlySafeFacts() // D-0020
+        {
+            JsonNode node = WireValueEncoder.Encode(new Abstractions.DriverSpatialUnavailableValue
+            {
+                Kind = "geography",
+                Reason = "maxCellBytes",
+                Srid = 4326,
+                SourceBytes = 2_000_000,
+            })!;
+            Assert.Equal("unrenderable", node["status"]!.GetValue<string>());
+            Assert.Equal("geography", node["kind"]!.GetValue<string>());
+            Assert.Equal("maxCellBytes", node["reason"]!.GetValue<string>());
+            Assert.Equal(4326, node["srid"]!.GetValue<int>());
+            Assert.Equal(2_000_000, node["sourceBytes"]!.GetValue<long>());
+            Assert.Null(node["wkb"]);
+        }
+
+        [Fact]
         public void LosslessNativesStayNative()
         {
             Assert.Equal("true", Json(true));

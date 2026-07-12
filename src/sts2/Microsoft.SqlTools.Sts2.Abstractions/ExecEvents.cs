@@ -98,6 +98,38 @@ namespace Microsoft.SqlTools.Sts2.Abstractions
         public required string Reason { get; init; }
     }
 
+    /// <summary>
+    /// Complete SQL geometry/geography interchange value (D-0020). The SqlClient
+    /// provider's CLR/native representations stop at the driver boundary.
+    /// </summary>
+    public sealed record DriverSpatialValue
+    {
+        /// <summary>"geometry" or "geography".</summary>
+        public required string Kind { get; init; }
+
+        /// <summary>Authoritative SQL spatial reference identifier.</summary>
+        public required int Srid { get; init; }
+
+        /// <summary>Complete AsBinaryZM() bytes; never a prefix.</summary>
+        public required byte[] Wkb { get; init; }
+    }
+
+    /// <summary>A cell-local, honest failure to produce complete spatial WKB.</summary>
+    public sealed record DriverSpatialUnavailableValue
+    {
+        /// <summary>"geometry" or "geography".</summary>
+        public required string Kind { get; init; }
+
+        /// <summary>Stable privacy-safe failure reason.</summary>
+        public required string Reason { get; init; }
+
+        /// <summary>SRID when conversion reached that fact.</summary>
+        public int? Srid { get; init; }
+
+        /// <summary>Native provider byte count when cheaply available.</summary>
+        public long? SourceBytes { get; init; }
+    }
+
     /// <summary>Column metadata: engine type names verbatim plus normalized fields (SPEC §7.7).</summary>
     public sealed record ColumnInfo
     {
@@ -121,5 +153,11 @@ namespace Microsoft.SqlTools.Sts2.Abstractions
 
         /// <summary>Collation when known.</summary>
         public string? Collation { get; init; }
+
+        /// <summary>"geometry"/"geography" only when WKB v1 was negotiated.</summary>
+        public string? SpatialKind { get; init; }
+
+        /// <summary>"wkb-v1" only when WKB v1 was negotiated.</summary>
+        public string? SpatialEncoding { get; init; }
     }
 }

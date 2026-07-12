@@ -93,6 +93,9 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             char[] c => c.Length + 2,
             // base64 of the component bytes + the fixed tag fields
             Abstractions.DriverVectorValue v => ((long)v.ComponentBytes.Length * 4 + 2) / 3 + 128,
+            // base64 WKB + typed spatial tag fields (D-0020)
+            Abstractions.DriverSpatialValue s => ((long)s.Wkb.Length * 4 + 2) / 3 + 128,
+            Abstractions.DriverSpatialUnavailableValue => 192,
             // retained prefix (text verbatim, binary as base64) + wrapper facts
             Abstractions.DriverTruncatedValue t => t.Kind == "binary"
                 ? ((long)(t.PrefixBytes?.Length ?? 0) * 4 + 2) / 3 + 128

@@ -81,6 +81,34 @@ Microsoft.SqlTools.Sts2.Abstractions.DriverVectorValue.DriverVectorValue() -> vo
 Microsoft.SqlTools.Sts2.Abstractions.DriverVectorValue.Encoding.get -> string!
 Microsoft.SqlTools.Sts2.Abstractions.DriverVectorValue.Encoding.init -> void
 Microsoft.SqlTools.Sts2.Abstractions.DriverVectorValue.Equals(Microsoft.SqlTools.Sts2.Abstractions.DriverVectorValue? other) -> bool
+Microsoft.SqlTools.Sts2.Abstractions.DriverSpatialUnavailableValue
+Microsoft.SqlTools.Sts2.Abstractions.DriverSpatialUnavailableValue.<Clone>$() -> Microsoft.SqlTools.Sts2.Abstractions.DriverSpatialUnavailableValue!
+Microsoft.SqlTools.Sts2.Abstractions.DriverSpatialUnavailableValue.DriverSpatialUnavailableValue() -> void
+Microsoft.SqlTools.Sts2.Abstractions.DriverSpatialUnavailableValue.Equals(Microsoft.SqlTools.Sts2.Abstractions.DriverSpatialUnavailableValue? other) -> bool
+Microsoft.SqlTools.Sts2.Abstractions.DriverSpatialUnavailableValue.Kind.get -> string!
+Microsoft.SqlTools.Sts2.Abstractions.DriverSpatialUnavailableValue.Kind.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.DriverSpatialUnavailableValue.Reason.get -> string!
+Microsoft.SqlTools.Sts2.Abstractions.DriverSpatialUnavailableValue.Reason.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.DriverSpatialUnavailableValue.SourceBytes.get -> long?
+Microsoft.SqlTools.Sts2.Abstractions.DriverSpatialUnavailableValue.SourceBytes.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.DriverSpatialUnavailableValue.Srid.get -> int?
+Microsoft.SqlTools.Sts2.Abstractions.DriverSpatialUnavailableValue.Srid.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.DriverSpatialValue
+Microsoft.SqlTools.Sts2.Abstractions.DriverSpatialValue.<Clone>$() -> Microsoft.SqlTools.Sts2.Abstractions.DriverSpatialValue!
+Microsoft.SqlTools.Sts2.Abstractions.DriverSpatialValue.DriverSpatialValue() -> void
+Microsoft.SqlTools.Sts2.Abstractions.DriverSpatialValue.Equals(Microsoft.SqlTools.Sts2.Abstractions.DriverSpatialValue? other) -> bool
+Microsoft.SqlTools.Sts2.Abstractions.DriverSpatialValue.Kind.get -> string!
+Microsoft.SqlTools.Sts2.Abstractions.DriverSpatialValue.Kind.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.DriverSpatialValue.Srid.get -> int
+Microsoft.SqlTools.Sts2.Abstractions.DriverSpatialValue.Srid.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.DriverSpatialValue.Wkb.get -> byte[]!
+Microsoft.SqlTools.Sts2.Abstractions.DriverSpatialValue.Wkb.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.ColumnInfo.SpatialEncoding.get -> string?
+Microsoft.SqlTools.Sts2.Abstractions.ColumnInfo.SpatialEncoding.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.ColumnInfo.SpatialKind.get -> string?
+Microsoft.SqlTools.Sts2.Abstractions.ColumnInfo.SpatialKind.init -> void
+Microsoft.SqlTools.Sts2.Abstractions.QueryExecuteRequest.SpatialWkb.get -> bool
+Microsoft.SqlTools.Sts2.Abstractions.QueryExecuteRequest.SpatialWkb.init -> void
 Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted
 Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.Database.get -> string?
 Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.Database.init -> void
@@ -221,6 +249,12 @@ override Microsoft.SqlTools.Sts2.Abstractions.DriverVectorUnavailableValue.ToStr
 override Microsoft.SqlTools.Sts2.Abstractions.DriverVectorValue.Equals(object? obj) -> bool
 override Microsoft.SqlTools.Sts2.Abstractions.DriverVectorValue.GetHashCode() -> int
 override Microsoft.SqlTools.Sts2.Abstractions.DriverVectorValue.ToString() -> string!
+override Microsoft.SqlTools.Sts2.Abstractions.DriverSpatialUnavailableValue.Equals(object? obj) -> bool
+override Microsoft.SqlTools.Sts2.Abstractions.DriverSpatialUnavailableValue.GetHashCode() -> int
+override Microsoft.SqlTools.Sts2.Abstractions.DriverSpatialUnavailableValue.ToString() -> string!
+override Microsoft.SqlTools.Sts2.Abstractions.DriverSpatialValue.Equals(object? obj) -> bool
+override Microsoft.SqlTools.Sts2.Abstractions.DriverSpatialValue.GetHashCode() -> int
+override Microsoft.SqlTools.Sts2.Abstractions.DriverSpatialValue.ToString() -> string!
 override Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.<Clone>$() -> Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted!
 override Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.Equals(object? obj) -> bool
 override Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.GetHashCode() -> int
@@ -278,6 +312,10 @@ static Microsoft.SqlTools.Sts2.Abstractions.DriverVectorUnavailableValue.operato
 static Microsoft.SqlTools.Sts2.Abstractions.DriverVectorUnavailableValue.operator ==(Microsoft.SqlTools.Sts2.Abstractions.DriverVectorUnavailableValue? left, Microsoft.SqlTools.Sts2.Abstractions.DriverVectorUnavailableValue? right) -> bool
 static Microsoft.SqlTools.Sts2.Abstractions.DriverVectorValue.operator !=(Microsoft.SqlTools.Sts2.Abstractions.DriverVectorValue? left, Microsoft.SqlTools.Sts2.Abstractions.DriverVectorValue? right) -> bool
 static Microsoft.SqlTools.Sts2.Abstractions.DriverVectorValue.operator ==(Microsoft.SqlTools.Sts2.Abstractions.DriverVectorValue? left, Microsoft.SqlTools.Sts2.Abstractions.DriverVectorValue? right) -> bool
+static Microsoft.SqlTools.Sts2.Abstractions.DriverSpatialUnavailableValue.operator !=(Microsoft.SqlTools.Sts2.Abstractions.DriverSpatialUnavailableValue? left, Microsoft.SqlTools.Sts2.Abstractions.DriverSpatialUnavailableValue? right) -> bool
+static Microsoft.SqlTools.Sts2.Abstractions.DriverSpatialUnavailableValue.operator ==(Microsoft.SqlTools.Sts2.Abstractions.DriverSpatialUnavailableValue? left, Microsoft.SqlTools.Sts2.Abstractions.DriverSpatialUnavailableValue? right) -> bool
+static Microsoft.SqlTools.Sts2.Abstractions.DriverSpatialValue.operator !=(Microsoft.SqlTools.Sts2.Abstractions.DriverSpatialValue? left, Microsoft.SqlTools.Sts2.Abstractions.DriverSpatialValue? right) -> bool
+static Microsoft.SqlTools.Sts2.Abstractions.DriverSpatialValue.operator ==(Microsoft.SqlTools.Sts2.Abstractions.DriverSpatialValue? left, Microsoft.SqlTools.Sts2.Abstractions.DriverSpatialValue? right) -> bool
 static Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.operator !=(Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted? left, Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted? right) -> bool
 static Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted.operator ==(Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted? left, Microsoft.SqlTools.Sts2.Abstractions.ExecCompleted? right) -> bool
 static Microsoft.SqlTools.Sts2.Abstractions.ExecEvent.operator !=(Microsoft.SqlTools.Sts2.Abstractions.ExecEvent? left, Microsoft.SqlTools.Sts2.Abstractions.ExecEvent? right) -> bool
