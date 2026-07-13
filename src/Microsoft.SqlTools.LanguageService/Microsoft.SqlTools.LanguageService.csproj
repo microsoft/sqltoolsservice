@@ -15,6 +15,14 @@
     <AssemblyOriginatorKeyFile>$(RootDir)\SQL2003.snk</AssemblyOriginatorKeyFile>
     <TargetFrameworks>$(SsmsDotNetVersion);$(SqlCoreDotNetVersion);$(SqlToolsServiceDotNetVersion)</TargetFrameworks>
     <LangVersion>9.0</LangVersion>
+    <!-- Placeholder version overwritten by the build pipeline when packing (see azure-pipelines/build.yml). -->
+    <Version>1.0.0</Version>
+    <!-- LanguageService intentionally consumes preview DacFx, so allow the "stable package with
+         prerelease dependency" pack warning instead of failing the build. -->
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);NU5104</WarningsNotAsErrors>
+    <!-- Bundle the DLLs of in-repo project dependencies (Hosting, SqlCore, ManagedBatchParser)
+         directly inside the package. External NuGet references remain package dependencies. -->
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludeProjectReferenceDllsInPackage</TargetsForTfmSpecificBuildOutput>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="**\*.cs" Exclude="**/obj/**/*.cs" />
@@ -24,8 +32,13 @@
     <None Include="Localization\sr.strings" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj" />
-    <ProjectReference Include="..\Microsoft.SqlTools.SqlCore\Microsoft.SqlTools.SqlCore.csproj" />
+    <!-- PrivateAssets="all" stops these in-repo projects from being emitted as package
+         dependencies; their DLLs are instead bundled directly via the target below. 
+         This is done to reduce the number of packages needed by consumers of this library
+         If other consumers start using this and it makes sense to, splitting them into separate
+         packages and having these be normal package dependencies would be fine -->
+    <ProjectReference Include="..\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj" PrivateAssets="all" />
+    <ProjectReference Include="..\Microsoft.SqlTools.SqlCore\Microsoft.SqlTools.SqlCore.csproj" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.SqlServer.DacFx" />
@@ -42,4 +55,17 @@
     <InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.Test.Common" />
     <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
   </ItemGroup>
+  <!-- Includes the compiled output of the in-repo project references (Hosting, SqlCore and the
+       transitive ManagedBatchParser) directly in the package's lib/[tfm] folder. The DLLs are
+       picked up from the build output (they are already copied there as project references) so
+       this works with the pipeline's `dotnet pack` no-build packing. DLLs coming from external
+       NuGet packages are not bundled here and surface as package dependencies instead. When a new
+       in-repo project reference is added above, add its assembly name here as well. -->
+  <Target Name="IncludeProjectReferenceDllsInPackage">
+    <ItemGroup>
+      <BuildOutputInPackage Include="$(OutputPath)Microsoft.SqlTools.Hosting.dll" />
+      <BuildOutputInPackage Include="$(OutputPath)Microsoft.SqlTools.SqlCore.dll" />
+      <BuildOutputInPackage Include="$(OutputPath)Microsoft.SqlTools.ManagedBatchParser.dll" />
+    </ItemGroup>
+  </Target>
 </Project>
