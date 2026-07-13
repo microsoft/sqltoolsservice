@@ -73,6 +73,13 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
             Assert.True(pageStats.GetProperty("encodeMs").GetDouble() >= 0);
             Assert.True(pageStats.GetProperty("creditWaitMs").GetDouble() >= 0);
             Assert.True(pageStats.GetProperty("readMs").GetDouble() >= 0);
+            Assert.True(pageStats.GetProperty("cellSlots").GetInt64() > 0);
+            Assert.True(pageStats.GetProperty("nullCells").GetInt64() >= 0);
+            Assert.True(pageStats.GetProperty("rowsSerializeMs").GetDouble() >= 0);
+            Assert.True(pageStats.GetProperty("utf8MeasureMs").GetDouble() >= 0);
+            Assert.True(pageStats.GetProperty("nullBitmapMs").GetDouble() >= 0);
+            Assert.True(pageStats.GetProperty("pageBodyBuildMs").GetDouble() >= 0);
+            Assert.True(pageStats.GetProperty("encodePrepAllocatedBytes").GetInt64() > 0);
         }
 
         [Fact]
@@ -97,6 +104,19 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
             Assert.True(stats.GetProperty("rows").GetInt64() >= 1);
             Assert.True(stats.GetProperty("encodedBytes").GetInt64() > 0);
             Assert.True(stats.GetProperty("encodeMsTotal").GetDouble() >= 0);
+            Assert.True(stats.GetProperty("cellSlots").GetInt64() > 0);
+            Assert.True(stats.GetProperty("eventPayloadBytes").GetInt64() > 0);
+            Assert.True(stats.GetProperty("maxEventPayloadBytes").GetInt64() > 0);
+            Assert.True(stats.GetProperty("rowsSerializeMsTotal").GetDouble() >= 0);
+            Assert.True(stats.GetProperty("utf8MeasureMsTotal").GetDouble() >= 0);
+            Assert.True(stats.GetProperty("nullBitmapMsTotal").GetDouble() >= 0);
+            Assert.True(stats.GetProperty("pageBodyBuildMsTotal").GetDouble() >= 0);
+            Assert.True(stats.GetProperty("eventBuildMsTotal").GetDouble() >= 0);
+            Assert.True(stats.GetProperty("postBuildMsTotal").GetDouble() >= 0);
+            Assert.True(stats.GetProperty("postMsTotal").GetDouble() >= 0);
+            Assert.True(stats.GetProperty("encodePrepAllocatedBytes").GetInt64() > 0);
+            Assert.True(stats.GetProperty("eventBuildAllocatedBytes").GetInt64() > 0);
+            Assert.True(stats.GetProperty("postBuildAllocatedBytes").GetInt64() > 0);
 
             // No SQL text or cell values ride the diagnostic (privacy canary).
             string raw = data.GetRawText();

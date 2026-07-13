@@ -71,6 +71,34 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
             public double StatsReadMsTotal;
             public double StatsCreditWaitMsTotal;
             public double StatsEncodeMsTotal;
+            public long StatsCellSlots;
+            public long StatsNullCells;
+            public long StatsEventPayloadBytes;
+            public long StatsMaxEventPayloadBytes;
+            public long StatsEncodePrepAllocatedBytes;
+            public long StatsEventBuildAllocatedBytes;
+            public long StatsPostBuildAllocatedBytes;
+            public double StatsRowsSerializeMsTotal;
+            public double StatsUtf8MeasureMsTotal;
+            public double StatsNullBitmapMsTotal;
+            public double StatsPageBodyBuildMsTotal;
+            public double StatsEventBuildMsTotal;
+            public double StatsPostBuildMsTotal;
+            public double StatsPostMsTotal;
+        }
+
+        private readonly struct QueryEventPostStats
+        {
+            public QueryEventPostStats(long payloadBytes, double buildMs, long allocatedBytes)
+            {
+                PayloadBytes = payloadBytes;
+                BuildMs = buildMs;
+                AllocatedBytes = allocatedBytes;
+            }
+
+            public long PayloadBytes { get; }
+            public double BuildMs { get; }
+            public long AllocatedBytes { get; }
         }
 
         private readonly Export.ExportBundleRequest? exportTemplate;
@@ -494,7 +522,14 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                                 break;
                             }
                             long encodeStartTicks = Stopwatch.GetTimestamp();
-                            string rowsJson = SerializeRows(page.Cells, maxCellBytes);
+                            long encodePrepAllocationStart = GC.GetAllocatedBytesForCurrentThread();
+                            long rowsSerializeStartTicks = Stopwatch.GetTimestamp();
+                            string rowsJson = SerializeRows(
+                                page.Cells,
+                                maxCellBytes,
+                                out long cellSlots,
+                                out long nullCells);
+                            double rowsSerializeMs = ElapsedMs(rowsSerializeStartTicks);
                             // Honest byte accounting (D-0019): encoded page size is
                             // measured in UTF-8 bytes, not UTF-16 char count (they
                             // differ on any non-ASCII cell). The final frame guard
@@ -502,7 +537,9 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                             // the frame budget fails typed instead of emitting an
                             // oversized frame downstream (page construction should
                             // prevent this; the guard is the last line, not policy).
+                            long utf8MeasureStartTicks = Stopwatch.GetTimestamp();
                             long encodedBytes = (long)Encoding.UTF8.GetByteCount(rowsJson);
+                            double utf8MeasureMs = ElapsedMs(utf8MeasureStartTicks);
                             if (encodedBytes > FrameGuardBytes)
                             {
                                 throw new DbDriverException(
@@ -513,22 +550,63 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                             // QO-5: the compact shape carries the null bitmap +
                             // type hints computed HERE (once), so the client
                             // stops rebuilding pages and re-measuring bytes.
+                            string? nullBitmap = null;
+                            double nullBitmapMs = 0;
+                            if (compactRows)
+                            {
+                                long nullBitmapStartTicks = Stopwatch.GetTimestamp();
+                                nullBitmap = PackNullBitmap(page.Cells);
+                                nullBitmapMs = ElapsedMs(nullBitmapStartTicks);
+                            }
+                            long pageBodyBuildStartTicks = Stopwatch.GetTimestamp();
                             string pageBody = compactRows
                                 ? string.Create(CultureInfo.InvariantCulture, $$"""
-                                    "compact":{"values":{{rowsJson}},"nullBitmap":{{JsonSerializer.Serialize(PackNullBitmap(page.Cells))}},"typeHints":{{typeHintsBySet.GetValueOrDefault(page.ResultSetId, "[]")}} },"approxBytes":{{encodedBytes}},"encodedBytes":{{encodedBytes}}
+                                    "compact":{"values":{{rowsJson}},"nullBitmap":{{JsonSerializer.Serialize(nullBitmap)}},"typeHints":{{typeHintsBySet.GetValueOrDefault(page.ResultSetId, "[]")}} },"approxBytes":{{encodedBytes}},"encodedBytes":{{encodedBytes}}
                                     """)
                                 : string.Create(CultureInfo.InvariantCulture, $$"""
                                     "rows":{{rowsJson}}
                                     """);
+                            double pageBodyBuildMs = ElapsedMs(pageBodyBuildStartTicks);
                             double encodeMs = ElapsedMs(encodeStartTicks);
+                            long encodePrepAllocatedBytes =
+                                GC.GetAllocatedBytesForCurrentThread() - encodePrepAllocationStart;
+                            long eventBuildAllocationStart = GC.GetAllocatedBytesForCurrentThread();
+                            long eventBuildStartTicks = Stopwatch.GetTimestamp();
+                            string rowsEvent = string.Create(CultureInfo.InvariantCulture,
+                                $$"""{"eventType":"rows","resultSetId":{{page.ResultSetId}},"pageSeq":{{page.PageSeq}},"rowOffset":{{page.RowOffset}},{{pageBody}},"stats":{"rowCount":{{page.Cells.Count}},"cellSlots":{{cellSlots}},"nullCells":{{nullCells}},"encodedBytes":{{encodedBytes}},"readMs":{{FormatMs(readMs)}},"creditWaitMs":{{FormatMs(creditWaitMs)}},"encodeMs":{{FormatMs(encodeMs)}},"rowsSerializeMs":{{FormatMs(rowsSerializeMs)}},"utf8MeasureMs":{{FormatMs(utf8MeasureMs)}},"nullBitmapMs":{{FormatMs(nullBitmapMs)}},"pageBodyBuildMs":{{FormatMs(pageBodyBuildMs)}},"encodePrepAllocatedBytes":{{encodePrepAllocatedBytes}} } }""");
+                            double eventBuildMs = ElapsedMs(eventBuildStartTicks);
+                            long eventBuildAllocatedBytes =
+                                GC.GetAllocatedBytesForCurrentThread() - eventBuildAllocationStart;
                             pump.StatsPages++;
                             pump.StatsRows += page.Cells.Count;
+                            pump.StatsCellSlots += cellSlots;
+                            pump.StatsNullCells += nullCells;
                             pump.StatsEncodedBytes += encodedBytes;
                             pump.StatsReadMsTotal += readMs;
                             pump.StatsCreditWaitMsTotal += creditWaitMs;
                             pump.StatsEncodeMsTotal += encodeMs;
-                            await PostQueryEventAsync(inbox, effect, queryId, string.Create(CultureInfo.InvariantCulture,
-                                $$"""{"eventType":"rows","resultSetId":{{page.ResultSetId}},"pageSeq":{{page.PageSeq}},"rowOffset":{{page.RowOffset}},{{pageBody}},"stats":{"rowCount":{{page.Cells.Count}},"encodedBytes":{{encodedBytes}},"readMs":{{FormatMs(readMs)}},"creditWaitMs":{{FormatMs(creditWaitMs)}},"encodeMs":{{FormatMs(encodeMs)}} } }""")).ConfigureAwait(false);
+                            pump.StatsRowsSerializeMsTotal += rowsSerializeMs;
+                            pump.StatsUtf8MeasureMsTotal += utf8MeasureMs;
+                            pump.StatsNullBitmapMsTotal += nullBitmapMs;
+                            pump.StatsPageBodyBuildMsTotal += pageBodyBuildMs;
+                            pump.StatsEventBuildMsTotal += eventBuildMs;
+                            pump.StatsEncodePrepAllocatedBytes += encodePrepAllocatedBytes;
+                            pump.StatsEventBuildAllocatedBytes += eventBuildAllocatedBytes;
+                            long postStartTicks = Stopwatch.GetTimestamp();
+                            await PostQueryEventAsync(
+                                inbox,
+                                effect,
+                                queryId,
+                                rowsEvent,
+                                out QueryEventPostStats postStats).ConfigureAwait(false);
+                            double postMs = ElapsedMs(postStartTicks);
+                            pump.StatsEventPayloadBytes += postStats.PayloadBytes;
+                            pump.StatsMaxEventPayloadBytes = Math.Max(
+                                pump.StatsMaxEventPayloadBytes,
+                                postStats.PayloadBytes);
+                            pump.StatsPostBuildMsTotal += postStats.BuildMs;
+                            pump.StatsPostBuildAllocatedBytes += postStats.AllocatedBytes;
+                            pump.StatsPostMsTotal += postMs;
                             break;
                         }
 
@@ -544,7 +622,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
 
                         case ExecCompleted completed:
                             await PostQueryEventAsync(inbox, effect, queryId, string.Create(CultureInfo.InvariantCulture,
-                                $$"""{"eventType":"completed","rowsAffected":{{completed.RowsAffected.Sum()}},"database":{{JsonSerializer.Serialize(completed.Database)}},"stats":{"pages":{{pump.StatsPages}},"rows":{{pump.StatsRows}},"encodedBytes":{{pump.StatsEncodedBytes}},"readMsTotal":{{FormatMs(pump.StatsReadMsTotal)}},"creditWaitMsTotal":{{FormatMs(pump.StatsCreditWaitMsTotal)}},"encodeMsTotal":{{FormatMs(pump.StatsEncodeMsTotal)}} } }""")).ConfigureAwait(false);
+                                $$"""{"eventType":"completed","rowsAffected":{{completed.RowsAffected.Sum()}},"database":{{JsonSerializer.Serialize(completed.Database)}},"stats":{"pages":{{pump.StatsPages}},"rows":{{pump.StatsRows}},"cellSlots":{{pump.StatsCellSlots}},"nullCells":{{pump.StatsNullCells}},"encodedBytes":{{pump.StatsEncodedBytes}},"eventPayloadBytes":{{pump.StatsEventPayloadBytes}},"maxEventPayloadBytes":{{pump.StatsMaxEventPayloadBytes}},"readMsTotal":{{FormatMs(pump.StatsReadMsTotal)}},"creditWaitMsTotal":{{FormatMs(pump.StatsCreditWaitMsTotal)}},"encodeMsTotal":{{FormatMs(pump.StatsEncodeMsTotal)}},"rowsSerializeMsTotal":{{FormatMs(pump.StatsRowsSerializeMsTotal)}},"utf8MeasureMsTotal":{{FormatMs(pump.StatsUtf8MeasureMsTotal)}},"nullBitmapMsTotal":{{FormatMs(pump.StatsNullBitmapMsTotal)}},"pageBodyBuildMsTotal":{{FormatMs(pump.StatsPageBodyBuildMsTotal)}},"eventBuildMsTotal":{{FormatMs(pump.StatsEventBuildMsTotal)}},"postBuildMsTotal":{{FormatMs(pump.StatsPostBuildMsTotal)}},"postMsTotal":{{FormatMs(pump.StatsPostMsTotal)}},"encodePrepAllocatedBytes":{{pump.StatsEncodePrepAllocatedBytes}},"eventBuildAllocatedBytes":{{pump.StatsEventBuildAllocatedBytes}},"postBuildAllocatedBytes":{{pump.StatsPostBuildAllocatedBytes}} } }""")).ConfigureAwait(false);
                             break;
 
                         default:
@@ -689,14 +767,25 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
             return array.ToJsonString();
         }
 
-        private static string SerializeRows(IReadOnlyList<IReadOnlyList<object?>> rows, int maxCellBytes)
+        private static string SerializeRows(
+            IReadOnlyList<IReadOnlyList<object?>> rows,
+            int maxCellBytes,
+            out long cellSlots,
+            out long nullCells)
         {
+            cellSlots = 0;
+            nullCells = 0;
             var array = new System.Text.Json.Nodes.JsonArray();
             foreach (IReadOnlyList<object?> row in rows)
             {
                 var cells = new System.Text.Json.Nodes.JsonArray();
                 foreach (object? cell in row)
                 {
+                    cellSlots++;
+                    if (cell is null or DBNull)
+                    {
+                        nullCells++;
+                    }
                     // SPEC §7.7 wire encoding at the query's effective bound (R024/STS2-3):
                     // one giant cell cannot break the memory/frame bound, and an oversized
                     // cell arrives as an honest truncated wrapper, never silently clipped.
@@ -723,13 +812,36 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
         private static string FormatMs(double ms) =>
             Math.Round(ms, 2).ToString(CultureInfo.InvariantCulture);
 
-        private static Task PostQueryEventAsync(ICoordinatorInbox inbox, EffectWorkItem effect, string queryId, string eventCore)
+        private static Task PostQueryEventAsync(
+            ICoordinatorInbox inbox,
+            EffectWorkItem effect,
+            string queryId,
+            string eventCore) =>
+            PostQueryEventAsync(inbox, effect, queryId, eventCore, out _);
+
+        private static Task PostQueryEventAsync(
+            ICoordinatorInbox inbox,
+            EffectWorkItem effect,
+            string queryId,
+            string eventCore,
+            out QueryEventPostStats stats)
         {
+            long allocationStart = GC.GetAllocatedBytesForCurrentThread();
+            long buildStartTicks = Stopwatch.GetTimestamp();
             // queryId is merged in so Core routes without tracking effect ids.
             string payload = string.Create(CultureInfo.InvariantCulture,
                 $$"""{"queryId":{{JsonSerializer.Serialize(queryId)}},{{eventCore[1..]}}""");
-            return inbox.PostEffectResponseAsync("evt-" + queryId, "driver.queryEvent",
-                JsonDocument.Parse(payload).RootElement, effect.CauseSeq).AsTask();
+            long payloadBytes = Encoding.UTF8.GetByteCount(payload);
+            JsonElement root = JsonDocument.Parse(payload).RootElement;
+            stats = new QueryEventPostStats(
+                payloadBytes,
+                ElapsedMs(buildStartTicks),
+                GC.GetAllocatedBytesForCurrentThread() - allocationStart);
+            return inbox.PostEffectResponseAsync(
+                "evt-" + queryId,
+                "driver.queryEvent",
+                root,
+                effect.CauseSeq).AsTask();
         }
 
         private async Task ExportAsync(EffectWorkItem effect, ICoordinatorInbox inbox)
