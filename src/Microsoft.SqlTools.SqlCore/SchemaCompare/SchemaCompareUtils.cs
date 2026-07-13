@@ -51,18 +51,22 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
 
             if (difference.DifferenceType == SchemaDifferenceType.Object)
             {
-                // The per-difference "keep standalone constraint vs strip inline/redundant ALTER"
-                // decision now lives entirely in DacFx: GetDiffEntryDisplay{Source,Target}Script
-                // returns the script to render for this difference (or null if it is represented
-                // inline in its parent), already gated per platform on the
-                // DatabaseSchemaProvider.ConstraintsAreStandalone capability. On Fabric Warehouse
-                // (SqlDwUnified) this keeps the standalone ALTER TABLE ... ADD CONSTRAINT script;
-                // on every other platform it reproduces the legacy strip-on-alter behaviour. STS
-                // therefore just renders whatever DacFx returns - no platform, constraint or
-                // "starts with alter" logic of its own.
+                // The per-difference "keep standalone constraint vs suppress inline/redundant"
+                // decision now lives entirely in DacFx: GetDiffEntry{Source,Target}Script returns
+                // the standalone script for a difference that owns one (e.g. an
+                // ALTER TABLE ... ADD CONSTRAINT for a Fabric Warehouse / SqlDwUnified constraint)
+                // and an empty string for a child element that is scripted inline in its parent's
+                // CREATE (constraints/indexes on non-standalone-constraint platforms). This holds
+                // across all endpoint kinds: dacpac/project sources already returned empty for
+                // inline children, and DacFx now does the same for database sources via
+                // SqlScriptDomGenerator.IsElementIncludedInParentScript. STS therefore just renders
+                // whatever DacFx returns - no platform, constraint or "starts with alter" logic of
+                // its own. (Note: a plain strip-on-alter would incorrectly drop the Fabric
+                // standalone ADD CONSTRAINT, which is itself ALTER-prefixed, so that heuristic is
+                // deliberately gone.)
                 if (difference.SourceObject != null)
                 {
-                    string sourceScript = schemaComparisonResult.GetDiffEntryDisplaySourceScript(difference);
+                    string sourceScript = schemaComparisonResult.GetDiffEntrySourceScript(difference);
                     if (sourceScript != null)
                     {
                         diffEntry.SourceScript = FormatScript(sourceScript);
@@ -70,7 +74,7 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
                 }
                 if (difference.TargetObject != null)
                 {
-                    string targetScript = schemaComparisonResult.GetDiffEntryDisplayTargetScript(difference);
+                    string targetScript = schemaComparisonResult.GetDiffEntryTargetScript(difference);
                     if (targetScript != null)
                     {
                         diffEntry.TargetScript = FormatScript(targetScript);
