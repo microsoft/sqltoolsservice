@@ -76,7 +76,7 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
             Assert.True(pageStats.GetProperty("cellSlots").GetInt64() > 0);
             Assert.True(pageStats.GetProperty("nullCells").GetInt64() >= 0);
             Assert.True(pageStats.GetProperty("rowsSerializeMs").GetDouble() >= 0);
-            Assert.True(pageStats.GetProperty("utf8MeasureMs").GetDouble() >= 0);
+            Assert.Equal(0, pageStats.GetProperty("utf8MeasureMs").GetDouble());
             Assert.True(pageStats.GetProperty("nullBitmapMs").GetDouble() >= 0);
             Assert.True(pageStats.GetProperty("pageBodyBuildMs").GetDouble() >= 0);
             Assert.True(pageStats.GetProperty("encodePrepAllocatedBytes").GetInt64() > 0);
@@ -115,7 +115,9 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
             Assert.True(stats.GetProperty("postBuildMsTotal").GetDouble() >= 0);
             Assert.True(stats.GetProperty("postMsTotal").GetDouble() >= 0);
             Assert.True(stats.GetProperty("encodePrepAllocatedBytes").GetInt64() > 0);
-            Assert.True(stats.GetProperty("eventBuildAllocatedBytes").GetInt64() > 0);
+            // A correctly pre-sized single-buffer event can add no allocation
+            // after the row/body phase; zero is therefore a valid outcome.
+            Assert.True(stats.GetProperty("eventBuildAllocatedBytes").GetInt64() >= 0);
             Assert.True(stats.GetProperty("postBuildAllocatedBytes").GetInt64() > 0);
 
             // No SQL text or cell values ride the diagnostic (privacy canary).

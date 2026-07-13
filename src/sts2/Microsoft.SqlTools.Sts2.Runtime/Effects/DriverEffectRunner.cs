@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Buffers;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -100,6 +101,20 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
             public double BuildMs { get; }
             public long AllocatedBytes { get; }
         }
+
+        private readonly record struct RowsEventPostStats(
+            long CellSlots,
+            long NullCells,
+            long EncodedBytes,
+            double RowsSerializeMs,
+            double Utf8MeasureMs,
+            double NullBitmapMs,
+            double PageBodyBuildMs,
+            double EncodeMs,
+            long EncodePrepAllocatedBytes,
+            double EventBuildMs,
+            long EventBuildAllocatedBytes,
+            QueryEventPostStats Post);
 
         private readonly Export.ExportBundleRequest? exportTemplate;
         private readonly TimeProvider timeProvider;
@@ -521,91 +536,40 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                             {
                                 break;
                             }
-                            long encodeStartTicks = Stopwatch.GetTimestamp();
-                            long encodePrepAllocationStart = GC.GetAllocatedBytesForCurrentThread();
-                            long rowsSerializeStartTicks = Stopwatch.GetTimestamp();
-                            string rowsJson = SerializeRows(
-                                page.Cells,
-                                maxCellBytes,
-                                out long cellSlots,
-                                out long nullCells);
-                            double rowsSerializeMs = ElapsedMs(rowsSerializeStartTicks);
-                            // Honest byte accounting (D-0019): encoded page size is
-                            // measured in UTF-8 bytes, not UTF-16 char count (they
-                            // differ on any non-ASCII cell). The final frame guard
-                            // is non-negotiable: one page whose encoded rows exceed
-                            // the frame budget fails typed instead of emitting an
-                            // oversized frame downstream (page construction should
-                            // prevent this; the guard is the last line, not policy).
-                            long utf8MeasureStartTicks = Stopwatch.GetTimestamp();
-                            long encodedBytes = (long)Encoding.UTF8.GetByteCount(rowsJson);
-                            double utf8MeasureMs = ElapsedMs(utf8MeasureStartTicks);
-                            if (encodedBytes > FrameGuardBytes)
-                            {
-                                throw new DbDriverException(
-                                    Sts2ErrorCodes.QueryFailedTransport,
-                                    string.Create(CultureInfo.InvariantCulture,
-                                        $"Encoded rows page ({encodedBytes} bytes) exceeds the frame budget ({FrameGuardBytes} bytes); a single row is too large to transport."));
-                            }
-                            // QO-5: the compact shape carries the null bitmap +
-                            // type hints computed HERE (once), so the client
-                            // stops rebuilding pages and re-measuring bytes.
-                            string? nullBitmap = null;
-                            double nullBitmapMs = 0;
-                            if (compactRows)
-                            {
-                                long nullBitmapStartTicks = Stopwatch.GetTimestamp();
-                                nullBitmap = PackNullBitmap(page.Cells);
-                                nullBitmapMs = ElapsedMs(nullBitmapStartTicks);
-                            }
-                            long pageBodyBuildStartTicks = Stopwatch.GetTimestamp();
-                            string pageBody = compactRows
-                                ? string.Create(CultureInfo.InvariantCulture, $$"""
-                                    "compact":{"values":{{rowsJson}},"nullBitmap":{{JsonSerializer.Serialize(nullBitmap)}},"typeHints":{{typeHintsBySet.GetValueOrDefault(page.ResultSetId, "[]")}} },"approxBytes":{{encodedBytes}},"encodedBytes":{{encodedBytes}}
-                                    """)
-                                : string.Create(CultureInfo.InvariantCulture, $$"""
-                                    "rows":{{rowsJson}}
-                                    """);
-                            double pageBodyBuildMs = ElapsedMs(pageBodyBuildStartTicks);
-                            double encodeMs = ElapsedMs(encodeStartTicks);
-                            long encodePrepAllocatedBytes =
-                                GC.GetAllocatedBytesForCurrentThread() - encodePrepAllocationStart;
-                            long eventBuildAllocationStart = GC.GetAllocatedBytesForCurrentThread();
-                            long eventBuildStartTicks = Stopwatch.GetTimestamp();
-                            string rowsEvent = string.Create(CultureInfo.InvariantCulture,
-                                $$"""{"eventType":"rows","resultSetId":{{page.ResultSetId}},"pageSeq":{{page.PageSeq}},"rowOffset":{{page.RowOffset}},{{pageBody}},"stats":{"rowCount":{{page.Cells.Count}},"cellSlots":{{cellSlots}},"nullCells":{{nullCells}},"encodedBytes":{{encodedBytes}},"readMs":{{FormatMs(readMs)}},"creditWaitMs":{{FormatMs(creditWaitMs)}},"encodeMs":{{FormatMs(encodeMs)}},"rowsSerializeMs":{{FormatMs(rowsSerializeMs)}},"utf8MeasureMs":{{FormatMs(utf8MeasureMs)}},"nullBitmapMs":{{FormatMs(nullBitmapMs)}},"pageBodyBuildMs":{{FormatMs(pageBodyBuildMs)}},"encodePrepAllocatedBytes":{{encodePrepAllocatedBytes}} } }""");
-                            double eventBuildMs = ElapsedMs(eventBuildStartTicks);
-                            long eventBuildAllocatedBytes =
-                                GC.GetAllocatedBytesForCurrentThread() - eventBuildAllocationStart;
-                            pump.StatsPages++;
-                            pump.StatsRows += page.Cells.Count;
-                            pump.StatsCellSlots += cellSlots;
-                            pump.StatsNullCells += nullCells;
-                            pump.StatsEncodedBytes += encodedBytes;
-                            pump.StatsReadMsTotal += readMs;
-                            pump.StatsCreditWaitMsTotal += creditWaitMs;
-                            pump.StatsEncodeMsTotal += encodeMs;
-                            pump.StatsRowsSerializeMsTotal += rowsSerializeMs;
-                            pump.StatsUtf8MeasureMsTotal += utf8MeasureMs;
-                            pump.StatsNullBitmapMsTotal += nullBitmapMs;
-                            pump.StatsPageBodyBuildMsTotal += pageBodyBuildMs;
-                            pump.StatsEventBuildMsTotal += eventBuildMs;
-                            pump.StatsEncodePrepAllocatedBytes += encodePrepAllocatedBytes;
-                            pump.StatsEventBuildAllocatedBytes += eventBuildAllocatedBytes;
                             long postStartTicks = Stopwatch.GetTimestamp();
-                            await PostQueryEventAsync(
+                            await PostRowsPageAsync(
                                 inbox,
                                 effect,
                                 queryId,
-                                rowsEvent,
-                                out QueryEventPostStats postStats).ConfigureAwait(false);
+                                page,
+                                compactRows,
+                                maxCellBytes,
+                                typeHintsBySet.GetValueOrDefault(page.ResultSetId, "[]"),
+                                readMs,
+                                creditWaitMs,
+                                out RowsEventPostStats pageStats).ConfigureAwait(false);
                             double postMs = ElapsedMs(postStartTicks);
-                            pump.StatsEventPayloadBytes += postStats.PayloadBytes;
+                            pump.StatsPages++;
+                            pump.StatsRows += page.Cells.Count;
+                            pump.StatsCellSlots += pageStats.CellSlots;
+                            pump.StatsNullCells += pageStats.NullCells;
+                            pump.StatsEncodedBytes += pageStats.EncodedBytes;
+                            pump.StatsReadMsTotal += readMs;
+                            pump.StatsCreditWaitMsTotal += creditWaitMs;
+                            pump.StatsEncodeMsTotal += pageStats.EncodeMs;
+                            pump.StatsRowsSerializeMsTotal += pageStats.RowsSerializeMs;
+                            pump.StatsUtf8MeasureMsTotal += pageStats.Utf8MeasureMs;
+                            pump.StatsNullBitmapMsTotal += pageStats.NullBitmapMs;
+                            pump.StatsPageBodyBuildMsTotal += pageStats.PageBodyBuildMs;
+                            pump.StatsEventBuildMsTotal += pageStats.EventBuildMs;
+                            pump.StatsEncodePrepAllocatedBytes += pageStats.EncodePrepAllocatedBytes;
+                            pump.StatsEventBuildAllocatedBytes += pageStats.EventBuildAllocatedBytes;
+                            pump.StatsEventPayloadBytes += pageStats.Post.PayloadBytes;
                             pump.StatsMaxEventPayloadBytes = Math.Max(
                                 pump.StatsMaxEventPayloadBytes,
-                                postStats.PayloadBytes);
-                            pump.StatsPostBuildMsTotal += postStats.BuildMs;
-                            pump.StatsPostBuildAllocatedBytes += postStats.AllocatedBytes;
+                                pageStats.Post.PayloadBytes);
+                            pump.StatsPostBuildMsTotal += pageStats.Post.BuildMs;
+                            pump.StatsPostBuildAllocatedBytes += pageStats.Post.AllocatedBytes;
                             pump.StatsPostMsTotal += postMs;
                             break;
                         }
@@ -767,7 +731,8 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
             return array.ToJsonString();
         }
 
-        private static string SerializeRows(
+        private static long WriteRows(
+            Utf8JsonWriter writer,
             IReadOnlyList<IReadOnlyList<object?>> rows,
             int maxCellBytes,
             out long cellSlots,
@@ -775,10 +740,11 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
         {
             cellSlots = 0;
             nullCells = 0;
-            var array = new System.Text.Json.Nodes.JsonArray();
+            long bytesBefore = writer.BytesCommitted + writer.BytesPending;
+            writer.WriteStartArray();
             foreach (IReadOnlyList<object?> row in rows)
             {
-                var cells = new System.Text.Json.Nodes.JsonArray();
+                writer.WriteStartArray();
                 foreach (object? cell in row)
                 {
                     cellSlots++;
@@ -786,14 +752,197 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                     {
                         nullCells++;
                     }
-                    // SPEC §7.7 wire encoding at the query's effective bound (R024/STS2-3):
-                    // one giant cell cannot break the memory/frame bound, and an oversized
-                    // cell arrives as an honest truncated wrapper, never silently clipped.
-                    cells.Add(WireValueEncoder.Encode(cell, maxCellBytes));
+                    // SPEC §7.7 wire encoding at the query's effective bound
+                    // (R024/STS2-3). Write directly into the final event buffer:
+                    // building a JsonNode for every cell duplicated the page graph.
+                    WireValueEncoder.Write(writer, cell, maxCellBytes);
                 }
-                array.Add(cells);
+                writer.WriteEndArray();
             }
-            return array.ToJsonString();
+            writer.WriteEndArray();
+            return writer.BytesCommitted + writer.BytesPending - bytesBefore;
+        }
+
+        private static Task PostRowsPageAsync(
+            ICoordinatorInbox inbox,
+            EffectWorkItem effect,
+            string queryId,
+            RowsPage page,
+            bool compactRows,
+            int maxCellBytes,
+            string typeHintsJson,
+            double readMs,
+            double creditWaitMs,
+            out RowsEventPostStats stats)
+        {
+            long encodeStartTicks = Stopwatch.GetTimestamp();
+            long encodePrepAllocationStart = GC.GetAllocatedBytesForCurrentThread();
+
+            // QO-5: compact pages carry one server-built null bitmap plus type
+            // hints computed once per result set; the client consumes both verbatim.
+            string? nullBitmap = null;
+            double nullBitmapMs = 0;
+            if (compactRows)
+            {
+                long nullBitmapStartTicks = Stopwatch.GetTimestamp();
+                nullBitmap = PackNullBitmap(page.Cells);
+                nullBitmapMs = ElapsedMs(nullBitmapStartTicks);
+            }
+
+            var buffer = new ArrayBufferWriter<byte>(EstimateRowsEventCapacity(page.Cells, maxCellBytes));
+            using var writer = new Utf8JsonWriter(buffer);
+            writer.WriteStartObject();
+            writer.WriteString("queryId", queryId);
+            writer.WriteString("eventType", "rows");
+            writer.WriteNumber("resultSetId", page.ResultSetId);
+            writer.WriteNumber("pageSeq", page.PageSeq);
+            writer.WriteNumber("rowOffset", page.RowOffset);
+
+            long pageBodyPrefixStartTicks = Stopwatch.GetTimestamp();
+            if (compactRows)
+            {
+                writer.WritePropertyName("compact");
+                writer.WriteStartObject();
+                writer.WritePropertyName("values");
+            }
+            else
+            {
+                writer.WritePropertyName("rows");
+            }
+            double pageBodyBuildMs = ElapsedMs(pageBodyPrefixStartTicks);
+
+            long rowsSerializeStartTicks = Stopwatch.GetTimestamp();
+            long encodedBytes = WriteRows(
+                writer,
+                page.Cells,
+                maxCellBytes,
+                out long cellSlots,
+                out long nullCells);
+            double rowsSerializeMs = ElapsedMs(rowsSerializeStartTicks);
+
+            // Honest byte accounting comes from the UTF-8 writer itself. The
+            // separate full-string measurement pass is gone, hence zero here.
+            const double utf8MeasureMs = 0;
+            if (encodedBytes > FrameGuardBytes)
+            {
+                throw new DbDriverException(
+                    Sts2ErrorCodes.QueryFailedTransport,
+                    string.Create(CultureInfo.InvariantCulture,
+                        $"Encoded rows page ({encodedBytes} bytes) exceeds the frame budget ({FrameGuardBytes} bytes); a single row is too large to transport."));
+            }
+
+            long pageBodySuffixStartTicks = Stopwatch.GetTimestamp();
+            if (compactRows)
+            {
+                writer.WriteString("nullBitmap", nullBitmap);
+                writer.WritePropertyName("typeHints");
+                writer.WriteRawValue(typeHintsJson, skipInputValidation: true);
+                writer.WriteEndObject();
+                writer.WriteNumber("approxBytes", encodedBytes);
+                writer.WriteNumber("encodedBytes", encodedBytes);
+            }
+            pageBodyBuildMs += ElapsedMs(pageBodySuffixStartTicks);
+            double encodeMs = ElapsedMs(encodeStartTicks);
+            long encodePrepAllocatedBytes =
+                GC.GetAllocatedBytesForCurrentThread() - encodePrepAllocationStart;
+
+            long eventBuildStartTicks = Stopwatch.GetTimestamp();
+            long eventBuildAllocationStart = GC.GetAllocatedBytesForCurrentThread();
+            writer.WritePropertyName("stats");
+            writer.WriteStartObject();
+            writer.WriteNumber("rowCount", page.Cells.Count);
+            writer.WriteNumber("cellSlots", cellSlots);
+            writer.WriteNumber("nullCells", nullCells);
+            writer.WriteNumber("encodedBytes", encodedBytes);
+            writer.WriteNumber("readMs", Math.Round(readMs, 2));
+            writer.WriteNumber("creditWaitMs", Math.Round(creditWaitMs, 2));
+            writer.WriteNumber("encodeMs", Math.Round(encodeMs, 2));
+            writer.WriteNumber("rowsSerializeMs", Math.Round(rowsSerializeMs, 2));
+            writer.WriteNumber("utf8MeasureMs", utf8MeasureMs);
+            writer.WriteNumber("nullBitmapMs", Math.Round(nullBitmapMs, 2));
+            writer.WriteNumber("pageBodyBuildMs", Math.Round(pageBodyBuildMs, 2));
+            writer.WriteNumber("encodePrepAllocatedBytes", encodePrepAllocatedBytes);
+            writer.WriteEndObject();
+            writer.WriteEndObject();
+            writer.Flush();
+            double eventBuildMs = ElapsedMs(eventBuildStartTicks);
+            long eventBuildAllocatedBytes =
+                GC.GetAllocatedBytesForCurrentThread() - eventBuildAllocationStart;
+
+            long postBuildStartTicks = Stopwatch.GetTimestamp();
+            long postBuildAllocationStart = GC.GetAllocatedBytesForCurrentThread();
+            long payloadBytes = buffer.WrittenCount;
+            JsonElement root = JsonDocument.Parse(buffer.WrittenMemory).RootElement;
+            var postStats = new QueryEventPostStats(
+                payloadBytes,
+                ElapsedMs(postBuildStartTicks),
+                GC.GetAllocatedBytesForCurrentThread() - postBuildAllocationStart);
+            stats = new RowsEventPostStats(
+                cellSlots,
+                nullCells,
+                encodedBytes,
+                rowsSerializeMs,
+                utf8MeasureMs,
+                nullBitmapMs,
+                pageBodyBuildMs,
+                encodeMs,
+                encodePrepAllocatedBytes,
+                eventBuildMs,
+                eventBuildAllocatedBytes,
+                postStats);
+            return inbox.PostEffectResponseAsync(
+                "evt-" + queryId,
+                "driver.queryEvent",
+                root,
+                effect.CauseSeq).AsTask();
+        }
+
+        private static int EstimateRowsEventCapacity(
+            IReadOnlyList<IReadOnlyList<object?>> rows,
+            int maxCellBytes)
+        {
+            long estimate = 4096;
+            foreach (IReadOnlyList<object?> row in rows)
+            {
+                estimate += 2;
+                foreach (object? cell in row)
+                {
+                    estimate += 1 + EstimateCellJsonBytes(cell, maxCellBytes);
+                    if (estimate >= FrameGuardBytes)
+                    {
+                        return FrameGuardBytes;
+                    }
+                }
+            }
+            return (int)Math.Clamp(estimate, 4096, FrameGuardBytes);
+        }
+
+        private static long EstimateCellJsonBytes(object? cell, int maxCellBytes)
+        {
+            static long EscapedText(int chars) => chars + chars / 4L + 2;
+            int prefixCap = maxCellBytes > 0
+                ? Math.Min(maxCellBytes, Sts2Defaults.TruncatedPrefixBytes)
+                : Sts2Defaults.TruncatedPrefixBytes;
+            return cell switch
+            {
+                null or DBNull => 4,
+                string value => EscapedText(Math.Min(value.Length, prefixCap)) + 160,
+                byte[] value => (long)Math.Min(value.Length, prefixCap) * 4 / 3 + 160,
+                Abstractions.DriverTruncatedValue value when value.Kind == "binary" =>
+                    (long)Math.Min(value.PrefixBytes?.Length ?? 0, prefixCap) * 4 / 3 + 160,
+                Abstractions.DriverTruncatedValue value =>
+                    EscapedText(Math.Min(value.PrefixText?.Length ?? 0, prefixCap)) + 160,
+                Abstractions.DriverVectorValue value => (long)value.ComponentBytes.Length * 4 / 3 + 192,
+                Abstractions.DriverSpatialValue value => (long)value.Wkb.Length * 4 / 3 + 192,
+                Abstractions.DriverVectorUnavailableValue or
+                Abstractions.DriverSpatialUnavailableValue => 256,
+                bool => 5,
+                Guid or DateTime or DateTimeOffset => 64,
+                TimeSpan => 32,
+                decimal or double or float or long or int or short or byte => 32,
+                System.Text.Json.Nodes.JsonNode => 256,
+                _ => 128,
+            };
         }
 
         /// <summary>Positive-int effect arg with fallback (absent/invalid/non-positive = default).</summary>

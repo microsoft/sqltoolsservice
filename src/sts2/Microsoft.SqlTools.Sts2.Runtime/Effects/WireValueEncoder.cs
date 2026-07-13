@@ -4,9 +4,11 @@
 //
 
 using System;
+using System.Buffers;
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.SqlTools.Sts2.Contracts;
 
@@ -33,29 +35,52 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
         /// </summary>
         public static JsonNode? Encode(object? cell, int maxCellBytes)
         {
+            var buffer = new ArrayBufferWriter<byte>();
+            using (var writer = new Utf8JsonWriter(buffer))
+            {
+                Write(writer, cell, maxCellBytes);
+                writer.Flush();
+            }
+            return JsonNode.Parse(buffer.WrittenSpan);
+        }
+
+        /// <summary>
+        /// Writes one cell directly to a UTF-8 stream. The query page hot path uses this
+        /// form so it does not construct a second JsonNode graph before serialization.
+        /// </summary>
+        internal static void Write(Utf8JsonWriter writer, object? cell, int maxCellBytes)
+        {
+            ArgumentNullException.ThrowIfNull(writer);
+
             // A large value the DRIVER already pre-bounded by streaming (QO-4):
             // bytes/digest were computed over the full stream, so the wrapper
             // is emitted verbatim — only the retained prefix is re-capped by
             // the same rules as encoder-side truncation.
             if (cell is Abstractions.DriverTruncatedValue driverTruncated)
             {
-                return DriverTruncated(driverTruncated, maxCellBytes);
+                WriteDriverTruncated(writer, driverTruncated, maxCellBytes);
+                return;
             }
             if (maxCellBytes > 0)
             {
                 switch (cell)
                 {
                     case string str when Encoding.UTF8.GetByteCount(str) > maxCellBytes:
-                        return TruncatedString(str, maxCellBytes);
+                        WriteTruncatedString(writer, str, maxCellBytes);
+                        return;
                     case byte[] bytes when bytes.Length > maxCellBytes:
-                        return TruncatedBinary(bytes, maxCellBytes);
+                        WriteTruncatedBinary(writer, bytes, maxCellBytes);
+                        return;
                 }
             }
-            return Encode(cell);
+            Write(writer, cell);
         }
 
         /// <summary>SPEC §7.7 wrapper from driver-streamed truncation facts (QO-4).</summary>
-        private static JsonObject DriverTruncated(Abstractions.DriverTruncatedValue value, int maxCellBytes)
+        private static void WriteDriverTruncated(
+            Utf8JsonWriter writer,
+            Abstractions.DriverTruncatedValue value,
+            int maxCellBytes)
         {
             int cap = maxCellBytes > 0 ? PrefixLength(maxCellBytes) : Sts2Defaults.TruncatedPrefixBytes;
             string prefix;
@@ -74,148 +99,216 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                 }
                 prefix = Encoding.UTF8.GetString(raw, 0, len);
             }
-            return new JsonObject
-            {
-                ["$t"] = "truncated",
-                ["of"] = value.Kind == "binary" ? "binary" : "string",
-                ["bytes"] = value.TotalBytes,
-                ["digest"] = "sha256:" + value.DigestHex,
-                ["v"] = prefix,
-            };
+            WriteTruncated(
+                writer,
+                value.Kind == "binary" ? "binary" : "string",
+                value.TotalBytes,
+                "sha256:" + value.DigestHex,
+                prefix);
         }
 
         /// <summary>Encodes one cell. Null maps to JSON null.</summary>
-        public static JsonNode? Encode(object? cell) => cell switch
+        public static JsonNode? Encode(object? cell) => Encode(cell, maxCellBytes: 0);
+
+        private static void Write(Utf8JsonWriter writer, object? cell)
         {
-            null or DBNull => null,
-
-            // Typed vector cells (D-0019, SPEC §7.7): emitted only for queries that
-            // negotiated vectorEncoding=binary-v1 (the driver produces these values
-            // only then). The payload field is "data", NEVER "v" — "v" would collide
-            // with the generic {$t,v} scalar-wrapper handling in clients. Vectors are
-            // never truncated: complete or an unavailable sentinel (the driver
-            // enforces the cell bound with reason "cellLimit").
-            Abstractions.DriverVectorValue vector => new JsonObject
+            switch (cell)
             {
-                ["$t"] = "vector",
-                ["version"] = 1,
-                ["status"] = "ok",
-                ["dimensions"] = vector.Dimensions,
-                ["baseType"] = vector.BaseType,
-                ["encoding"] = vector.Encoding,
-                ["byteLength"] = vector.ComponentBytes.Length,
-                ["data"] = Convert.ToBase64String(vector.ComponentBytes),
-            },
-            Abstractions.DriverVectorUnavailableValue unavailable => VectorUnavailable(unavailable),
+                case null:
+                case DBNull:
+                    writer.WriteNullValue();
+                    return;
 
-            // D-0020: complete AsBinaryZM WKB is opt-in and provider-neutral.
-            // Spatial values are complete or an honest cell-local sentinel.
-            Abstractions.DriverSpatialValue spatial => new JsonObject
-            {
-                ["$t"] = "spatial",
-                ["version"] = 1,
-                ["status"] = "ok",
-                ["kind"] = spatial.Kind,
-                ["encoding"] = "wkb",
-                ["srid"] = spatial.Srid,
-                ["wkbBytes"] = spatial.Wkb.Length,
-                ["wkb"] = Convert.ToBase64String(spatial.Wkb),
-            },
-            Abstractions.DriverSpatialUnavailableValue spatialUnavailable => SpatialUnavailable(spatialUnavailable),
+                // Typed vector cells (D-0019, SPEC §7.7): emitted only for queries that
+                // negotiated vectorEncoding=binary-v1 (the driver produces these values
+                // only then). The payload field is "data", NEVER "v" — "v" would collide
+                // with the generic {$t,v} scalar-wrapper handling in clients. Vectors are
+                // never truncated: complete or an unavailable sentinel (the driver
+                // enforces the cell bound with reason "cellLimit").
+                case Abstractions.DriverVectorValue vector:
+                    writer.WriteStartObject();
+                    writer.WriteString("$t", "vector");
+                    writer.WriteNumber("version", 1);
+                    writer.WriteString("status", "ok");
+                    writer.WriteNumber("dimensions", vector.Dimensions);
+                    writer.WriteString("baseType", vector.BaseType);
+                    writer.WriteString("encoding", vector.Encoding);
+                    writer.WriteNumber("byteLength", vector.ComponentBytes.Length);
+                    writer.WriteBase64String("data", vector.ComponentBytes);
+                    writer.WriteEndObject();
+                    return;
+                case Abstractions.DriverVectorUnavailableValue unavailable:
+                    WriteVectorUnavailable(writer, unavailable);
+                    return;
 
-            // Lossless JSON natives.
-            bool b => JsonValue.Create(b),
-            long l => JsonValue.Create(l),
-            int i => JsonValue.Create(i),
-            short s => JsonValue.Create((int)s),
-            byte by => JsonValue.Create((int)by),
-            string str => JsonValue.Create(str),
+                // D-0020: complete AsBinaryZM WKB is opt-in and provider-neutral.
+                // Spatial values are complete or an honest cell-local sentinel.
+                case Abstractions.DriverSpatialValue spatial:
+                    writer.WriteStartObject();
+                    writer.WriteString("$t", "spatial");
+                    writer.WriteNumber("version", 1);
+                    writer.WriteString("status", "ok");
+                    writer.WriteString("kind", spatial.Kind);
+                    writer.WriteString("encoding", "wkb");
+                    writer.WriteNumber("srid", spatial.Srid);
+                    writer.WriteNumber("wkbBytes", spatial.Wkb.Length);
+                    writer.WriteBase64String("wkb", spatial.Wkb);
+                    writer.WriteEndObject();
+                    return;
+                case Abstractions.DriverSpatialUnavailableValue spatialUnavailable:
+                    WriteSpatialUnavailable(writer, spatialUnavailable);
+                    return;
 
-            // Floating point: non-finite values are not representable in JSON, so wrap.
-            double d => double.IsFinite(d) ? JsonValue.Create(d) : NonFinite(d),
-            float f => double.IsFinite(f) ? JsonValue.Create((double)f) : NonFinite(f),
+                // Lossless JSON natives.
+                case bool b:
+                    writer.WriteBooleanValue(b);
+                    return;
+                case long l:
+                    writer.WriteNumberValue(l);
+                    return;
+                case int i:
+                    writer.WriteNumberValue(i);
+                    return;
+                case short s:
+                    writer.WriteNumberValue((int)s);
+                    return;
+                case byte by:
+                    writer.WriteNumberValue((int)by);
+                    return;
+                case string str:
+                    writer.WriteStringValue(str);
+                    return;
 
-            // Lossy/ambiguous: typed wrappers with invariant string payloads.
-            decimal dec => Wrapper("decimal", dec.ToString(CultureInfo.InvariantCulture)),
-            DateTime dt => Wrapper("datetime2", dt.ToString("O", CultureInfo.InvariantCulture)),
-            DateTimeOffset dto => Wrapper("datetimeoffset", dto.ToString("O", CultureInfo.InvariantCulture)),
-            TimeSpan ts => Wrapper("time", ts.ToString("c", CultureInfo.InvariantCulture)),
-            Guid g => Wrapper("guid", g.ToString("D", CultureInfo.InvariantCulture)),
-            byte[] bytes => Wrapper("binary", Convert.ToBase64String(bytes)),
+                // Floating point: non-finite values are not representable in JSON, so wrap.
+                case double d when double.IsFinite(d):
+                    writer.WriteNumberValue(d);
+                    return;
+                case double d:
+                    WriteNonFinite(writer, d);
+                    return;
+                case float f when float.IsFinite(f):
+                    writer.WriteNumberValue((double)f);
+                    return;
+                case float f:
+                    WriteNonFinite(writer, f);
+                    return;
 
-            // A pre-built wire node (FakeDriver edge values) passes through.
-            JsonNode node => node.DeepClone(),
+                // Lossy/ambiguous: typed wrappers with invariant string payloads.
+                case decimal dec:
+                    WriteWrapper(writer, "decimal", dec.ToString(CultureInfo.InvariantCulture));
+                    return;
+                case DateTime dt:
+                    WriteWrapper(writer, "datetime2", dt.ToString("O", CultureInfo.InvariantCulture));
+                    return;
+                case DateTimeOffset dto:
+                    WriteWrapper(writer, "datetimeoffset", dto.ToString("O", CultureInfo.InvariantCulture));
+                    return;
+                case TimeSpan ts:
+                    WriteWrapper(writer, "time", ts.ToString("c", CultureInfo.InvariantCulture));
+                    return;
+                case Guid g:
+                    WriteWrapper(writer, "guid", g.ToString("D", CultureInfo.InvariantCulture));
+                    return;
+                case byte[] bytes:
+                    writer.WriteStartObject();
+                    writer.WriteString("$t", "binary");
+                    writer.WriteBase64String("v", bytes);
+                    writer.WriteEndObject();
+                    return;
 
-            // Provider-specific fallback: stable invariant string.
-            _ => Wrapper("provider", Convert.ToString(cell, CultureInfo.InvariantCulture) ?? string.Empty),
-        };
+                // A pre-built wire node (FakeDriver edge values) passes through.
+                case JsonNode node:
+                    node.WriteTo(writer);
+                    return;
 
-        private static JsonObject Wrapper(string type, string value) => new()
+                // Provider-specific fallback: stable invariant string.
+                default:
+                    WriteWrapper(
+                        writer,
+                        "provider",
+                        Convert.ToString(cell, CultureInfo.InvariantCulture) ?? string.Empty);
+                    return;
+            }
+        }
+
+        private static void WriteWrapper(Utf8JsonWriter writer, string type, string value)
         {
-            ["$t"] = type,
-            ["v"] = value,
-        };
+            writer.WriteStartObject();
+            writer.WriteString("$t", type);
+            writer.WriteString("v", value);
+            writer.WriteEndObject();
+        }
 
         /// <summary>Honest vector sentinel (D-0019): stable reason, facts only when determinable.</summary>
-        private static JsonObject VectorUnavailable(Abstractions.DriverVectorUnavailableValue value)
+        private static void WriteVectorUnavailable(
+            Utf8JsonWriter writer,
+            Abstractions.DriverVectorUnavailableValue value)
         {
-            var node = new JsonObject
-            {
-                ["$t"] = "vector",
-                ["version"] = 1,
-                ["status"] = "unavailable",
-                ["reason"] = value.Reason,
-            };
+            writer.WriteStartObject();
+            writer.WriteString("$t", "vector");
+            writer.WriteNumber("version", 1);
+            writer.WriteString("status", "unavailable");
+            writer.WriteString("reason", value.Reason);
             if (value.Dimensions is int dimensions)
             {
-                node["dimensions"] = dimensions;
+                writer.WriteNumber("dimensions", dimensions);
             }
             if (value.BaseType is string baseType)
             {
-                node["baseType"] = baseType;
+                writer.WriteString("baseType", baseType);
             }
-            return node;
+            writer.WriteEndObject();
         }
 
-        private static JsonObject SpatialUnavailable(Abstractions.DriverSpatialUnavailableValue value)
+        private static void WriteSpatialUnavailable(
+            Utf8JsonWriter writer,
+            Abstractions.DriverSpatialUnavailableValue value)
         {
-            var node = new JsonObject
-            {
-                ["$t"] = "spatial",
-                ["version"] = 1,
-                ["status"] = "unrenderable",
-                ["kind"] = value.Kind,
-                ["reason"] = value.Reason,
-            };
+            writer.WriteStartObject();
+            writer.WriteString("$t", "spatial");
+            writer.WriteNumber("version", 1);
+            writer.WriteString("status", "unrenderable");
+            writer.WriteString("kind", value.Kind);
+            writer.WriteString("reason", value.Reason);
             if (value.Srid is int srid)
             {
-                node["srid"] = srid;
+                writer.WriteNumber("srid", srid);
             }
             if (value.SourceBytes is long sourceBytes)
             {
-                node["sourceBytes"] = sourceBytes;
+                writer.WriteNumber("sourceBytes", sourceBytes);
             }
-            return node;
+            writer.WriteEndObject();
         }
 
         /// <summary>
         /// The truncation-honesty wrapper (SPEC §7.7): <c>bytes</c> and <c>digest</c> describe
         /// the full value so the client can detect truncation and identify the original.
         /// </summary>
-        private static JsonObject Truncated(string of, byte[] fullValue, string prefix) => new()
+        private static void WriteTruncated(
+            Utf8JsonWriter writer,
+            string of,
+            long bytes,
+            string digest,
+            string prefix)
         {
-            ["$t"] = "truncated",
-            ["of"] = of,
-            ["bytes"] = fullValue.Length,
-            ["digest"] = "sha256:" + Convert.ToHexStringLower(SHA256.HashData(fullValue)),
-            ["v"] = prefix,
-        };
+            writer.WriteStartObject();
+            writer.WriteString("$t", "truncated");
+            writer.WriteString("of", of);
+            writer.WriteNumber("bytes", bytes);
+            writer.WriteString("digest", digest);
+            writer.WriteString("v", prefix);
+            writer.WriteEndObject();
+        }
 
         /// <summary>Retained prefix bytes: the effective bound capped by <c>sts2.results.truncatedPrefixBytes</c>.</summary>
         private static int PrefixLength(int maxCellBytes) => Math.Min(maxCellBytes, Sts2Defaults.TruncatedPrefixBytes);
 
         /// <summary>Wraps an oversized string; the prefix never splits a UTF-8 code point.</summary>
-        private static JsonObject TruncatedString(string value, int maxCellBytes)
+        private static void WriteTruncatedString(
+            Utf8JsonWriter writer,
+            string value,
+            int maxCellBytes)
         {
             byte[] bytes = Encoding.UTF8.GetBytes(value);
             int len = PrefixLength(maxCellBytes); // < bytes.Length: the caller only truncates oversized values
@@ -223,14 +316,28 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
             {
                 len--;
             }
-            return Truncated("string", bytes, Encoding.UTF8.GetString(bytes, 0, len));
+            WriteTruncated(
+                writer,
+                "string",
+                bytes.Length,
+                "sha256:" + Convert.ToHexStringLower(SHA256.HashData(bytes)),
+                Encoding.UTF8.GetString(bytes, 0, len));
         }
 
         /// <summary>Wraps an oversized binary value; the prefix bound applies to the raw bytes (pre-base64).</summary>
-        private static JsonObject TruncatedBinary(byte[] bytes, int maxCellBytes) =>
-            Truncated("binary", bytes, Convert.ToBase64String(bytes.AsSpan(0, PrefixLength(maxCellBytes))));
+        private static void WriteTruncatedBinary(
+            Utf8JsonWriter writer,
+            byte[] bytes,
+            int maxCellBytes) =>
+            WriteTruncated(
+                writer,
+                "binary",
+                bytes.Length,
+                "sha256:" + Convert.ToHexStringLower(SHA256.HashData(bytes)),
+                Convert.ToBase64String(bytes.AsSpan(0, PrefixLength(maxCellBytes))));
 
-        private static JsonObject NonFinite(double value) => Wrapper(
+        private static void WriteNonFinite(Utf8JsonWriter writer, double value) => WriteWrapper(
+            writer,
             "double",
             double.IsNaN(value) ? "NaN" : double.IsPositiveInfinity(value) ? "Infinity" : "-Infinity");
     }
