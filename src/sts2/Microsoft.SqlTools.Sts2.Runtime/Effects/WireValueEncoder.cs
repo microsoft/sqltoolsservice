@@ -88,23 +88,59 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
             {
                 byte[] raw = value.PrefixBytes ?? [];
                 prefix = Convert.ToBase64String(raw.Length > cap ? raw.AsSpan(0, cap) : raw);
+                WriteTruncated(
+                    writer,
+                    "binary",
+                    value.TotalBytes,
+                    "sha256:" + value.DigestHex,
+                    prefix);
             }
             else
             {
-                byte[] raw = Encoding.UTF8.GetBytes(value.PrefixText ?? string.Empty);
-                int len = Math.Min(cap, raw.Length);
-                while (len > 0 && len < raw.Length && (raw[len] & 0xC0) == 0x80)
-                {
-                    len--;
-                }
-                prefix = Encoding.UTF8.GetString(raw, 0, len);
+                prefix = value.PrefixText ?? string.Empty;
+                int chars = Utf8PrefixCharLength(prefix, cap);
+                WriteTruncated(
+                    writer,
+                    "string",
+                    value.TotalBytes,
+                    "sha256:" + value.DigestHex,
+                    prefix.AsSpan(0, chars));
             }
-            WriteTruncated(
-                writer,
-                value.Kind == "binary" ? "binary" : "string",
-                value.TotalBytes,
-                "sha256:" + value.DigestHex,
-                prefix);
+        }
+
+        /// <summary>Largest complete-code-point UTF-16 prefix within a UTF-8 byte budget.</summary>
+        internal static int Utf8PrefixCharLength(string value, int maxBytes)
+        {
+            int byteCount = Encoding.UTF8.GetByteCount(value);
+            return Utf8PrefixCharLength(value, maxBytes, byteCount);
+        }
+
+        /// <summary>Byte-count-aware overload for callers already pricing the same value.</summary>
+        internal static int Utf8PrefixCharLength(string value, int maxBytes, int utf8ByteCount)
+        {
+            if (maxBytes <= 0)
+            {
+                return 0;
+            }
+            // The common SQL path is ASCII or otherwise already within the
+            // prefix budget. The runtime byte counter is vectorized and avoids
+            // the substantially slower scalar-by-scalar walk in that case.
+            if (utf8ByteCount <= maxBytes)
+            {
+                return value.Length;
+            }
+            int chars = 0;
+            int bytes = 0;
+            foreach (Rune rune in value.EnumerateRunes())
+            {
+                if (rune.Utf8SequenceLength > maxBytes - bytes)
+                {
+                    break;
+                }
+                bytes += rune.Utf8SequenceLength;
+                chars += rune.Utf16SequenceLength;
+            }
+            return chars;
         }
 
         /// <summary>Encodes one cell. Null maps to JSON null.</summary>
@@ -290,7 +326,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
             string of,
             long bytes,
             string digest,
-            string prefix)
+            ReadOnlySpan<char> prefix)
         {
             writer.WriteStartObject();
             writer.WriteString("$t", "truncated");

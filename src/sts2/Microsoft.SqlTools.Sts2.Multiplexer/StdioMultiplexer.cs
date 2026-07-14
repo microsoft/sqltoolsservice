@@ -75,6 +75,19 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
         /// <summary>Stream the STS2 host writes its outbound messages to.</summary>
         public Stream Sts2Output { get; }
 
+        /// <summary>
+        /// Direct STS2 inbound endpoint for the in-process composition root. Keeping this
+        /// internal avoids expanding the multiplexer API while bypassing a redundant
+        /// PipeReader-to-Stream-to-PipeReader adapter in the RPC transport.
+        /// </summary>
+        internal PipeReader Sts2InputReader => sts2Inbound.Reader;
+
+        /// <summary>
+        /// Direct STS2 outbound endpoint for the in-process composition root. The
+        /// multiplexer remains the reader/owner and therefore retains backpressure.
+        /// </summary>
+        internal PipeWriter Sts2OutputWriter => sts2Outbound.Writer;
+
         /// <summary>Completes when all pump loops have stopped (stdin EOF or disposal).</summary>
         public Task Completion => completion;
 

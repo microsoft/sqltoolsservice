@@ -2,4 +2,7 @@
   <PropertyGroup>
     <Description>STS2 stdio multiplexer: framing, routing, id rewriting, lifecycle mirroring, single stdout writer. BCL only.</Description>
   </PropertyGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Microsoft.SqlTools.Sts2.Bootstrap" />
+  </ItemGroup>
 </Project>

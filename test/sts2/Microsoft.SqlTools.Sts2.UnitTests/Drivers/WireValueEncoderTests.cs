@@ -97,6 +97,17 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
             };
             Assert.Equal("éé", WireValueEncoder.Encode(unicode, 5)!["v"]!.GetValue<string>());
 
+            var astral = new Abstractions.DriverTruncatedValue
+            {
+                Kind = "string",
+                PrefixText = new string('a', 4094) + "𐍈" + new string('b', 10),
+                TotalBytes = 9999,
+                DigestHex = "ee",
+            };
+            Assert.Equal(
+                new string('a', 4094),
+                WireValueEncoder.Encode(astral, 4096)!["v"]!.GetValue<string>());
+
             var binary = new Abstractions.DriverTruncatedValue
             {
                 Kind = "binary",

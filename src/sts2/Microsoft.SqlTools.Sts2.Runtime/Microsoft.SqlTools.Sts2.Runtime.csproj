@@ -4,6 +4,7 @@
     <Sts2PublicApiTracked>true</Sts2PublicApiTracked>
   </PropertyGroup>
   <ItemGroup>
+    <InternalsVisibleTo Include="Microsoft.SqlTools.Sts2.UnitTests" />
     <ProjectReference Include="..\Microsoft.SqlTools.Sts2.Core\Microsoft.SqlTools.Sts2.Core.csproj" />
     <ProjectReference Include="..\Microsoft.SqlTools.Sts2.Contracts\Microsoft.SqlTools.Sts2.Contracts.csproj" />
     <ProjectReference Include="..\Microsoft.SqlTools.Sts2.Abstractions\Microsoft.SqlTools.Sts2.Abstractions.csproj" />

@@ -78,6 +78,9 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
             Assert.True(wrapper.GetProperty("$redacted").GetBoolean());
             Assert.Matches("^sha256:[0-9a-f]{64}$", wrapper.GetProperty("digest").GetString()!);
             Assert.Equal(3, wrapper.GetProperty("rows").GetInt32());
+            Assert.Equal(
+                CanonicalJson.DigestOf(wireRows[0].Body!.Value.GetProperty("rows")),
+                wrapper.GetProperty("digest").GetString());
         }
 
         [Fact]
@@ -117,6 +120,9 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
             Assert.Equal(3, wrapper.GetProperty("rows").GetInt32());
             Assert.False(wrapper.TryGetProperty("values", out _));
             Assert.False(wrapper.TryGetProperty("nullBitmap", out _));
+            Assert.Equal(
+                CanonicalJson.DigestOf(wireCompact),
+                wrapper.GetProperty("digest").GetString());
 
             // Replay stays digest-identical (I7 in digest mode) with compact pages elided.
             ReplayResult replay = JournalReplayer.Replay(JournalReader.ReadAll(directory));
