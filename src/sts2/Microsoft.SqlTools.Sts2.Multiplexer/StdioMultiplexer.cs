@@ -5,6 +5,7 @@
 
 using System;
 using System.Buffers;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Pipelines;
 using System.Text.Json;
@@ -29,6 +30,7 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
         private readonly Stream realOutput;
         private readonly MultiplexerOptions options;
         private readonly OutboundRequestIdTable idTable;
+        private readonly MultiplexerTransportStats transportStats = new();
         private readonly SemaphoreSlim stdoutLock = new(1, 1);
         private readonly CancellationTokenSource cts = new();
 
@@ -41,6 +43,8 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
         private Task completion = Task.CompletedTask;
         private int started;
         private int sts2Dead;
+        private long transportStatsRevision;
+        private long lastEmittedTransportStatsRevision = -1;
 
         /// <summary>Creates a multiplexer over the real stdio streams. Call <see cref="Start"/> to begin pumping.</summary>
         public StdioMultiplexer(Stream realInput, Stream realOutput, MultiplexerOptions? options = null)
@@ -118,7 +122,7 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
             {
                 try
                 {
-                    await WriteStdoutAsync(frame, cts.Token).ConfigureAwait(false);
+                    await WriteStdoutAsync(ChannelKind.Sts2, frame, cts.Token).ConfigureAwait(false);
                 }
                 catch (Exception ex) when (ex is OperationCanceledException or IOException or ObjectDisposedException)
                 {
@@ -146,7 +150,11 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
             {
                 // Normal disposal path.
             }
-            cts.Dispose();
+            finally
+            {
+                EmitTransportStats();
+                cts.Dispose();
+            }
         }
 
         private async Task GuardPumpAsync(string pumpName, Task pump)
@@ -337,6 +345,7 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
         {
             if (lifecycleSink is null || sts2Dead == 1)
             {
+                EmitTransportStats();
                 return;
             }
             try
@@ -362,28 +371,42 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
             {
                 Diagnostic(MultiplexerDiagnosticCodes.LifecycleSinkError, "Lifecycle sink threw on " + signal + ": " + ex.Message);
             }
+            finally
+            {
+                // This repository's legacy shutdown path may terminate the process before
+                // DisposeAsync runs. Persist the aggregate before that signal is forwarded.
+                EmitTransportStats();
+            }
         }
 
         // ---------------- outbound: virtual channels -> real stdout ----------------
 
         private async Task RunOutboundPumpAsync(ChannelKind channel, PipeReader reader, CancellationToken ct)
         {
+            MultiplexerTransportStats.ChannelStats stats = transportStats.For(channel);
             while (true)
             {
                 ReadResult result = await reader.ReadAsync(ct).ConfigureAwait(false);
                 ReadOnlySequence<byte> buffer = result.Buffer;
+                stats.RecordRead(buffer.Length);
 
                 while (buffer.Length > 0)
                 {
+                    long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
+                    long parseStarted = Stopwatch.GetTimestamp();
                     FrameHeaderStatus status = JsonRpcFraming.TryParseHeader(buffer, options.MaxFrameBytes, out int headerLength, out long contentLength);
+                    stats.RecordHeaderParse(
+                        Stopwatch.GetTimestamp() - parseStarted,
+                        GC.GetAllocatedBytesForCurrentThread() - allocatedBefore,
+                        status is FrameHeaderStatus.NeedMoreData);
                     if (status is FrameHeaderStatus.NeedMoreData)
                     {
                         break;
                     }
-                    if (status is FrameHeaderStatus.MalformedHeader)
+                    if (status is FrameHeaderStatus.MalformedHeader or FrameHeaderStatus.OversizedFrame)
                     {
                         // Our own services must frame correctly; treat as fatal for the channel.
-                        throw new InvalidDataException($"The {channel} service wrote an unparseable frame header.");
+                        throw new InvalidDataException($"The {channel} service wrote an invalid {status} frame header.");
                     }
 
                     long frameLength = headerLength + contentLength;
@@ -392,7 +415,17 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
                         break;
                     }
 
-                    byte[] frameBytes = buffer.Slice(0, frameLength).ToArray();
+                    ReadOnlySequence<byte> frame = buffer.Slice(0, frameLength);
+                    int segments = CountSegments(frame);
+                    stats.RecordFrame(frameLength, segments);
+                    Interlocked.Increment(ref transportStatsRevision);
+                    allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
+                    long copyStarted = Stopwatch.GetTimestamp();
+                    byte[] frameBytes = frame.ToArray();
+                    stats.RecordMaterialization(
+                        frameLength,
+                        Stopwatch.GetTimestamp() - copyStarted,
+                        GC.GetAllocatedBytesForCurrentThread() - allocatedBefore);
                     await ProcessOutboundFrameAsync(channel, frameBytes, headerLength, ct).ConfigureAwait(false);
                     buffer = buffer.Slice(frameLength);
                 }
@@ -407,20 +440,34 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
 
         private async Task ProcessOutboundFrameAsync(ChannelKind channel, byte[] frameBytes, int headerLength, CancellationToken ct)
         {
+            MultiplexerTransportStats.ChannelStats stats = transportStats.For(channel);
+            long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
+            long inspectStarted = Stopwatch.GetTimestamp();
             JsonRpcMessageInfo info = JsonRpcMessageInspector.Inspect(frameBytes.AsSpan(headerLength));
+            stats.RecordInspection(
+                Stopwatch.GetTimestamp() - inspectStarted,
+                GC.GetAllocatedBytesForCurrentThread() - allocatedBefore,
+                info.ParseFailed);
 
             // Server-initiated request: rewrite the id so legacy and STS2 ids can never
             // collide on the shared transport (SPEC §6.3, I13).
             if (!info.ParseFailed && info.Method is not null && info.HasId && !info.IdIsNull && info.IdRawJson is not null)
             {
+                stats.RecordRewrite();
                 string publicId = idTable.Register(channel, info.IdRawJson);
                 byte[] rewritten = ReplaceId(frameBytes.AsSpan(headerLength), publicId, asRawJson: false);
-                await WriteStdoutAsync(JsonRpcFraming.BuildFrame(rewritten), ct).ConfigureAwait(false);
+                await WriteStdoutAsync(channel, JsonRpcFraming.BuildFrame(rewritten), ct).ConfigureAwait(false);
                 return;
             }
 
             // Responses and notifications pass through unchanged (SPEC §6.3).
-            await WriteStdoutAsync(frameBytes, ct).ConfigureAwait(false);
+            await WriteStdoutAsync(channel, frameBytes, ct).ConfigureAwait(false);
+            if (channel == ChannelKind.Sts2 && string.Equals(info.Method, "v2/query.complete", StringComparison.Ordinal))
+            {
+                // The host can be terminated with its parent before normal disposal. A
+                // query terminal is the cheapest reliable checkpoint for live diagnostics.
+                EmitTransportStats();
+            }
         }
 
         // ---------------- helpers ----------------
@@ -472,21 +519,61 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
                 },
             };
             Diagnostic(MultiplexerDiagnosticCodes.Sts2Dead, "Synthesized Sts2.Unavailable error for request id " + idRawJson + ".");
-            await WriteStdoutAsync(JsonRpcFraming.BuildFrame(JsonSerializer.SerializeToUtf8Bytes(error)), ct).ConfigureAwait(false);
+            await WriteStdoutAsync(ChannelKind.Sts2, JsonRpcFraming.BuildFrame(JsonSerializer.SerializeToUtf8Bytes(error)), ct).ConfigureAwait(false);
         }
 
-        private async Task WriteStdoutAsync(ReadOnlyMemory<byte> frame, CancellationToken ct)
+        private async Task WriteStdoutAsync(ChannelKind channel, ReadOnlyMemory<byte> frame, CancellationToken ct)
         {
+            MultiplexerTransportStats.ChannelStats stats = transportStats.For(channel);
             // The single stdout writer (SPEC §6.4, I10): whole frames only, never interleaved.
+            long waitStarted = Stopwatch.GetTimestamp();
             await stdoutLock.WaitAsync(ct).ConfigureAwait(false);
+            stats.RecordStdoutLockWait(Stopwatch.GetTimestamp() - waitStarted);
             try
             {
+                long writeStarted = Stopwatch.GetTimestamp();
                 await realOutput.WriteAsync(frame, ct).ConfigureAwait(false);
+                stats.RecordStdoutWrite(frame.Length, Stopwatch.GetTimestamp() - writeStarted);
+                long flushStarted = Stopwatch.GetTimestamp();
                 await realOutput.FlushAsync(ct).ConfigureAwait(false);
+                stats.RecordStdoutFlush(Stopwatch.GetTimestamp() - flushStarted);
             }
             finally
             {
                 stdoutLock.Release();
+            }
+        }
+
+        private static int CountSegments(in ReadOnlySequence<byte> sequence)
+        {
+            if (sequence.IsSingleSegment)
+            {
+                return 1;
+            }
+
+            int count = 0;
+            foreach (ReadOnlyMemory<byte> _ in sequence)
+            {
+                count++;
+            }
+            return count;
+        }
+
+        private void EmitTransportStats()
+        {
+            long revision = Volatile.Read(ref transportStatsRevision);
+            while (true)
+            {
+                long emitted = Volatile.Read(ref lastEmittedTransportStatsRevision);
+                if (emitted == revision)
+                {
+                    return;
+                }
+                if (Interlocked.CompareExchange(ref lastEmittedTransportStatsRevision, revision, emitted) == emitted)
+                {
+                    Diagnostic(MultiplexerDiagnosticCodes.TransportStats, transportStats.SerializeSnapshot());
+                    return;
+                }
             }
         }
 

@@ -58,5 +58,8 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
 
         /// <summary>A pump loop failed unexpectedly.</summary>
         public const string PumpFailure = "pumpFailure";
+
+        /// <summary>Aggregate, content-free transport counters emitted at safe lifecycle checkpoints.</summary>
+        public const string TransportStats = "transportStats";
     }
 }
