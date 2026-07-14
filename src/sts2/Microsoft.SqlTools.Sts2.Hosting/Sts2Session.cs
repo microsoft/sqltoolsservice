@@ -73,6 +73,8 @@ namespace Microsoft.SqlTools.Sts2.Hosting
         private readonly SecretSideTable secrets;
         private readonly BroadcastEnvelopeSink liveTail;
         private readonly IReadOnlyList<MailboxEnvelopeSink> mailboxSinks;
+        private readonly RpcTransportStats rpcTransportStats;
+        private readonly RpcTransportDiagnostics? rpcTransportDiagnostics;
         private readonly ConcurrentDictionary<string, TaskCompletionSource<OutboundRpcMessage>> pendingRequests = new(StringComparer.Ordinal);
         private readonly TaskCompletionSource sessionEnded = new(TaskCreationOptions.RunContinuationsAsynchronously);
         private int corrCounter;
@@ -80,7 +82,8 @@ namespace Microsoft.SqlTools.Sts2.Hosting
         private int shuttingDown;
 
         private Sts2Session(JsonRpc rpc, Coordinator coordinator, DriverEffectRunner effectRunner,
-            SecretSideTable secrets, BroadcastEnvelopeSink liveTail, IReadOnlyList<MailboxEnvelopeSink> mailboxSinks)
+            SecretSideTable secrets, BroadcastEnvelopeSink liveTail, IReadOnlyList<MailboxEnvelopeSink> mailboxSinks,
+            RpcTransportStats rpcTransportStats, RpcTransportDiagnostics? rpcTransportDiagnostics)
         {
             this.rpc = rpc;
             this.coordinator = coordinator;
@@ -88,6 +91,8 @@ namespace Microsoft.SqlTools.Sts2.Hosting
             this.secrets = secrets;
             this.liveTail = liveTail;
             this.mailboxSinks = mailboxSinks;
+            this.rpcTransportStats = rpcTransportStats;
+            this.rpcTransportDiagnostics = rpcTransportDiagnostics;
 
             // Composite session lifetime (R001): a fault in ANY core component — the RPC
             // connection OR the coordinator pump (journal/core/sink failure) — transitions
@@ -148,11 +153,29 @@ namespace Microsoft.SqlTools.Sts2.Hosting
                 message => session?.HandleOutbound(message),
                 auxSinks);
 
-            var formatter = new SystemTextJsonFormatter();
-            formatter.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-            var handler = new HeaderDelimitedMessageHandler(options.Output, options.Input, formatter);
+            var innerFormatter = new SystemTextJsonFormatter();
+            innerFormatter.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+            RpcTransportDiagnostics? rpcTransportDiagnostics = RpcTransportDiagnostics.TryCreate(options.JournalDirectory);
+            Action<string>? rpcTransportSnapshotListener = rpcTransportDiagnostics is null
+                ? null
+                : rpcTransportDiagnostics.WriteSnapshot;
+            var rpcTransportStats = new RpcTransportStats(rpcTransportSnapshotListener);
+            var formatter = new MeasuredSystemTextJsonFormatter(innerFormatter, rpcTransportStats);
+            var handler = new MeasuredHeaderDelimitedMessageHandler(
+                options.Output,
+                options.Input,
+                formatter,
+                rpcTransportStats);
             var rpc = new JsonRpc(handler);
-            session = new Sts2Session(rpc, coordinator, effectRunner, secrets, liveTail, mailboxSinks);
+            session = new Sts2Session(
+                rpc,
+                coordinator,
+                effectRunner,
+                secrets,
+                liveTail,
+                mailboxSinks,
+                rpcTransportStats,
+                rpcTransportDiagnostics);
             rpc.AddLocalRpcTarget(new GatewayTarget(session), null);
             rpc.StartListening();
 
@@ -216,6 +239,8 @@ namespace Microsoft.SqlTools.Sts2.Hosting
             {
                 await mailbox.DisposeAsync().ConfigureAwait(false);
             }
+            rpcTransportStats.EmitSnapshot();
+            rpcTransportDiagnostics?.Dispose();
             sessionEnded.TrySetResult(); // clean shutdown completes Completion without faulting
         }
 

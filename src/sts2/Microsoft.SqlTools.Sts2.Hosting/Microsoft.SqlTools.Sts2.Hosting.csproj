@@ -10,4 +10,7 @@
     <ProjectReference Include="..\Microsoft.SqlTools.Sts2.Abstractions\Microsoft.SqlTools.Sts2.Abstractions.csproj" />
     <PackageReference Include="StreamJsonRpc" />
   </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Microsoft.SqlTools.Sts2.UnitTests" />
+  </ItemGroup>
 </Project>
