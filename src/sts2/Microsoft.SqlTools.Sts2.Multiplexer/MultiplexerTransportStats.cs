@@ -51,10 +51,22 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
             private long pipeSegments;
             private long singleSegmentFrames;
             private long multiSegmentFrames;
+            private long directFrames;
+            private long directBytes;
             private long materializedFrames;
             private long materializedBytes;
             private long materializeTicks;
             private long materializeAllocatedBytes;
+            private long reusableFrames;
+            private long reusableBytes;
+            private long reusableBufferAllocations;
+            private long reusableBufferCapacityBytes;
+            private long pooledFrames;
+            private long pooledBytes;
+            private long pooledClearBytes;
+            private long pooledClearTicks;
+            private long bufferClearBytes;
+            private long bufferClearTicks;
             private long inspectTicks;
             private long inspectAllocatedBytes;
             private long inspectParseFailures;
@@ -112,6 +124,42 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
                 Interlocked.Add(ref materializeAllocatedBytes, allocatedBytes);
             }
 
+            internal void RecordReusable(long bytes)
+            {
+                Interlocked.Increment(ref reusableFrames);
+                Interlocked.Add(ref reusableBytes, bytes);
+            }
+
+            internal void RecordReusableBufferAllocation(long capacityBytes)
+            {
+                Interlocked.Increment(ref reusableBufferAllocations);
+                SetMax(ref reusableBufferCapacityBytes, capacityBytes);
+            }
+
+            internal void RecordPooled(long bytes)
+            {
+                Interlocked.Increment(ref pooledFrames);
+                Interlocked.Add(ref pooledBytes, bytes);
+            }
+
+            internal void RecordDirect(long bytes)
+            {
+                Interlocked.Increment(ref directFrames);
+                Interlocked.Add(ref directBytes, bytes);
+            }
+
+            internal void RecordPooledClear(long bytes, long elapsedTicks)
+            {
+                Interlocked.Add(ref pooledClearBytes, bytes);
+                Interlocked.Add(ref pooledClearTicks, elapsedTicks);
+            }
+
+            internal void RecordBufferClear(long bytes, long elapsedTicks)
+            {
+                Interlocked.Add(ref bufferClearBytes, bytes);
+                Interlocked.Add(ref bufferClearTicks, elapsedTicks);
+            }
+
             internal void RecordInspection(long elapsedTicks, long allocatedBytes, bool parseFailed)
             {
                 Interlocked.Add(ref inspectTicks, elapsedTicks);
@@ -154,10 +202,22 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
                 PipeSegments: Interlocked.Read(ref pipeSegments),
                 SingleSegmentFrames: Interlocked.Read(ref singleSegmentFrames),
                 MultiSegmentFrames: Interlocked.Read(ref multiSegmentFrames),
+                DirectFrames: Interlocked.Read(ref directFrames),
+                DirectBytes: Interlocked.Read(ref directBytes),
                 MaterializedFrames: Interlocked.Read(ref materializedFrames),
                 MaterializedBytes: Interlocked.Read(ref materializedBytes),
                 MaterializeMsTotal: ToMilliseconds(Interlocked.Read(ref materializeTicks)),
                 MaterializeAllocatedBytes: Interlocked.Read(ref materializeAllocatedBytes),
+                ReusableFrames: Interlocked.Read(ref reusableFrames),
+                ReusableBytes: Interlocked.Read(ref reusableBytes),
+                ReusableBufferAllocations: Interlocked.Read(ref reusableBufferAllocations),
+                ReusableBufferCapacityBytes: Interlocked.Read(ref reusableBufferCapacityBytes),
+                PooledFrames: Interlocked.Read(ref pooledFrames),
+                PooledBytes: Interlocked.Read(ref pooledBytes),
+                PooledClearBytes: Interlocked.Read(ref pooledClearBytes),
+                PooledClearMsTotal: ToMilliseconds(Interlocked.Read(ref pooledClearTicks)),
+                BufferClearBytes: Interlocked.Read(ref bufferClearBytes),
+                BufferClearMsTotal: ToMilliseconds(Interlocked.Read(ref bufferClearTicks)),
                 InspectMsTotal: ToMilliseconds(Interlocked.Read(ref inspectTicks)),
                 InspectAllocatedBytes: Interlocked.Read(ref inspectAllocatedBytes),
                 InspectParseFailures: Interlocked.Read(ref inspectParseFailures),
@@ -203,10 +263,22 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
             long PipeSegments,
             long SingleSegmentFrames,
             long MultiSegmentFrames,
+            long DirectFrames,
+            long DirectBytes,
             long MaterializedFrames,
             long MaterializedBytes,
             double MaterializeMsTotal,
             long MaterializeAllocatedBytes,
+            long ReusableFrames,
+            long ReusableBytes,
+            long ReusableBufferAllocations,
+            long ReusableBufferCapacityBytes,
+            long PooledFrames,
+            long PooledBytes,
+            long PooledClearBytes,
+            double PooledClearMsTotal,
+            long BufferClearBytes,
+            double BufferClearMsTotal,
             double InspectMsTotal,
             long InspectAllocatedBytes,
             long InspectParseFailures,

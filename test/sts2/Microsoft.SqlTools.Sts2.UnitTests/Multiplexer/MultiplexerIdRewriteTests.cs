@@ -45,6 +45,23 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Multiplexer
         }
 
         [Fact]
+        public async Task KnownNotificationMethodStillRewritesAnIdSeenBeforeMethod()
+        {
+            await using var h = new MuxHarness();
+            await h.Sts2SendsAsync(
+                """{"jsonrpc":"2.0","id":17,"method":"v2/query.rows","params":{"rows":[]}}""",
+                TestTimeout);
+
+            (string publicId, JsonElement request) = ParseRequest(await h.StdoutFrameAsync(TestTimeout));
+            Assert.StartsWith("sts2mux-", publicId, StringComparison.Ordinal);
+            Assert.Equal("v2/query.rows", request.GetProperty("method").GetString());
+
+            await h.ClientSendsAsync($$"""{"jsonrpc":"2.0","id":"{{publicId}}","result":null}""", TestTimeout);
+            JsonElement restored = JsonDocument.Parse(await h.Sts2ReceivesAsync(TestTimeout)).RootElement;
+            Assert.Equal(17, restored.GetProperty("id").GetInt32());
+        }
+
+        [Fact]
         public async Task ResponsesAreRestoredToExactOriginalIdAndChannel()
         {
             await using var h = new MuxHarness();

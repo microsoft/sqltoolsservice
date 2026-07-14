@@ -8,6 +8,7 @@ using System.Buffers;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Pipelines;
+using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading;
@@ -25,6 +26,8 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
     public sealed class StdioMultiplexer : IAsyncDisposable
     {
         private const int JsonRpcInternalErrorCode = -32603;
+        private const int InitialReusableFrameBufferBytes = 64 * 1024;
+        private const int MaxReusableFrameBufferBytes = 1024 * 1024;
 
         private readonly Stream realInput;
         private readonly Stream realOutput;
@@ -384,6 +387,7 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
         private async Task RunOutboundPumpAsync(ChannelKind channel, PipeReader reader, CancellationToken ct)
         {
             MultiplexerTransportStats.ChannelStats stats = transportStats.For(channel);
+            byte[]? reusableFrameBuffer = null;
             while (true)
             {
                 ReadResult result = await reader.ReadAsync(ct).ConfigureAwait(false);
@@ -419,14 +423,64 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
                     int segments = CountSegments(frame);
                     stats.RecordFrame(frameLength, segments);
                     Interlocked.Increment(ref transportStatsRevision);
-                    allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
-                    long copyStarted = Stopwatch.GetTimestamp();
-                    byte[] frameBytes = frame.ToArray();
-                    stats.RecordMaterialization(
-                        frameLength,
-                        Stopwatch.GetTimestamp() - copyStarted,
-                        GC.GetAllocatedBytesForCurrentThread() - allocatedBefore);
-                    await ProcessOutboundFrameAsync(channel, frameBytes, headerLength, ct).ConfigureAwait(false);
+                    int frameByteLength = checked((int)frameLength);
+                    if (frame.IsSingleSegment)
+                    {
+                        stats.RecordDirect(frameLength);
+                        await ProcessOutboundFrameAsync(channel, frame.First, headerLength, ct).ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
+                        long copyStarted = Stopwatch.GetTimestamp();
+                        bool useReusableBuffer = frameByteLength <= MaxReusableFrameBufferBytes;
+                        byte[] contiguousBuffer;
+                        if (useReusableBuffer)
+                        {
+                            if (reusableFrameBuffer is null || reusableFrameBuffer.Length < frameByteLength)
+                            {
+                                reusableFrameBuffer = GC.AllocateUninitializedArray<byte>(
+                                    GetReusableFrameBufferCapacity(frameByteLength));
+                                stats.RecordReusableBufferAllocation(reusableFrameBuffer.Length);
+                            }
+
+                            contiguousBuffer = reusableFrameBuffer;
+                            stats.RecordReusable(frameLength);
+                        }
+                        else
+                        {
+                            contiguousBuffer = ArrayPool<byte>.Shared.Rent(frameByteLength);
+                            stats.RecordPooled(frameLength);
+                        }
+
+                        frame.CopyTo(contiguousBuffer.AsSpan(0, frameByteLength));
+                        stats.RecordMaterialization(
+                            frameLength,
+                            Stopwatch.GetTimestamp() - copyStarted,
+                            GC.GetAllocatedBytesForCurrentThread() - allocatedBefore);
+                        try
+                        {
+                            await ProcessOutboundFrameAsync(
+                                channel,
+                                contiguousBuffer.AsMemory(0, frameByteLength),
+                                headerLength,
+                                ct).ConfigureAwait(false);
+                        }
+                        finally
+                        {
+                            // Row pages can contain sensitive database values. Remove every
+                            // used payload before retaining or pooling its transport buffer.
+                            long clearStarted = Stopwatch.GetTimestamp();
+                            CryptographicOperations.ZeroMemory(contiguousBuffer.AsSpan(0, frameByteLength));
+                            long clearTicks = Stopwatch.GetTimestamp() - clearStarted;
+                            stats.RecordBufferClear(frameLength, clearTicks);
+                            if (!useReusableBuffer)
+                            {
+                                stats.RecordPooledClear(frameLength, clearTicks);
+                                ArrayPool<byte>.Shared.Return(contiguousBuffer);
+                            }
+                        }
+                    }
                     buffer = buffer.Slice(frameLength);
                 }
 
@@ -438,12 +492,12 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
             }
         }
 
-        private async Task ProcessOutboundFrameAsync(ChannelKind channel, byte[] frameBytes, int headerLength, CancellationToken ct)
+        private async Task ProcessOutboundFrameAsync(ChannelKind channel, ReadOnlyMemory<byte> frameBytes, int headerLength, CancellationToken ct)
         {
             MultiplexerTransportStats.ChannelStats stats = transportStats.For(channel);
             long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
             long inspectStarted = Stopwatch.GetTimestamp();
-            JsonRpcMessageInfo info = JsonRpcMessageInspector.Inspect(frameBytes.AsSpan(headerLength));
+            JsonRpcMessageInfo info = JsonRpcMessageInspector.InspectOutbound(frameBytes.Span[headerLength..]);
             stats.RecordInspection(
                 Stopwatch.GetTimestamp() - inspectStarted,
                 GC.GetAllocatedBytesForCurrentThread() - allocatedBefore,
@@ -455,7 +509,7 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
             {
                 stats.RecordRewrite();
                 string publicId = idTable.Register(channel, info.IdRawJson);
-                byte[] rewritten = ReplaceId(frameBytes.AsSpan(headerLength), publicId, asRawJson: false);
+                byte[] rewritten = ReplaceId(frameBytes.Span[headerLength..], publicId, asRawJson: false);
                 await WriteStdoutAsync(channel, JsonRpcFraming.BuildFrame(rewritten), ct).ConfigureAwait(false);
                 return;
             }
@@ -471,6 +525,17 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
         }
 
         // ---------------- helpers ----------------
+
+        private static int GetReusableFrameBufferCapacity(int requiredBytes)
+        {
+            int capacity = InitialReusableFrameBufferBytes;
+            while (capacity < requiredBytes && capacity < MaxReusableFrameBufferBytes)
+            {
+                capacity *= 2;
+            }
+
+            return capacity;
+        }
 
         private static bool TryGetPublicId(string idRawJson, out string publicId)
         {

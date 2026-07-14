@@ -26,7 +26,26 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
     /// </summary>
     internal static class JsonRpcMessageInspector
     {
-        internal static JsonRpcMessageInfo Inspect(ReadOnlySpan<byte> payload)
+        private const string QueryResultSetMethod = "v2/query.resultSet";
+        private const string QueryRowsMethod = "v2/query.rows";
+        private const string QueryMessageMethod = "v2/query.message";
+        private const string QueryCompleteMethod = "v2/query.complete";
+        private const string FatalMethod = "v2/fatal";
+
+        internal static JsonRpcMessageInfo Inspect(ReadOnlySpan<byte> payload) =>
+            InspectCore(payload, trustKnownServerNotifications: false);
+
+        /// <summary>
+        /// Inspects output from the trusted STS2/legacy hosts. StreamJsonRpc writes the
+        /// method before the potentially large params object. Contract-defined server
+        /// notifications never carry an id, so they can be classified without walking
+        /// every nested result cell. Requests that present an id before their method keep
+        /// the ordinary rewrite path.
+        /// </summary>
+        internal static JsonRpcMessageInfo InspectOutbound(ReadOnlySpan<byte> payload) =>
+            InspectCore(payload, trustKnownServerNotifications: true);
+
+        private static JsonRpcMessageInfo InspectCore(ReadOnlySpan<byte> payload, bool trustKnownServerNotifications)
         {
             string? method = null;
             bool hasId = false;
@@ -53,7 +72,17 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
                         reader.Read();
                         if (reader.TokenType == JsonTokenType.String)
                         {
+                            if (trustKnownServerNotifications && TryGetKnownServerNotification(ref reader, out string? knownMethod))
+                            {
+                                return new JsonRpcMessageInfo(ParseFailed: false, knownMethod, hasId, idIsNull, idRawJson);
+                            }
                             method = reader.GetString();
+                            if (trustKnownServerNotifications && hasId)
+                            {
+                                // A server request has all routing facts once both id and
+                                // method have been seen; params can remain unvisited.
+                                return new JsonRpcMessageInfo(ParseFailed: false, method, hasId, idIsNull, idRawJson);
+                            }
                         }
                         else if (reader.TokenType is JsonTokenType.StartObject or JsonTokenType.StartArray)
                         {
@@ -84,6 +113,38 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
             {
                 return new JsonRpcMessageInfo(ParseFailed: true, null, false, false, null);
             }
+        }
+
+        private static bool TryGetKnownServerNotification(ref Utf8JsonReader reader, out string? method)
+        {
+            if (reader.ValueTextEquals("v2/query.rows"u8))
+            {
+                method = QueryRowsMethod;
+                return true;
+            }
+            if (reader.ValueTextEquals("v2/query.resultSet"u8))
+            {
+                method = QueryResultSetMethod;
+                return true;
+            }
+            if (reader.ValueTextEquals("v2/query.message"u8))
+            {
+                method = QueryMessageMethod;
+                return true;
+            }
+            if (reader.ValueTextEquals("v2/query.complete"u8))
+            {
+                method = QueryCompleteMethod;
+                return true;
+            }
+            if (reader.ValueTextEquals("v2/fatal"u8))
+            {
+                method = FatalMethod;
+                return true;
+            }
+
+            method = null;
+            return false;
         }
     }
 }
