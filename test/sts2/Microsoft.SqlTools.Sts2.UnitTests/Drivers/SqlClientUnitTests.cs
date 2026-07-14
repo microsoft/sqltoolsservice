@@ -133,6 +133,18 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
         }
 
         [Fact]
+        public void ProvenOversizedStreamsRetainOnlyTheWirePrefix()
+        {
+            Assert.Equal(
+                Contracts.Sts2Defaults.TruncatedPrefixBytes,
+                SqlLargeValueReader.RetainedUnitsForKnownLength(
+                    Contracts.Sts2Defaults.MaxCellBytes + 1L,
+                    Contracts.Sts2Defaults.MaxCellBytes));
+            Assert.Equal(4096, SqlLargeValueReader.RetainedUnitsForKnownLength(1_000_000, 4096));
+            Assert.Equal(123, SqlLargeValueReader.RetainedUnitsForKnownLength(123, 4096));
+        }
+
+        [Fact]
         public void VectorRowsPageWithAccurateEstimatesRespectsByteBound() // D-0019 page clamp
         {
             // 32 rows of one 1,536-dim vector each at the pinned 256 KiB page

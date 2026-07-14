@@ -12,6 +12,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -40,6 +41,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
         /// oversized frame.
         /// </summary>
         private const int FrameGuardBytes = Sts2Defaults.MaxFrameBytes - 1048576;
+        private static readonly bool[] JsonAsciiEscapes = BuildJsonAsciiEscapeTable();
 
         private readonly IReadOnlyDictionary<string, IDbDriver> drivers;
         private readonly SecretSideTable secrets;
@@ -917,21 +919,22 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
             return (int)Math.Clamp(estimate, 4096, FrameGuardBytes);
         }
 
-        private static long EstimateCellJsonBytes(object? cell, int maxCellBytes)
+        internal static long EstimateCellJsonBytes(object? cell, int maxCellBytes)
         {
-            static long EscapedText(int chars) => chars + chars / 4L + 2;
             int prefixCap = maxCellBytes > 0
                 ? Math.Min(maxCellBytes, Sts2Defaults.TruncatedPrefixBytes)
                 : Sts2Defaults.TruncatedPrefixBytes;
             return cell switch
             {
                 null or DBNull => 4,
-                string value => EscapedText(Math.Min(value.Length, prefixCap)) + 160,
-                byte[] value => (long)Math.Min(value.Length, prefixCap) * 4 / 3 + 160,
+                string value => EstimateStringCellBytes(value, maxCellBytes, prefixCap),
+                byte[] value => (long)(maxCellBytes > 0 && value.Length > maxCellBytes
+                    ? Math.Min(value.Length, prefixCap)
+                    : value.Length) * 4 / 3 + 160,
                 Abstractions.DriverTruncatedValue value when value.Kind == "binary" =>
                     (long)Math.Min(value.PrefixBytes?.Length ?? 0, prefixCap) * 4 / 3 + 160,
                 Abstractions.DriverTruncatedValue value =>
-                    EscapedText(Math.Min(value.PrefixText?.Length ?? 0, prefixCap)) + 160,
+                    EstimateTruncatedTextBytes(value.PrefixText, prefixCap) + 160,
                 Abstractions.DriverVectorValue value => (long)value.ComponentBytes.Length * 4 / 3 + 192,
                 Abstractions.DriverSpatialValue value => (long)value.Wkb.Length * 4 / 3 + 192,
                 Abstractions.DriverVectorUnavailableValue or
@@ -943,6 +946,54 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                 System.Text.Json.Nodes.JsonNode => 256,
                 _ => 128,
             };
+        }
+
+        private static long EstimateTruncatedTextBytes(string? value, int prefixCap)
+        {
+            string text = value ?? string.Empty;
+            return EstimateJsonStringBytes(
+                text,
+                WireValueEncoder.Utf8PrefixCharLength(text, prefixCap));
+        }
+
+        private static long EstimateStringCellBytes(string value, int maxCellBytes, int prefixCap)
+        {
+            bool truncated = maxCellBytes > 0 && Encoding.UTF8.GetByteCount(value) > maxCellBytes;
+            int chars = truncated
+                ? WireValueEncoder.Utf8PrefixCharLength(value, prefixCap)
+                : value.Length;
+            return EstimateJsonStringBytes(value, chars) + (truncated ? 160 : 0);
+        }
+
+        /// <summary>
+        /// Allocation-free upper bound for one JSON string under the same
+        /// default encoder used by <see cref="Utf8JsonWriter"/>. Blocked BMP
+        /// scalars need at most one \uXXXX escape; blocked astral scalars need
+        /// the two escaped UTF-16 code units.
+        /// </summary>
+        internal static long EstimateJsonStringBytes(string value, int maxChars)
+        {
+            long bytes = 2; // quotes
+            int chars = Math.Min(Math.Max(0, maxChars), value.Length);
+            for (int i = 0; i < chars; i++)
+            {
+                char c = value[i];
+                // Default System.Text.Json allows only Basic Latin. A blocked
+                // code unit needs at most one \uXXXX escape. Quote/backslash
+                // actually need only two bytes, so six remains a safe bound.
+                bytes += c < JsonAsciiEscapes.Length && !JsonAsciiEscapes[c] ? 1 : 6;
+            }
+            return bytes;
+        }
+
+        private static bool[] BuildJsonAsciiEscapeTable()
+        {
+            var table = new bool[128];
+            for (int i = 0; i < table.Length; i++)
+            {
+                table[i] = JavaScriptEncoder.Default.WillEncode(i);
+            }
+            return table;
         }
 
         /// <summary>Positive-int effect arg with fallback (absent/invalid/non-positive = default).</summary>

@@ -9,6 +9,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.Sts2.Abstractions;
+using Microsoft.SqlTools.Sts2.Contracts;
 
 namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
 {
@@ -110,9 +111,17 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
         /// <summary>Streams a character column: full string when within bound, else prefix + facts.</summary>
         internal static object ReadText(SqlDataReader reader, int ordinal, int maxCellBytes)
         {
-            var prefix = new StringBuilder();
+            // SqlClient can report the character length without materializing
+            // the field. More characters than the byte bound proves the UTF-8
+            // value is oversized, so retain only the protocol prefix from the
+            // first read instead of growing a near/full-value StringBuilder.
+            long fieldChars = reader.GetChars(ordinal, 0, null, 0, 0);
+            bool knownOversized = maxCellBytes > 0 && fieldChars > maxCellBytes;
+            int retainedCharLimit = knownOversized
+                ? RetainedUnitsForKnownLength(fieldChars, maxCellBytes)
+                : int.MaxValue;
+            var prefix = new StringBuilder(InitialCapacity(fieldChars, retainedCharLimit));
             long totalBytes = 0;
-            bool capped = false;
             char[] chars = new char[ChunkChars];
             // Encoder carries state across chunks so a surrogate pair split at
             // a chunk boundary still hashes/counts the true UTF-8 bytes.
@@ -131,12 +140,16 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                 int byteCount = utf8.GetBytes(chars, 0, (int)read, byteScratch, 0, flush: false);
                 totalBytes += byteCount;
                 sha.AppendData(byteScratch, 0, byteCount);
-                if (!capped)
+                if (prefix.Length < retainedCharLimit)
                 {
-                    prefix.Append(chars, 0, (int)read);
-                    // Slightly over-retain (≤ one chunk); the encoder re-caps
-                    // the prefix UTF-8-boundary-safe at the effective bound.
-                    capped = totalBytes > maxCellBytes;
+                    int keep = (int)Math.Min(read, (long)retainedCharLimit - prefix.Length);
+                    prefix.Append(chars, 0, keep);
+                }
+                if (!knownOversized && maxCellBytes > 0 && totalBytes > maxCellBytes)
+                {
+                    // The length hint could not prove truncation (for example,
+                    // multibyte text). Retain the crossing chunk, then stop.
+                    retainedCharLimit = prefix.Length;
                 }
                 if (read < chars.Length)
                 {
@@ -149,7 +162,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                 totalBytes += tail;
                 sha.AppendData(byteScratch, 0, tail);
             }
-            if (!capped)
+            if (maxCellBytes <= 0 || totalBytes <= maxCellBytes)
             {
                 return prefix.ToString(); // fits: ordinary string, encoder path unchanged
             }
@@ -165,10 +178,14 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
         /// <summary>Streams a binary column: full bytes when within bound, else prefix + facts.</summary>
         internal static object ReadBinary(SqlDataReader reader, int ordinal, int maxCellBytes)
         {
+            long fieldBytes = reader.GetBytes(ordinal, 0, null, 0, 0);
+            bool knownOversized = maxCellBytes > 0 && fieldBytes > maxCellBytes;
+            int retainedByteLimit = knownOversized
+                ? RetainedUnitsForKnownLength(fieldBytes, maxCellBytes)
+                : int.MaxValue;
             byte[] chunk = new byte[ChunkBytes];
-            var prefix = new List<byte>(Math.Min(maxCellBytes, ChunkBytes));
+            var prefix = new List<byte>(InitialCapacity(fieldBytes, retainedByteLimit));
             long totalBytes = 0;
-            bool capped = false;
             using IncrementalHash sha = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
             long fieldOffset = 0;
             while (true)
@@ -181,21 +198,24 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                 fieldOffset += read;
                 totalBytes += read;
                 sha.AppendData(chunk, 0, (int)read);
-                if (!capped)
+                if (prefix.Count < retainedByteLimit)
                 {
-                    int keep = (int)Math.Min(read, Math.Max(0, maxCellBytes - prefix.Count));
+                    int keep = (int)Math.Min(read, (long)retainedByteLimit - prefix.Count);
                     for (int i = 0; i < keep; i++)
                     {
                         prefix.Add(chunk[i]);
                     }
-                    capped = totalBytes >= maxCellBytes && prefix.Count >= maxCellBytes;
+                }
+                if (!knownOversized && maxCellBytes > 0 && totalBytes > maxCellBytes)
+                {
+                    retainedByteLimit = prefix.Count;
                 }
                 if (read < chunk.Length)
                 {
                     break;
                 }
             }
-            if (totalBytes <= maxCellBytes)
+            if (maxCellBytes <= 0 || totalBytes <= maxCellBytes)
             {
                 return prefix.ToArray(); // fits: ordinary byte[], encoder path unchanged
             }
@@ -207,5 +227,19 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                 DigestHex = Convert.ToHexStringLower(sha.GetHashAndReset()),
             };
         }
+
+        /// <summary>
+        /// Units retained when the provider's cheap length hint proves the
+        /// value exceeds the byte bound. Text units are UTF-16 characters;
+        /// retaining at most one character per prefix byte is sufficient for
+        /// a later UTF-8-boundary-safe cap.
+        /// </summary>
+        internal static int RetainedUnitsForKnownLength(long fieldUnits, int maxCellBytes) =>
+            maxCellBytes > 0 && fieldUnits > maxCellBytes
+                ? Math.Min(maxCellBytes, Sts2Defaults.TruncatedPrefixBytes)
+                : (int)Math.Min(Math.Max(0, fieldUnits), int.MaxValue);
+
+        private static int InitialCapacity(long fieldUnits, int retainedUnitLimit) =>
+            (int)Math.Min(Math.Min(Math.Max(0, fieldUnits), retainedUnitLimit), int.MaxValue);
     }
 }
