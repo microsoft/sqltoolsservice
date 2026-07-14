@@ -287,7 +287,12 @@ namespace Microsoft.SqlTools.Sts2.Hosting
             }
             if (message.Kind == "rpc.out.notify")
             {
-                _ = rpc.NotifyWithParameterObjectAsync(message.Type, message.Body);
+                object? parameters = message.ParameterObject;
+                if (parameters is null && message.Body is { } body)
+                {
+                    parameters = body;
+                }
+                _ = rpc.NotifyWithParameterObjectAsync(message.Type, parameters);
             }
         }
 

@@ -44,6 +44,14 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
 
         /// <summary>Result body, error body (code/message/data), or notification params.</summary>
         public JsonElement? Body { get; init; }
+
+        /// <summary>
+        /// Optional runtime-composed notification params. When present, the gateway
+        /// serializes this object directly instead of first materializing another large
+        /// <see cref="JsonDocument"/>. <see cref="Body"/> remains the journaled/replayable
+        /// Core shape; this value exists only at the wire edge and is never journaled.
+        /// </summary>
+        public object? ParameterObject { get; init; }
     }
 
     /// <summary>A journaled effect request handed to the effect runner.</summary>

@@ -93,6 +93,8 @@ Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage.Equals(Microsoft
 Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage.Kind.get -> string!
 Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage.Kind.init -> void
 Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage.OutboundRpcMessage() -> void
+Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage.ParameterObject.get -> object?
+Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage.ParameterObject.init -> void
 Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage.Type.get -> string!
 Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage.Type.init -> void
 Microsoft.SqlTools.Sts2.Runtime.Effects.DriverEffectRunner

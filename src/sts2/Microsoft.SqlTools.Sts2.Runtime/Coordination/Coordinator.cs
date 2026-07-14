@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading.Channels;
@@ -25,7 +26,54 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
     public sealed class Coordinator : ICoordinatorInbox, IAsyncDisposable
     {
         private sealed record PendingInput(string Kind, string Type, string? SessionId, string? Corr, JsonElement? Payload, long? Cause,
-            TaskCompletionSource? Committed = null);
+            TaskCompletionSource? Committed = null)
+        {
+            public long EnqueuedTicks { get; } = Stopwatch.GetTimestamp();
+        }
+
+        private readonly record struct OutputProcessStats(
+            double EncodeMs,
+            long EncodeAllocatedBytes,
+            double EnvelopeBuildMs,
+            long EnvelopeBuildAllocatedBytes,
+            double JournalMs,
+            double ActionMs,
+            long ActionAllocatedBytes,
+            double SubstitutionMs,
+            long SubstitutionAllocatedBytes,
+            double GatewayEmitMs,
+            long GatewayEmitAllocatedBytes);
+
+        private readonly record struct EmitProcessStats(
+            double SubstitutionMs,
+            long SubstitutionAllocatedBytes,
+            double GatewayEmitMs,
+            long GatewayEmitAllocatedBytes);
+
+        private sealed class QueryCoordinatorPipelineStats
+        {
+            public long Pages;
+            public long CaptureCanonicalBytes;
+            public double QueueWaitMsTotal;
+            public double CaptureMsTotal;
+            public long CaptureAllocatedBytes;
+            public double InputEnvelopeBuildMsTotal;
+            public long InputEnvelopeBuildAllocatedBytes;
+            public double InputJournalMsTotal;
+            public double CoreMsTotal;
+            public long CoreAllocatedBytes;
+            public double OutputEncodeMsTotal;
+            public long OutputEncodeAllocatedBytes;
+            public double OutputEnvelopeBuildMsTotal;
+            public long OutputEnvelopeBuildAllocatedBytes;
+            public double OutputJournalMsTotal;
+            public double OutputActionMsTotal;
+            public long OutputActionAllocatedBytes;
+            public double OutputSubstitutionMsTotal;
+            public long OutputSubstitutionAllocatedBytes;
+            public double OutputGatewayEmitMsTotal;
+            public long OutputGatewayEmitAllocatedBytes;
+        }
 
         private static readonly JsonElement NullElement = JsonDocument.Parse("null").RootElement;
 
@@ -40,6 +88,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
 
         private readonly System.Collections.Concurrent.ConcurrentDictionary<string, JsonElement> elidedFragments = new(StringComparer.Ordinal);
         private readonly List<string> capturedKeys = new(); // per-turn elided-fragment keys (R005)
+        private readonly Dictionary<string, QueryCoordinatorPipelineStats> queryPipelineStats = new(StringComparer.Ordinal);
         private CoreState state;
         private long seqCounter;
         private long emitFaults;
@@ -175,6 +224,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
                         new InvalidOperationException("STS2 stopped before the barrier committed."));
                 }
                 elidedFragments.Clear(); // bound the side table: drop any unsubstituted fragments
+                queryPipelineStats.Clear();
                 await journal.DisposeAsync().ConfigureAwait(false);
             }
         }
@@ -185,17 +235,38 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
             {
                 await foreach (PendingInput input in inputs.Reader.ReadAllAsync().ConfigureAwait(false))
                 {
+                    string? queryId = GetQueryEventString(input, "queryId");
+                    string? queryEventType = GetQueryEventString(input, "eventType");
+                    bool isRowsEvent = queryId is not null && queryEventType == "rows";
+                    bool isTerminalQueryEvent = queryId is not null
+                        && queryEventType is "completed" or "error" or "canceled";
+                    double queueWaitMs = ElapsedMs(input.EnqueuedTicks);
+
                     // Capture modes come from Core state, so a runtime setCapture applies to
                     // the next envelope (the state field still holds the pre-decision state).
                     // capturedKeys records the elided fragments this turn added, so any the
                     // outputs do not substitute back (a rejected execute, a suppressed row
                     // event) are released at the end of the turn instead of lingering (R005).
                     capturedKeys.Clear();
+                    long captureAllocationStart = GC.GetAllocatedBytesForCurrentThread();
+                    long captureStartTicks = Stopwatch.GetTimestamp();
                     JsonElement? captured = CaptureElision.ElideInput(
                         state.RowCapture, state.SqlCapture, input.Kind, input.Type, input.Payload, elidedFragments, capturedKeys);
-                    Sts2Envelope envelope = BuildEnvelope(input.Kind, input.Type, input.SessionId, input.Corr, captured, input.Cause);
-                    await JournalAsync(envelope, flush: DurabilityPolicy.IsCheckpoint(envelope.Kind, envelope.Type)).ConfigureAwait(false);
+                    double captureMs = ElapsedMs(captureStartTicks);
+                    long captureAllocatedBytes = CurrentThreadAllocatedSince(captureAllocationStart);
 
+                    long envelopeAllocationStart = GC.GetAllocatedBytesForCurrentThread();
+                    long envelopeStartTicks = Stopwatch.GetTimestamp();
+                    Sts2Envelope envelope = BuildEnvelope(input.Kind, input.Type, input.SessionId, input.Corr, captured, input.Cause);
+                    double inputEnvelopeBuildMs = ElapsedMs(envelopeStartTicks);
+                    long inputEnvelopeBuildAllocatedBytes = CurrentThreadAllocatedSince(envelopeAllocationStart);
+
+                    long inputJournalStartTicks = Stopwatch.GetTimestamp();
+                    await JournalAsync(envelope, flush: DurabilityPolicy.IsCheckpoint(envelope.Kind, envelope.Type)).ConfigureAwait(false);
+                    double inputJournalMs = ElapsedMs(inputJournalStartTicks);
+
+                    long coreAllocationStart = GC.GetAllocatedBytesForCurrentThread();
+                    long coreStartTicks = Stopwatch.GetTimestamp();
                     CoreDecision decision = Sts2CoreReducer.Decide(state, new CoreEnvelope
                     {
                         Seq = envelope.Seq,
@@ -205,11 +276,44 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
                         Corr = envelope.Corr,
                         Payload = envelope.Payload,
                     });
+                    double coreMs = ElapsedMs(coreStartTicks);
+                    long coreAllocatedBytes = CurrentThreadAllocatedSince(coreAllocationStart);
                     state = decision.NewState;
 
+                    OutputProcessStats outputProcessStats = default;
                     foreach (CoreOutput output in decision.Outputs)
                     {
-                        await JournalAndActAsync(output, causeSeq: envelope.Seq, requestType: envelope.Type).ConfigureAwait(false);
+                        OutputProcessStats current = await JournalAndActAsync(
+                            output,
+                            causeSeq: envelope.Seq,
+                            requestType: envelope.Type).ConfigureAwait(false);
+                        outputProcessStats = Add(outputProcessStats, current);
+                    }
+
+                    if (isRowsEvent)
+                    {
+                        QueryCoordinatorPipelineStats stats = GetOrCreateQueryPipelineStats(queryId!);
+                        stats.Pages++;
+                        stats.CaptureCanonicalBytes += GetCaptureCanonicalBytes(captured);
+                        stats.QueueWaitMsTotal += queueWaitMs;
+                        stats.CaptureMsTotal += captureMs;
+                        stats.CaptureAllocatedBytes += captureAllocatedBytes;
+                        stats.InputEnvelopeBuildMsTotal += inputEnvelopeBuildMs;
+                        stats.InputEnvelopeBuildAllocatedBytes += inputEnvelopeBuildAllocatedBytes;
+                        stats.InputJournalMsTotal += inputJournalMs;
+                        stats.CoreMsTotal += coreMs;
+                        stats.CoreAllocatedBytes += coreAllocatedBytes;
+                        stats.OutputEncodeMsTotal += outputProcessStats.EncodeMs;
+                        stats.OutputEncodeAllocatedBytes += outputProcessStats.EncodeAllocatedBytes;
+                        stats.OutputEnvelopeBuildMsTotal += outputProcessStats.EnvelopeBuildMs;
+                        stats.OutputEnvelopeBuildAllocatedBytes += outputProcessStats.EnvelopeBuildAllocatedBytes;
+                        stats.OutputJournalMsTotal += outputProcessStats.JournalMs;
+                        stats.OutputActionMsTotal += outputProcessStats.ActionMs;
+                        stats.OutputActionAllocatedBytes += outputProcessStats.ActionAllocatedBytes;
+                        stats.OutputSubstitutionMsTotal += outputProcessStats.SubstitutionMs;
+                        stats.OutputSubstitutionAllocatedBytes += outputProcessStats.SubstitutionAllocatedBytes;
+                        stats.OutputGatewayEmitMsTotal += outputProcessStats.GatewayEmitMs;
+                        stats.OutputGatewayEmitAllocatedBytes += outputProcessStats.GatewayEmitAllocatedBytes;
                     }
 
                     // Release fragments no output reclaimed (substitution removes consumed ones).
@@ -227,6 +331,16 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
                     }
 
                     await MaybeSampleMetricsAsync(triggeringSeq: envelope.Seq).ConfigureAwait(false);
+
+                    if (isTerminalQueryEvent
+                        && queryPipelineStats.Remove(queryId!, out QueryCoordinatorPipelineStats? pipelineStats))
+                    {
+                        await JournalQueryPipelineStatsAsync(
+                            queryId!,
+                            queryEventType!,
+                            envelope.Seq,
+                            pipelineStats).ConfigureAwait(false);
+                    }
                 }
             }
             catch (Exception ex)
@@ -260,12 +374,137 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
             await JournalAsync(envelope, flush: false).ConfigureAwait(false);
         }
 
-        private async Task JournalAndActAsync(CoreOutput output, long causeSeq, string requestType)
+        /// <summary>
+        /// Journals one replay-ignored, privacy-safe runtime metric after a query's terminal
+        /// event. This prices the coordinator stages that occur after the driver page stats:
+        /// queue wait, capture elision, envelope digests, journal appends, Core routing, and
+        /// wire-edge restoration. Values are aggregate counts/bytes/timings only.
+        /// </summary>
+        private async ValueTask JournalQueryPipelineStatsAsync(
+            string queryId,
+            string terminalEventType,
+            long causeSeq,
+            QueryCoordinatorPipelineStats stats)
         {
-            CoreOutputEncoder.EncodedOutput encoded = CoreOutputEncoder.Encode(output, requestType);
-            Sts2Envelope envelope = BuildEnvelope(encoded.Kind, encoded.Type, null, encoded.Corr, encoded.Payload, causeSeq);
-            await JournalAsync(envelope, flush: DurabilityPolicy.IsCheckpoint(encoded.Kind, encoded.Type)).ConfigureAwait(false);
+            var snapshot = new JsonObject
+            {
+                ["queryId"] = queryId,
+                ["status"] = terminalEventType,
+                ["pages"] = stats.Pages,
+                ["captureCanonicalBytes"] = stats.CaptureCanonicalBytes,
+                ["queueWaitMsTotal"] = RoundMs(stats.QueueWaitMsTotal),
+                ["captureMsTotal"] = RoundMs(stats.CaptureMsTotal),
+                ["captureAllocatedBytes"] = stats.CaptureAllocatedBytes,
+                ["inputEnvelopeBuildMsTotal"] = RoundMs(stats.InputEnvelopeBuildMsTotal),
+                ["inputEnvelopeBuildAllocatedBytes"] = stats.InputEnvelopeBuildAllocatedBytes,
+                ["inputJournalMsTotal"] = RoundMs(stats.InputJournalMsTotal),
+                ["coreMsTotal"] = RoundMs(stats.CoreMsTotal),
+                ["coreAllocatedBytes"] = stats.CoreAllocatedBytes,
+                ["outputEncodeMsTotal"] = RoundMs(stats.OutputEncodeMsTotal),
+                ["outputEncodeAllocatedBytes"] = stats.OutputEncodeAllocatedBytes,
+                ["outputEnvelopeBuildMsTotal"] = RoundMs(stats.OutputEnvelopeBuildMsTotal),
+                ["outputEnvelopeBuildAllocatedBytes"] = stats.OutputEnvelopeBuildAllocatedBytes,
+                ["outputJournalMsTotal"] = RoundMs(stats.OutputJournalMsTotal),
+                ["outputActionMsTotal"] = RoundMs(stats.OutputActionMsTotal),
+                ["outputActionAllocatedBytes"] = stats.OutputActionAllocatedBytes,
+                ["outputSubstitutionMsTotal"] = RoundMs(stats.OutputSubstitutionMsTotal),
+                ["outputSubstitutionAllocatedBytes"] = stats.OutputSubstitutionAllocatedBytes,
+                ["outputGatewayEmitMsTotal"] = RoundMs(stats.OutputGatewayEmitMsTotal),
+                ["outputGatewayEmitAllocatedBytes"] = stats.OutputGatewayEmitAllocatedBytes,
+            };
+            JsonElement payload = JsonDocument.Parse(snapshot.ToJsonString()).RootElement;
+            Sts2Envelope envelope = BuildEnvelope(
+                EnvelopeKinds.Metric,
+                "sts2.query.coordinator.stats",
+                null,
+                null,
+                payload,
+                cause: causeSeq);
+            await JournalAsync(envelope, flush: false).ConfigureAwait(false);
+        }
 
+        private QueryCoordinatorPipelineStats GetOrCreateQueryPipelineStats(string queryId)
+        {
+            if (!queryPipelineStats.TryGetValue(queryId, out QueryCoordinatorPipelineStats? stats))
+            {
+                stats = new QueryCoordinatorPipelineStats();
+                queryPipelineStats.Add(queryId, stats);
+            }
+            return stats;
+        }
+
+        private static string? GetQueryEventString(PendingInput input, string propertyName) =>
+            input.Kind == EnvelopeKinds.EffectResponse
+            && input.Type == "driver.queryEvent"
+            && input.Payload is { ValueKind: JsonValueKind.Object } payload
+            && payload.TryGetProperty(propertyName, out JsonElement value)
+            && value.ValueKind == JsonValueKind.String
+                ? value.GetString()
+                : null;
+
+        private static long GetCaptureCanonicalBytes(JsonElement? captured)
+        {
+            if (captured is not { ValueKind: JsonValueKind.Object } payload)
+            {
+                return 0;
+            }
+            foreach (string propertyName in new[] { "compact", "rows" })
+            {
+                if (payload.TryGetProperty(propertyName, out JsonElement wrapper)
+                    && wrapper.ValueKind == JsonValueKind.Object
+                    && wrapper.TryGetProperty("$redacted", out JsonElement redacted)
+                    && redacted.ValueKind == JsonValueKind.True
+                    && wrapper.TryGetProperty("bytes", out JsonElement bytes)
+                    && bytes.TryGetInt64(out long result))
+                {
+                    return result;
+                }
+            }
+            return 0;
+        }
+
+        private static OutputProcessStats Add(OutputProcessStats left, OutputProcessStats right) => new(
+            left.EncodeMs + right.EncodeMs,
+            left.EncodeAllocatedBytes + right.EncodeAllocatedBytes,
+            left.EnvelopeBuildMs + right.EnvelopeBuildMs,
+            left.EnvelopeBuildAllocatedBytes + right.EnvelopeBuildAllocatedBytes,
+            left.JournalMs + right.JournalMs,
+            left.ActionMs + right.ActionMs,
+            left.ActionAllocatedBytes + right.ActionAllocatedBytes,
+            left.SubstitutionMs + right.SubstitutionMs,
+            left.SubstitutionAllocatedBytes + right.SubstitutionAllocatedBytes,
+            left.GatewayEmitMs + right.GatewayEmitMs,
+            left.GatewayEmitAllocatedBytes + right.GatewayEmitAllocatedBytes);
+
+        private static double ElapsedMs(long startTicks) =>
+            (Stopwatch.GetTimestamp() - startTicks) * 1000.0 / Stopwatch.Frequency;
+
+        private static double RoundMs(double value) => Math.Round(value, 2);
+
+        private static long CurrentThreadAllocatedSince(long start) =>
+            Math.Max(0, GC.GetAllocatedBytesForCurrentThread() - start);
+
+        private async Task<OutputProcessStats> JournalAndActAsync(CoreOutput output, long causeSeq, string requestType)
+        {
+            long encodeAllocationStart = GC.GetAllocatedBytesForCurrentThread();
+            long encodeStartTicks = Stopwatch.GetTimestamp();
+            CoreOutputEncoder.EncodedOutput encoded = CoreOutputEncoder.Encode(output, requestType);
+            double encodeMs = ElapsedMs(encodeStartTicks);
+            long encodeAllocatedBytes = CurrentThreadAllocatedSince(encodeAllocationStart);
+
+            long envelopeAllocationStart = GC.GetAllocatedBytesForCurrentThread();
+            long envelopeStartTicks = Stopwatch.GetTimestamp();
+            Sts2Envelope envelope = BuildEnvelope(encoded.Kind, encoded.Type, null, encoded.Corr, encoded.Payload, causeSeq);
+            double envelopeBuildMs = ElapsedMs(envelopeStartTicks);
+            long envelopeBuildAllocatedBytes = CurrentThreadAllocatedSince(envelopeAllocationStart);
+
+            long journalStartTicks = Stopwatch.GetTimestamp();
+            await JournalAsync(envelope, flush: DurabilityPolicy.IsCheckpoint(encoded.Kind, encoded.Type)).ConfigureAwait(false);
+            double journalMs = ElapsedMs(journalStartTicks);
+
+            long actionAllocationStart = GC.GetAllocatedBytesForCurrentThread();
+            long actionStartTicks = Stopwatch.GetTimestamp();
+            EmitProcessStats emitStats = default;
             switch (encoded.Kind)
             {
                 case EnvelopeKinds.RpcOutResult:
@@ -286,13 +525,13 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
                             body = OverlayRuntimeState(core);
                         }
                     }
-                    Emit(new OutboundRpcMessage { Kind = encoded.Kind, Corr = encoded.Corr, Type = encoded.Type, Body = body });
+                    emitStats = Emit(new OutboundRpcMessage { Kind = encoded.Kind, Corr = encoded.Corr, Type = encoded.Type, Body = body });
                     break;
                 }
 
                 case EnvelopeKinds.RpcOutError:
                 case EnvelopeKinds.RpcOutNotify:
-                    Emit(new OutboundRpcMessage { Kind = encoded.Kind, Corr = encoded.Corr, Type = encoded.Type, Body = encoded.Payload });
+                    emitStats = Emit(new OutboundRpcMessage { Kind = encoded.Kind, Corr = encoded.Corr, Type = encoded.Type, Body = encoded.Payload });
                     break;
 
                 case EnvelopeKinds.EffectRequest:
@@ -312,6 +551,18 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
                 default:
                     throw new InvalidOperationException("Unhandled encoded output kind: " + encoded.Kind);
             }
+            return new OutputProcessStats(
+                encodeMs,
+                encodeAllocatedBytes,
+                envelopeBuildMs,
+                envelopeBuildAllocatedBytes,
+                journalMs,
+                ElapsedMs(actionStartTicks),
+                CurrentThreadAllocatedSince(actionAllocationStart),
+                emitStats.SubstitutionMs,
+                emitStats.SubstitutionAllocatedBytes,
+                emitStats.GatewayEmitMs,
+                emitStats.GatewayEmitAllocatedBytes);
         }
 
         /// <summary>
@@ -429,19 +680,36 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
             };
         }
 
-        private void Emit(OutboundRpcMessage message)
+        private EmitProcessStats Emit(OutboundRpcMessage message)
         {
+            long substitutionAllocationStart = GC.GetAllocatedBytesForCurrentThread();
+            long substitutionStartTicks = Stopwatch.GetTimestamp();
             try
             {
                 // The journal records elided payloads; the wire gets the originals back.
-                JsonElement? restored = CaptureElision.Substitute(message.Body, elidedFragments);
-                emitRpc(restored is null ? message : message with { Body = restored });
+                object? parameters = CaptureElision.SubstituteParameterObject(message.Body, elidedFragments);
+                double substitutionMs = ElapsedMs(substitutionStartTicks);
+                long substitutionAllocatedBytes = CurrentThreadAllocatedSince(substitutionAllocationStart);
+
+                long gatewayAllocationStart = GC.GetAllocatedBytesForCurrentThread();
+                long gatewayStartTicks = Stopwatch.GetTimestamp();
+                emitRpc(parameters is null ? message : message with { ParameterObject = parameters });
+                return new EmitProcessStats(
+                    substitutionMs,
+                    substitutionAllocatedBytes,
+                    ElapsedMs(gatewayStartTicks),
+                    CurrentThreadAllocatedSince(gatewayAllocationStart));
             }
             catch (Exception)
             {
                 // The gateway owns transport failures; the journal already has the truth.
                 // Count it so health can surface dropped outbound diagnostics (§12.1).
                 System.Threading.Interlocked.Increment(ref emitFaults);
+                return new EmitProcessStats(
+                    ElapsedMs(substitutionStartTicks),
+                    CurrentThreadAllocatedSince(substitutionAllocationStart),
+                    0,
+                    0);
             }
         }
 

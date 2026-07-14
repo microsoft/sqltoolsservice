@@ -4,10 +4,11 @@
 //
 
 using System;
+using System.Buffers;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text.Json;
-using System.Text.Json.Nodes;
+using Microsoft.SqlTools.Sts2.Contracts;
 using Microsoft.SqlTools.Sts2.Runtime.Journaling;
 
 namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
@@ -61,94 +62,223 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
                 return payload;
             }
 
-            JsonObject obj = JsonNode.Parse(p.GetRawText())!.AsObject();
-            if (elideRows && obj["rows"] is JsonNode rows)
+            // Rewrite only the top-level sensitive property into a compact wrapper.
+            // JsonNode.Parse/GetRawText/ToJsonString previously created a second DOM and
+            // multiple payload-sized UTF-16 strings for every rows page.
+            var buffer = new ArrayBufferWriter<byte>();
+            using (var writer = new Utf8JsonWriter(buffer))
             {
-                JsonObject wrapper = Wrap("rows", rows, sideTable);
-                addedKeys?.Add(wrapper["digest"]!.GetValue<string>());
-                obj["rows"] = wrapper;
+                writer.WriteStartObject();
+                foreach (JsonProperty property in p.EnumerateObject())
+                {
+                    writer.WritePropertyName(property.Name);
+                    string? fieldKind = elideRows && (property.Name is "rows" or "compact")
+                        ? property.Name
+                        : elideSql && property.Name == "sql"
+                            ? "sql"
+                            : null;
+                    if (fieldKind is null)
+                    {
+                        property.Value.WriteTo(writer);
+                    }
+                    else
+                    {
+                        WriteWrapper(writer, fieldKind, property.Value, sideTable, addedKeys);
+                    }
+                }
+                writer.WriteEndObject();
+                writer.Flush();
             }
-            if (elideRows && obj["compact"] is JsonNode compact)
-            {
-                // QO-5 compact pages nest the same capture-sensitive cells under
-                // compact.values (+ nullBitmap); the whole node is elided so the
-                // journal never sees them. Core routes rows pages by property
-                // presence only, which the wrapper preserves.
-                JsonObject wrapper = Wrap("compact", compact, sideTable);
-                addedKeys?.Add(wrapper["digest"]!.GetValue<string>());
-                obj["compact"] = wrapper;
-            }
-            if (elideSql && obj["sql"] is JsonNode sql)
-            {
-                JsonObject wrapper = Wrap("sql", sql, sideTable);
-                addedKeys?.Add(wrapper["digest"]!.GetValue<string>());
-                obj["sql"] = wrapper;
-            }
-            return JsonDocument.Parse(obj.ToJsonString()).RootElement;
+            return JsonDocument.Parse(buffer.WrittenMemory).RootElement;
         }
 
         /// <summary>Substitutes elided wrappers back to their original fragments (wire/effect edges).</summary>
         internal static JsonElement? Substitute(JsonElement? payload, ConcurrentDictionary<string, JsonElement> sideTable)
         {
-            if (payload is not { ValueKind: JsonValueKind.Object } p || sideTable.IsEmpty
-                || !p.GetRawText().Contains("\"$redacted\"", StringComparison.Ordinal))
+            if (payload is not { ValueKind: JsonValueKind.Object } p || sideTable.IsEmpty)
             {
                 return null; // nothing to substitute
             }
 
-            JsonObject obj = JsonNode.Parse(p.GetRawText())!.AsObject();
-            bool substituted = SubstituteNode(obj, sideTable);
-            return substituted ? JsonDocument.Parse(obj.ToJsonString()).RootElement : null;
+            var buffer = new ArrayBufferWriter<byte>(EstimateSubstitutionCapacity(p));
+            bool substituted;
+            using (var writer = new Utf8JsonWriter(buffer))
+            {
+                substituted = WriteWithSubstitution(writer, p, sideTable);
+                writer.Flush();
+            }
+            return substituted ? JsonDocument.Parse(buffer.WrittenMemory).RootElement : null;
         }
 
-        private static bool SubstituteNode(JsonObject obj, ConcurrentDictionary<string, JsonElement> sideTable)
+        /// <summary>
+        /// Builds a small serializer-ready object graph while preserving captured large
+        /// fragments as their original <see cref="JsonElement"/> values. The RPC formatter
+        /// can then write the final params once, without a restored payload-sized buffer and
+        /// <see cref="JsonDocument"/> parse. Returns null when no wrapper was substituted.
+        /// </summary>
+        internal static object? SubstituteParameterObject(
+            JsonElement? payload,
+            ConcurrentDictionary<string, JsonElement> sideTable)
         {
-            bool any = false;
-            foreach (string key in System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Select(obj, kv => kv.Key)))
+            if (payload is not { ValueKind: JsonValueKind.Object } element || sideTable.IsEmpty)
             {
-                JsonNode? value = obj[key];
-                if (value is JsonObject child)
+                return null;
+            }
+            object? result = BuildParameterValue(element, sideTable, out bool substituted);
+            return substituted ? result : null;
+        }
+
+        private static object? BuildParameterValue(
+            JsonElement element,
+            ConcurrentDictionary<string, JsonElement> sideTable,
+            out bool substituted)
+        {
+            if (element.ValueKind == JsonValueKind.Object)
+            {
+                if (element.TryGetProperty("$redacted", out JsonElement redacted)
+                    && redacted.ValueKind == JsonValueKind.True
+                    && element.TryGetProperty("digest", out JsonElement digestElement)
+                    && digestElement.ValueKind == JsonValueKind.String
+                    && sideTable.TryRemove(digestElement.GetString()!, out JsonElement original))
                 {
-                    if (child["$redacted"] is JsonValue && child["digest"] is JsonValue digestValue
-                        && sideTable.TryRemove(digestValue.GetValue<string>(), out JsonElement original))
-                    {
-                        obj[key] = JsonNode.Parse(original.GetRawText());
-                        any = true;
-                    }
-                    else
-                    {
-                        any |= SubstituteNode(child, sideTable);
-                    }
+                    substituted = true;
+                    return original;
                 }
+
+                substituted = false;
+                var result = new Dictionary<string, object?>(StringComparer.Ordinal);
+                foreach (JsonProperty property in element.EnumerateObject())
+                {
+                    result[property.Name] = BuildParameterValue(
+                        property.Value,
+                        sideTable,
+                        out bool propertySubstituted);
+                    substituted |= propertySubstituted;
+                }
+                return result;
             }
-            return any;
+            if (element.ValueKind == JsonValueKind.Array)
+            {
+                substituted = false;
+                var result = new List<object?>(element.GetArrayLength());
+                foreach (JsonElement item in element.EnumerateArray())
+                {
+                    result.Add(BuildParameterValue(item, sideTable, out bool itemSubstituted));
+                    substituted |= itemSubstituted;
+                }
+                return result;
+            }
+            substituted = false;
+            return element;
         }
 
-        private static JsonObject Wrap(string fieldKind, JsonNode original, ConcurrentDictionary<string, JsonElement> sideTable)
+        private static int EstimateSubstitutionCapacity(JsonElement element)
         {
-            JsonElement element = JsonDocument.Parse(original.ToJsonString()).RootElement;
-            byte[] canonical = CanonicalJson.Canonicalize(element);
-            string digest = CanonicalJson.DigestOfCanonicalBytes(canonical);
-            sideTable[digest] = element;
+            long estimate = 4096 + ReplacementBytes(element);
+            return (int)Math.Clamp(estimate, 4096, Sts2Defaults.MaxFrameBytes);
+        }
 
-            var wrapper = new JsonObject
+        private static long ReplacementBytes(JsonElement element)
+        {
+            if (element.ValueKind == JsonValueKind.Object)
             {
-                ["$redacted"] = true,
-                ["kind"] = fieldKind,
-                ["digest"] = digest,
-                ["bytes"] = canonical.Length,
-            };
-            if (fieldKind == "rows" && element.ValueKind == JsonValueKind.Array)
-            {
-                wrapper["rows"] = element.GetArrayLength();
+                if (element.TryGetProperty("$redacted", out JsonElement redacted)
+                    && redacted.ValueKind == JsonValueKind.True
+                    && element.TryGetProperty("bytes", out JsonElement bytes)
+                    && bytes.TryGetInt64(out long replacementBytes))
+                {
+                    return Math.Max(0, replacementBytes);
+                }
+                long total = 0;
+                foreach (JsonProperty property in element.EnumerateObject())
+                {
+                    total += ReplacementBytes(property.Value);
+                }
+                return total;
             }
-            else if (fieldKind == "compact" && element.ValueKind == JsonValueKind.Object
-                && element.TryGetProperty("values", out JsonElement values)
+            if (element.ValueKind == JsonValueKind.Array)
+            {
+                long total = 0;
+                foreach (JsonElement item in element.EnumerateArray())
+                {
+                    total += ReplacementBytes(item);
+                }
+                return total;
+            }
+            return 0;
+        }
+
+        private static bool WriteWithSubstitution(
+            Utf8JsonWriter writer,
+            JsonElement element,
+            ConcurrentDictionary<string, JsonElement> sideTable)
+        {
+            switch (element.ValueKind)
+            {
+                case JsonValueKind.Object:
+                    if (element.TryGetProperty("$redacted", out JsonElement redacted)
+                        && redacted.ValueKind == JsonValueKind.True
+                        && element.TryGetProperty("digest", out JsonElement digestElement)
+                        && digestElement.ValueKind == JsonValueKind.String
+                        && sideTable.TryRemove(digestElement.GetString()!, out JsonElement original))
+                    {
+                        original.WriteTo(writer);
+                        return true;
+                    }
+
+                    bool objectSubstituted = false;
+                    writer.WriteStartObject();
+                    foreach (JsonProperty property in element.EnumerateObject())
+                    {
+                        writer.WritePropertyName(property.Name);
+                        objectSubstituted |= WriteWithSubstitution(writer, property.Value, sideTable);
+                    }
+                    writer.WriteEndObject();
+                    return objectSubstituted;
+
+                case JsonValueKind.Array:
+                    bool arraySubstituted = false;
+                    writer.WriteStartArray();
+                    foreach (JsonElement item in element.EnumerateArray())
+                    {
+                        arraySubstituted |= WriteWithSubstitution(writer, item, sideTable);
+                    }
+                    writer.WriteEndArray();
+                    return arraySubstituted;
+
+                default:
+                    element.WriteTo(writer);
+                    return false;
+            }
+        }
+
+        private static void WriteWrapper(
+            Utf8JsonWriter writer,
+            string fieldKind,
+            JsonElement original,
+            ConcurrentDictionary<string, JsonElement> sideTable,
+            ICollection<string>? addedKeys)
+        {
+            CanonicalJson.DigestResult canonical = CanonicalJson.DigestAndMeasure(original);
+            sideTable[canonical.Digest] = original;
+            addedKeys?.Add(canonical.Digest);
+
+            writer.WriteStartObject();
+            writer.WriteBoolean("$redacted", true);
+            writer.WriteString("kind", fieldKind);
+            writer.WriteString("digest", canonical.Digest);
+            writer.WriteNumber("bytes", canonical.Bytes);
+            if (fieldKind == "rows" && original.ValueKind == JsonValueKind.Array)
+            {
+                writer.WriteNumber("rows", original.GetArrayLength());
+            }
+            else if (fieldKind == "compact" && original.ValueKind == JsonValueKind.Object
+                && original.TryGetProperty("values", out JsonElement values)
                 && values.ValueKind == JsonValueKind.Array)
             {
-                wrapper["rows"] = values.GetArrayLength();
+                writer.WriteNumber("rows", values.GetArrayLength());
             }
-            return wrapper;
+            writer.WriteEndObject();
         }
     }
 }

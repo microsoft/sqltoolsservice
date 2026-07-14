@@ -87,6 +87,18 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
         }
 
         [Fact]
+        public void StreamingDigestMatchesOwnedCanonicalBytes()
+        {
+            JsonElement element = JsonDocument.Parse(
+                """{"z":["é",null,{"b":2,"a":1.50}],"a":true}""").RootElement;
+            byte[] canonical = CanonicalJson.Canonicalize(element);
+
+            Assert.Equal(
+                CanonicalJson.DigestOfCanonicalBytes(canonical),
+                CanonicalJson.DigestOf(element));
+        }
+
+        [Fact]
         public void RedactedScalarWrapperIsCanonicalizedAsPlainData()
         {
             // SPEC §8.2: the wrapper is itself deterministic JSON; both record and replay

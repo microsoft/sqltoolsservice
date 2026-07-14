@@ -39,7 +39,7 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
                 new JournalWriter(runId, new JournalOptions { Directory = directory }, new JournalRunInfo { ServiceVersion = "9.9.9" }),
                 new CoordinatorOptions { RunId = runId, MetricSampleEvery = metricSampleEvery },
                 EffectRunner,
-                Emitted.Enqueue,
+                CaptureEmitted,
                 auxSinks);
             // Capture modes enter through the journaled session.start so replay starts identically.
             Coordinator.PostControlAsync("session.start", JsonDocument.Parse($$"""
@@ -56,6 +56,23 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
         public Coordinator Coordinator { get; }
 
         public ConcurrentQueue<OutboundRpcMessage> Emitted { get; } = new();
+
+        private void CaptureEmitted(OutboundRpcMessage message)
+        {
+            if (message.ParameterObject is null)
+            {
+                Emitted.Enqueue(message);
+                return;
+            }
+            // Production lets StreamJsonRpc serialize the composed object directly.
+            // Unit tests materialize it once so existing wire-shape assertions inspect
+            // the exact params clients receive.
+            Emitted.Enqueue(message with
+            {
+                Body = JsonSerializer.SerializeToElement(message.ParameterObject),
+                ParameterObject = null,
+            });
+        }
 
         /// <summary>The standard canary-credentialed open payload for the fake driver.</summary>
         public static string OpenPayload(string openId) => """

@@ -21,6 +21,8 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Journaling
     /// </summary>
     public static class CanonicalJson
     {
+        internal readonly record struct DigestResult(string Digest, long Bytes);
+
         /// <summary>Returns the canonical UTF-8 bytes of <paramref name="element"/>.</summary>
         public static byte[] Canonicalize(JsonElement element)
         {
@@ -33,7 +35,33 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Journaling
         }
 
         /// <summary>Returns <c>sha256:&lt;lowercase hex&gt;</c> of the canonical form.</summary>
-        public static string DigestOf(JsonElement element) => DigestOfCanonicalBytes(Canonicalize(element));
+        public static string DigestOf(JsonElement element) => DigestAndMeasure(element).Digest;
+
+        /// <summary>
+        /// Canonicalizes directly into an incremental SHA-256 sink. Envelope/capture hot
+        /// paths need the digest and byte count, not an owned duplicate of the JSON bytes.
+        /// </summary>
+        internal static DigestResult DigestAndMeasure(JsonElement element)
+        {
+            using IncrementalHash hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+            using var sink = new HashBufferWriter(hash);
+            using (var writer = new Utf8JsonWriter(
+                       sink,
+                       new JsonWriterOptions { Indented = false, SkipValidation = false }))
+            {
+                WriteCanonical(writer, element);
+                writer.Flush();
+            }
+
+            Span<byte> digest = stackalloc byte[32];
+            if (!hash.TryGetHashAndReset(digest, out int bytesWritten) || bytesWritten != digest.Length)
+            {
+                throw new CryptographicException("Unable to finalize canonical JSON digest.");
+            }
+            return new DigestResult(
+                "sha256:" + Convert.ToHexStringLower(digest),
+                sink.BytesWritten);
+        }
 
         /// <summary>Digests bytes that are already canonical.</summary>
         public static string DigestOfCanonicalBytes(ReadOnlySpan<byte> canonicalUtf8)
@@ -93,6 +121,67 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Journaling
 
                 default:
                     throw new InvalidDataException($"Cannot canonicalize JsonValueKind.{element.ValueKind}.");
+            }
+        }
+
+        /// <summary>
+        /// Reuses one pooled scratch buffer and hashes every committed writer segment.
+        /// No canonical payload-sized byte array survives the call.
+        /// </summary>
+        private sealed class HashBufferWriter : IBufferWriter<byte>, IDisposable
+        {
+            private readonly IncrementalHash hash;
+            private byte[] buffer = ArrayPool<byte>.Shared.Rent(16 * 1024);
+
+            internal HashBufferWriter(IncrementalHash hash)
+            {
+                this.hash = hash;
+            }
+
+            internal long BytesWritten { get; private set; }
+
+            public void Advance(int count)
+            {
+                if ((uint)count > (uint)buffer.Length)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(count));
+                }
+                if (count == 0)
+                {
+                    return;
+                }
+                hash.AppendData(buffer.AsSpan(0, count));
+                BytesWritten += count;
+            }
+
+            public Memory<byte> GetMemory(int sizeHint = 0)
+            {
+                EnsureCapacity(sizeHint);
+                return buffer;
+            }
+
+            public Span<byte> GetSpan(int sizeHint = 0)
+            {
+                EnsureCapacity(sizeHint);
+                return buffer;
+            }
+
+            public void Dispose()
+            {
+                byte[] returned = buffer;
+                buffer = [];
+                ArrayPool<byte>.Shared.Return(returned);
+            }
+
+            private void EnsureCapacity(int sizeHint)
+            {
+                if (sizeHint <= buffer.Length)
+                {
+                    return;
+                }
+                byte[] replacement = ArrayPool<byte>.Shared.Rent(sizeHint);
+                ArrayPool<byte>.Shared.Return(buffer);
+                buffer = replacement;
             }
         }
     }

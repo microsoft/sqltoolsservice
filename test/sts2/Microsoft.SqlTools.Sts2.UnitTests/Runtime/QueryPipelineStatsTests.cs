@@ -90,6 +90,9 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
                 $$"""{"connectionId":"{{connectionId}}","sql":"select 1"}""");
             string queryId = execute.Body!.Value.GetProperty("queryId").GetString()!;
             await session.WaitForNotificationsAsync("v2/query.complete", 1);
+            // Queue a request behind the terminal event so its replay-ignored runtime
+            // metric is guaranteed journaled before this test reads the files.
+            await session.RequestAsync("v2/diagnostics.health", "{}");
 
             List<Sts2Envelope> journal = JournalReader.ReadAll(directory).ToList();
             List<Sts2Envelope> statsDiags = journal
@@ -124,6 +127,34 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
             string raw = data.GetRawText();
             Assert.DoesNotContain("select 1", raw, StringComparison.OrdinalIgnoreCase);
             Assert.DoesNotContain("sql", raw, StringComparison.OrdinalIgnoreCase);
+
+            // Runtime-only coordinator attribution is journaled as a metric so replay
+            // remains pure while diagnostic runs can price every post-driver stage.
+            Sts2Envelope coordinatorMetric = Assert.Single(journal.Where(e =>
+                e.Kind == EnvelopeKinds.Metric
+                && e.Type == "sts2.query.coordinator.stats"));
+            JsonElement coordinator = coordinatorMetric.Payload!.Value;
+            Assert.Equal(queryId, coordinator.GetProperty("queryId").GetString());
+            Assert.Equal("completed", coordinator.GetProperty("status").GetString());
+            Assert.True(coordinator.GetProperty("pages").GetInt64() >= 1);
+            Assert.True(coordinator.GetProperty("queueWaitMsTotal").GetDouble() >= 0);
+            Assert.True(coordinator.GetProperty("captureMsTotal").GetDouble() >= 0);
+            Assert.True(coordinator.GetProperty("captureAllocatedBytes").GetInt64() >= 0);
+            Assert.True(coordinator.GetProperty("inputEnvelopeBuildMsTotal").GetDouble() >= 0);
+            Assert.True(coordinator.GetProperty("inputJournalMsTotal").GetDouble() >= 0);
+            Assert.True(coordinator.GetProperty("coreMsTotal").GetDouble() >= 0);
+            Assert.True(coordinator.GetProperty("outputEnvelopeBuildMsTotal").GetDouble() >= 0);
+            Assert.True(coordinator.GetProperty("outputJournalMsTotal").GetDouble() >= 0);
+            Assert.True(coordinator.GetProperty("outputActionMsTotal").GetDouble() >= 0);
+            Assert.True(coordinator.GetProperty("outputActionAllocatedBytes").GetInt64() >= 0);
+            Assert.True(coordinator.GetProperty("outputSubstitutionMsTotal").GetDouble() >= 0);
+            Assert.True(coordinator.GetProperty("outputSubstitutionAllocatedBytes").GetInt64() >= 0);
+            Assert.True(coordinator.GetProperty("outputGatewayEmitMsTotal").GetDouble() >= 0);
+            Assert.True(coordinator.GetProperty("outputGatewayEmitAllocatedBytes").GetInt64() >= 0);
+
+            string coordinatorRaw = coordinator.GetRawText();
+            Assert.DoesNotContain("select 1", coordinatorRaw, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("sql", coordinatorRaw, StringComparison.OrdinalIgnoreCase);
         }
 
         [Fact]
