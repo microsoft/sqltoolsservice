@@ -4,6 +4,8 @@
 //
 
 using System;
+using System.Buffers;
+using System.Linq;
 using System.Text;
 using System.Text.Json;
 using Microsoft.SqlTools.Sts2.Runtime.Journaling;
@@ -96,6 +98,41 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
             Assert.Equal(
                 CanonicalJson.DigestOfCanonicalBytes(canonical),
                 CanonicalJson.DigestOf(element));
+        }
+
+        [Fact]
+        public void TrustedWriterOutputFastPathMatchesFrozenCanonicalForm()
+        {
+            var buffer = new ArrayBufferWriter<byte>();
+            using (var writer = new Utf8JsonWriter(buffer))
+            {
+                writer.WriteStartObject();
+                writer.WriteString("z", string.Concat(Enumerable.Repeat("<i>é𐍈</i>", 4096)));
+                writer.WritePropertyName("a");
+                writer.WriteStartArray();
+                writer.WriteNumberValue(1.50m);
+                writer.WriteBooleanValue(true);
+                writer.WriteEndArray();
+                writer.WriteEndObject();
+                writer.Flush();
+            }
+            JsonElement element = JsonDocument.Parse(buffer.WrittenMemory).RootElement;
+
+            CanonicalJson.DigestResult expected = CanonicalJson.DigestAndMeasure(element);
+            CanonicalJson.DigestResult actual = CanonicalJson.DigestAndMeasureWriterOutput(element);
+
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void GeneralPathStillNormalizesNonCanonicalStringEscapes()
+        {
+            JsonElement escaped = JsonDocument.Parse("\"\\u0041\"").RootElement;
+            JsonElement literal = JsonDocument.Parse("\"A\"").RootElement;
+
+            Assert.Equal(
+                CanonicalJson.DigestAndMeasure(escaped),
+                CanonicalJson.DigestAndMeasure(literal));
         }
 
         [Fact]

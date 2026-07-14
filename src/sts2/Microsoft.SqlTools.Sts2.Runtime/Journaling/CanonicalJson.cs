@@ -29,7 +29,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Journaling
             var buffer = new ArrayBufferWriter<byte>();
             using (var writer = new Utf8JsonWriter(buffer, new JsonWriterOptions { Indented = false, SkipValidation = false }))
             {
-                WriteCanonical(writer, element);
+                WriteCanonical(writer, element, stringsAlreadyCanonical: false);
             }
             return buffer.WrittenSpan.ToArray();
         }
@@ -41,7 +41,22 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Journaling
         /// Canonicalizes directly into an incremental SHA-256 sink. Envelope/capture hot
         /// paths need the digest and byte count, not an owned duplicate of the JSON bytes.
         /// </summary>
-        internal static DigestResult DigestAndMeasure(JsonElement element)
+        internal static DigestResult DigestAndMeasure(JsonElement element) =>
+            DigestAndMeasure(element, stringsAlreadyCanonical: false);
+
+        /// <summary>
+        /// Digests a value produced by the default <see cref="Utf8JsonWriter"/>.
+        /// Its string tokens already use the frozen canonical escaping, so copy
+        /// them directly instead of decoding a payload-sized UTF-16 string and
+        /// escaping it back to the identical UTF-8 bytes. This must never be
+        /// used for client/input JSON, whose spelling is not trusted canonical.
+        /// </summary>
+        internal static DigestResult DigestAndMeasureWriterOutput(JsonElement element) =>
+            DigestAndMeasure(element, stringsAlreadyCanonical: true);
+
+        private static DigestResult DigestAndMeasure(
+            JsonElement element,
+            bool stringsAlreadyCanonical)
         {
             using IncrementalHash hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
             using var sink = new HashBufferWriter(hash);
@@ -49,7 +64,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Journaling
                        sink,
                        new JsonWriterOptions { Indented = false, SkipValidation = false }))
             {
-                WriteCanonical(writer, element);
+                WriteCanonical(writer, element, stringsAlreadyCanonical);
                 writer.Flush();
             }
 
@@ -71,7 +86,10 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Journaling
             return "sha256:" + Convert.ToHexStringLower(hash);
         }
 
-        private static void WriteCanonical(Utf8JsonWriter writer, JsonElement element)
+        private static void WriteCanonical(
+            Utf8JsonWriter writer,
+            JsonElement element,
+            bool stringsAlreadyCanonical)
         {
             switch (element.ValueKind)
             {
@@ -81,7 +99,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Journaling
                                  .OrderBy(p => p.Name, StringComparer.Ordinal))
                     {
                         writer.WritePropertyName(property.Name);
-                        WriteCanonical(writer, property.Value);
+                        WriteCanonical(writer, property.Value, stringsAlreadyCanonical);
                     }
                     writer.WriteEndObject();
                     break;
@@ -90,7 +108,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Journaling
                     writer.WriteStartArray();
                     foreach (JsonElement item in element.EnumerateArray())
                     {
-                        WriteCanonical(writer, item);
+                        WriteCanonical(writer, item, stringsAlreadyCanonical);
                     }
                     writer.WriteEndArray();
                     break;
@@ -98,7 +116,16 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Journaling
                 case JsonValueKind.String:
                     // Utf8JsonWriter's default escaper is deterministic, normalizing all
                     // wire escapings of the same string to one canonical form.
-                    writer.WriteStringValue(element.GetString());
+                    if (stringsAlreadyCanonical)
+                    {
+                        // JsonElement.WriteTo forwards the already-escaped token
+                        // without allocating its decoded UTF-16 representation.
+                        element.WriteTo(writer);
+                    }
+                    else
+                    {
+                        writer.WriteStringValue(element.GetString());
+                    }
                     break;
 
                 case JsonValueKind.Number:

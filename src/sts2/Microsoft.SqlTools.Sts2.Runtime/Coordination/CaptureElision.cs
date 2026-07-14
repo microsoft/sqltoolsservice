@@ -259,7 +259,13 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
             ConcurrentDictionary<string, JsonElement> sideTable,
             ICollection<string>? addedKeys)
         {
-            CanonicalJson.DigestResult canonical = CanonicalJson.DigestAndMeasure(original);
+            // Rows/compact fragments are emitted by DriverEffectRunner's default
+            // Utf8JsonWriter, so their string tokens already use the frozen
+            // canonical escaping. SQL is client input and must take the general
+            // decode/normalize path.
+            CanonicalJson.DigestResult canonical = fieldKind is "rows" or "compact"
+                ? CanonicalJson.DigestAndMeasureWriterOutput(original)
+                : CanonicalJson.DigestAndMeasure(original);
             sideTable[canonical.Digest] = original;
             addedKeys?.Add(canonical.Digest);
 
