@@ -165,7 +165,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 column.IdentityIncrement == otherColumn.IdentityIncrement &&
                 column.MaxLength == otherColumn.MaxLength &&
                 column.Precision == otherColumn.Precision &&
-                column.Scale == otherColumn.Scale;
+                column.Scale == otherColumn.Scale &&
+                column.DefaultValue == otherColumn.DefaultValue &&
+                column.IsComputed == otherColumn.IsComputed &&
+                column.ComputedFormula == otherColumn.ComputedFormula &&
+                column.ComputedPersisted == otherColumn.ComputedPersisted;
 
         }
 

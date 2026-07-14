@@ -305,6 +305,36 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             }
         }
 
+        /// <summary>
+        /// Determines whether a computed column's formula must be propagated when both the
+        /// source and target columns remain computed.
+        /// </summary>
+        internal static bool ShouldUpdateComputedFormula(SchemaDesignerColumn sourceColumn, SchemaDesignerColumn targetColumn)
+        {
+            return sourceColumn.IsComputed && targetColumn.IsComputed &&
+                sourceColumn.ComputedFormula != targetColumn.ComputedFormula;
+        }
+
+        /// <summary>
+        /// Determines whether a computed column's persisted flag must be propagated when both
+        /// the source and target columns remain computed.
+        /// </summary>
+        internal static bool ShouldUpdateComputedPersisted(SchemaDesignerColumn sourceColumn, SchemaDesignerColumn targetColumn)
+        {
+            return sourceColumn.IsComputed && targetColumn.IsComputed &&
+                sourceColumn.ComputedPersisted != targetColumn.ComputedPersisted;
+        }
+
+        /// <summary>
+        /// Determines whether a computed column's persisted nullability must be propagated when
+        /// both the source and target columns remain computed.
+        /// </summary>
+        internal static bool ShouldUpdateComputedPersistedNullable(SchemaDesignerColumn sourceColumn, SchemaDesignerColumn targetColumn)
+        {
+            return sourceColumn.IsComputed && targetColumn.IsComputed &&
+                sourceColumn.IsNullable != targetColumn.IsNullable;
+        }
+
         private static bool AreColumnOrdersDifferent(
             List<SchemaDesignerColumn> sourceColumns,
             List<SchemaDesignerColumn> targetColumns)
@@ -345,6 +375,31 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                 {
                     viewModel.IsComputedPersistedNullable = targetColumn.IsNullable;
                 }
+                return;
+            }
+
+            // When both columns remain computed, IsComputed itself is unchanged, but the
+            // formula, persisted state, or persisted nullability may still differ and must
+            // be propagated. Previously these were only applied when IsComputed changed.
+            if (sourceColumn.IsComputed && targetColumn.IsComputed)
+            {
+                if (ShouldUpdateComputedFormula(sourceColumn, targetColumn) && viewModel.CanEditComputedFormula)
+                {
+                    viewModel.ComputedFormula = targetColumn.ComputedFormula;
+                }
+
+                if (ShouldUpdateComputedPersisted(sourceColumn, targetColumn) && viewModel.CanEditIsComputedPersisted)
+                {
+                    viewModel.IsComputedPersisted = targetColumn.ComputedPersisted;
+                }
+
+                if (ShouldUpdateComputedPersistedNullable(sourceColumn, targetColumn) && viewModel.CanEditIsComputedPersistedNullable)
+                {
+                    viewModel.IsComputedPersistedNullable = targetColumn.IsNullable;
+                }
+
+                // Computed columns do not carry data type, length, precision, scale,
+                // identity, or default value settings; skip the regular column updates.
                 return;
             }
 
