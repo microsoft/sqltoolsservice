@@ -111,6 +111,13 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
         /// <summary>Largest complete-code-point UTF-16 prefix within a UTF-8 byte budget.</summary>
         internal static int Utf8PrefixCharLength(string value, int maxBytes)
         {
+            int byteCount = Encoding.UTF8.GetByteCount(value);
+            return Utf8PrefixCharLength(value, maxBytes, byteCount);
+        }
+
+        /// <summary>Byte-count-aware overload for callers already pricing the same value.</summary>
+        internal static int Utf8PrefixCharLength(string value, int maxBytes, int utf8ByteCount)
+        {
             if (maxBytes <= 0)
             {
                 return 0;
@@ -118,7 +125,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
             // The common SQL path is ASCII or otherwise already within the
             // prefix budget. The runtime byte counter is vectorized and avoids
             // the substantially slower scalar-by-scalar walk in that case.
-            if (Encoding.UTF8.GetByteCount(value) <= maxBytes)
+            if (utf8ByteCount <= maxBytes)
             {
                 return value.Length;
             }

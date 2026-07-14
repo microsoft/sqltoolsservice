@@ -733,7 +733,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
             return array.ToJsonString();
         }
 
-        private static long WriteRows(
+        internal static long WriteRows(
             Utf8JsonWriter writer,
             IReadOnlyList<IReadOnlyList<object?>> rows,
             int maxCellBytes,
@@ -753,6 +753,14 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                     if (cell is null or DBNull)
                     {
                         nullCells++;
+                    }
+                    // Utf8JsonWriter's contiguous growth hint includes bytes
+                    // still pending in its current span. Commit before a large
+                    // cell so the capacity estimator's one-cell reservation can
+                    // use the existing free tail instead of replacing the array.
+                    if (RequiresLargeCellFlush(cell))
+                    {
+                        writer.Flush();
                     }
                     // SPEC §7.7 wire encoding at the query's effective bound
                     // (R024/STS2-3). Write directly into the final event buffer:
@@ -899,71 +907,125 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                 effect.CauseSeq).AsTask();
         }
 
-        private static int EstimateRowsEventCapacity(
+        internal static int EstimateRowsEventCapacity(
             IReadOnlyList<IReadOnlyList<object?>> rows,
             int maxCellBytes)
         {
             long estimate = 4096;
+            long maxReservationSlack = 0;
             foreach (IReadOnlyList<object?> row in rows)
             {
                 estimate += 2;
                 foreach (object? cell in row)
                 {
-                    estimate += 1 + EstimateCellJsonBytes(cell, maxCellBytes);
-                    if (estimate >= FrameGuardBytes)
+                    CellJsonEstimate cellEstimate = EstimateCellJsonShape(cell, maxCellBytes);
+                    estimate += 1 + cellEstimate.Bytes;
+                    maxReservationSlack = Math.Max(
+                        maxReservationSlack,
+                        cellEstimate.Reservation - cellEstimate.Bytes);
+                    if (estimate + maxReservationSlack >= FrameGuardBytes)
                     {
                         return FrameGuardBytes;
                     }
                 }
             }
-            return (int)Math.Clamp(estimate, 4096, FrameGuardBytes);
+            return (int)Math.Clamp(estimate + maxReservationSlack, 4096, FrameGuardBytes);
         }
 
-        internal static long EstimateCellJsonBytes(object? cell, int maxCellBytes)
+        /// <summary>
+        /// Utf8JsonWriter reserves one contiguous worst-case span before it
+        /// escapes a string. The final-byte estimate alone can therefore fit
+        /// while ArrayBufferWriter still replaces its array. Price only the
+        /// largest per-cell reservation slack; later cells remain part of the
+        /// ordinary final-byte estimate and do not multiply this allowance.
+        /// </summary>
+        private readonly record struct CellJsonEstimate(long Bytes, long Reservation);
+
+        private static CellJsonEstimate EstimateCellJsonShape(object? cell, int maxCellBytes)
         {
             int prefixCap = maxCellBytes > 0
                 ? Math.Min(maxCellBytes, Sts2Defaults.TruncatedPrefixBytes)
                 : Sts2Defaults.TruncatedPrefixBytes;
             return cell switch
             {
-                null or DBNull => 4,
-                string value => EstimateStringCellBytes(value, maxCellBytes, prefixCap),
-                byte[] value => (long)(maxCellBytes > 0 && value.Length > maxCellBytes
-                    ? Math.Min(value.Length, prefixCap)
-                    : value.Length) * 4 / 3 + 160,
-                Abstractions.DriverTruncatedValue value when value.Kind == "binary" =>
-                    (long)Math.Min(value.PrefixBytes?.Length ?? 0, prefixCap) * 4 / 3 + 160,
-                Abstractions.DriverTruncatedValue value =>
-                    EstimateTruncatedTextBytes(value.PrefixText, prefixCap) + 160,
-                Abstractions.DriverVectorValue value => (long)value.ComponentBytes.Length * 4 / 3 + 192,
-                Abstractions.DriverSpatialValue value => (long)value.Wkb.Length * 4 / 3 + 192,
+                null or DBNull => new CellJsonEstimate(4, 0),
+                string value => EstimateTextCell(value, maxCellBytes, prefixCap, alreadyTruncated: false),
+                byte[] value => EstimateBinaryCell(
+                    maxCellBytes > 0 && value.Length > maxCellBytes
+                        ? Math.Min(value.Length, prefixCap)
+                        : value.Length,
+                    writtenAsString: maxCellBytes > 0 && value.Length > maxCellBytes),
+                Abstractions.DriverTruncatedValue value when value.Kind == "binary" => EstimateBinaryCell(
+                    Math.Min(value.PrefixBytes?.Length ?? 0, prefixCap),
+                    writtenAsString: true),
+                Abstractions.DriverTruncatedValue value => EstimateTextCell(
+                    value.PrefixText ?? string.Empty,
+                    maxCellBytes,
+                    prefixCap,
+                    alreadyTruncated: true),
+                Abstractions.DriverVectorValue value => EstimateBinaryCell(
+                    value.ComponentBytes.Length,
+                    writtenAsString: false,
+                    wrapperBytes: 192),
+                Abstractions.DriverSpatialValue value => EstimateBinaryCell(
+                    value.Wkb.Length,
+                    writtenAsString: false,
+                    wrapperBytes: 192),
                 Abstractions.DriverVectorUnavailableValue or
-                Abstractions.DriverSpatialUnavailableValue => 256,
-                bool => 5,
-                Guid or DateTime or DateTimeOffset => 64,
-                TimeSpan => 32,
-                decimal or double or float or long or int or short or byte => 32,
-                System.Text.Json.Nodes.JsonNode => 256,
-                _ => 128,
+                Abstractions.DriverSpatialUnavailableValue => new CellJsonEstimate(256, 0),
+                bool => new CellJsonEstimate(5, 0),
+                Guid or DateTime or DateTimeOffset => new CellJsonEstimate(64, 0),
+                TimeSpan => new CellJsonEstimate(32, 0),
+                decimal or double or float or long or int or short or byte => new CellJsonEstimate(32, 0),
+                System.Text.Json.Nodes.JsonNode => new CellJsonEstimate(256, 0),
+                _ => new CellJsonEstimate(128, 0),
             };
         }
 
-        private static long EstimateTruncatedTextBytes(string? value, int prefixCap)
+        private static CellJsonEstimate EstimateTextCell(
+            string value,
+            int maxCellBytes,
+            int prefixCap,
+            bool alreadyTruncated)
         {
-            string text = value ?? string.Empty;
-            return EstimateJsonStringBytes(
-                text,
-                WireValueEncoder.Utf8PrefixCharLength(text, prefixCap));
+            int utf8ByteCount = Encoding.UTF8.GetByteCount(value);
+            bool truncated = alreadyTruncated || (maxCellBytes > 0 && utf8ByteCount > maxCellBytes);
+            int chars = truncated
+                ? WireValueEncoder.Utf8PrefixCharLength(value, prefixCap, utf8ByteCount)
+                : value.Length;
+            long jsonStringBytes = EstimateJsonStringBytes(value, chars);
+            // Utf8JsonWriter first escapes the UTF-16 value, then reserves
+            // three UTF-8 bytes per escaped character before transcoding.
+            return new CellJsonEstimate(
+                jsonStringBytes + (truncated ? 160 : 0),
+                jsonStringBytes * 3 + 256);
         }
 
-        private static long EstimateStringCellBytes(string value, int maxCellBytes, int prefixCap)
+        private static CellJsonEstimate EstimateBinaryCell(
+            int retainedBytes,
+            bool writtenAsString,
+            int wrapperBytes = 160)
         {
-            bool truncated = maxCellBytes > 0 && Encoding.UTF8.GetByteCount(value) > maxCellBytes;
-            int chars = truncated
-                ? WireValueEncoder.Utf8PrefixCharLength(value, prefixCap)
-                : value.Length;
-            return EstimateJsonStringBytes(value, chars) + (truncated ? 160 : 0);
+            long base64Chars = ((long)Math.Max(0, retainedBytes) + 2) / 3 * 4;
+            long bytes = base64Chars + wrapperBytes;
+            long reservation = base64Chars * (writtenAsString ? 3 : 1) + 256;
+            return new CellJsonEstimate(bytes, reservation);
         }
+
+        private static bool RequiresLargeCellFlush(object? cell) => cell switch
+        {
+            string value => value.Length >= 4096,
+            byte[] value => value.Length >= 4096,
+            Abstractions.DriverTruncatedValue value when value.Kind == "binary" =>
+                (value.PrefixBytes?.Length ?? 0) >= 4096,
+            Abstractions.DriverTruncatedValue value => (value.PrefixText?.Length ?? 0) >= 4096,
+            Abstractions.DriverVectorValue value => value.ComponentBytes.Length >= 4096,
+            Abstractions.DriverSpatialValue value => value.Wkb.Length >= 4096,
+            _ => false,
+        };
+
+        internal static long EstimateCellJsonBytes(object? cell, int maxCellBytes) =>
+            EstimateCellJsonShape(cell, maxCellBytes).Bytes;
 
         /// <summary>
         /// Allocation-free upper bound for one JSON string under the same
