@@ -386,10 +386,6 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             // Parallel safe because same-URI flavor transitions are serialized before shared state is updated.
             serviceHost.SetEventHandler(LanguageFlavorChangeNotification.Type, HandleDidChangeLanguageFlavorNotification, isParallelProcessingSupported: true);
 
-            // Updates connection state after an auth token refresh completes.
-            // Parallel safe because it only updates connection info token.
-            serviceHost.SetEventHandler(TokenRefreshedNotification.Type, HandleTokenRefreshedNotification, isParallelProcessingSupported: true);
-
             serviceHost.SetRequestHandler(CompletionExtLoadRequest.Type, HandleCompletionExtLoadRequest);
 
             // Register a no-op shutdown task for validation of the shutdown logic
@@ -1175,15 +1171,6 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 oldCts.Dispose();
             }
             return newCts;
-        }
-
-        internal Task HandleTokenRefreshedNotification(
-            TokenRefreshedParams tokenRefreshedParams,
-            EventContext eventContext
-        )
-        {
-            ConnectionServiceInstance.UpdateAuthToken(tokenRefreshedParams.Uri, tokenRefreshedParams.Token, tokenRefreshedParams.ExpiresOn);
-            return Task.CompletedTask;
         }
 
         #endregion
