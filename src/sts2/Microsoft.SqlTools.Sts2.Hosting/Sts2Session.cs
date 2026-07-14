@@ -8,6 +8,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.IO.Pipelines;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -119,7 +120,26 @@ namespace Microsoft.SqlTools.Sts2.Hosting
         public BroadcastEnvelopeSink LiveTail => liveTail;
 
         /// <summary>Builds and starts a session over the given streams.</summary>
-        public static Sts2Session Start(Sts2SessionOptions options)
+        public static Sts2Session Start(Sts2SessionOptions options) => StartCore(options, null, null);
+
+        /// <summary>
+        /// Builds the product session directly over the multiplexer's pipes, avoiding a
+        /// second stream-backed pipe layer while retaining the public stream composition API.
+        /// </summary>
+        internal static Sts2Session Start(
+            Sts2SessionOptions options,
+            PipeWriter outputWriter,
+            PipeReader inputReader)
+        {
+            ArgumentNullException.ThrowIfNull(outputWriter);
+            ArgumentNullException.ThrowIfNull(inputReader);
+            return StartCore(options, outputWriter, inputReader);
+        }
+
+        private static Sts2Session StartCore(
+            Sts2SessionOptions options,
+            PipeWriter? outputWriter,
+            PipeReader? inputReader)
         {
             ArgumentNullException.ThrowIfNull(options);
 
@@ -159,13 +179,20 @@ namespace Microsoft.SqlTools.Sts2.Hosting
             Action<string>? rpcTransportSnapshotListener = rpcTransportDiagnostics is null
                 ? null
                 : rpcTransportDiagnostics.WriteSnapshot;
-            var rpcTransportStats = new RpcTransportStats(rpcTransportSnapshotListener);
+            bool directPipeEndpoint = outputWriter is not null;
+            var rpcTransportStats = new RpcTransportStats(rpcTransportSnapshotListener, directPipeEndpoint);
             var formatter = new MeasuredSystemTextJsonFormatter(innerFormatter, rpcTransportStats);
-            var handler = new MeasuredHeaderDelimitedMessageHandler(
-                options.Output,
-                options.Input,
-                formatter,
-                rpcTransportStats);
+            MeasuredHeaderDelimitedMessageHandler handler = directPipeEndpoint
+                ? new MeasuredHeaderDelimitedMessageHandler(
+                    outputWriter!,
+                    inputReader!,
+                    formatter,
+                    rpcTransportStats)
+                : new MeasuredHeaderDelimitedMessageHandler(
+                    options.Output,
+                    options.Input,
+                    formatter,
+                    rpcTransportStats);
             var rpc = new JsonRpc(handler);
             session = new Sts2Session(
                 rpc,

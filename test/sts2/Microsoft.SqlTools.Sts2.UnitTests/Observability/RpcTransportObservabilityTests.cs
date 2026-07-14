@@ -3,8 +3,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Pipelines;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -44,6 +46,7 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Observability
             using JsonDocument document = JsonDocument.Parse(snapshot);
             JsonElement root = document.RootElement;
             Assert.Equal("sts2.rpc.transport.stats/1", root.GetProperty("schema").GetString());
+            Assert.Equal(0, root.GetProperty("directPipeEndpoint").GetInt32());
             Assert.Equal(2, root.GetProperty("messages").GetInt64());
             Assert.Equal(1, root.GetProperty("rowMessages").GetInt64());
             Assert.True(root.GetProperty("rowBytes").GetInt64() > privateValue.Length);
@@ -57,6 +60,35 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Observability
             Assert.Contains("Content-Length:", wire);
             Assert.Contains("\"method\":\"v2/query.rows\"", wire);
             Assert.Contains(privateValue, wire);
+        }
+
+        [Fact]
+        public async Task WritesExactFramingThroughDirectPipeEndpoint()
+        {
+            var snapshots = new List<string>();
+            var stats = new RpcTransportStats(snapshots.Add, directPipeEndpoint: true);
+            var inner = new SystemTextJsonFormatter();
+            inner.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+            var formatter = new MeasuredSystemTextJsonFormatter(inner, stats);
+            var output = new Pipe();
+            var input = new Pipe();
+            using var handler = new MeasuredHeaderDelimitedMessageHandler(
+                output.Writer,
+                input.Reader,
+                formatter,
+                stats);
+
+            await handler.WriteAsync(
+                CreateNotification(formatter, "v2/query.complete", new { status = "succeeded" }),
+                CancellationToken.None);
+
+            ReadResult result = await output.Reader.ReadAsync(CancellationToken.None);
+            string wire = System.Text.Encoding.UTF8.GetString(result.Buffer.ToArray());
+            output.Reader.AdvanceTo(result.Buffer.End);
+            Assert.Contains("Content-Length:", wire);
+            Assert.Contains("\"method\":\"v2/query.complete\"", wire);
+            using JsonDocument snapshot = JsonDocument.Parse(Assert.Single(snapshots));
+            Assert.Equal(1, snapshot.RootElement.GetProperty("directPipeEndpoint").GetInt32());
         }
 
         private static JsonRpcRequest CreateNotification(

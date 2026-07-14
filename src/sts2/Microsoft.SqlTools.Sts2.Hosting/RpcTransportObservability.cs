@@ -8,6 +8,7 @@ using System.Buffers;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.IO.Pipelines;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
@@ -26,6 +27,7 @@ namespace Microsoft.SqlTools.Sts2.Hosting
     internal sealed class RpcTransportStats
     {
         private readonly Action<string>? snapshotListener;
+        private readonly bool directPipeEndpoint;
         private long messages;
         private long bytes;
         private long maxMessageBytes;
@@ -53,9 +55,10 @@ namespace Microsoft.SqlTools.Sts2.Hosting
         private long rowFramingCopyAllocatedBytes;
         private long rowFlushTicks;
 
-        internal RpcTransportStats(Action<string>? snapshotListener = null)
+        internal RpcTransportStats(Action<string>? snapshotListener = null, bool directPipeEndpoint = false)
         {
             this.snapshotListener = snapshotListener;
+            this.directPipeEndpoint = directPipeEndpoint;
         }
 
         internal void RecordSerialization(RpcSerializationMeasurement measurement)
@@ -147,6 +150,7 @@ namespace Microsoft.SqlTools.Sts2.Hosting
         internal string SerializeSnapshot() => JsonSerializer.Serialize(new
         {
             schema = "sts2.rpc.transport.stats/1",
+            directPipeEndpoint = directPipeEndpoint ? 1 : 0,
             messages = Volatile.Read(ref messages),
             bytes = Volatile.Read(ref bytes),
             maxMessageBytes = Volatile.Read(ref maxMessageBytes),
@@ -368,6 +372,17 @@ namespace Microsoft.SqlTools.Sts2.Hosting
             MeasuredSystemTextJsonFormatter formatter,
             RpcTransportStats stats)
             : base(sendingStream, receivingStream, formatter)
+        {
+            measuredFormatter = formatter;
+            this.stats = stats;
+        }
+
+        internal MeasuredHeaderDelimitedMessageHandler(
+            PipeWriter writer,
+            PipeReader reader,
+            MeasuredSystemTextJsonFormatter formatter,
+            RpcTransportStats stats)
+            : base(writer, reader, formatter)
         {
             measuredFormatter = formatter;
             this.stats = stats;

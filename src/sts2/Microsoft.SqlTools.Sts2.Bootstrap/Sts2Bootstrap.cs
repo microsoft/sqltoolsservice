@@ -77,23 +77,26 @@ namespace Microsoft.SqlTools.Sts2.Bootstrap
             string runId = string.Create(
                 CultureInfo.InvariantCulture,
                 $"run-{DateTime.UtcNow:yyyyMMdd-HHmmss}-{Environment.ProcessId}");
-            Sts2Session session = Sts2Session.Start(new Sts2SessionOptions
-            {
-                Input = multiplexer.Sts2Input,
-                Output = multiplexer.Sts2Output,
-                RunId = runId,
-                // One directory per run (R007): every process run journals into its own
-                // sts2/<runId>/ folder so replay, export, tail, and invariant checks can
-                // never conflate this run with an earlier one in the shared log directory.
-                JournalDirectory = Path.Combine(logDirectory, "sts2", runId),
-                ServiceVersion = typeof(Sts2Bootstrap).Assembly.GetName().Version?.ToString() ?? "0.0.0.0",
-                Drivers = new Dictionary<string, IDbDriver>
+            Sts2Session session = Sts2Session.Start(
+                new Sts2SessionOptions
                 {
-                    ["sqlclient"] = new Drivers.SqlClient.SqlClientDriver(), // production (M5)
-                    ["sqlite"] = new SqliteDriver(),                        // portable (M4)
+                    Input = multiplexer.Sts2Input,
+                    Output = multiplexer.Sts2Output,
+                    RunId = runId,
+                    // One directory per run (R007): every process run journals into its own
+                    // sts2/<runId>/ folder so replay, export, tail, and invariant checks can
+                    // never conflate this run with an earlier one in the shared log directory.
+                    JournalDirectory = Path.Combine(logDirectory, "sts2", runId),
+                    ServiceVersion = typeof(Sts2Bootstrap).Assembly.GetName().Version?.ToString() ?? "0.0.0.0",
+                    Drivers = new Dictionary<string, IDbDriver>
+                    {
+                        ["sqlclient"] = new Drivers.SqlClient.SqlClientDriver(), // production (M5)
+                        ["sqlite"] = new SqliteDriver(),                        // portable (M4)
+                    },
+                    CommandLine = SanitizeCommandLine(args),
                 },
-                CommandLine = SanitizeCommandLine(args),
-            });
+                multiplexer.Sts2OutputWriter,
+                multiplexer.Sts2InputReader);
 
             // Crash containment (SPEC §6.5): if the STS2 host dies, mark the channel dead
             // so v2 requests get synthesized errors while legacy traffic continues.

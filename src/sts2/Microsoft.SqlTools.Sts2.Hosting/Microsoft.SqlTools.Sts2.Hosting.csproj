@@ -12,5 +12,6 @@
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Microsoft.SqlTools.Sts2.UnitTests" />
+    <InternalsVisibleTo Include="Microsoft.SqlTools.Sts2.Bootstrap" />
   </ItemGroup>
 </Project>
