@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -76,6 +77,26 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Multiplexer
 
             await h.LegacySendsAsync("""{"jsonrpc":"2.0","id":10,"result":{"connected":true}}""", TestTimeout);
             Assert.Contains("connected", await h.StdoutFrameAsync(TestTimeout));
+        }
+
+        [Theory]
+        [InlineData("Content-Length: nope\r\n\r\n", "MalformedHeader")]
+        [InlineData("Content-Length: 999\r\n\r\n", "OversizedFrame")]
+        public async Task InvalidOutboundFrameFailsSts2WithoutBreakingLegacy(string header, string expectedStatus)
+        {
+            await using var h = new MuxHarness(new MultiplexerOptions { MaxFrameBytes = 256 });
+            await h.Mux.Sts2Output.WriteAsync(Encoding.ASCII.GetBytes(header), TestTimeout);
+            await h.Mux.Sts2Output.FlushAsync(TestTimeout);
+
+            JsonElement fatal = JsonDocument.Parse(await h.StdoutFrameAsync(TestTimeout)).RootElement;
+            Assert.Equal("v2/fatal", fatal.GetProperty("method").GetString());
+            Assert.Contains(
+                h.Diagnostics,
+                diagnostic => diagnostic.Code == MultiplexerDiagnosticCodes.PumpFailure
+                    && diagnostic.Message.Contains(expectedStatus, StringComparison.Ordinal));
+
+            await h.LegacySendsAsync("""{"jsonrpc":"2.0","id":11,"result":"still alive"}""", TestTimeout);
+            Assert.Contains("still alive", await h.StdoutFrameAsync(TestTimeout));
         }
     }
 }
