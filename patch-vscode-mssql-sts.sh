@@ -5,14 +5,25 @@ configuration="${1:-Debug}"
 target_root="${2:-}"
 
 framework="net10.0"
-version="6.0.20260625.1"
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 repo_root="$script_dir"
+vscode_mssql_root="$(cd "$repo_root/../vscode-mssql" && pwd)"
+config_path="$vscode_mssql_root/extensions/mssql/src/configurations/config.ts"
+
+if [[ ! -f "$config_path" ]]; then
+    echo "vscode-mssql configuration was not found: $config_path" >&2
+    exit 1
+fi
+
+version="$(sed -n '/service: {/,/^[[:space:]]*},/ s/^[[:space:]]*version:[[:space:]]*"\([^"[:space:]]*\)".*/\1/p' "$config_path" | head -n 1)"
+if [[ -z "$version" ]]; then
+    echo "Could not determine SQL Tools Service version from: $config_path" >&2
+    exit 1
+fi
 
 if [[ -z "$target_root" ]]; then
-    sibling_root="$(cd "$repo_root/.." && pwd)"
-    target_root="$sibling_root/vscode-mssql/extensions/mssql/sqltoolsservice/$version"
+    target_root="$vscode_mssql_root/extensions/mssql/sqltoolsservice/$version"
 fi
 
 os_name="$(uname -s)"

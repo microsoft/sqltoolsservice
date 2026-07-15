@@ -8,9 +8,21 @@ $ErrorActionPreference = "Stop"
 $framework = "net10.0"
 $runtime = "win-x64"
 $repoRoot = $PSScriptRoot
-$version = "6.0.20260625.1"
+$vscodeMssqlRoot = Join-Path (Split-Path -Parent $repoRoot) "vscode-mssql"
+$configPath = Join-Path $vscodeMssqlRoot "extensions\mssql\src\configurations\config.ts"
+if (-not (Test-Path -LiteralPath $configPath -PathType Leaf)) {
+    throw "vscode-mssql configuration was not found: $configPath"
+}
+
+$configContents = Get-Content -LiteralPath $configPath -Raw
+$versionMatch = [regex]::Match($configContents, 'service:\s*\{[\s\S]*?version:\s*["''](?<version>[^"'']+)["'']')
+if (-not $versionMatch.Success) {
+    throw "Could not determine SQL Tools Service version from: $configPath"
+}
+
+$version = $versionMatch.Groups['version'].Value
 if ([string]::IsNullOrWhiteSpace($TargetRoot)) {
-    $TargetRoot = Join-Path (Split-Path -Parent $repoRoot) "vscode-mssql\extensions\mssql\sqltoolsservice\$version"
+    $TargetRoot = Join-Path $vscodeMssqlRoot "extensions\mssql\sqltoolsservice\$version"
 }
 $stagingRoot = Join-Path $repoRoot "artifacts\sts-vscode-mssql-patch-runs"
 $stagingRunName = "run-{0}-{1}" -f (Get-Date -Format "yyyyMMdd-HHmmss"), $PID
