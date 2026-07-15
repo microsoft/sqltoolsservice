@@ -250,5 +250,40 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
             Assert.Equal("Sts2.QueryFailed.Server", ex.Code);
             Assert.NotNull(ex.Server);
         }
+
+        [Fact]
+        public async Task CancelInterruptsInFlightCommand()
+        {
+            if (!EngineGate.ShouldRun(output))
+            {
+                return;
+            }
+            var driver = new SqlClientDriver();
+            await using IDbSession session = await driver.OpenAsync(OpenRequest(), CancellationToken.None);
+            using var cancellation = new CancellationTokenSource();
+
+            async Task ConsumeAsync()
+            {
+                await foreach (ExecEvent _ in session.ExecuteAsync(
+                    new QueryExecuteRequest
+                    {
+                        QueryId = "q-cancel",
+                        Sql = "WAITFOR DELAY '00:00:20'; SELECT 1 AS value",
+                        PageRows = 1000,
+                    }, cancellation.Token))
+                {
+                }
+            }
+
+            Task consume = ConsumeAsync();
+            // Let ExecuteReaderAsync enter the server WAITFOR before exercising the same two
+            // cancellation signals used by DriverEffectRunner.
+            await Task.Delay(250);
+            cancellation.Cancel();
+            await session.CancelAsync("q-cancel", CancellationToken.None);
+
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(async () =>
+                await consume.WaitAsync(TimeSpan.FromSeconds(5)));
+        }
     }
 }

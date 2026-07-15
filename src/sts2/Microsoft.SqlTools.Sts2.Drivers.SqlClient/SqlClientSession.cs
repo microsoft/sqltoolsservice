@@ -44,7 +44,16 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             {
                 command.CommandTimeout = Math.Max(1, request.QueryTimeoutMs / 1000);
             }
-            activeCommand = command;
+            // Publish the command atomically for the provider-level CancelAsync path. A cancel
+            // can arrive after the query pump is registered but before ExecuteReaderAsync starts.
+            Volatile.Write(ref activeCommand, command);
+            // Also bind the pump token directly to the command. Register invokes immediately
+            // when the token was already canceled, which closes the registration/publication
+            // race that otherwise lets a just-starting WAITFOR run to completion.
+            using CancellationTokenRegistration cancelRegistration = cancellationToken.Register(
+                static state => CancelCommand((SqlCommand)state!),
+                command);
+            cancellationToken.ThrowIfCancellationRequested();
 
             // Info-class engine messages (PRINT, RAISERROR severity <= 10, DBCC output)
             // are raised on InfoMessage while the reader pumps the TDS stream (SPEC §10.2:
@@ -114,7 +123,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             finally
             {
                 connection.InfoMessage -= onInfoMessage;
-                activeCommand = null;
+                Volatile.Write(ref activeCommand, null);
             }
         }
 
@@ -129,6 +138,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             }
             catch (SqlException ex)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 throw new DbDriverException(Sts2ErrorCodes.QueryFailedServer, ex.Message, SqlClientErrorMapping.ServerDetail(ex), ex);
             }
         }
@@ -141,6 +151,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             }
             catch (SqlException ex)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 throw new DbDriverException(Sts2ErrorCodes.QueryFailedServer, ex.Message, SqlClientErrorMapping.ServerDetail(ex), ex);
             }
         }
@@ -238,32 +249,40 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             }
             catch (SqlException ex)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 throw new DbDriverException(Sts2ErrorCodes.QueryFailedServer, ex.Message, SqlClientErrorMapping.ServerDetail(ex), ex);
+            }
+        }
+
+        private static void CancelCommand(SqlCommand command)
+        {
+            try
+            {
+                command.Cancel();
+            }
+            catch (InvalidOperationException)
+            {
+                // Command already completed/disposed; nothing to cancel.
             }
         }
 
         public ValueTask CancelAsync(string queryId, CancellationToken cancellationToken)
         {
             // Real TDS cancel; the streaming loop also observes the CancellationToken.
-            try
+            SqlCommand? command = Volatile.Read(ref activeCommand);
+            if (command is not null)
             {
-                activeCommand?.Cancel();
-            }
-            catch (InvalidOperationException)
-            {
-                // Command already completed/disposed; nothing to cancel.
+                CancelCommand(command);
             }
             return ValueTask.CompletedTask;
         }
 
         public async ValueTask DisposeAsync()
         {
-            try
+            SqlCommand? command = Volatile.Read(ref activeCommand);
+            if (command is not null)
             {
-                activeCommand?.Cancel();
-            }
-            catch (InvalidOperationException)
-            {
+                CancelCommand(command);
             }
             await connection.DisposeAsync().ConfigureAwait(false);
         }
