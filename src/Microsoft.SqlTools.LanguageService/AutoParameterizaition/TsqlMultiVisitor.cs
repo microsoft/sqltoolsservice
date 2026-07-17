@@ -11,12 +11,12 @@ using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.TransactSql.ScriptDom;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.AutoParameterizaition
+namespace Microsoft.SqlTools.LanguageService.AutoParameterizaition
 {
     /// <summary>
     /// Entry point for SqlParameterization, this class is responsible for visiting the parse tree and identifying the scalar expressions to be parameterized
     /// </summary>
-    internal class TsqlMultiVisitor : TSqlFragmentVisitor
+    internal sealed class TsqlMultiVisitor : TSqlFragmentVisitor
     {
         private readonly ScalarExpressionTransformer ScalarExpressionTransformer;
         private readonly bool IsCodeSenseRequest;

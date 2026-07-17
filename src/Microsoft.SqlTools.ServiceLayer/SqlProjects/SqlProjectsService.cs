@@ -16,6 +16,7 @@ using Microsoft.SqlServer.Dac.Projects;
 using Microsoft.SqlServer.Management.SqlParser.Common;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.LanguageService.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.SqlCore.IntelliSense;
 using Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts;
@@ -27,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
     /// <summary>
     /// Main class for SqlProjects service
     /// </summary>
-    public sealed class SqlProjectsService : BaseService
+    public sealed class SqlProjectsService : BaseService, IProjectIntelliSenseService
     {
         private static readonly Lazy<SqlProjectsService> instance = new Lazy<SqlProjectsService>(() => new SqlProjectsService());
         private const string RunSqlCodeAnalysisPropertyName = "RunSqlCodeAnalysis";
@@ -162,7 +163,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 // 3. Dispose TSqlModel to free DacFx unmanaged resources
                 if (projectIntelliSense.TryRemove(requestParams.ProjectUri, out var intelliSense))
                 {
-                    LanguageServices.LanguageService.Instance.TearDownProjectContext(
+                    TSqlLanguageService.Instance.TearDownProjectContext(
                         requestParams.ProjectUri,
                         intelliSense.ContextKey,
                         intelliSense.FileUris);
@@ -188,7 +189,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 SqlProject project = GetProject(projectUri);
 
                 string databaseName = Path.GetFileNameWithoutExtension(projectUri);
-                string contextKey = $"{LanguageServices.LanguageService.ProjectContextKeyPrefix}{projectUri}";
+                string contextKey = $"{TSqlLanguageService.ProjectContextKeyPrefix}{projectUri}";
                 string projectDir = Path.GetDirectoryName(ToLocalPath(projectUri))
                     ?? throw new InvalidOperationException($"Cannot determine project directory from URI: {projectUri}");
 
@@ -231,7 +232,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 var projectMetadataProvider = new TSqlModelMetadataProvider(model, databaseName);
 
                 var parseOptions = new ParseOptions(
-                    batchSeparator: LanguageServices.LanguageService.DefaultBatchSeperator,
+                    batchSeparator: TSqlLanguageService.DefaultBatchSeperator,
                     isQuotedIdentifierSet: true,
                     compatibilityLevel: DatabaseCompatibilityLevel.Current,
                     transactSqlVersion: TransactSqlVersion.Current);
@@ -248,7 +249,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     return;
                 }
 
-                await LanguageServices.LanguageService.Instance.UpdateLanguageServiceOnProjectOpen(
+                await TSqlLanguageService.Instance.UpdateLanguageServiceOnProjectOpen(
                     projectUri, projectMetadataProvider, parseOptions, databaseName, fileUriList);
             }
             catch (Exception ex)
@@ -514,9 +515,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     
                     try
                     {
-                        // TODO: Once DacFx supports TSqlObjectOptions.AllowExistingModelErrors or similar property, set it
-                        // here so the model can update even when a previous parse left build errors.
-                        state.Model.AddOrUpdateObjects(sqlText, sourceName, new TSqlObjectOptions());
+                        state.Model.AddOrUpdateObjects(sqlText, sourceName, new TSqlObjectOptions { SkipExistingModelValidation = true });
                         parseSucceeded = true;
                     }
                     catch (Exception ex)
@@ -527,7 +526,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 else
                 {
                     if (!projectIntelliSense.ContainsKey(projectUri)) return;
-                    state.Model.DeleteObjects(sourceName);
+                    state.Model.DeleteObjects(sourceName, new TSqlObjectOptions { SkipExistingModelValidation = true });
                 }
                 
                 // Update provider: deleted=true for actual deletes OR failed parses
@@ -538,7 +537,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 // "p." after "FROM sss.packages p") and object enumeration ("sss.") pick up
                 // the updated schema.
                 var newBinder = Microsoft.SqlServer.Management.SqlParser.Binder.BinderProvider.CreateBinder(state.Provider);
-                LanguageServices.LanguageService.Instance.BindingQueue.AddProjectContext(state.ContextKey, newBinder, state.ParseOptions, state.Provider);
+                TSqlLanguageService.Instance.BindingQueue.AddProjectContext(state.ContextKey, newBinder, state.ParseOptions, state.Provider);
 
                 // Stamp the file URI with the project context so IntelliSense works when the
                 // user opens the file. For deletes the file is gone so nothing to stamp.
@@ -546,7 +545,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 {
                     string fileUri = Utility.FileUtilities.LocalPathToFileUri(sourceName);
                     lock (state.FileUris) { state.FileUris.Add(fileUri); }
-                    LanguageServices.LanguageService.Instance.InitializeProjectFileContexts(
+                    TSqlLanguageService.Instance.InitializeProjectFileContexts(
                         new[] { fileUri }, state.ContextKey, state.DatabaseName);
                 }
                 else
@@ -556,7 +555,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     // from the FileUris set so TearDownProjectContext won't try it again on close.
                     string fileUri = Utility.FileUtilities.LocalPathToFileUri(sourceName);
                     lock (state.FileUris) { state.FileUris.Remove(fileUri); }
-                    LanguageServices.LanguageService.Instance.RemoveScriptParseInfo(fileUri);
+                    TSqlLanguageService.Instance.RemoveScriptParseInfo(fileUri);
                 }
             }
             catch (Exception ex) { Logger.Error($"UpdateProjectIntelliSenseAsync error for {filePathOrUri}: {ex}"); }
@@ -614,6 +613,18 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     .ToList();
             }
         }
+
+        // Explicit IProjectIntelliSenseService implementation. These forward to the existing
+        // internal members so the language service can consume the projects service through the
+        // lib-side abstraction without widening this class's public surface.
+        Task IProjectIntelliSenseService.UpdateProjectIntelliSenseAsync(string projectUri, string filePathOrUri, bool deleted, string sqlTextOverride)
+            => UpdateProjectIntelliSenseAsync(projectUri, filePathOrUri, deleted, sqlTextOverride);
+
+        bool IProjectIntelliSenseService.TryIsDuplicate(string projectUri, string name, out bool isDuplicate)
+            => TryIsDuplicate(projectUri, name, out isDuplicate);
+
+        IReadOnlyList<string> IProjectIntelliSenseService.GetSiblingProjectFileUris(string projectUri, string excludeUri)
+            => GetSiblingProjectFileUris(projectUri, excludeUri);
 
         private static string GetAbsoluteFilePath(string projectUri, string filePathOrUri)
         {

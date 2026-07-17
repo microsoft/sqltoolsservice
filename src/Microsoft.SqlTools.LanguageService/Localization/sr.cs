@@ -103,6 +103,38 @@ namespace Microsoft.SqlTools.LanguageService
             }
         }
 
+        public static string PeekDefinitionNotConnectedError
+        {
+            get
+            {
+                return Keys.GetString(Keys.PeekDefinitionNotConnectedError);
+            }
+        }
+
+        public static string PeekDefinitionTimedoutError
+        {
+            get
+            {
+                return Keys.GetString(Keys.PeekDefinitionTimedoutError);
+            }
+        }
+
+        public static string RenameNotSupportedLiveServer
+        {
+            get
+            {
+                return Keys.GetString(Keys.RenameNotSupportedLiveServer);
+            }
+        }
+
+        public static string RenameNotSupported
+        {
+            get
+            {
+                return Keys.GetString(Keys.RenameNotSupported);
+            }
+        }
+
         public static string WorkspaceServiceBufferPositionOutOfOrder(int sLine, int sCol, int eLine, int eCol)
         {
             return Keys.GetString(Keys.WorkspaceServiceBufferPositionOutOfOrder, sLine, sCol, eLine, eCol);
@@ -161,6 +193,41 @@ namespace Microsoft.SqlTools.LanguageService
         public static string PeekDefinitionError(string errorMessage)
         {
             return Keys.GetString(Keys.PeekDefinitionError, errorMessage);
+        }
+
+        public static string ParameterizationDetails(string variableName, string sqlDbType, int size, int precision, int scale, string sqlValue)
+        {
+            return Keys.GetString(Keys.ParameterizationDetails, variableName, sqlDbType, size, precision, scale, sqlValue);
+        }
+
+        public static string ErrorMessageHeader(int lineNumber)
+        {
+            return Keys.GetString(Keys.ErrorMessageHeader, lineNumber);
+        }
+
+        public static string ErrorMessage(string variableName, string sqlDataType, string literalValue)
+        {
+            return Keys.GetString(Keys.ErrorMessage, variableName, sqlDataType, literalValue);
+        }
+
+        public static string DateTimeErrorMessage(string variableName, string sqlDataType, string literalValue)
+        {
+            return Keys.GetString(Keys.DateTimeErrorMessage, variableName, sqlDataType, literalValue);
+        }
+
+        public static string BinaryLiteralPrefixMissingError(string variableName, string sqlDataType, string literalValue)
+        {
+            return Keys.GetString(Keys.BinaryLiteralPrefixMissingError, variableName, sqlDataType, literalValue);
+        }
+
+        public static string ParsingErrorHeader(int lineNumber, int columnNumber)
+        {
+            return Keys.GetString(Keys.ParsingErrorHeader, lineNumber, columnNumber);
+        }
+
+        public static string ScriptTooLarge(int maxChars, int currentChars)
+        {
+            return Keys.GetString(Keys.ScriptTooLarge, maxChars, currentChars);
         }
 
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
@@ -234,6 +301,39 @@ namespace Microsoft.SqlTools.LanguageService
             public const string PeekDefinitionTypeNotSupportedError = "PeekDefinitionTypeNotSupportedError";
 
 
+            public const string PeekDefinitionNotConnectedError = "PeekDefinitionNotConnectedError";
+
+
+            public const string PeekDefinitionTimedoutError = "PeekDefinitionTimedoutError";
+
+
+            public const string RenameNotSupportedLiveServer = "RenameNotSupportedLiveServer";
+
+
+            public const string RenameNotSupported = "RenameNotSupported";
+
+
+            public const string ParameterizationDetails = "ParameterizationDetails";
+
+
+            public const string ErrorMessageHeader = "ErrorMessageHeader";
+
+
+            public const string ErrorMessage = "ErrorMessage";
+
+
+            public const string DateTimeErrorMessage = "DateTimeErrorMessage";
+
+
+            public const string BinaryLiteralPrefixMissingError = "BinaryLiteralPrefixMissingError";
+
+
+            public const string ParsingErrorHeader = "ParsingErrorHeader";
+
+
+            public const string ScriptTooLarge = "ScriptTooLarge";
+
+
             private Keys()
             { }
 
@@ -261,6 +361,12 @@ namespace Microsoft.SqlTools.LanguageService
             }
 
 
+            public static string GetString(string key, object arg0, object arg1)
+            {
+                return string.Format(global::System.Globalization.CultureInfo.CurrentCulture, resourceManager.GetString(key, _culture), arg0, arg1);
+            }
+
+
             public static string GetString(string key, object arg0, object arg1, object arg2)
             {
                 return string.Format(global::System.Globalization.CultureInfo.CurrentCulture, resourceManager.GetString(key, _culture), arg0, arg1, arg2);
@@ -270,6 +376,12 @@ namespace Microsoft.SqlTools.LanguageService
             public static string GetString(string key, object arg0, object arg1, object arg2, object arg3)
             {
                 return string.Format(global::System.Globalization.CultureInfo.CurrentCulture, resourceManager.GetString(key, _culture), arg0, arg1, arg2, arg3);
+            }
+
+
+            public static string GetString(string key, object arg0, object arg1, object arg2, object arg3, object arg4, object arg5)
+            {
+                return string.Format(global::System.Globalization.CultureInfo.CurrentCulture, resourceManager.GetString(key, _culture), arg0, arg1, arg2, arg3, arg4, arg5);
             }
 
         }

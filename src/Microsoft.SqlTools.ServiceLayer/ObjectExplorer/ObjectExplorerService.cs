@@ -341,7 +341,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                             Success = false,
                             SessionId = uri,
                             ErrorNumber = result.Exception != null && result.Exception is SqlException sqlEx ? sqlEx.ErrorCode : null,
-                            ErrorMessage = result.Exception != null ? result.Exception.Message : $"Failed to create session for session id {uri}"
+                            ErrorMessage = result.Exception != null ? result.Exception.Message : $"Failed to create session for session id {uri}",
+                            ErrorCode = result.Exception is TimeoutException ? ObjectExplorerErrorCodes.CreateSessionTimeout : null
 
                         };
                         await serviceHost.SendEvent(CreateSessionCompleteNotification.Type, response);
@@ -449,7 +450,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 response = new ExpandResponse { Nodes = new NodeInfo[] { }, ErrorMessage = node.ErrorMessage, SessionId = session.Uri, NodePath = nodePath };
             }
             Logger.Verbose($"Before enter BuildingMetadataLock for {nodePath}");
-            if (node != null && Monitor.TryEnter(node.BuildingMetadataLock, LanguageServices.LanguageService.OnConnectionWaitTimeout))
+            if (node != null && Monitor.TryEnter(node.BuildingMetadataLock, TSqlLanguageService.OnConnectionWaitTimeout))
             {
                 Logger.Verbose($"After enter BuildingMetadataLock for {nodePath}");
                 try
@@ -674,6 +675,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                     cancellationTokenSource.Cancel();
                     ExpandResponse response = CreateExpandResponse(session, expandParams);
                     response.ErrorMessage = result.Exception != null ? result.Exception.Message : $"Failed to expand node: {expandParams.NodePath} in session {session.Uri}";
+                    if (result.Exception is TimeoutException)
+                    {
+                        response.ErrorCode = ObjectExplorerErrorCodes.ExpandTimeout;
+                    }
                     await serviceHost.SendEvent(ExpandCompleteNotification.Type, response);
                 }
                 return result;

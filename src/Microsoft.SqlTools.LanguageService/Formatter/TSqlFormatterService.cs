@@ -8,6 +8,7 @@
 using System;
 using System.Collections.Generic;
 using System.Composition;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
@@ -15,6 +16,7 @@ using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.LanguageService.Formatter.Contracts;
+using Microsoft.SqlTools.LanguageService.Formatter.ScriptDom;
 using Microsoft.SqlTools.LanguageService.LanguageServices;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
@@ -29,6 +31,7 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
     {
         private FormatterSettings settings;
         private Func<string, ScriptFile> fileResolver;
+        private readonly ScriptDomSqlFormatter scriptDomFormatter;
 
         /// <summary>
         /// The default constructor is required for MEF-based composable services
@@ -36,6 +39,7 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
         public TSqlFormatterService()
         {
             settings = new FormatterSettings();
+            scriptDomFormatter = new ScriptDomSqlFormatter();
         }
 
         public override void InitializeService(IProtocolEndpoint serviceHost)
@@ -46,12 +50,11 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
         }
 
         /// <summary>
-        /// Gets the file filter used to determine whether a file should be skipped. Note: may be null
-        /// in cases where unit tests do not set this up.
+        /// Gets the language service instance
         /// </summary>
-        private ILanguageFileFilter FileFilter
+        private TSqlLanguageService LanguageService
         {
-            get { return ServiceProvider?.GetService<ILanguageFileFilter>(); }
+            get { return ServiceProvider?.GetService<TSqlLanguageService>(); }
         }
 
         /// <summary>
@@ -75,49 +78,58 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
         public async Task HandleDocFormatRequest(DocumentFormattingParams docFormatParams, RequestContext<TextEdit[]> requestContext)
         {
             Logger.Verbose("HandleDocFormatRequest");
-            TextEdit[] result = await FormatAndReturnEdits(docFormatParams);
-            await requestContext.SendResult(result);
-            DocumentStatusHelper.SendTelemetryEvent(requestContext, CreateTelemetryProps(isDocFormat: true));
+            FormatOperationResult result = await FormatAndReturnEdits(docFormatParams);
+            await requestContext.SendResult(result.Edits);
+            DocumentStatusHelper.SendTelemetryEvent(requestContext, CreateTelemetryProps(isDocFormat: true, result));
         }
 
         public async Task HandleDocRangeFormatRequest(DocumentRangeFormattingParams docRangeFormatParams, RequestContext<TextEdit[]> requestContext)
         {
             Logger.Verbose("HandleDocRangeFormatRequest");
-            TextEdit[] result = await FormatRangeAndReturnEdits(docRangeFormatParams);
-            await requestContext.SendResult(result);
-            DocumentStatusHelper.SendTelemetryEvent(requestContext, CreateTelemetryProps(isDocFormat: false));
+            FormatOperationResult result = await FormatRangeAndReturnEdits(docRangeFormatParams);
+            await requestContext.SendResult(result.Edits);
+            DocumentStatusHelper.SendTelemetryEvent(requestContext, CreateTelemetryProps(isDocFormat: false, result));
         }
-        private static TelemetryProperties CreateTelemetryProps(bool isDocFormat)
+
+        private static TelemetryProperties CreateTelemetryProps(bool isDocFormat, FormatOperationResult result)
         {
             return new TelemetryProperties
             {
                 Properties = new Dictionary<string, string>
                 {
                     { TelemetryPropertyNames.FormatType,
-                        isDocFormat ? TelemetryPropertyNames.DocumentFormatType : TelemetryPropertyNames.RangeFormatType }
+                        isDocFormat ? TelemetryPropertyNames.DocumentFormatType : TelemetryPropertyNames.RangeFormatType },
+                    { TelemetryPropertyNames.FormatterImplementation, result.FormatterImplementation },
+                    { TelemetryPropertyNames.FormatterOutcome, result.FormatterOutcome }
+                },
+                Measures = new Dictionary<string, double>
+                {
+                    { TelemetryMeasureNames.FormatterDurationMs, result.DurationMs },
+                    { TelemetryMeasureNames.ParseErrorCount, result.ParseErrorCount }
                 },
                 EventName = TelemetryEventNames.FormatCode
             };
         }
 
-        private Task<TextEdit[]> FormatRangeAndReturnEdits(DocumentRangeFormattingParams docFormatParams)
+        private Task<FormatOperationResult> FormatRangeAndReturnEdits(DocumentRangeFormattingParams docFormatParams)
         {
             return Task.Run(() =>
             {
+                Stopwatch stopwatch = Stopwatch.StartNew();
                 if (ShouldSkipFormatting(docFormatParams))
                 {
-                    return Array.Empty<TextEdit>();
+                    return CreateSkippedResult(stopwatch);
                 }
 
                 var range = docFormatParams.Range;
                 ScriptFile scriptFile = GetFile(docFormatParams);
                 if (scriptFile == null)
                 {
-                    return Array.Empty<TextEdit>();
+                    return CreateSkippedResult(stopwatch);
                 }
                 TextEdit textEdit = new TextEdit { Range = range };
                 string text = scriptFile.GetTextInRange(range.ToBufferRange());
-                return DoFormat(docFormatParams, textEdit, text);
+                return DoFormat(docFormatParams, textEdit, text, stopwatch);
             });
         }
 
@@ -129,41 +141,118 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
             {
                 return true;
             }
-            ILanguageFileFilter fileFilter = FileFilter;
-            return (fileFilter != null && fileFilter.ShouldSkipNonMssqlFile(docFormatParams.TextDocument.Uri));
+            TSqlLanguageService languageService = LanguageService;
+            return (languageService != null && languageService.ShouldSkipNonMssqlFile(docFormatParams.TextDocument.Uri));
         }
 
-        private Task<TextEdit[]> FormatAndReturnEdits(DocumentFormattingParams docFormatParams)
+        private Task<FormatOperationResult> FormatAndReturnEdits(DocumentFormattingParams docFormatParams)
         {
             return Task.Factory.StartNew(() =>
             {
+                Stopwatch stopwatch = Stopwatch.StartNew();
                 if (ShouldSkipFormatting(docFormatParams))
                 {
-                    return Array.Empty<TextEdit>();
+                    return CreateSkippedResult(stopwatch);
                 }
 
                 var scriptFile = GetFile(docFormatParams);
                 if (scriptFile == null
                     || scriptFile.FileLines.Count == 0)
                 {
-                    return Array.Empty<TextEdit>();
+                    return CreateSkippedResult(stopwatch);
                 }
                 TextEdit textEdit = PrepareEdit(scriptFile);
                 string text = scriptFile.Contents;
-                return DoFormat(docFormatParams, textEdit, text);
+                return DoFormat(docFormatParams, textEdit, text, stopwatch);
             });
         }
 
-        private TextEdit[] DoFormat(DocumentFormattingParams docFormatParams, TextEdit edit, string text)
+        private FormatOperationResult DoFormat(DocumentFormattingParams docFormatParams, TextEdit edit, string text, Stopwatch stopwatch)
         {
             Validate.IsNotNull(nameof(docFormatParams), docFormatParams);
 
             FormatOptions options = GetOptions(docFormatParams);
-            List<TextEdit> edits = new List<TextEdit>();
+            if (UsePreviewFormatter)
+            {
+                return FormatWithScriptDom(edit, text, options, stopwatch);
+            }
+
             edit.NewText = Format(text, options, false);
-            // TODO do not add if no formatting needed?
-            edits.Add(edit);
-            return edits.ToArray();
+            return CreateFormatResult(
+                new[] { edit },
+                TelemetryPropertyNames.LegacyFormatterImplementation,
+                TelemetryPropertyNames.FormatterOutcomeApplied,
+                stopwatch);
+        }
+
+        private FormatOperationResult FormatWithScriptDom(TextEdit edit, string text, FormatOptions options, Stopwatch stopwatch)
+        {
+            ScriptDomFormatterResult result = scriptDomFormatter.Format(text, options);
+            if (result.Outcome != ScriptDomFormatterOutcome.Formatted)
+            {
+                return CreateFormatResult(
+                    Array.Empty<TextEdit>(),
+                    TelemetryPropertyNames.ScriptDomFormatterImplementation,
+                    ToTelemetryOutcome(result.Outcome),
+                    stopwatch,
+                    result.ParseErrorCount);
+            }
+
+            edit.NewText = result.FormattedText;
+            return CreateFormatResult(
+                new[] { edit },
+                TelemetryPropertyNames.ScriptDomFormatterImplementation,
+                TelemetryPropertyNames.FormatterOutcomeApplied,
+                stopwatch);
+        }
+
+        private FormatOperationResult CreateSkippedResult(Stopwatch stopwatch)
+        {
+            return CreateFormatResult(
+                Array.Empty<TextEdit>(),
+                UsePreviewFormatter
+                    ? TelemetryPropertyNames.ScriptDomFormatterImplementation
+                    : TelemetryPropertyNames.LegacyFormatterImplementation,
+                TelemetryPropertyNames.FormatterOutcomeSkipped,
+                stopwatch);
+        }
+
+        private static FormatOperationResult CreateFormatResult(
+            TextEdit[] edits,
+            string formatterImplementation,
+            string formatterOutcome,
+            Stopwatch stopwatch,
+            int parseErrorCount = 0)
+        {
+            stopwatch.Stop();
+            return new FormatOperationResult(
+                edits,
+                formatterImplementation,
+                formatterOutcome,
+                stopwatch.ElapsedMilliseconds,
+                parseErrorCount);
+        }
+
+        private static string ToTelemetryOutcome(ScriptDomFormatterOutcome outcome)
+        {
+            switch (outcome)
+            {
+                case ScriptDomFormatterOutcome.NoChange:
+                    return TelemetryPropertyNames.FormatterOutcomeNoChange;
+                case ScriptDomFormatterOutcome.EmptyDocument:
+                    return TelemetryPropertyNames.FormatterOutcomeEmptyText;
+                case ScriptDomFormatterOutcome.ParseError:
+                    return TelemetryPropertyNames.FormatterOutcomeParseFailed;
+                case ScriptDomFormatterOutcome.Exception:
+                    return TelemetryPropertyNames.FormatterOutcomeException;
+                default:
+                    return TelemetryPropertyNames.FormatterOutcomeApplied;
+            }
+        }
+
+        private bool UsePreviewFormatter
+        {
+            get { return settings?.EnablePreviewFormatter == true; }
         }
 
         private FormatOptions GetOptions(DocumentFormattingParams docFormatParams)
@@ -205,6 +294,33 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
         private ScriptFile GetFile(DocumentFormattingParams docFormatParams)
         {
             return fileResolver?.Invoke(docFormatParams.TextDocument.Uri);
+        }
+
+        private sealed class FormatOperationResult
+        {
+            public FormatOperationResult(
+                TextEdit[] edits,
+                string formatterImplementation,
+                string formatterOutcome,
+                double durationMs,
+                int parseErrorCount)
+            {
+                Edits = edits;
+                FormatterImplementation = formatterImplementation;
+                FormatterOutcome = formatterOutcome;
+                DurationMs = durationMs;
+                ParseErrorCount = parseErrorCount;
+            }
+
+            public TextEdit[] Edits { get; }
+
+            public string FormatterImplementation { get; }
+
+            public string FormatterOutcome { get; }
+
+            public double DurationMs { get; }
+
+            public int ParseErrorCount { get; }
         }
 
         private static TextEdit PrepareEdit(ScriptFile scriptFile)

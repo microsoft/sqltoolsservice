@@ -21,7 +21,7 @@
 
     <!-- TODO: Upgrade package and use Token Credential design -->
     <PackageReference Update="Microsoft.Data.SqlClient.AlwaysEncrypted.AzureKeyVaultProvider" Version="1.1.1" />
-    <PackageReference Update="Microsoft.SqlServer.Management.SmoMetadataProvider" Version="181.15.0" />
+    <PackageReference Update="Microsoft.SqlServer.Management.SmoMetadataProvider" Version="181.25.0" />
     <PackageReference Update="Microsoft.SqlServer.DacFx" Version="170.5.38-preview" />
     <PackageReference Update="Microsoft.SqlPackage.Core" Version="0.1.75-preview" />
     <PackageReference Update="Microsoft.SqlServer.DacFx.Projects" Version="0.6.18-preview" />
@@ -32,7 +32,8 @@
     <PackageReference Update="Microsoft.SqlServer.Migration.Logins" Version="1.0.20240920.1" />
     <PackageReference Update="Microsoft.SqlServer.Management.QueryStoreModel" Version="163.55.1" />
     <PackageReference Update="Microsoft.SqlServer.Prose.Import" Version="9.2026.316-preview" />
-    <PackageReference Update="Microsoft.SqlServer.Management.SqlParser" Version="173.8.0" />
+    <PackageReference Update="Microsoft.SqlServer.Management.SqlParser" Version="180.4.0" />
+    <PackageReference Update="Microsoft.SqlServer.TransactSql.ScriptDom" Version="180.37.3" />
     <PackageReference Update="Microsoft.SqlServer.Migration.Tde" Version="1.0.0-preview.1.0.20230914.107" />
     <PackageReference Update="Microsoft.SqlServer.Migration.SqlTargetProvisioning" Version="1.0.20241022.2" />
 
@@ -85,7 +86,7 @@
     <PackageReference Update="Azure.Identity" version="1.17.1" />
     <PackageReference Update="Microsoft.Data.SqlClient" Version="6.1.5" />
     <PackageReference Update="Microsoft.SqlServer.Types" Version="170.1000.7" />
-    <PackageReference Update="Microsoft.SqlServer.SqlManagementObjects" Version="181.15.0" />
+    <PackageReference Update="Microsoft.SqlServer.SqlManagementObjects" Version="181.25.0" />
     <PackageReference Update="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 

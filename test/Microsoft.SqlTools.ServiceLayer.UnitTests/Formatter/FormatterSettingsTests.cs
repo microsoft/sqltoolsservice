@@ -22,6 +22,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
             Assert.Null(sqlToolsSettings.SqlTools.Format.AlignColumnDefinitionsInColumns);
             Assert.AreEqual(CasingOptions.None, sqlToolsSettings.SqlTools.Format.DatatypeCasing);
             Assert.AreEqual(CasingOptions.None, sqlToolsSettings.SqlTools.Format.KeywordCasing);
+            Assert.Null(sqlToolsSettings.SqlTools.Format.EnablePreviewFormatter);
             Assert.Null(sqlToolsSettings.SqlTools.Format.PlaceCommasBeforeNextStatement);
             Assert.Null(sqlToolsSettings.SqlTools.Format.PlaceSelectStatementReferencesOnNewLine);
             Assert.Null(sqlToolsSettings.SqlTools.Format.UseBracketForIdentifiers);
@@ -44,6 +45,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 useBracketForIdentifiers: true,
                 placeCommasBeforeNextStatement: true,
                 placeSelectStatementReferencesOnNewLine: true,
+                enablePreviewFormatter: true,
                 keywordCasing: ""uppercase"",
                 datatypeCasing: ""lowercase"",
                 alignColumnDefinitionsInColumns: true
@@ -59,6 +61,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
 
             Assert.True(sqlToolsSettings.SqlTools.Format.AlignColumnDefinitionsInColumns);
             Assert.AreEqual(CasingOptions.Lowercase, sqlToolsSettings.SqlTools.Format.DatatypeCasing);
+            Assert.True(sqlToolsSettings.SqlTools.Format.EnablePreviewFormatter);
             Assert.AreEqual(CasingOptions.Uppercase, sqlToolsSettings.SqlTools.Format.KeywordCasing);
             Assert.True(sqlToolsSettings.SqlTools.Format.PlaceCommasBeforeNextStatement);
             Assert.True(sqlToolsSettings.SqlTools.Format.PlaceSelectStatementReferencesOnNewLine);

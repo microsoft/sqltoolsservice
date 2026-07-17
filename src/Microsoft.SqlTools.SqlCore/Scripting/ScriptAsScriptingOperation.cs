@@ -199,7 +199,7 @@ namespace Microsoft.SqlTools.SqlCore.Scripting
             else
             {
                 Database db = server.Databases[dbName];
-                bool isDw = db.IsSqlDw;
+                bool isDw = db != null && db.IsSqlDw;
                 script = ScriptingHelper.SelectFromTableOrView(server, objectUrn, isDw);
             }
 

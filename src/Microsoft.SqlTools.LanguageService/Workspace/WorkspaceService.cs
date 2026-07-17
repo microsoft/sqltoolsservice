@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Contracts;
 using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.LanguageService.LanguageServices;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using Microsoft.SqlTools.Utility;
 using Range = Microsoft.SqlTools.LanguageService.Workspace.Contracts.Range;
@@ -26,7 +27,7 @@ namespace Microsoft.SqlTools.LanguageService.Workspace
     /// The type of the class used for serializing and deserializing the configuration. Must be the
     /// actual type of the instance otherwise deserialization will be incomplete.
     /// </typeparam>
-    public class WorkspaceService<TConfig> where TConfig : class, new()
+    public class WorkspaceService<TConfig> : ILanguageWorkspaceService where TConfig : class, ILanguageServiceSettings, new()
     {
 
         #region Singleton Instance Implementation
@@ -228,6 +229,27 @@ namespace Microsoft.SqlTools.LanguageService.Workspace
         {
             TextDocOpenCallbacks.Add(task);
         }
+
+        #endregion
+
+        #region ILanguageWorkspaceService
+
+        ILanguageServiceSettings ILanguageWorkspaceService.CurrentSettings => CurrentSettings;
+
+        void ILanguageWorkspaceService.RegisterConfigChangeCallback(WorkspaceConfigChangeCallback task)
+            => RegisterConfigChangeCallback((newSettings, oldSettings, eventContext) => task(newSettings, oldSettings, eventContext));
+
+        void ILanguageWorkspaceService.RegisterTextDocChangeCallback(WorkspaceTextDocChangeCallback task)
+            => RegisterTextDocChangeCallback((changedFiles, eventContext) => task(changedFiles, eventContext));
+
+        void ILanguageWorkspaceService.RegisterTextDocOpenCallback(WorkspaceTextDocOpenCallback task)
+            => RegisterTextDocOpenCallback((uri, openFile, eventContext) => task(uri, openFile, eventContext));
+
+        void ILanguageWorkspaceService.RegisterTextDocCloseCallback(WorkspaceTextDocCloseCallback task)
+            => RegisterTextDocCloseCallback((uri, closedFile, eventContext) => task(uri, closedFile, eventContext));
+
+        void ILanguageWorkspaceService.RegisterTextDocSaveCallback(WorkspaceTextDocSaveCallback task)
+            => RegisterTextDocSaveCallback((uri, eventContext) => task(uri, eventContext));
 
         #endregion
 

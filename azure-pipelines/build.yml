@@ -84,6 +84,15 @@ steps:
     $props.Save($projectFile)
   displayName: 'Add version number to SqlCore project for packaging'
 
+- pwsh: |
+    $projectFile = '$(Build.SourcesDirectory)/src/Microsoft.SqlTools.LanguageService/Microsoft.SqlTools.LanguageService.csproj'
+    $props = New-Object XML
+    $props.Load($projectFile)
+    $version = ($(Major)).ToString() + '.' + ($(Minor)).ToString() + '.' + $(Patch) + $(Build.BuildNumber);
+    $props.Project.PropertyGroup.Version = $version;
+    $props.Save($projectFile)
+  displayName: 'Add version number to LanguageService project for packaging'
+
 - task: CodeQL3000Init@0
   displayName: 'CodeQL Initialize'
   condition: eq(variables['Codeql.enabled'], 'True')
@@ -185,13 +194,6 @@ steps:
     command: custom
     verbose: false
     customCommand: 'install -g gulp-cli'
-
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet pack sqlcore'
-  inputs:
-    command: custom
-    custom: pack
-    arguments: '--output $(Build.SourcesDirectory)\artifacts\nugetPackages --no-build --configuration $(buildConfiguration) -v n src\Microsoft.SqlTools.SqlCore\Microsoft.SqlTools.SqlCore.csproj'
 
 - pwsh: |
     dotnet tool run dotnet-cake -- build.cake --target=NugetPackNuspec
