@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -103,16 +103,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
         /// <summary>
         /// Encodes a single field for inserting into a CSV record. The following rules are applied:
         /// <list type="bullet">
-        /// <item><description>All double quotes (") are replaced with a pair of consecutive double quotes</description></item>
+        /// <item><description>Carriage return ('\r') characters are removed to prevent malformed CSV rows</description></item>
+        /// <item><description>All text identifier characters (e.g. '"') are doubled</description></item>
         /// </list>
-        /// The entire field is also surrounded by a pair of double quotes if any of the following conditions are met:
+        /// The entire field is also surrounded by a pair of text identifier characters if any of the following conditions are met:
         /// <list type="bullet">
         /// <item><description>The field begins or ends with a space</description></item>
         /// <item><description>The field begins or ends with a tab</description></item>
-        /// <item><description>The field contains the delimiter string</description></item>
+        /// <item><description>The field contains the delimiter character</description></item>
         /// <item><description>The field contains the '\n' character</description></item>
-        /// <item><description>The field contains the '\r' character</description></item>
-        /// <item><description>The field contains the '"' character</description></item>
+        /// <item><description>The field contains the text identifier character</description></item>
         /// </list>
         /// </summary>
         /// <param name="field">The field to encode</param>
@@ -125,13 +125,20 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 return "NULL";
             }
 
-            // Replace all quotes in the original field with double quotes
-            string ret = field.Replace(textIdentifierString, textIdentifierString + textIdentifierString);
+            // Strip carriage return characters (issue #2154). CR characters inside data cause malformed
+            // CSV rows because some parsers treat \r as a line ending even inside double-quoted fields.
+            // Removing \r normalises Windows-style \r\n line endings to Unix-style \n, which is safe
+            // inside a quoted CSV field, and removes any standalone \r characters.
+            string sanitized = field.Replace("\r", "");
 
-            // Whether this field has special characters which require it to be embedded in quotes
-            bool embedInQuotes = field.IndexOfAny(new[] { delimiter, '\r', '\n', textIdentifier }) >= 0 // Contains special characters
-                                 || field.StartsWith(" ") || field.EndsWith(" ")          // Start/Ends with space
-                                 || field.StartsWith("\t") || field.EndsWith("\t");       // Starts/Ends with tab
+            // Double any text identifier characters in the sanitized value so they are properly escaped
+            string ret = sanitized.Replace(textIdentifierString, textIdentifierString + textIdentifierString);
+
+            // Whether this field has special characters which require it to be embedded in quotes.
+            // Note: \r is excluded here because it has already been stripped above.
+            bool embedInQuotes = sanitized.IndexOfAny(new[] { delimiter, '\n', textIdentifier }) >= 0 // Contains special characters
+                                 || sanitized.StartsWith(" ") || sanitized.EndsWith(" ")    // Start/Ends with space
+                                 || sanitized.StartsWith("\t") || sanitized.EndsWith("\t"); // Starts/Ends with tab
             if (embedInQuotes)
             {
                 ret = $"{textIdentifier}{ret}{textIdentifier}";

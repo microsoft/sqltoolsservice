@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -135,7 +135,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             Assert.IsEmpty(lines);
         }
 
-        [TestCase("Something\rElse")] // Contains carriage return
         [TestCase("Something\nElse")] // Contains line feed
         [TestCase("Something\"Else")] // Contains default text identifier
         [TestCase("Something,Else")]  // Contains field separator
@@ -151,8 +150,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
             Assert.True(GetCsvRegexSingleLine().IsMatch(output));
         }
 
-        [TestCase("Something\rElse")] // Contains carriage return [TODO: Don't support this]
-        [TestCase("Something\nElse")] // Contains line feed [TODO: Don't support this]
+        [TestCase("Something\nElse")] // Contains line feed
         [TestCase("Something[Else")]  // Contains default text identifier
         [TestCase("Something$Else")]  // Contains field separator
         //[TestCase("Something||Else")] // Contains line break [TODO: Support this]
@@ -170,8 +168,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
 
         [TestCase("\tSomething")] // Starts with tab
         [TestCase("Something\t")] // Ends with tab
-        [TestCase("\rSomething")] // Starts with carriage return
-        [TestCase("Something\r")] // Ends with carriage return
         [TestCase("\nSomething")] // Starts with line feed
         [TestCase("Something\n")] // Ends with line feed
         [TestCase(" Something")]  // Starts with space
@@ -187,6 +183,27 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
 
             // Then: It should wrap it in quotes
             Assert.True(GetCsvRegexSingleLine().IsMatch(output));
+        }
+
+        /// <summary>
+        /// Verifies that carriage return (\r) characters are stripped from field values when
+        /// encoding to CSV (issue #2154). CR characters cause malformed CSV rows because some
+        /// parsers treat \r as a line ending even inside double-quoted fields.
+        /// </summary>
+        [TestCase("Something\rElse", "SomethingElse")]        // Embedded CR stripped, no wrapping needed
+        [TestCase("Something\r\nElse", "\"Something\nElse\"")]  // \r\n normalised to \n; \n causes wrapping
+        [TestCase("\rSomething", "Something")]                // Leading CR stripped, no wrapping needed
+        [TestCase("Something\r", "Something")]                // Trailing CR stripped, no wrapping needed
+        public void EncodeCsvField_ContainsCarriageReturn_CarriageReturnIsRemoved(string field, string expected)
+        {
+            // Setup: Create CsvFileStreamWriter using default control characters
+            using var writer = GetWriterForEncodingTests(null, null, null);
+
+            // If: I CSV encode a field that contains carriage return characters
+            string output = writer.EncodeCsvField(field);
+
+            // Then: The carriage return characters should have been removed from the output
+            Assert.AreEqual(expected, output);
         }
 
         [TestCase("Something")]
