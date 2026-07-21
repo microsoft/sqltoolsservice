@@ -81,8 +81,8 @@ namespace Microsoft.SqlTools.LanguageService.Formatter.ScriptDom
         public bool SpaceBetweenParametersInDataType { get; set; } = true;
 
         public static ScriptDomFormatterSettings Resolve(
-            FormattingOptions formattingOptions,
-            SqlFormatterOptions formatterOptions)
+            FormattingOptions? formattingOptions,
+            SqlFormatterOptions? formatterOptions)
         {
             ScriptDomFormatterSettings settings = new ScriptDomFormatterSettings();
             if (formatterOptions != null)

@@ -112,6 +112,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
 
             Assert.AreEqual(CasingOptions.Uppercase, settings.FormatKeywordCasing);
 
+            settings.SqlTools.Format.Options = null;
+
+            Assert.AreEqual(CasingOptions.Uppercase, settings.FormatKeywordCasing);
+
+            settings.SqlTools.Format.Options = new SqlFormatterOptions();
             settings.SqlTools.Format.Options.KeywordCasing = SqlFormatterKeywordCasing.PascalCase;
 
             Assert.AreEqual(CasingOptions.Uppercase, settings.FormatKeywordCasing);

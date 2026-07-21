@@ -211,9 +211,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
             get
             {
                 var formatSettings = this.SqlTools.Format;
-                if (formatSettings.EnablePreviewFormatter == true && formatSettings.Options != null)
+                if (formatSettings.EnablePreviewFormatter == true)
                 {
-                    return formatSettings.Options.KeywordCasing == Microsoft.SqlTools.LanguageService.Formatter.SqlFormatterKeywordCasing.Lowercase
+                    return formatSettings.Options?.KeywordCasing == Microsoft.SqlTools.LanguageService.Formatter.SqlFormatterKeywordCasing.Lowercase
                         ? Microsoft.SqlTools.LanguageService.Formatter.CasingOptions.Lowercase
                         : Microsoft.SqlTools.LanguageService.Formatter.CasingOptions.Uppercase;
                 }
