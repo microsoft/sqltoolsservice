@@ -171,12 +171,12 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
         {
             Validate.IsNotNull(nameof(docFormatParams), docFormatParams);
 
-            FormatOptions options = GetOptions(docFormatParams);
             if (UsePreviewFormatter)
             {
-                return FormatWithScriptDom(edit, text, options, stopwatch);
+                return FormatWithScriptDom(edit, text, docFormatParams.Options, stopwatch);
             }
 
+            FormatOptions options = GetOptions(docFormatParams);
             edit.NewText = Format(text, options, false);
             return CreateFormatResult(
                 new[] { edit },
@@ -185,9 +185,16 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
                 stopwatch);
         }
 
-        private FormatOperationResult FormatWithScriptDom(TextEdit edit, string text, FormatOptions options, Stopwatch stopwatch)
+        private FormatOperationResult FormatWithScriptDom(
+            TextEdit edit,
+            string text,
+            FormattingOptions formattingOptions,
+            Stopwatch stopwatch)
         {
-            ScriptDomFormatterResult result = scriptDomFormatter.Format(text, options);
+            ScriptDomFormatterSettings scriptDomSettings = ScriptDomFormatterSettings.Resolve(
+                formattingOptions,
+                settings?.Options);
+            ScriptDomFormatterResult result = scriptDomFormatter.Format(text, scriptDomSettings);
             if (result.Outcome != ScriptDomFormatterOutcome.Formatted)
             {
                 return CreateFormatResult(

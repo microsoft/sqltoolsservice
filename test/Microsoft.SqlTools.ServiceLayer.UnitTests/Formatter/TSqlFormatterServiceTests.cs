@@ -112,7 +112,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
             FormatterService.UpdateFormatterSettings(new FormatterSettings
             {
                 EnablePreviewFormatter = true,
-                KeywordCasing = CasingOptions.Uppercase
+                KeywordCasing = CasingOptions.Lowercase,
+                Options = new SqlFormatterOptions
+                {
+                    KeywordCasing = SqlFormatterKeywordCasing.Uppercase
+                }
             });
             SetupScriptFile("select 1 as value");
 
@@ -152,7 +156,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
             {
                 EnablePreviewFormatter = true
             });
-            ScriptDomFormatterResult formattedSql = new ScriptDomSqlFormatter().Format("select 1 as value", new FormatOptions());
+            ScriptDomFormatterResult formattedSql = new ScriptDomSqlFormatter().Format(
+                "select 1 as value",
+                new ScriptDomFormatterSettings());
             SetupScriptFile(formattedSql.FormattedText);
 
             await TestUtils.RunAndVerify<TextEdit[]>(

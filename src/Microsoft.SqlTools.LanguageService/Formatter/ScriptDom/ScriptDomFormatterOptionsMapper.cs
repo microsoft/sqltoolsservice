@@ -21,7 +21,6 @@ namespace Microsoft.SqlTools.LanguageService.Formatter.ScriptDom
                 AllowExternalLanguagePaths = settings.AllowExternalLanguagePaths,
                 AllowExternalLibraryPaths = settings.AllowExternalLibraryPaths,
                 AsKeywordOnOwnLine = settings.AsKeywordOnOwnLine,
-                IncludeSemicolons = settings.IncludeSemicolons,
                 IndentSetClause = settings.IndentSetClause,
                 KeywordCasing = settings.KeywordCasing,
                 IndentationSize = settings.IndentationSize,
