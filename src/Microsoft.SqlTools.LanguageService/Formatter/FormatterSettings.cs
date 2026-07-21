@@ -25,6 +25,15 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
         }
 
         /// <summary>
+        /// Gets or sets the options used by the ScriptDom formatter.
+        /// </summary>
+        public SqlFormatterOptions Options
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Should names be escaped, for example converting dbo.T1 to [dbo].[T1]
         /// </summary>
         public bool? UseBracketForIdentifiers

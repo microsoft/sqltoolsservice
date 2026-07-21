@@ -210,7 +210,15 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         {
             get
             {
-                return this.SqlTools.Format.KeywordCasing;
+                var formatSettings = this.SqlTools.Format;
+                if (formatSettings.EnablePreviewFormatter == true && formatSettings.Options != null)
+                {
+                    return formatSettings.Options.KeywordCasing == Microsoft.SqlTools.LanguageService.Formatter.SqlFormatterKeywordCasing.Lowercase
+                        ? Microsoft.SqlTools.LanguageService.Formatter.CasingOptions.Lowercase
+                        : Microsoft.SqlTools.LanguageService.Formatter.CasingOptions.Uppercase;
+                }
+
+                return formatSettings.KeywordCasing;
             }
         }
 

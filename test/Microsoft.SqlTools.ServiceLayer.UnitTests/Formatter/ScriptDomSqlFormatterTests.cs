@@ -4,7 +4,6 @@
 //
 
 using System;
-using Microsoft.SqlTools.LanguageService.Formatter;
 using Microsoft.SqlTools.LanguageService.Formatter.ScriptDom;
 using NUnit.Framework;
 
@@ -15,7 +14,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
         [Test]
         public void FormatShouldReturnEmptyDocumentForWhitespace()
         {
-            ScriptDomFormatterResult result = new ScriptDomSqlFormatter().Format("   \r\n\t", new FormatOptions());
+            ScriptDomFormatterResult result = new ScriptDomSqlFormatter().Format("   \r\n\t", new ScriptDomFormatterSettings());
 
             Assert.AreEqual(ScriptDomFormatterOutcome.EmptyDocument, result.Outcome);
             Assert.Null(result.FormattedText);
@@ -24,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
         [Test]
         public void FormatShouldReturnParseErrorForInvalidSql()
         {
-            ScriptDomFormatterResult result = new ScriptDomSqlFormatter().Format("select from", new FormatOptions());
+            ScriptDomFormatterResult result = new ScriptDomSqlFormatter().Format("select from", new ScriptDomFormatterSettings());
 
             Assert.AreEqual(ScriptDomFormatterOutcome.ParseError, result.Outcome);
             Assert.Greater(result.ParseErrorCount, 0);
@@ -35,12 +34,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
         public void FormatShouldReturnNoChangeForFormattedSql()
         {
             ScriptDomSqlFormatter formatter = new ScriptDomSqlFormatter();
-            ScriptDomFormatterResult firstResult = formatter.Format("select 1 as value", new FormatOptions());
+            ScriptDomFormatterResult firstResult = formatter.Format("select 1 as value", new ScriptDomFormatterSettings());
 
             Assert.AreEqual(ScriptDomFormatterOutcome.Formatted, firstResult.Outcome);
             Assert.NotNull(firstResult.FormattedText);
 
-            ScriptDomFormatterResult secondResult = formatter.Format(firstResult.FormattedText!, new FormatOptions());
+            ScriptDomFormatterResult secondResult = formatter.Format(firstResult.FormattedText!, new ScriptDomFormatterSettings());
 
             Assert.AreEqual(ScriptDomFormatterOutcome.NoChange, secondResult.Outcome);
             Assert.Null(secondResult.FormattedText);
@@ -53,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
         {
             string sql = "create table dbo.T (id int not null," + inputLineEnding + "name int null)";
 
-            ScriptDomFormatterResult result = new ScriptDomSqlFormatter().Format(sql, new FormatOptions());
+            ScriptDomFormatterResult result = new ScriptDomSqlFormatter().Format(sql, new ScriptDomFormatterSettings());
 
             Assert.AreEqual(ScriptDomFormatterOutcome.Formatted, result.Outcome);
             Assert.NotNull(result.FormattedText);
@@ -65,7 +64,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
         {
             string sql = "create table dbo.T (id int not null, name int null)";
 
-            ScriptDomFormatterResult result = new ScriptDomSqlFormatter().Format(sql, new FormatOptions());
+            ScriptDomFormatterResult result = new ScriptDomSqlFormatter().Format(sql, new ScriptDomFormatterSettings());
 
             Assert.AreEqual(ScriptDomFormatterOutcome.Formatted, result.Outcome);
             Assert.NotNull(result.FormattedText);

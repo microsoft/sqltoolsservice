@@ -3,7 +3,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+#nullable disable
+
 using Microsoft.SqlTools.LanguageService.Formatter;
+using Microsoft.SqlTools.LanguageService.Formatter.Contracts;
 using Microsoft.SqlTools.LanguageService.Formatter.ScriptDom;
 using NUnit.Framework;
 
@@ -11,6 +14,43 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
 {
     public class ScriptDomFormatterOptionsMapperTests
     {
+        [Test]
+        public void ResolveShouldMapFullCanonicalSettingsSurface()
+        {
+            SqlFormatterOptions formatterOptions = new SqlFormatterOptions
+            {
+                SqlVersion = SqlFormatterVersion.Sql160,
+                SqlEngineType = SqlFormatterEngineType.Standalone,
+                KeywordCasing = SqlFormatterKeywordCasing.PascalCase,
+                NumNewlinesAfterStatement = 3
+            };
+            foreach (var property in typeof(SqlFormatterOptions).GetProperties())
+            {
+                if (property.PropertyType == typeof(bool))
+                {
+                    property.SetValue(formatterOptions, !(bool)property.GetValue(formatterOptions));
+                }
+            }
+
+            ScriptDomFormatterSettings settings = ScriptDomFormatterSettings.Resolve(null, formatterOptions);
+
+            foreach (var property in typeof(SqlFormatterOptions).GetProperties())
+            {
+                var effectiveProperty = typeof(ScriptDomFormatterSettings).GetProperty(property.Name);
+                Assert.NotNull(effectiveProperty, property.Name);
+                object expected = property.GetValue(formatterOptions);
+                object actual = effectiveProperty.GetValue(settings);
+                if (property.PropertyType.IsEnum)
+                {
+                    Assert.AreEqual(expected.ToString(), actual.ToString(), property.Name);
+                }
+                else
+                {
+                    Assert.AreEqual(expected, actual, property.Name);
+                }
+            }
+        }
+
         [Test]
         public void ToScriptGeneratorOptionsShouldMapFullSettingsSurface()
         {
@@ -22,7 +62,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 AllowExternalLanguagePaths = false,
                 AllowExternalLibraryPaths = false,
                 AsKeywordOnOwnLine = false,
-                IncludeSemicolons = true,
                 IndentSetClause = true,
                 IndentationSize = 2,
                 IndentViewBody = true,
@@ -61,7 +100,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
             Assert.AreEqual(settings.AllowExternalLanguagePaths, options.AllowExternalLanguagePaths);
             Assert.AreEqual(settings.AllowExternalLibraryPaths, options.AllowExternalLibraryPaths);
             Assert.AreEqual(settings.AsKeywordOnOwnLine, options.AsKeywordOnOwnLine);
-            Assert.AreEqual(settings.IncludeSemicolons, options.IncludeSemicolons);
             Assert.AreEqual(settings.IndentSetClause, options.IndentSetClause);
             Assert.AreEqual(settings.KeywordCasing, options.KeywordCasing);
             Assert.AreEqual(settings.IndentationSize, options.IndentationSize);
@@ -92,26 +130,48 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
         }
 
         [Test]
-        public void FromFormatOptionsShouldOverlayExistingFormatterOptions()
+        public void ResolveShouldOverlayCanonicalOptionsAndLspIndentation()
         {
-            FormatOptions formatOptions = new FormatOptions
+            SqlFormatterOptions formatterOptions = new SqlFormatterOptions
             {
-                AlignColumnDefinitionsInColumns = true,
-                KeywordCasing = CasingOptions.Lowercase,
-                PlaceEachReferenceOnNewLineInQueryStatements = true,
-                SpacesPerIndent = 2
+                AlignColumnDefinitionFields = false,
+                KeywordCasing = SqlFormatterKeywordCasing.Lowercase,
+                NewLineBeforeFromClause = false,
+                NumNewlinesAfterStatement = 3
             };
 
-            ScriptDomFormatterSettings settings = ScriptDomFormatterSettings.FromFormatOptions(formatOptions);
+            ScriptDomFormatterSettings settings = ScriptDomFormatterSettings.Resolve(
+                new FormattingOptions { InsertSpaces = true, TabSize = 2 },
+                formatterOptions);
 
-            Assert.True(settings.AlignColumnDefinitionFields);
+            Assert.False(settings.AlignColumnDefinitionFields);
             Assert.AreEqual("Lowercase", settings.KeywordCasing.ToString());
-            Assert.True(settings.NewLineBeforeFromClause);
+            Assert.False(settings.NewLineBeforeFromClause);
             Assert.True(settings.NewLineBeforeOrderByClause);
             Assert.True(settings.NewLineBeforeWhereClause);
+            Assert.AreEqual(3, settings.NumNewlinesAfterStatement);
             Assert.AreEqual(2, settings.IndentationSize);
-            Assert.False(settings.IncludeSemicolons);
             Assert.True(settings.PreserveComments);
+        }
+
+        [Test]
+        public void ResolveShouldRetainDefaultsForInvalidValues()
+        {
+            SqlFormatterOptions formatterOptions = new SqlFormatterOptions
+            {
+                SqlVersion = (SqlFormatterVersion)(-1),
+                SqlEngineType = (SqlFormatterEngineType)(-1),
+                KeywordCasing = (SqlFormatterKeywordCasing)(-1),
+                NumNewlinesAfterStatement = 6
+            };
+
+            ScriptDomFormatterSettings settings = ScriptDomFormatterSettings.Resolve(null, formatterOptions);
+
+            Assert.AreEqual("Sql170", settings.SqlVersion.ToString());
+            Assert.AreEqual("All", settings.SqlEngineType.ToString());
+            Assert.AreEqual("Uppercase", settings.KeywordCasing.ToString());
+            Assert.AreEqual(1, settings.NumNewlinesAfterStatement);
+            Assert.AreEqual(4, settings.IndentationSize);
         }
     }
 }
