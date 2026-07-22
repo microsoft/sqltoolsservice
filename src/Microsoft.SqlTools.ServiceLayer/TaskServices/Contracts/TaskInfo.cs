@@ -38,6 +38,12 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices.Contracts
         public string DatabaseName { get; set; }
 
         /// <summary>
+        /// Connection owner URI for the task. Hosts use this opaque identity
+        /// to route task presentation back to the feature that started it.
+        /// </summary>
+        public string OwnerUri { get; set; }
+
+        /// <summary>
         /// Target location for this task
         /// </summary>
         public string TargetLocation { get; set; }

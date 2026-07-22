@@ -207,7 +207,10 @@ Task("Restore")
     .IsDependentOn("Setup")
     .Does(() =>
 {
-    RunRestore(dotnetcli, "restore", workingDirectory)
+    // This branch contains focused solution files in addition to the primary
+    // repository solution. Keep the standard build deterministic instead of
+    // asking MSBuild to infer which solution should be restored.
+    RunRestore(dotnetcli, "restore \"sqltoolsservice.sln\"", workingDirectory)
         .ExceptionOnError("Failed to restore projects under source code folder.");
 });
 

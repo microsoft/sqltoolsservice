@@ -508,6 +508,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
                 Status = this.TaskStatus,
                 DatabaseName = TaskMetadata.DatabaseName,
                 ServerName = TaskMetadata.ServerName,
+                OwnerUri = TaskMetadata.OwnerUri,
                 Name = TaskMetadata.Name,
                 Description = TaskMetadata.Description,
                 TaskExecutionMode = TaskMetadata.TaskExecutionMode,

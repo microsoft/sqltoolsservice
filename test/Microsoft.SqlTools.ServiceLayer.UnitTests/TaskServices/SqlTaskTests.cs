@@ -70,7 +70,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
             SqlTask sqlTask = new SqlTask(new TaskMetadata
             {
                 ServerName = "server name",
-                DatabaseName = "database name"
+                DatabaseName = "database name",
+                OwnerUri = "runbookstudio://dacfx/test"
             }, operation.FunctionToRun, operation.FunctionToCancel);
 
             Task taskToVerify = sqlTask.RunAsync().ContinueWith(task =>
@@ -79,6 +80,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
                 Assert.AreEqual(taskInfo.TaskId, sqlTask.TaskId.ToString());
                 Assert.AreEqual("server name", taskInfo.ServerName);
                 Assert.AreEqual("database name", taskInfo.DatabaseName);
+                Assert.AreEqual("runbookstudio://dacfx/test", taskInfo.OwnerUri);
             });
             operation.Stop();
             await taskToVerify;
