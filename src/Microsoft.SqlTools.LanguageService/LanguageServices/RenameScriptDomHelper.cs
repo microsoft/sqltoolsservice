@@ -141,6 +141,35 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             return visitor.Edits;
         }
 
+        /// <summary>
+        /// Returns <c>true</c> when the cursor in <paramref name="sqlText"/> falls on any alias
+        /// identifier that is not an independently renameable schema object:
+        /// <list type="bullet">
+        ///   <item>SELECT column aliases — <c>expr AS alias</c> or positional <c>expr alias</c></item>
+        ///   <item>Table / subquery / function aliases — <c>FROM T AS t</c>, <c>(SELECT …) AS sub</c></item>
+        ///   <item>CTE names — <c>WITH cte AS (…)</c></item>
+        /// </list>
+        /// All of these are purely syntactic constructs inside their enclosing statement and would
+        /// generate an invalid <c>.refactorlog</c> entry if renamed through the schema-object path.
+        /// </summary>
+        /// <param name="sqlText">The full text of the editor buffer.</param>
+        /// <param name="line0">0-based cursor line.</param>
+        /// <param name="col0">0-based cursor column.</param>
+        public static bool IsCursorOnAlias(string sqlText, int line0, int col0)
+        {
+            if (string.IsNullOrEmpty(sqlText))
+                return false;
+
+            TSqlFragment fragment = ParseFragment(sqlText);
+            if (fragment == null)
+                return false;
+
+            // ScriptDom lines/columns are 1-based; LSP positions are 0-based.
+            var visitor = new AliasVisitor(line0 + 1, col0 + 1);
+            fragment.Accept(visitor);
+            return visitor.IsOnAlias;
+        }
+
         private static TSql160Parser CreateParser() => new TSql160Parser(initialQuotedIdentifiers: true);
 
         /// <summary>Parses <paramref name="sqlText"/> and returns its token stream, or <c>null</c>.</summary>
@@ -462,6 +491,60 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                         }
                     }
                 });
+            }
+        }
+
+        /// <summary>
+        /// AST visitor that detects any alias identifier that is not an independently renameable
+        /// schema object: SELECT column aliases, table/subquery/function aliases, and CTE names.
+        /// </summary>
+        private sealed class AliasVisitor : TSqlFragmentVisitor
+        {
+            private readonly int _line; // 1-based
+            private readonly int _col;  // 1-based
+
+            public bool IsOnAlias { get; private set; }
+
+            public AliasVisitor(int line, int col)
+            {
+                _line = line;
+                _col  = col;
+            }
+
+            // SELECT column aliases: expr AS alias  /  expr alias
+            public override void Visit(SelectScalarExpression node)
+            {
+                if (!IsOnAlias && node.ColumnName?.Identifier != null)
+                    CheckIdentifier(node.ColumnName.Identifier);
+            }
+
+            // Table / subquery / function aliases: FROM T AS t, (SELECT …) AS sub, fn() AS f, etc.
+            // TableReferenceWithAlias is the base for NamedTableReference, QueryDerivedTable,
+            // SchemaObjectFunctionTableReference, InlineDerivedTable, and all other aliasable sources.
+            public override void Visit(TableReferenceWithAlias node)
+            {
+                if (!IsOnAlias && node.Alias != null)
+                    CheckIdentifier(node.Alias);
+            }
+
+            // CTE names: WITH cte AS (…)
+            public override void Visit(CommonTableExpression node)
+            {
+                if (!IsOnAlias && node.ExpressionName != null)
+                    CheckIdentifier(node.ExpressionName);
+            }
+
+            private void CheckIdentifier(Identifier identifier)
+            {
+                if (identifier.ScriptTokenStream == null
+                    || identifier.FirstTokenIndex < 0
+                    || identifier.FirstTokenIndex >= identifier.ScriptTokenStream.Count)
+                    return;
+
+                TSqlParserToken token = identifier.ScriptTokenStream[identifier.FirstTokenIndex];
+                int len = token.Text?.Length ?? 0;
+                if (token.Line == _line && _col >= token.Column && _col <= token.Column + len)
+                    IsOnAlias = true;
             }
         }
     }

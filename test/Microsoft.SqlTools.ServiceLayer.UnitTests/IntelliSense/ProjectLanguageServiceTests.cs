@@ -1573,6 +1573,21 @@ END
 
         private const string StagingSchemaScript = "CREATE SCHEMA staging;";
 
+        // ViewWithAliasScript layout (0-based):
+        // 0: "CREATE VIEW dbo.CustomerSummary"
+        // 1: "AS"
+        // 2: "SELECT"
+        // 3: "    c.CustomerId,"
+        // 4: "    c.CustomerName AS DisplayName"  ← DisplayName starts at char 22
+        // 5: "FROM dbo.Customers c;"
+        private const string ViewWithAliasScript =
+            "CREATE VIEW dbo.CustomerSummary\n" +
+            "AS\n" +
+            "SELECT\n" +
+            "    c.CustomerId,\n" +
+            "    c.CustomerName AS DisplayName\n" +
+            "FROM dbo.Customers c;";
+
         private const string SalesCustomersTableScript =
             "CREATE TABLE sales.Customers (\n" +
             "    CustomerId INT PRIMARY KEY,\n" +
@@ -1607,6 +1622,9 @@ END
             // model doesn't trigger the name-collision guard.
             _project.SqlObjectScripts.Add(
                 new SqlObjectScript(Path.Combine("Schemas", "staging.sql")), StagingSchemaScript);
+            // View with column aliases — used to verify rename is rejected on column aliases.
+            _project.SqlObjectScripts.Add(
+                new SqlObjectScript(Path.Combine("Views", "CustomerSummary.sql")), ViewWithAliasScript);
 
             _model = TSqlModelBuilder.LoadModel(_project);
             _databaseName = Path.GetFileNameWithoutExtension(_projectPath);
@@ -2236,6 +2254,37 @@ END
 
         // File connected to a live server must be rejected before any project-model work runs.
         [Test]
+        public async Task HandleRenameRequest_ReturnsNotSupportedMessage_WhenCursorOnViewColumnAlias()
+        {
+            // Load the view into the workspace (it is already in the DacFx model via SetUp).
+            string viewUri = GetFileUri("Views/CustomerSummary.sql");
+            _workspaceService.Workspace.GetFileBuffer(viewUri, ViewWithAliasScript);
+            _langService.InitializeProjectFileContexts(new[] { viewUri }, _contextKey, _databaseName);
+
+            SqlSymbolRenameResponse result = null;
+            var ctx = new Mock<RequestContext<SqlSymbolRenameResponse>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlSymbolRenameResponse>()))
+               .Returns<SqlSymbolRenameResponse>(r => { result = r; return Task.FromResult(0); });
+
+            // Line 4: "    c.CustomerName AS DisplayName"
+            // "DisplayName" starts at char 22 — place cursor at char 25 (inside the name).
+            await _langService.HandleSqlRenameRequest(
+                new SqlSymbolRenameParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = viewUri },
+                    Position = new Position { Line = 4, Character = 25 },
+                    NewName = "AliasName"
+                },
+                ctx.Object);
+
+            Assert.That(result?.Message, Is.EqualTo(LanguageServiceSR.RenameNotSupported),
+                $"Rename should be rejected for a SELECT column alias. Got: {result?.Message}");
+            Assert.That(result?.Changes, Is.Null.Or.Empty,
+                "No workspace edits should be produced for a column alias rename");
+        }
+
+        // File connected to a live server must be rejected before any project-model work runs.
+        [Test]
         public async Task HandleRenameRequest_ReturnsLiveServerMessage_WhenFileConnectedToServer()
         {
             const string connectedUri = "file:///test_live_server.sql";
@@ -2379,6 +2428,17 @@ END
             Assert.That(edits[0].Location.Range.Start.Character,
                 Is.EqualTo(edits[0].Location.Range.End.Character),
                 "An inserted qualifier should be a zero-width edit");
+        }
+
+        [TestCase("SELECT c.CustomerName AS DisplayName FROM dbo.Customers c;", 0, 25, TestName = "SelectColumnAliasWithAs")]
+        [TestCase("SELECT c.CustomerName FullName FROM dbo.Customers c;",        0, 22, TestName = "PositionalSelectColumnAlias")]
+        [TestCase("SELECT c.Id FROM dbo.Customers AS c;",                        0, 34, TestName = "TableAliasWithAs")]
+        [TestCase("SELECT c.Id FROM dbo.Customers c;",                           0, 31, TestName = "PositionalTableAlias")]
+        [TestCase("SELECT sub.Id FROM (SELECT Id FROM dbo.T) AS sub;",           0, 46, TestName = "SubqueryAlias")]
+        [TestCase("WITH cte AS (SELECT Id FROM dbo.T) SELECT * FROM cte;",       0, 5,  TestName = "CteAlias")]
+        public void IsCursorOnAlias_ReturnsTrue_ForAllAliasScenarios(string sql, int line, int col)
+        {
+            Assert.That(RenameScriptDomHelper.IsCursorOnAlias(sql, line, col), Is.True);
         }
     }
 }
