@@ -80,6 +80,11 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
             Logger.Verbose("HandleDocFormatRequest");
             FormatOperationResult result = await FormatAndReturnEdits(docFormatParams);
             await requestContext.SendResult(result.Edits);
+            await SendFormattingFailedNotification(
+                requestContext,
+                docFormatParams,
+                FormattingRequestType.Document,
+                result);
             DocumentStatusHelper.SendTelemetryEvent(requestContext, CreateTelemetryProps(isDocFormat: true, result));
         }
 
@@ -88,7 +93,34 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
             Logger.Verbose("HandleDocRangeFormatRequest");
             FormatOperationResult result = await FormatRangeAndReturnEdits(docRangeFormatParams);
             await requestContext.SendResult(result.Edits);
+            await SendFormattingFailedNotification(
+                requestContext,
+                docRangeFormatParams,
+                FormattingRequestType.Range,
+                result);
             DocumentStatusHelper.SendTelemetryEvent(requestContext, CreateTelemetryProps(isDocFormat: false, result));
+        }
+
+        private static Task SendFormattingFailedNotification(
+            RequestContext<TextEdit[]> requestContext,
+            DocumentFormattingParams formattingParams,
+            FormattingRequestType formatType,
+            FormatOperationResult result)
+        {
+            if (result.FormatterOutcome != TelemetryPropertyNames.FormatterOutcomeParseFailed)
+            {
+                return Task.CompletedTask;
+            }
+
+            return requestContext.SendEvent(
+                FormattingFailedNotification.Type,
+                new FormattingFailedParams
+                {
+                    OwnerUri = formattingParams.TextDocument.Uri,
+                    FormatType = formatType,
+                    Reason = FormattingFailureReason.ParseError,
+                    ParseErrorCount = result.ParseErrorCount
+                });
         }
 
         private static TelemetryProperties CreateTelemetryProps(bool isDocFormat, FormatOperationResult result)
