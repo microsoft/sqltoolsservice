@@ -858,7 +858,7 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner
             foreach (var column in table.Columns.Items)
             {
                 var columnViewModel = new TableColumnViewModel();
-                var isVector = column.VectorDimension.HasValue;
+                var isVector = string.Equals(column.DataType, "vector", StringComparison.OrdinalIgnoreCase);
                 columnViewModel.Name.Value = column.Name;
                 columnViewModel.Name.Enabled = column.CanEditName;
                 columnViewModel.Description.Value = column.Description;
