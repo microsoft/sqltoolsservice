@@ -877,11 +877,11 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner
                 columnViewModel.AdvancedType.Value = column.AdvancedDataType;
                 columnViewModel.AdvancedType.Enabled = column.CanEditDataType;
                 columnViewModel.AdvancedType.Values = column.AdvancedDataTypes.ToList();
-                columnViewModel.IsIdentity.Enabled = column.CanEditIsIdentity && !isVector;
+                columnViewModel.IsIdentity.Enabled = column.CanEditIsIdentity;
                 columnViewModel.IsIdentity.Checked = column.IsIdentity;
-                columnViewModel.IdentitySeed.Enabled = column.CanEditIdentityValues && !isVector;
+                columnViewModel.IdentitySeed.Enabled = column.CanEditIdentityValues;
                 columnViewModel.IdentitySeed.Value = column.IdentitySeed?.ToString();
-                columnViewModel.IdentityIncrement.Enabled = column.CanEditIdentityValues && !isVector;
+                columnViewModel.IdentityIncrement.Enabled = column.CanEditIdentityValues;
                 columnViewModel.IdentityIncrement.Value = column.IdentityIncrement?.ToString();
                 columnViewModel.CanBeDeleted = column.CanBeDeleted;
                 columnViewModel.IsComputed.Enabled = column.CanEditIsComputed;
