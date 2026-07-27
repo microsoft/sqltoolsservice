@@ -17,6 +17,7 @@ project.lock.json
 *.suo
 *.user
 *.userosscache
+*.lscache
 *.sln.docstates
 *.exe
 scratch.txt

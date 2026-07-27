@@ -20,7 +20,7 @@ using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Microsoft.SqlTools.LanguageService.Workspace;
 using Microsoft.SqlTools.Utility;
 using NUnit.Framework;
 

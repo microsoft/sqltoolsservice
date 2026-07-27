@@ -5,18 +5,13 @@
    "version": "0.2.0",
    "configurations": [
         {
-            "name": ".NET Core Launch (console)",
-            "type": "coreclr",
+            "name": "Run Local Publish",
+            "type": "node-terminal",
             "request": "launch",
-            "preLaunchTask": "build",
-            // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/src/Microsoft.SqlTools.ServiceLayer/bin/Debug/net8.0/MicrosoftSqlToolsServiceLayer.dll",
-            "args": [],
-            "cwd": "${workspaceFolder}/src/Microsoft.SqlTools.ServiceLayer",
-            // For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
-            "console": "externalTerminal",
-            "stopAtEntry": false,
-            "internalConsoleOptions": "openOnSessionStart"
+            "command": "bash ${workspaceFolder}/build.sh --target=LocalPublish --configuration=Debug",
+            "windows": {
+                "command": "pwsh.exe -NoProfile -ExecutionPolicy Bypass -File ${workspaceFolder}/build.ps1 --target=LocalPublish --configuration=Debug"
+            }
         },
         {
             "name": ".NET Core Attach",
@@ -26,6 +21,6 @@
             "requireExactSource": false,
             "justMyCode": false,
             "enableStepFiltering": false
-        },
+        }
     ]
 }

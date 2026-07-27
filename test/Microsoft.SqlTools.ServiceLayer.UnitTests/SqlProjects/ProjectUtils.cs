@@ -27,11 +27,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlProjects
         /// <summary>
         /// Creates a simple test SQL project synchronously
         /// </summary>
-        /// <param name="projectName">Name of the project</param>
+        /// <param name="projectName">Optional unique name for the project. If null, uses test name with timestamp</param>
         /// <returns>Path to the created .sqlproj file</returns>
-        public static string CreateTestProject(string projectName)
+        public static string CreateTestProject(string? projectName = null)
         {
-            string projectPath = GetTestProjectPath(projectName);
+            // Use test name + timestamp for uniqueness if no name provided
+            string uniqueName = projectName ?? $"{NUnit.Framework.TestContext.CurrentContext.Test.Name}_{DateTime.Now:yyyyMMddHHmmssfff}";
+            string projectPath = GetTestProjectPath(uniqueName);
             
             // Delete any existing project first to handle reruns
             DeleteTestProject(projectPath);

@@ -47,38 +47,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
-        public static string ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves
-        {
-            get
-            {
-                return Keys.GetString(Keys.ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves);
-            }
-        }
-
-        public static string ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol
-        {
-            get
-            {
-                return Keys.GetString(Keys.ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol);
-            }
-        }
-
-        public static string ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination
-        {
-            get
-            {
-                return Keys.GetString(Keys.ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination);
-            }
-        }
-
-        public static string ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl
-        {
-            get
-            {
-                return Keys.GetString(Keys.ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl);
-            }
-        }
-
         public static string ConnectionServiceConnectionCanceled
         {
             get
@@ -468,62 +436,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             get
             {
                 return Keys.GetString(Keys.FailedToFindConnectionInfoAboutTheServer);
-            }
-        }
-
-        public static string PeekDefinitionNoResultsError
-        {
-            get
-            {
-                return Keys.GetString(Keys.PeekDefinitionNoResultsError);
-            }
-        }
-
-        public static string PeekDefinitionDatabaseError
-        {
-            get
-            {
-                return Keys.GetString(Keys.PeekDefinitionDatabaseError);
-            }
-        }
-
-        public static string PeekDefinitionNotConnectedError
-        {
-            get
-            {
-                return Keys.GetString(Keys.PeekDefinitionNotConnectedError);
-            }
-        }
-
-        public static string PeekDefinitionTimedoutError
-        {
-            get
-            {
-                return Keys.GetString(Keys.PeekDefinitionTimedoutError);
-            }
-        }
-
-        public static string PeekDefinitionTypeNotSupportedError
-        {
-            get
-            {
-                return Keys.GetString(Keys.PeekDefinitionTypeNotSupportedError);
-            }
-        }
-
-        public static string ErrorEmptyStringReplacement
-        {
-            get
-            {
-                return Keys.GetString(Keys.ErrorEmptyStringReplacement);
-            }
-        }
-
-        public static string WorkspaceServicePositionLineOutOfRange
-        {
-            get
-            {
-                return Keys.GetString(Keys.WorkspaceServicePositionLineOutOfRange);
             }
         }
 
@@ -964,6 +876,62 @@ namespace Microsoft.SqlTools.ServiceLayer
             get
             {
                 return Keys.GetString(Keys.TaskCompleted);
+            }
+        }
+
+        public static string TableDesignerPublishTaskName
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerPublishTaskName);
+            }
+        }
+
+        public static string TableDesignerPublishTaskDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerPublishTaskDescription);
+            }
+        }
+
+        public static string TableDesignerPublishFailed
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableDesignerPublishFailed);
+            }
+        }
+
+        public static string SchemaDesignerPublishTaskName
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaDesignerPublishTaskName);
+            }
+        }
+
+        public static string SchemaDesignerPublishTaskDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaDesignerPublishTaskDescription);
+            }
+        }
+
+        public static string SchemaDesignerPublishFailed
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaDesignerPublishFailed);
+            }
+        }
+
+        public static string SchemaDesignerSessionNotFound
+        {
+            get
+            {
+                return Keys.GetString(Keys.SchemaDesignerSessionNotFound);
             }
         }
 
@@ -9767,6 +9735,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string compatibilityLevel_sqlv180
+        {
+            get
+            {
+                return Keys.GetString(Keys.compatibilityLevel_sqlv180);
+            }
+        }
+
         public static string general_containmentType_None
         {
             get
@@ -10172,6 +10148,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             get
             {
                 return Keys.GetString(Keys.ConnectionConfigOptions_authenticationType_category_ActiveDirectoryDefault);
+            }
+        }
+
+        public static string ConnectionConfigOptions_authenticationType_category_ActiveDirectoryServicePrincipal
+        {
+            get
+            {
+                return Keys.GetString(Keys.ConnectionConfigOptions_authenticationType_category_ActiveDirectoryServicePrincipal);
             }
         }
 
@@ -10745,36 +10729,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.ConnectionServiceDbErrorDefaultNotConnected, uri);
         }
 
-        public static string ConnectionServiceConnStringInvalidAuthType(string authType)
-        {
-            return Keys.GetString(Keys.ConnectionServiceConnStringInvalidAuthType, authType);
-        }
-
-        public static string ConnectionServiceConnStringInvalidColumnEncryptionSetting(string columnEncryptionSetting)
-        {
-            return Keys.GetString(Keys.ConnectionServiceConnStringInvalidColumnEncryptionSetting, columnEncryptionSetting);
-        }
-
-        public static string ConnectionServiceConnStringInvalidSecureEnclaves(string secureEnclaves)
-        {
-            return Keys.GetString(Keys.ConnectionServiceConnStringInvalidSecureEnclaves, secureEnclaves);
-        }
-
-        public static string ConnectionServiceConnStringInvalidEncryptOption(string encrypt)
-        {
-            return Keys.GetString(Keys.ConnectionServiceConnStringInvalidEncryptOption, encrypt);
-        }
-
-        public static string ConnectionServiceConnStringInvalidEnclaveAttestationProtocol(string enclaveAttestationProtocol)
-        {
-            return Keys.GetString(Keys.ConnectionServiceConnStringInvalidEnclaveAttestationProtocol, enclaveAttestationProtocol);
-        }
-
-        public static string ConnectionServiceConnStringInvalidIntent(string intent)
-        {
-            return Keys.GetString(Keys.ConnectionServiceConnStringInvalidIntent, intent);
-        }
-
         public static string ConnectionParamsValidateNullSqlAuth(string component)
         {
             return Keys.GetString(Keys.ConnectionParamsValidateNullSqlAuth, component);
@@ -10805,41 +10759,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.QueryServiceSaveAsFail, fileName, message);
         }
 
-        public static string ParameterizationDetails(string variableName, string sqlDbType, int size, int precision, int scale, string sqlValue)
-        {
-            return Keys.GetString(Keys.ParameterizationDetails, variableName, sqlDbType, size, precision, scale, sqlValue);
-        }
-
-        public static string ErrorMessageHeader(int lineNumber)
-        {
-            return Keys.GetString(Keys.ErrorMessageHeader, lineNumber);
-        }
-
-        public static string ErrorMessage(string variableName, string sqlDataType, string literalValue)
-        {
-            return Keys.GetString(Keys.ErrorMessage, variableName, sqlDataType, literalValue);
-        }
-
-        public static string DateTimeErrorMessage(string variableName, string sqlDataType, string literalValue)
-        {
-            return Keys.GetString(Keys.DateTimeErrorMessage, variableName, sqlDataType, literalValue);
-        }
-
-        public static string BinaryLiteralPrefixMissingError(string variableName, string sqlDataType, string literalValue)
-        {
-            return Keys.GetString(Keys.BinaryLiteralPrefixMissingError, variableName, sqlDataType, literalValue);
-        }
-
-        public static string ParsingErrorHeader(int lineNumber, int columnNumber)
-        {
-            return Keys.GetString(Keys.ParsingErrorHeader, lineNumber, columnNumber);
-        }
-
-        public static string ScriptTooLarge(int maxChars, int currentChars)
-        {
-            return Keys.GetString(Keys.ScriptTooLarge, maxChars, currentChars);
-        }
-
         public static string WritingServerContextualizationToCacheError(string message)
         {
             return Keys.GetString(Keys.WritingServerContextualizationToCacheError, message);
@@ -10858,36 +10777,6 @@ namespace Microsoft.SqlTools.ServiceLayer
         public static string SerializationServiceRequestNotFound(string filePath)
         {
             return Keys.GetString(Keys.SerializationServiceRequestNotFound, filePath);
-        }
-
-        public static string PeekDefinitionAzureError(string errorMessage)
-        {
-            return Keys.GetString(Keys.PeekDefinitionAzureError, errorMessage);
-        }
-
-        public static string PeekDefinitionError(string errorMessage)
-        {
-            return Keys.GetString(Keys.PeekDefinitionError, errorMessage);
-        }
-
-        public static string StarExpansionLabel(string starExpression)
-        {
-            return Keys.GetString(Keys.StarExpansionLabel, starExpression);
-        }
-
-        public static string StarExpansionDescription(string starExpression, string columnCount, string columnPreview)
-        {
-            return Keys.GetString(Keys.StarExpansionDescription, starExpression, columnCount, columnPreview);
-        }
-
-        public static string WorkspaceServicePositionColumnOutOfRange(int line)
-        {
-            return Keys.GetString(Keys.WorkspaceServicePositionColumnOutOfRange, line);
-        }
-
-        public static string WorkspaceServiceBufferPositionOutOfOrder(int sLine, int sCol, int eLine, int eCol)
-        {
-            return Keys.GetString(Keys.WorkspaceServiceBufferPositionOutOfOrder, sLine, sCol, eLine, eCol);
         }
 
         public static string EditDataUnsupportedObjectType(string typeName)
@@ -11105,36 +10994,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string ConnectionServiceDbErrorDefaultNotConnected = "ConnectionServiceDbErrorDefaultNotConnected";
 
 
-            public const string ConnectionServiceConnStringInvalidAuthType = "ConnectionServiceConnStringInvalidAuthType";
-
-
-            public const string ConnectionServiceConnStringInvalidColumnEncryptionSetting = "ConnectionServiceConnStringInvalidColumnEncryptionSetting";
-
-
-            public const string ConnectionServiceConnStringInvalidSecureEnclaves = "ConnectionServiceConnStringInvalidSecureEnclaves";
-
-
-            public const string ConnectionServiceConnStringInvalidEncryptOption = "ConnectionServiceConnStringInvalidEncryptOption";
-
-
-            public const string ConnectionServiceConnStringInvalidEnclaveAttestationProtocol = "ConnectionServiceConnStringInvalidEnclaveAttestationProtocol";
-
-
-            public const string ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves = "ConnectionServiceConnStringMissingAttestationProtocolWithSecureEnclaves";
-
-
-            public const string ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol = "ConnectionServiceConnStringMissingAttestationUrlWithAttestationProtocol";
-
-
-            public const string ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination = "ConnectionServiceConnStringInvalidAlwaysEncryptedOptionCombination";
-
-
-            public const string ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl = "ConnectionServiceConnStringInvalidAttestationProtocolNoneWithUrl";
-
-
-            public const string ConnectionServiceConnStringInvalidIntent = "ConnectionServiceConnStringInvalidIntent";
-
-
             public const string ConnectionServiceConnectionCanceled = "ConnectionServiceConnectionCanceled";
 
 
@@ -11294,27 +11153,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string SqlCmdUnsupportedToken = "SqlCmdUnsupportedToken";
 
 
-            public const string ParameterizationDetails = "ParameterizationDetails";
-
-
-            public const string ErrorMessageHeader = "ErrorMessageHeader";
-
-
-            public const string ErrorMessage = "ErrorMessage";
-
-
-            public const string DateTimeErrorMessage = "DateTimeErrorMessage";
-
-
-            public const string BinaryLiteralPrefixMissingError = "BinaryLiteralPrefixMissingError";
-
-
-            public const string ParsingErrorHeader = "ParsingErrorHeader";
-
-
-            public const string ScriptTooLarge = "ScriptTooLarge";
-
-
             public const string WritingServerContextualizationToCacheError = "WritingServerContextualizationToCacheError";
 
 
@@ -11331,45 +11169,6 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string SerializationServiceRequestNotFound = "SerializationServiceRequestNotFound";
-
-
-            public const string PeekDefinitionAzureError = "PeekDefinitionAzureError";
-
-
-            public const string PeekDefinitionError = "PeekDefinitionError";
-
-
-            public const string PeekDefinitionNoResultsError = "PeekDefinitionNoResultsError";
-
-
-            public const string PeekDefinitionDatabaseError = "PeekDefinitionDatabaseError";
-
-
-            public const string PeekDefinitionNotConnectedError = "PeekDefinitionNotConnectedError";
-
-
-            public const string PeekDefinitionTimedoutError = "PeekDefinitionTimedoutError";
-
-
-            public const string PeekDefinitionTypeNotSupportedError = "PeekDefinitionTypeNotSupportedError";
-
-
-            public const string ErrorEmptyStringReplacement = "ErrorEmptyStringReplacement";
-
-
-            public const string StarExpansionLabel = "StarExpansionLabel";
-
-
-            public const string StarExpansionDescription = "StarExpansionDescription";
-
-
-            public const string WorkspaceServicePositionLineOutOfRange = "WorkspaceServicePositionLineOutOfRange";
-
-
-            public const string WorkspaceServicePositionColumnOutOfRange = "WorkspaceServicePositionColumnOutOfRange";
-
-
-            public const string WorkspaceServiceBufferPositionOutOfOrder = "WorkspaceServiceBufferPositionOutOfOrder";
 
 
             public const string EditDataObjectNotFound = "EditDataObjectNotFound";
@@ -11550,6 +11349,27 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string TaskCompleted = "TaskCompleted";
+
+
+            public const string TableDesignerPublishTaskName = "TableDesignerPublishTaskName";
+
+
+            public const string TableDesignerPublishTaskDescription = "TableDesignerPublishTaskDescription";
+
+
+            public const string TableDesignerPublishFailed = "TableDesignerPublishFailed";
+
+
+            public const string SchemaDesignerPublishTaskName = "SchemaDesignerPublishTaskName";
+
+
+            public const string SchemaDesignerPublishTaskDescription = "SchemaDesignerPublishTaskDescription";
+
+
+            public const string SchemaDesignerPublishFailed = "SchemaDesignerPublishFailed";
+
+
+            public const string SchemaDesignerSessionNotFound = "SchemaDesignerSessionNotFound";
 
 
             public const string ConflictWithNoRecovery = "ConflictWithNoRecovery";
@@ -14948,6 +14768,9 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string compatibilityLevel_sqlv170 = "compatibilityLevel_sqlv170";
 
 
+            public const string compatibilityLevel_sqlv180 = "compatibilityLevel_sqlv180";
+
+
             public const string general_containmentType_None = "general_containmentType_None";
 
 
@@ -15105,6 +14928,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string ConnectionConfigOptions_authenticationType_category_ActiveDirectoryDefault = "ConnectionConfigOptions_authenticationType_category_ActiveDirectoryDefault";
+
+
+            public const string ConnectionConfigOptions_authenticationType_category_ActiveDirectoryServicePrincipal = "ConnectionConfigOptions_authenticationType_category_ActiveDirectoryServicePrincipal";
 
 
             public const string ConnectionConfigOptions_user_displayName = "ConnectionConfigOptions_user_displayName";
@@ -15353,12 +15179,6 @@ namespace Microsoft.SqlTools.ServiceLayer
             public static string GetString(string key, object arg0, object arg1, object arg2)
             {
                 return string.Format(global::System.Globalization.CultureInfo.CurrentCulture, resourceManager.GetString(key, _culture), arg0, arg1, arg2);
-            }
-
-
-            public static string GetString(string key, object arg0, object arg1, object arg2, object arg3)
-            {
-                return string.Format(global::System.Globalization.CultureInfo.CurrentCulture, resourceManager.GetString(key, _culture), arg0, arg1, arg2, arg3);
             }
 
 

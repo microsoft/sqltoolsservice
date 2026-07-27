@@ -10,6 +10,7 @@ using Microsoft.Data.Tools.Sql.DesignServices.TableDesigner;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.SqlClient;
+using Microsoft.SqlTools.ServiceLayer.TaskServices;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 {
@@ -21,8 +22,19 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         DacSchemaDesigner schemaDesigner;
         private string connectionString;
         private string? accessToken;
+        private SqlTask? publishSqlTask;
 
-        public SchemaDesignerSession(string connectionString, string? accessToken)
+        public event EventHandler<SchemaDesignerProgressNotificationParams>? ProgressChanged;
+        public event EventHandler<SchemaDesignerMessageNotificationParams>? MessageReceived;
+        public string ServerName { get; }
+        public string DatabaseName { get; }
+
+        public SchemaDesignerSession(
+            string sessionId,
+            string connectionString,
+            string? accessToken,
+            EventHandler<SchemaDesignerProgressNotificationParams>? progressHandler = null,
+            EventHandler<SchemaDesignerMessageNotificationParams>? messageHandler = null)
         {
             var connectionStringBuilder = new SqlConnectionStringBuilder(connectionString);
             connectionStringBuilder.ApplicationName = "SchemaDesigner";
@@ -32,7 +44,17 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
 
             this.connectionString = connectionStringBuilder.ConnectionString;
             this.accessToken = accessToken;
-            SessionId = connectionString;
+            SessionId = sessionId;
+            ServerName = connectionStringBuilder.DataSource;
+            DatabaseName = connectionStringBuilder.InitialCatalog;
+            if (progressHandler != null)
+            {
+                ProgressChanged += progressHandler;
+            }
+            if (messageHandler != null)
+            {
+                MessageReceived += messageHandler;
+            }
             this._lastRequestSchema = null!;
             this.schemaDesigner = null!;
             this._initialSchema = this.createInitialSchema();
@@ -41,18 +63,23 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         private void CreateOrResetSchemaDesigner()
         {
             schemaDesigner = new DacSchemaDesigner(connectionString, accessToken);
+            schemaDesigner.ProgressChanged += OnDesignerProgressChanged;
+            schemaDesigner.Message += OnDesignerMessage;
         }
 
         private SchemaDesignerModel createInitialSchema()
         {
+            TableDesignerCacheManager.InvalidateItem(connectionString);
             CreateOrResetSchemaDesigner();
+            schemaDesigner.Initialize();
+            var simpleSchema = schemaDesigner.SimpleSchema;
             SchemaDesignerModel schema = new SchemaDesignerModel();
             schema.Tables = new List<SchemaDesignerTable>();
 
             // First pass: create all tables and columns so table/column IDs are available for FK projection.
-            for (int i = 0; i < schemaDesigner.SimpleSchema.Tables.Count; i++)
+            for (int i = 0; i < simpleSchema.Tables.Count; i++)
             {
-                var table = schemaDesigner.SimpleSchema.Tables[i];
+                var table = simpleSchema.Tables[i];
                 SchemaDesignerTable schemaTable = new SchemaDesignerTable()
                 {
                     Id = Guid.NewGuid(),
@@ -88,9 +115,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             }
 
             // Second pass: project foreign keys using table/column identifiers.
-            for (int i = 0; i < schemaDesigner.SimpleSchema.Tables.Count; i++)
+            for (int i = 0; i < simpleSchema.Tables.Count; i++)
             {
-                var sourceTable = schemaDesigner.SimpleSchema.Tables[i];
+                var sourceTable = simpleSchema.Tables[i];
                 var sourceSchemaTable = schema.Tables[i];
 
                 foreach (var fk in sourceTable.ForeignKeys)
@@ -167,15 +194,81 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             });
         }
 
-        public void PublishSchema()
+        public void PublishSchema(SqlTask? sqlTask = null)
         {
-            schemaDesigner.PublishChanges();
-            this._initialSchema = this._lastRequestSchema;
+            publishSqlTask = sqlTask;
+            try
+            {
+                schemaDesigner.PublishChanges();
+                this._initialSchema = this._lastRequestSchema;
+            }
+            finally
+            {
+                publishSqlTask = null;
+            }
         }
 
         public void Dispose()
         {
             TableDesignerCacheManager.InvalidateItem(connectionString);
+        }
+
+        private void OnDesignerProgressChanged(object? sender, DesignerProgressEventArgs args)
+        {
+            var progressParams = new SchemaDesignerProgressNotificationParams()
+            {
+                SessionId = SessionId,
+                Operation = args.Operation.ToString(),
+                Status = args.Status.ToString(),
+                Message = args.Message,
+            };
+
+            ProgressChanged?.Invoke(this, progressParams);
+
+            if (args.Operation == DesignerOperation.Publish && publishSqlTask != null)
+            {
+                publishSqlTask.ReportProgress(GetTaskPercent(args.Status), args.Message);
+            }
+        }
+
+        private void OnDesignerMessage(object? sender, DesignerMessageEventArgs args)
+        {
+            var messageParams = new SchemaDesignerMessageNotificationParams()
+            {
+                SessionId = SessionId,
+                Operation = args.Operation.ToString(),
+                MessageType = args.MessageType.ToString(),
+                Message = args.Message,
+                Number = args.Number,
+                Prefix = args.Prefix,
+                Progress = args.Progress,
+                SchemaName = args.SchemaName,
+                TableName = args.TableName,
+            };
+
+            MessageReceived?.Invoke(this, messageParams);
+
+            if (args.Operation == DesignerOperation.Publish && publishSqlTask != null)
+            {
+                if (!string.IsNullOrWhiteSpace(args.Message))
+                {
+                    publishSqlTask.AddMessage(
+                        args.Message,
+                        args.MessageType == Microsoft.SqlServer.Dac.DacMessageType.Error ? SqlTaskStatus.Failed : SqlTaskStatus.InProgress);
+                }
+
+                if (args.Progress.HasValue)
+                {
+                    publishSqlTask.ReportProgress(
+                        Math.Min(100, Math.Max(0, (int)Math.Round(args.Progress.Value * 100))),
+                        args.Message);
+                }
+            }
+        }
+
+        private static int GetTaskPercent(Microsoft.SqlServer.Dac.DacOperationStatus status)
+        {
+            return status == Microsoft.SqlServer.Dac.DacOperationStatus.Completed ? 100 : -1;
         }
     }
 }

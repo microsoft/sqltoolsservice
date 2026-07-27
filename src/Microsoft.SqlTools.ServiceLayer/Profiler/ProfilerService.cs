@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Microsoft.SqlServer.Management.XEvent;
 using Microsoft.SqlServer.Management.XEventDbScoped;
@@ -357,7 +358,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
 
             // Build connection string for XELite
-            var connectionString = sqlConnection.ConnectionString;
+            var connectionString = BuildXELiteConnectionString(sqlConnection, connInfo);
 
             // Create the live streaming session using XELite
             var liveSession = new LiveStreamXEventSession(
@@ -398,7 +399,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             }
 
             // Build connection string for XELite
-            var connectionString = sqlConnection.ConnectionString;
+            var connectionString = BuildXELiteConnectionString(sqlConnection, connInfo);
 
             // Create the live streaming session using XELite
             var liveSession = new LiveStreamXEventSession(
@@ -411,6 +412,45 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
             liveSession.SqlConnection = sqlConnection;
 
             return liveSession;
+        }
+
+        /// <summary>
+        /// Builds the connection string handed to XELite's <c>XELiveEventStreamer</c>.
+        /// </summary>
+        /// <remarks>
+        /// XELite creates its own internal <see cref="SqlConnection"/> from the connection
+        /// string and cannot accept a pre-acquired access token or an
+        /// <see cref="SqlConnection.AccessTokenCallback"/>.
+        ///
+        /// To bridge the gap for Microsoft Entra MFA connections, this method rewrites the
+        /// connection string to use <see cref="SqlAuthenticationMethod.ActiveDirectoryInteractive"/>
+        /// with the connection's account id placed in <c>User ID</c>, and registers an
+        /// <see cref="XEventAuthenticationProvider"/> token fetcher keyed on
+        /// <c>(accountId, tenantId)</c>.
+        /// </remarks>
+        internal static string BuildXELiteConnectionString(SqlConnection sqlConnection, ConnectionInfo connInfo)
+        {
+            var connectionString = sqlConnection.ConnectionString;
+
+            if (connInfo?.AzureTokenFetcher == null
+                || connInfo.ConnectionDetails?.AuthenticationType != Microsoft.SqlTools.Utility.SqlConstants.AzureMFA
+                || string.IsNullOrEmpty(connInfo.ConnectionDetails.AccountId))
+            {
+                return connectionString;
+            }
+
+            XEventAuthenticationProvider.Register(
+                connInfo.ConnectionDetails.AccountId,
+                connInfo.ConnectionDetails.TenantId,
+                connInfo.AzureTokenFetcher);
+
+            var builder = new SqlConnectionStringBuilder(connectionString)
+            {
+                Authentication = SqlAuthenticationMethod.ActiveDirectoryInteractive,
+                UserID = connInfo.ConnectionDetails.AccountId,
+            };
+
+            return builder.ConnectionString;
         }
 
         /// <summary>

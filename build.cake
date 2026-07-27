@@ -1,4 +1,4 @@
-#addin "nuget:?package=Newtonsoft.Json&version=13.0.2"
+#addin "nuget:?package=Newtonsoft.Json&version=13.0.3"
 
 #load "scripts/runHelpers.cake"
 #load "scripts/archiving.cake"
@@ -304,6 +304,14 @@ Task("NugetPackNuspec")
         // For now, putting all nugets in the 1 directory
         var outputFolder = System.IO.Path.Combine(nugetPackageFolder);
         var projectFolder = System.IO.Path.Combine(packagesFolder, project.Name);
+        // Only projects that ship a nuspec are packaged here. Projects without one (e.g. those
+        // packed directly via `dotnet pack` in PackageProjects) are skipped.
+        var nuspecPath = System.IO.Path.Combine(projectFolder, $"{project.Name}.nuspec");
+        if (!System.IO.File.Exists(nuspecPath))
+        {
+            Information($"Skipping nuspec packaging for {project.Name}: no nuspec found at {nuspecPath}");
+            continue;
+        }
         NugetPackNuspec(outputFolder, projectFolder, project.Name);
     }
 });
@@ -498,9 +506,13 @@ void PublishProject(string packageName, string[] projects)
                     }
                 }
         }
-        CreateRunScript(System.IO.Path.Combine(publishFolder, project, "default"), scriptFolder);
     }
 
+    if (packageName == buildPlan.PackageName)
+    {
+        var framework = buildPlan.Frameworks.Single();
+        CreateRunScript(System.IO.Path.Combine(publishFolder, packageName, "default"), scriptFolder, framework);
+    }
 }
 
 
@@ -613,7 +625,7 @@ Task("Install")
             foreach (string file in System.IO.Directory.GetFiles(outputFolder, "*", SearchOption.AllDirectories))
                 System.IO.File.Copy(file, System.IO.Path.Combine(targetFolder, file.Substring(outputFolder.Length + 1)), true);
         }
-        CreateRunScript(installFolder, scriptFolder);
+        CreateRunScript(installFolder, scriptFolder, buildPlan.Frameworks.Single());
     }
 });
 

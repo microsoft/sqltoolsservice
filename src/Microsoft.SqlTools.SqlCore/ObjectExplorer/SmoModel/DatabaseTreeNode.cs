@@ -17,6 +17,8 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 {
     public partial class DatabaseTreeNode
     {
+        private const long SqlDbDevEditionId = -978196525;
+
         public DatabaseTreeNode(ServerNode serverNode, string databaseName) : this()
         {
             Parent = serverNode;
@@ -27,7 +29,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
             // the user connected directly to the master of a readable secondary
             // In that case, the name in the connection string won't be found in sys.databases
             // We detect that here and fall back to master
-            if (db.State == SqlSmoState.Creating && !IsDWGen3(db))
+            if (db.State == SqlSmoState.Creating && !IsDWGen3(db) && !IsSqlDbDev(db))
             {
                 Logger.Information($"Database {databaseName} is in Creating state after initialization, defaulting to master for Object Explorer connections. This is expected when connecting to an Availability Group readable secondary");
                 db = new Database(serverNode.GetContextAs<SmoQueryContext>()!.Server, "master");
@@ -80,9 +82,9 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
             catch (Exception ex)
             {
                 // IsAccessible is not set of DW Gen3 and Dataverse so exception is expected in this case
-                // Incase of dataverses and other TDS endpoints isAccessible creates a temp table to check if the database  
+                // Incase of dataverses and other TDS endpoints isAccessible creates a temp table to check if the database
                 // is accessible, however these endpoints may not support ddl statements and therefore the check fails.
-                if (IsDWGen3(context?.Database) || isUnknownDatabaseEdition(context?.Database))
+                if (IsDWGen3(context?.Database) || isUnknownDatabaseEdition(context?.Database) || IsSqlDbDev(context?.Database))
                 {
                     return true;
                 }
@@ -96,6 +98,33 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
                 }
 
             }
+        }
+
+        private bool IsSqlDbDev(Database? db)
+        {
+            if (db?.Parent == null)
+            {
+                return false;
+            }
+
+            try
+            {
+                // SERVERPROPERTY returns sql_variant, so cast to bigint for predictable conversion.
+                object? result = db.Parent.ConnectionContext.ExecuteScalar("SELECT CAST(SERVERPROPERTY('EditionID') AS bigint) AS EditionID;");
+                if (result == null)
+                {
+                    return false;
+                }
+
+                long editionId = Convert.ToInt64(result, CultureInfo.InvariantCulture);
+                return editionId == SqlDbDevEditionId;
+            }
+            catch (Exception ex)
+            {
+                Logger.Verbose($"Failed to read EditionID for database '{db?.Name}'. error: {ex.Message}");
+                return false;
+            }
+
         }
 
         private bool IsDWGen3(Database? db)

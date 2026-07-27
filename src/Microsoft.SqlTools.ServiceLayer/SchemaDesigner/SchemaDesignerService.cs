@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Management;
+using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
@@ -46,16 +47,21 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         {
             return Utils.HandleRequest<CreateSessionResponse>(requestContext, async () =>
             {
-                string connectionUri = Guid.NewGuid().ToString();
-                var session = new SchemaDesignerSession(requestParams.ConnectionString, requestParams.AccessToken);
-                sessions.Add(connectionUri, session);
+                string sessionId = string.IsNullOrWhiteSpace(requestParams.SessionId) ? Guid.NewGuid().ToString() : requestParams.SessionId;
+                var session = new SchemaDesignerSession(
+                    sessionId,
+                    requestParams.ConnectionString,
+                    requestParams.AccessToken,
+                    CreateProgressNotificationHandler(),
+                    CreateMessageNotificationHandler());
+                sessions.Add(sessionId, session);
 
                 await requestContext.SendResult(new CreateSessionResponse()
                 {
                     Schema = session.InitialSchema,
                     DataTypes = session.AvailableDataTypes(),
                     SchemaNames = session.AvailableSchemas(),
-                    SessionId = connectionUri,
+                    SessionId = sessionId,
                 });
             });
         }
@@ -81,7 +87,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
                     {
                         Script = await session.GenerateScript(),
                     });
+                    return;
                 }
+
+                throw CreateSessionNotFoundException(requestParams.SessionId);
             });
         }
 
@@ -91,9 +100,40 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
             {
                 if (sessions.TryGetValue(requestParams.SessionId!, out SchemaDesignerSession? session))
                 {
-                    session.PublishSchema();
+                    var metadata = new TaskMetadata()
+                    {
+                        Name = SR.SchemaDesignerPublishTaskName,
+                        Description = SR.SchemaDesignerPublishTaskDescription,
+                        TaskExecutionMode = TaskExecutionMode.Execute,
+                        DatabaseName = session.DatabaseName,
+                        ServerName = session.ServerName,
+                        OperationName = "SchemaDesignerPublish",
+                    };
+
+                    var sqlTask = SqlTaskManager.Instance.CreateTask<SqlTask>(metadata, async (task) =>
+                    {
+                        await Task.Run(() =>
+                        {
+                            session.PublishSchema(task);
+                        });
+
+                        await requestContext.SendResult(new PublishSessionResponse());
+                        return new TaskResult()
+                        {
+                            TaskStatus = SqlTaskStatus.Succeeded,
+                        };
+                    });
+
+                    await sqlTask.RunAsync();
+                    if (sqlTask.TaskStatus == SqlTaskStatus.Failed)
+                    {
+                        throw new Exception(sqlTask.GetLastMessage()?.Description ?? SR.SchemaDesignerPublishFailed);
+                    }
+
+                    return;
                 }
-                await requestContext.SendResult(new PublishSessionResponse());
+
+                throw CreateSessionNotFoundException(requestParams.SessionId);
             });
         }
 
@@ -123,10 +163,39 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaDesigner
         {
             return Utils.HandleRequest<GetReportResponse>(requestContext, async () =>
             {
-                SchemaDesignerSession session = sessions[requestParams.SessionId!];
+                SchemaDesignerSession session = sessions.TryGetValue(requestParams.SessionId!, out SchemaDesignerSession? activeSession)
+                    ? activeSession
+                    : throw CreateSessionNotFoundException(requestParams.SessionId);
                 var report = await session.GetReport(requestParams.UpdatedSchema!);
                 await requestContext.SendResult(report);
             });
+        }
+
+        private static Exception CreateSessionNotFoundException(string? sessionId)
+        {
+            return new KeyNotFoundException(string.Format(SR.SchemaDesignerSessionNotFound, sessionId ?? string.Empty));
+        }
+
+        private EventHandler<SchemaDesignerProgressNotificationParams> CreateProgressNotificationHandler()
+        {
+            return async (_, args) =>
+            {
+                if (serviceHost != null)
+                {
+                    await serviceHost.SendEvent(SchemaDesignerProgressNotification.Type, args);
+                }
+            };
+        }
+
+        private EventHandler<SchemaDesignerMessageNotificationParams> CreateMessageNotificationHandler()
+        {
+            return async (_, args) =>
+            {
+                if (serviceHost != null)
+                {
+                    await serviceHost.SendEvent(SchemaDesignerMessageNotification.Type, args);
+                }
+            };
         }
     }
 }

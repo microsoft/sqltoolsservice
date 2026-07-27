@@ -14,7 +14,7 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.NotebookConvert.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Microsoft.SqlTools.LanguageService.Workspace;
 using Newtonsoft.Json;
 using Microsoft.SqlServer.TransactSql.ScriptDom;
 using System.IO;

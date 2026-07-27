@@ -205,20 +205,32 @@
   <Node Name="SqlColumnEncryptionKey" />
   
   <Node Name="SqlServiceBroker" Type="ServiceBroker" Collection="False" />
-  <Node Name="SqlService" Type="BrokerService" Parent="ServiceBroker" >
-    <NavigationPath Parent="ServiceBroker" Field="Services" />
+  <!--
+    Service Broker child types are parented on Database rather than ServiceBroker because the
+    "ServiceBroker" object explorer node is a FolderNode that does not carry an SMO object. When
+    the child queriers run, context.Parent walks up the tree to the database. The CollectionParent
+    is still set to ServiceBroker so the generated SmoCollectionWrapper matches the SMO
+    collection's actual parent type.
+  -->
+  <Node Name="SqlService" Type="BrokerService" Parent="Database" CollectionParent="ServiceBroker">
+    <NavigationPath Parent="Database" Field="ServiceBroker.Services" />
   </Node>
-  -
-  <Node Name="SqlContract" Type="ServiceContract" Parent="ServiceBroker" />
-  <Node Name="SqlQueue" Type="ServiceQueue" Parent="ServiceBroker" >
-    <NavigationPath Parent="ServiceBroker" Field="Queues" />
+  <Node Name="SqlContract" Type="ServiceContract" Parent="Database" CollectionParent="ServiceBroker">
+    <NavigationPath Parent="Database" Field="ServiceBroker.ServiceContracts" />
   </Node>
-  <Node Name="SqlRemoteServiceBinding" Parent="ServiceBroker" />
-  <Node Name="SqlBrokerPriority" Parent="ServiceBroker" >
-    <NavigationPath Parent="ServiceBroker" Field="Priorities" />
+  <Node Name="SqlQueue" Type="ServiceQueue" Parent="Database" CollectionParent="ServiceBroker">
+    <NavigationPath Parent="Database" Field="ServiceBroker.Queues" />
   </Node>
-  
-  <Node Name="SqlMessageType" Parent="ServiceBroker"/>
+  <Node Name="SqlRemoteServiceBinding" Parent="Database" CollectionParent="ServiceBroker">
+    <NavigationPath Parent="Database" Field="ServiceBroker.RemoteServiceBindings" />
+  </Node>
+  <Node Name="SqlBrokerPriority" Parent="Database" CollectionParent="ServiceBroker">
+    <NavigationPath Parent="Database" Field="ServiceBroker.Priorities" />
+  </Node>
+
+  <Node Name="SqlMessageType" Parent="Database" CollectionParent="ServiceBroker">
+    <NavigationPath Parent="Database" Field="ServiceBroker.MessageTypes" />
+  </Node>
   
   <Node Name="SqlExternalDataSource" />
   <Node Name="SqlExternalFileFormat" />

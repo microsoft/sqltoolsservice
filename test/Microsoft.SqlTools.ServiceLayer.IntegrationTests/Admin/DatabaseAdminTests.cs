@@ -7,7 +7,7 @@
 
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using Moq;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Admin.Contracts;

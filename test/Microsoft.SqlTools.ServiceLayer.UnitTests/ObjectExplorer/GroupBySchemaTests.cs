@@ -11,7 +11,7 @@ using Microsoft.SqlTools.SqlCore.ObjectExplorer;
 using Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Microsoft.SqlTools.LanguageService.Workspace;
 
 using Moq;
 

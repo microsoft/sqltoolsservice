@@ -1,7 +1,7 @@
 {
   "Projects": [
     {
-      "LanguageSet": "AzureKatal_Languages",
+      "LanguageSet": "VS_Main_Languages",
       "LocItems": [
         {
           "SourceFile": "src\\Microsoft.SqlTools.ServiceLayer\\Localization\\sr.xlf",

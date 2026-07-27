@@ -22,7 +22,7 @@ using Microsoft.SqlTools.ServiceLayer.SqlAssessment.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Microsoft.SqlTools.LanguageService.Workspace;
 using Microsoft.SqlTools.Utility;
 
 using AssessmentResultItem = Microsoft.SqlTools.ServiceLayer.SqlAssessment.Contracts.AssessmentResultItem;

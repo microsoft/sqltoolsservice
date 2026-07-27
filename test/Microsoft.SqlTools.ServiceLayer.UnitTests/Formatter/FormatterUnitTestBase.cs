@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -9,11 +9,11 @@ using System.IO;
 using System.Reflection;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Extensibility;
-using Microsoft.SqlTools.ServiceLayer.Formatter;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
+using Microsoft.SqlTools.LanguageService.Formatter;
+using Microsoft.SqlTools.LanguageService.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Microsoft.SqlTools.ServiceLayer.Workspace;
+using Microsoft.SqlTools.LanguageService.Workspace;
 using Moq;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
@@ -24,18 +24,19 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
         {
             HostMock = new Mock<IProtocolEndpoint>();
             WorkspaceServiceMock = new Mock<WorkspaceService<SqlToolsSettings>>();
-            LanguageServiceMock = new Mock<LanguageService>();
+            LanguageServiceMock = new Mock<TSqlLanguageService>();
             ServiceProvider = ExtensionServiceProvider.CreateDefaultServiceProvider();
             ServiceProvider.RegisterSingleService(WorkspaceServiceMock.Object);
             ServiceProvider.RegisterSingleService(LanguageServiceMock.Object);
             HostLoader.InitializeHostedServices(ServiceProvider, HostMock.Object);
             FormatterService = ServiceProvider.GetService<TSqlFormatterService>();
+            FormatterService.SetFileResolver(uri => WorkspaceServiceMock.Object.Workspace?.GetFile(uri));
         }
 
         protected ExtensionServiceProvider ServiceProvider { get; private set; }
         protected Mock<IProtocolEndpoint> HostMock { get; private set; }
         protected Mock<WorkspaceService<SqlToolsSettings>> WorkspaceServiceMock { get; private set; }
-        protected Mock<LanguageService> LanguageServiceMock { get; private set; }
+        protected Mock<TSqlLanguageService> LanguageServiceMock { get; private set; }
 
         protected TSqlFormatterService FormatterService { get; private set; }
 
