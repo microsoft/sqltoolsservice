@@ -451,6 +451,12 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner
                             case TableColumnPropertyNames.Length:
                                 column.Length = GetStringValue(newValue);
                                 break;
+                            case TableColumnPropertyNames.VectorDimension:
+                                column.VectorDimension = GetInt32Value(newValue);
+                                break;
+                            case TableColumnPropertyNames.VectorBaseType:
+                                column.VectorBaseType = GetStringValue(newValue);
+                                break;
                             case TableColumnPropertyNames.Name:
                                 column.Name = GetStringValue(newValue);
                                 break;
@@ -470,10 +476,6 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner
                                 else
                                 {
                                     column.DataType = updatedType;
-                                }
-                                if (updatedType == "vector")
-                                {
-                                    column.Length = "1536";
                                 }
                                 break;
                             case TableColumnPropertyNames.Description:
@@ -851,6 +853,11 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner
                 columnViewModel.Description.Enabled = column.CanEditDescription;
                 columnViewModel.Length.Value = column.Length;
                 columnViewModel.Length.Enabled = column.CanEditLength;
+                columnViewModel.VectorDimension.Value = column.VectorDimension?.ToString();
+                columnViewModel.VectorDimension.Enabled = column.CanEditVectorDimension;
+                columnViewModel.VectorBaseType.Value = column.VectorBaseType;
+                columnViewModel.VectorBaseType.Values = column.VectorBaseTypes.ToList();
+                columnViewModel.VectorBaseType.Enabled = column.CanEditVectorBaseType;
                 columnViewModel.Scale.Value = column.Scale?.ToString();
                 columnViewModel.Scale.Enabled = column.CanEditScale;
                 columnViewModel.Precision.Value = column.Precision?.ToString();
@@ -1074,6 +1081,27 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner
         private void SetColumnsViewInfo(TableDesignerView view)
         {
             view.ColumnTableOptions.AdditionalProperties.AddRange(new DesignerDataPropertyInfo[] {
+                new DesignerDataPropertyInfo()
+                {
+                    PropertyName = TableColumnPropertyNames.VectorDimension,
+                    Description = SR.TableColumnVectorDimensionPropertyDescription,
+                    ComponentType = DesignerComponentType.Input,
+                    ComponentProperties = new InputBoxProperties()
+                    {
+                        Title = SR.TableColumnVectorDimensionPropertyTitle,
+                        InputType = InputType.Number
+                    }
+                },
+                new DesignerDataPropertyInfo()
+                {
+                    PropertyName = TableColumnPropertyNames.VectorBaseType,
+                    Description = SR.TableColumnVectorBaseTypePropertyDescription,
+                    ComponentType = DesignerComponentType.Dropdown,
+                    ComponentProperties = new DropdownProperties()
+                    {
+                        Title = SR.TableColumnVectorBaseTypePropertyTitle
+                    }
+                },
                 new DesignerDataPropertyInfo()
                 {
                     PropertyName = TableColumnPropertyNames.IsIdentity,
