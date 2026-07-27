@@ -70,6 +70,10 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner
             {
                 inputValidationError = e.Message;
             }
+            catch (FormatException e)
+            {
+                inputValidationError = e.Message;
+            }
             var designer = this.GetTableDesigner(requestParams.TableInfo);
             var issues = TableDesignerValidator.Validate(designer);
             return new ProcessTableDesignerEditResponse()
@@ -776,7 +780,12 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner
 
         private int GetInt32Value(object value)
         {
-            return Int32.Parse(value as string);
+            if (Int32.TryParse(value?.ToString(), out var intValue))
+            {
+                return intValue;
+            }
+
+            throw new FormatException($"'{value}' is not a valid integer.");
         }
 
         private string GetStringValue(object value)
