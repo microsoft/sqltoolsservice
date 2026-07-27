@@ -849,12 +849,13 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner
             foreach (var column in table.Columns.Items)
             {
                 var columnViewModel = new TableColumnViewModel();
+                var isVector = column.VectorDimension.HasValue;
                 columnViewModel.Name.Value = column.Name;
                 columnViewModel.Name.Enabled = column.CanEditName;
                 columnViewModel.Description.Value = column.Description;
                 columnViewModel.Description.Enabled = column.CanEditDescription;
                 columnViewModel.Length.Value = column.Length;
-                columnViewModel.Length.Enabled = column.CanEditLength;
+                columnViewModel.Length.Enabled = column.CanEditLength && !isVector;
                 columnViewModel.VectorDimension.Value = column.VectorDimension?.ToString();
                 columnViewModel.VectorDimension.Enabled = column.CanEditVectorDimension;
                 columnViewModel.VectorBaseType.Value = column.VectorBaseType;
@@ -876,11 +877,11 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner
                 columnViewModel.AdvancedType.Value = column.AdvancedDataType;
                 columnViewModel.AdvancedType.Enabled = column.CanEditDataType;
                 columnViewModel.AdvancedType.Values = column.AdvancedDataTypes.ToList();
-                columnViewModel.IsIdentity.Enabled = column.CanEditIsIdentity;
+                columnViewModel.IsIdentity.Enabled = column.CanEditIsIdentity && !isVector;
                 columnViewModel.IsIdentity.Checked = column.IsIdentity;
-                columnViewModel.IdentitySeed.Enabled = column.CanEditIdentityValues;
+                columnViewModel.IdentitySeed.Enabled = column.CanEditIdentityValues && !isVector;
                 columnViewModel.IdentitySeed.Value = column.IdentitySeed?.ToString();
-                columnViewModel.IdentityIncrement.Enabled = column.CanEditIdentityValues;
+                columnViewModel.IdentityIncrement.Enabled = column.CanEditIdentityValues && !isVector;
                 columnViewModel.IdentityIncrement.Value = column.IdentityIncrement?.ToString();
                 columnViewModel.CanBeDeleted = column.CanBeDeleted;
                 columnViewModel.IsComputed.Enabled = column.CanEditIsComputed;
