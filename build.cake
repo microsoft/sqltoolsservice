@@ -207,7 +207,8 @@ Task("Restore")
     .IsDependentOn("Setup")
     .Does(() =>
 {
-    RunRestore(dotnetcli, "restore", workingDirectory)
+    var solutionFile = System.IO.Path.Combine(workingDirectory, "sqltoolsservice.sln");
+    RunRestore(dotnetcli, $"restore \"{solutionFile}\"", workingDirectory)
         .ExceptionOnError("Failed to restore projects under source code folder.");
 });
 
