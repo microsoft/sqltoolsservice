@@ -51,19 +51,10 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
 
             if (difference.DifferenceType == SchemaDifferenceType.Object)
             {
-                // The per-difference "keep standalone constraint vs suppress inline/redundant"
-                // decision now lives entirely in DacFx: GetDiffEntry{Source,Target}Script returns
-                // the standalone script for a difference that owns one (e.g. an
-                // ALTER TABLE ... ADD CONSTRAINT for a Fabric Warehouse / SqlDwUnified constraint)
-                // and an empty string for a child element that is scripted inline in its parent's
-                // CREATE (constraints/indexes on non-standalone-constraint platforms). This holds
-                // across all endpoint kinds: dacpac/project sources already returned empty for
-                // inline children, and DacFx now does the same for database sources via
-                // SqlScriptDomGenerator.IsElementIncludedInParentScript. STS therefore just renders
-                // whatever DacFx returns - no platform, constraint or "starts with alter" logic of
-                // its own. (Note: a plain strip-on-alter would incorrectly drop the Fabric
-                // standalone ADD CONSTRAINT, which is itself ALTER-prefixed, so that heuristic is
-                // deliberately gone.)
+                // DacFx's GetDiffEntry{Source,Target}Script returns the standalone script for a
+                // difference that owns one (e.g. ALTER TABLE ... ADD CONSTRAINT for a SqlDwUnified
+                // constraint) and empty for a child scripted inline in its parent's CREATE. STS
+                // renders whatever DacFx returns.
                 if (difference.SourceObject != null)
                 {
                     string sourceScript = schemaComparisonResult.GetDiffEntrySourceScript(difference);

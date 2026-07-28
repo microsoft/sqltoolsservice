@@ -19,13 +19,10 @@ using NUnit.Framework;
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SchemaCompare
 {
     /// <summary>
-    /// Focused Fabric Warehouse (SqlDwUnified) Schema Compare tests that verify the
-    /// reflection-free platform surfacing and the constraint ALTER-script carve-out end to
-    /// end, using dacpacs built entirely offline (no live Fabric Warehouse required).
-    ///
-    /// These tests depend on the DacFx version-mapping fix that makes
-    /// <c>TSqlModel.Version</c> report <c>SqlDwUnified</c> for Fabric Warehouse models
-    /// (previously it returned <c>Sql150</c>, which forced a reflection workaround in STS).
+    /// Fabric Warehouse (SqlDwUnified) Schema Compare tests that verify platform surfacing and
+    /// standalone constraint scripts, using dacpacs built entirely offline (no live Fabric
+    /// Warehouse required). <c>TSqlModel.Version</c> reports <c>SqlDwUnified</c> for Fabric
+    /// Warehouse models.
     /// </summary>
     public class SchemaCompareFabricPlatformTests
     {
@@ -67,10 +64,9 @@ GO";
 
         /// <summary>
         /// Verifies that a Fabric Warehouse (SqlDwUnified) dacpac-to-dacpac comparison:
-        ///   1. surfaces SourcePlatform/TargetPlatform as "SqlDwUnified" read directly from the
-        ///      public TSqlModel.Version (no reflection), and
-        ///   2. preserves the standalone "ALTER TABLE ... ADD CONSTRAINT" script for the table's
-        ///      constraints instead of stripping it (the SqlDwUnified carve-out in CreateDiffEntry).
+        ///   1. surfaces SourcePlatform/TargetPlatform as "SqlDwUnified" (from TSqlModel.Version), and
+        ///   2. carries the standalone "ALTER TABLE ... ADD CONSTRAINT" script for the table's
+        ///      constraints.
         /// </summary>
         [Test]
         public void FabricWarehouse_SurfacesPlatformAndPreservesConstraintAlterScript()
@@ -110,21 +106,20 @@ GO";
                 Assert.IsTrue(operation.ComparisonResult.IsValid, "Fabric dacpac comparison should be valid.");
                 Assert.IsFalse(operation.ComparisonResult.IsEqual, "Source adds constraints the target lacks; expected differences.");
 
-                // (1) Reflection-free platform surfacing: read from public TSqlModel.Version.
+                // (1) Platform surfacing: read from public TSqlModel.Version.
                 Assert.AreEqual("SqlDwUnified", operation.SourcePlatform,
                     "SourcePlatform should be SqlDwUnified (read from ComparisonResult.SourceModel.Version).");
                 Assert.AreEqual("SqlDwUnified", operation.TargetPlatform,
                     "TargetPlatform should be SqlDwUnified (read from ComparisonResult.TargetModel.Version).");
 
-                // (2) Constraint carve-out: the primary key surfaces as a diff whose ADD CONSTRAINT
-                // script is preserved rather than stripped by the strip-on-alter heuristic.
+                // (2) The primary key surfaces as a diff carrying its standalone ADD CONSTRAINT script.
                 DiffEntry pkConstraint = FindDiff(operation.Differences,
                     d => (d.SourceObjectType != null && d.SourceObjectType.EndsWith("PrimaryKeyConstraint", StringComparison.Ordinal)));
                 Assert.IsNotNull(pkConstraint, "Expected a diff entry for the PRIMARY KEY constraint on Fabric.");
                 Assert.IsFalse(string.IsNullOrEmpty(pkConstraint.SourceScript),
-                    "Fabric constraint diff must keep its standalone ALTER script (carve-out), not strip it.");
+                    "Fabric constraint diff should carry its standalone ALTER script.");
                 StringAssert.Contains("ADD CONSTRAINT", pkConstraint.SourceScript,
-                    "Preserved Fabric constraint script should be the standalone ALTER TABLE ... ADD CONSTRAINT.");
+                    "Fabric constraint script should be the standalone ALTER TABLE ... ADD CONSTRAINT.");
             }
             finally
             {
@@ -146,7 +141,7 @@ GO";
         ///      the CREATE TABLE.
         ///
         /// This exercises the aggregated deploy-script path (GenerateScript), complementing the
-        /// per-difference display-script path covered by the other Fabric tests.
+        /// per-difference script path covered by the other Fabric tests.
         /// </summary>
         [Test]
         public void FabricWarehouse_GeneratesStandaloneConstraintDeployScript_Offline()

@@ -39,11 +39,8 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
         /// <summary>
         /// The SQL platform (T-SQL dialect) the source model targets, as the short
         /// <see cref="Microsoft.SqlServer.Dac.Model.SqlServerVersion"/> name (e.g. "Sql160",
-        /// "SqlAzureV12", "SqlDwUnified"). Read directly from the public
-        /// <c>ComparisonResult.SourceModel.Version</c>. This is reliable now that DacFx maps
-        /// the SqlDwUnified platform to <c>SqlServerVersion.SqlDwUnified</c> (previously it
-        /// returned <c>Sql150</c>, which forced a reflection workaround). Null if the
-        /// comparison was never run.
+        /// "SqlAzureV12", "SqlDwUnified"). Read from the public
+        /// <c>ComparisonResult.SourceModel.Version</c>. Null if the comparison was never run.
         /// </summary>
         public string SourcePlatform { get; set; }
 
@@ -134,12 +131,8 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
                     }
                 }
 
-                // Surface the SQL platform (T-SQL dialect) the comparison ran under so the UI can
-                // tell the user which dialect Schema Compare is using (e.g. "SqlDwUnified" when
-                // comparing Fabric Warehouse endpoints). Read directly from the public
-                // TSqlModel.Version on each model — no reflection needed. DacFx now maps
-                // SqlDwUnified to SqlServerVersion.SqlDwUnified (InternalModelUtils
-                // .CalculateVersionsForPlatform), so this value is correct for Fabric Warehouse.
+                // Surface the platform each model targets (read from TSqlModel.Version) so the UI
+                // can show the dialect (e.g. SqlDwUnified for Fabric Warehouse).
                 this.SourcePlatform = this.ComparisonResult.SourceModel?.Version.ToString();
                 this.TargetPlatform = this.ComparisonResult.TargetModel?.Version.ToString();
 
