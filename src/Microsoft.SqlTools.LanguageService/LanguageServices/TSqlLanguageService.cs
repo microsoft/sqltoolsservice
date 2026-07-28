@@ -1972,6 +1972,22 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 }
             }
 
+            // Reject rename for any alias (SELECT column alias, table alias, CTE name, etc.) —
+            // aliases are syntactic constructs inside the enclosing statement, not independently
+            // renameable schema objects, and would generate an invalid .refactorlog entry.
+            if (scriptFile != null
+                && RenameScriptDomHelper.IsCursorOnAlias(
+                       scriptFile.Contents,
+                       renameParams.Position.Line,
+                       renameParams.Position.Character))
+            {
+                await requestContext.SendResult(new SqlSymbolRenameResponse
+                {
+                    Message = SR.RenameNotSupported
+                });
+                return;
+            }
+
             // Reject schema names before the expensive symbol-location scan.
             string earlyTokenText = GetTokenTextAtPosition(renameParams.TextDocument.Uri, renameParams.Position.Line, renameParams.Position.Character);
             if (!string.IsNullOrWhiteSpace(earlyTokenText)

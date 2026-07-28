@@ -14,7 +14,7 @@ namespace Microsoft.SqlTools.LanguageService.Formatter.ScriptDom
 {
     internal sealed class ScriptDomSqlFormatter
     {
-        public ScriptDomFormatterResult Format(string text, FormatOptions formatOptions)
+        public ScriptDomFormatterResult Format(string text, ScriptDomFormatterSettings settings)
         {
             if (string.IsNullOrWhiteSpace(text))
             {
@@ -23,7 +23,6 @@ namespace Microsoft.SqlTools.LanguageService.Formatter.ScriptDom
 
             try
             {
-                ScriptDomFormatterSettings settings = ScriptDomFormatterSettings.FromFormatOptions(formatOptions);
                 TSqlParser parser = CreateParser(settings.SqlVersion, settings.SqlEngineType);
                 TSqlFragment fragment;
                 IList<ParseError> errors;
@@ -74,9 +73,9 @@ namespace Microsoft.SqlTools.LanguageService.Formatter.ScriptDom
                 case SqlVersion.Sql120:
                     return new TSql120Parser(initialQuotedIdentifiers: true);
                 case SqlVersion.Sql130:
-                    return new TSql130Parser(initialQuotedIdentifiers: true);
+                    return new TSql130Parser(initialQuotedIdentifiers: true, engineType);
                 case SqlVersion.Sql140:
-                    return new TSql140Parser(initialQuotedIdentifiers: true);
+                    return new TSql140Parser(initialQuotedIdentifiers: true, engineType);
                 case SqlVersion.Sql150:
                     return new TSql150Parser(initialQuotedIdentifiers: true, engineType);
                 case SqlVersion.Sql160:

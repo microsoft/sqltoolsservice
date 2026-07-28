@@ -171,7 +171,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     $"Expected connection info of type '{typeof(ConnectionInfo).FullName}' but received '{connInfo?.GetType().FullName ?? "<null>"}'.");
             };
             ConnectedBindingQueue.UseLowercaseKeywordCasingProvider = () =>
-                WorkspaceService<SqlContext.SqlToolsSettings>.Instance.CurrentSettings.SqlTools.Format.KeywordCasing
+                WorkspaceService<SqlContext.SqlToolsSettings>.Instance.CurrentSettings.FormatKeywordCasing
                     == Microsoft.SqlTools.LanguageService.Formatter.CasingOptions.Lowercase;
         }
 

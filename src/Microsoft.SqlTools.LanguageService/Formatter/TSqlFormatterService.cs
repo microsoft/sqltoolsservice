@@ -80,6 +80,11 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
             Logger.Verbose("HandleDocFormatRequest");
             FormatOperationResult result = await FormatAndReturnEdits(docFormatParams);
             await requestContext.SendResult(result.Edits);
+            await SendFormattingFailedNotification(
+                requestContext,
+                docFormatParams,
+                FormattingRequestType.Document,
+                result);
             DocumentStatusHelper.SendTelemetryEvent(requestContext, CreateTelemetryProps(isDocFormat: true, result));
         }
 
@@ -88,7 +93,34 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
             Logger.Verbose("HandleDocRangeFormatRequest");
             FormatOperationResult result = await FormatRangeAndReturnEdits(docRangeFormatParams);
             await requestContext.SendResult(result.Edits);
+            await SendFormattingFailedNotification(
+                requestContext,
+                docRangeFormatParams,
+                FormattingRequestType.Range,
+                result);
             DocumentStatusHelper.SendTelemetryEvent(requestContext, CreateTelemetryProps(isDocFormat: false, result));
+        }
+
+        private static Task SendFormattingFailedNotification(
+            RequestContext<TextEdit[]> requestContext,
+            DocumentFormattingParams formattingParams,
+            FormattingRequestType formatType,
+            FormatOperationResult result)
+        {
+            if (result.FormatterOutcome != TelemetryPropertyNames.FormatterOutcomeParseFailed)
+            {
+                return Task.CompletedTask;
+            }
+
+            return requestContext.SendEvent(
+                FormattingFailedNotification.Type,
+                new FormattingFailedParams
+                {
+                    OwnerUri = formattingParams.TextDocument.Uri,
+                    FormatType = formatType,
+                    Reason = FormattingFailureReason.ParseError,
+                    ParseErrorCount = result.ParseErrorCount
+                });
         }
 
         private static TelemetryProperties CreateTelemetryProps(bool isDocFormat, FormatOperationResult result)
@@ -171,12 +203,12 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
         {
             Validate.IsNotNull(nameof(docFormatParams), docFormatParams);
 
-            FormatOptions options = GetOptions(docFormatParams);
             if (UsePreviewFormatter)
             {
-                return FormatWithScriptDom(edit, text, options, stopwatch);
+                return FormatWithScriptDom(edit, text, docFormatParams.Options, stopwatch);
             }
 
+            FormatOptions options = GetOptions(docFormatParams);
             edit.NewText = Format(text, options, false);
             return CreateFormatResult(
                 new[] { edit },
@@ -185,9 +217,16 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
                 stopwatch);
         }
 
-        private FormatOperationResult FormatWithScriptDom(TextEdit edit, string text, FormatOptions options, Stopwatch stopwatch)
+        private FormatOperationResult FormatWithScriptDom(
+            TextEdit edit,
+            string text,
+            FormattingOptions formattingOptions,
+            Stopwatch stopwatch)
         {
-            ScriptDomFormatterResult result = scriptDomFormatter.Format(text, options);
+            ScriptDomFormatterSettings scriptDomSettings = ScriptDomFormatterSettings.Resolve(
+                formattingOptions,
+                settings?.Options);
+            ScriptDomFormatterResult result = scriptDomFormatter.Format(text, scriptDomSettings);
             if (result.Outcome != ScriptDomFormatterOutcome.Formatted)
             {
                 return CreateFormatResult(

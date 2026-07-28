@@ -19,6 +19,7 @@ using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using Moq;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using Range = Microsoft.SqlTools.LanguageService.Workspace.Contracts.Range;
 
@@ -112,7 +113,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
             FormatterService.UpdateFormatterSettings(new FormatterSettings
             {
                 EnablePreviewFormatter = true,
-                KeywordCasing = CasingOptions.Uppercase
+                KeywordCasing = CasingOptions.Lowercase,
+                Options = new SqlFormatterOptions
+                {
+                    KeywordCasing = SqlFormatterKeywordCasing.Uppercase
+                }
             });
             SetupScriptFile("select 1 as value");
 
@@ -135,13 +140,36 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 EnablePreviewFormatter = true
             });
             SetupScriptFile("select from");
+            FormattingFailedParams failure = null;
+            var contextMock = RequestContextMocks.Create<TextEdit[]>(edits =>
+            {
+                Assert.AreEqual(0, edits.Length);
+            })
+            .AddErrorHandling(null)
+            .AddEventHandling(FormattingFailedNotification.Type, (_, parameters) =>
+            {
+                failure = parameters;
+            });
 
-            await TestUtils.RunAndVerify<TextEdit[]>(
+            await RunAndVerify<TextEdit[]>(
                 test: (requestContext) => FormatterService.HandleDocFormatRequest(docFormatParams, requestContext),
-                verify: (edits =>
+                contextMock: contextMock,
+                verify: () =>
                 {
-                    Assert.AreEqual(0, edits.Length);
-                }));
+                    Assert.NotNull(failure);
+                    Assert.AreEqual(textDocument.Uri, failure.OwnerUri);
+                    Assert.AreEqual(FormattingRequestType.Document, failure.FormatType);
+                    Assert.AreEqual(FormattingFailureReason.ParseError, failure.Reason);
+                    Assert.Greater(failure.ParseErrorCount, 0);
+                });
+        }
+
+        [Test]
+        public void FormattingFailedEnumsShouldSerializeToContractValues()
+        {
+            Assert.AreEqual("\"Document\"", JsonConvert.SerializeObject(FormattingRequestType.Document));
+            Assert.AreEqual("\"Range\"", JsonConvert.SerializeObject(FormattingRequestType.Range));
+            Assert.AreEqual("\"ParseError\"", JsonConvert.SerializeObject(FormattingFailureReason.ParseError));
         }
 
         [Test]
@@ -152,15 +180,27 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
             {
                 EnablePreviewFormatter = true
             });
-            ScriptDomFormatterResult formattedSql = new ScriptDomSqlFormatter().Format("select 1 as value", new FormatOptions());
+            ScriptDomFormatterResult formattedSql = new ScriptDomSqlFormatter().Format(
+                "select 1 as value",
+                new ScriptDomFormatterSettings());
             SetupScriptFile(formattedSql.FormattedText);
+            var contextMock = RequestContextMocks.Create<TextEdit[]>(edits =>
+            {
+                Assert.AreEqual(0, edits.Length);
+            })
+            .AddErrorHandling(null);
 
-            await TestUtils.RunAndVerify<TextEdit[]>(
+            await RunAndVerify<TextEdit[]>(
                 test: (requestContext) => FormatterService.HandleDocFormatRequest(docFormatParams, requestContext),
-                verify: (edits =>
+                contextMock: contextMock,
+                verify: () =>
                 {
-                    Assert.AreEqual(0, edits.Length);
-                }));
+                    contextMock.Verify(
+                        context => context.SendEvent(
+                            FormattingFailedNotification.Type,
+                            It.IsAny<FormattingFailedParams>()),
+                        Times.Never);
+                });
         }
 
         [Test]
@@ -219,13 +259,28 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 EnablePreviewFormatter = true
             });
             SetupScriptFile(defaultSqlContents);
+            FormattingFailedParams failure = null;
+            var contextMock = RequestContextMocks.Create<TextEdit[]>(edits =>
+            {
+                Assert.AreEqual(0, edits.Length);
+            })
+            .AddErrorHandling(null)
+            .AddEventHandling(FormattingFailedNotification.Type, (_, parameters) =>
+            {
+                failure = parameters;
+            });
 
-            await TestUtils.RunAndVerify<TextEdit[]>(
+            await RunAndVerify<TextEdit[]>(
                 test: (requestContext) => FormatterService.HandleDocRangeFormatRequest(rangeFormatParams, requestContext),
-                verify: (edits =>
+                contextMock: contextMock,
+                verify: () =>
                 {
-                    Assert.AreEqual(0, edits.Length);
-                }));
+                    Assert.NotNull(failure);
+                    Assert.AreEqual(textDocument.Uri, failure.OwnerUri);
+                    Assert.AreEqual(FormattingRequestType.Range, failure.FormatType);
+                    Assert.AreEqual(FormattingFailureReason.ParseError, failure.Reason);
+                    Assert.Greater(failure.ParseErrorCount, 0);
+                });
         }
 
         [Test]
@@ -372,6 +427,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 result = r;
             })
             .AddErrorHandling(null)
+            .AddEventHandling(FormattingFailedNotification.Type, null)
             .AddEventHandling(TelemetryNotification.Type, (e, p) =>
             {
                 actualParams = p;
