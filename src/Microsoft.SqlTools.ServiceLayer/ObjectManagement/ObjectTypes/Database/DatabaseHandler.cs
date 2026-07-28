@@ -84,6 +84,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             displayCompatLevels.Add(CompatibilityLevel.Version150, SR.compatibilityLevel_sqlv150);
             displayCompatLevels.Add(CompatibilityLevel.Version160, SR.compatibilityLevel_sqlv160);
             displayCompatLevels.Add(CompatibilityLevel.Version170, SR.compatibilityLevel_sqlv170);
+            displayCompatLevels.Add(CompatibilityLevel.Version180, SR.compatibilityLevel_sqlv180);
 
             displayContainmentTypes.Add(ContainmentType.None, SR.general_containmentType_None);
             displayContainmentTypes.Add(ContainmentType.Partial, SR.general_containmentType_Partial);
@@ -1519,6 +1520,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version160]);
                     compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version170]);
                     break;
+                case 18:    // SQL vNext
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version100]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version110]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version120]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version130]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version140]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version150]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version160]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version170]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version180]);
+                    break;
                 /* SQL_VBUMP_REVIEW */
                 default:
                     // It is either the latest SQL we know about, or some future version of SQL we
@@ -1533,6 +1545,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version150]);
                     compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version160]);
                     compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version170]);
+                    compatibilityLevels.Add(displayCompatLevels[CompatibilityLevel.Version180]);
                     break;
             }
 

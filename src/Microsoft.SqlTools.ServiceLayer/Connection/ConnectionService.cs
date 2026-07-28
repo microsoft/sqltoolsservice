@@ -171,7 +171,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     $"Expected connection info of type '{typeof(ConnectionInfo).FullName}' but received '{connInfo?.GetType().FullName ?? "<null>"}'.");
             };
             ConnectedBindingQueue.UseLowercaseKeywordCasingProvider = () =>
-                WorkspaceService<SqlContext.SqlToolsSettings>.Instance.CurrentSettings.SqlTools.Format.KeywordCasing
+                WorkspaceService<SqlContext.SqlToolsSettings>.Instance.CurrentSettings.FormatKeywordCasing
                     == Microsoft.SqlTools.LanguageService.Formatter.CasingOptions.Lowercase;
         }
 
@@ -282,9 +282,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             connectionInfo = info;
             return found;
         }
-
-        void IConnectionService.UpdateAuthToken(string uri, string token, int expiresOn)
-            => UpdateAuthToken(new TokenRefreshedParams() { Uri = uri, Token = token, ExpiresOn = expiresOn });
 
         #endregion
 
@@ -1328,6 +1325,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             serviceHost.SetRequestHandler(ClearPooledConnectionsRequest.Type, HandleClearPooledConnectionsRequest, true);
             serviceHost.SetRequestHandler(ParseConnectionStringRequest.Type, HandleParseConnectionStringRequest, true);
             serviceHost.SetEventHandler(EncryptionKeysChangedNotification.Type, HandleEncryptionKeysNotificationEvent, false);
+
+            // Updates connection state after an auth token refresh completes.
+            // Parallel safe because it only updates connection info token.
+            serviceHost.SetEventHandler(TokenRefreshedNotification.Type, HandleTokenRefreshedNotification, isParallelProcessingSupported: true);
         }
 
         /// <summary>
@@ -1396,6 +1397,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             Logger.Verbose("EncryptionKeysNotificationEvent");
             this.encryptionKeys = (@params.Key, @params.Iv);
             return Task.FromResult(true);
+        }
+
+        internal Task HandleTokenRefreshedNotification(TokenRefreshedParams tokenRefreshedParams, EventContext eventContext)
+        {
+            UpdateAuthToken(tokenRefreshedParams);
+            return Task.CompletedTask;
         }
 
         private void RunConnectRequestHandlerTask(ConnectParams connectParams)

@@ -1,0 +1,87 @@
+//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+using System;
+using Microsoft.SqlTools.LanguageService.Formatter.ScriptDom;
+using NUnit.Framework;
+
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
+{
+    public class ScriptDomSqlFormatterTests
+    {
+        [Test]
+        public void FormatShouldReturnEmptyDocumentForWhitespace()
+        {
+            ScriptDomFormatterResult result = new ScriptDomSqlFormatter().Format("   \r\n\t", new ScriptDomFormatterSettings());
+
+            Assert.AreEqual(ScriptDomFormatterOutcome.EmptyDocument, result.Outcome);
+            Assert.Null(result.FormattedText);
+        }
+
+        [Test]
+        public void FormatShouldReturnParseErrorForInvalidSql()
+        {
+            ScriptDomFormatterResult result = new ScriptDomSqlFormatter().Format("select from", new ScriptDomFormatterSettings());
+
+            Assert.AreEqual(ScriptDomFormatterOutcome.ParseError, result.Outcome);
+            Assert.Greater(result.ParseErrorCount, 0);
+            Assert.Null(result.FormattedText);
+        }
+
+        [Test]
+        public void FormatShouldReturnNoChangeForFormattedSql()
+        {
+            ScriptDomSqlFormatter formatter = new ScriptDomSqlFormatter();
+            ScriptDomFormatterResult firstResult = formatter.Format("select 1 as value", new ScriptDomFormatterSettings());
+
+            Assert.AreEqual(ScriptDomFormatterOutcome.Formatted, firstResult.Outcome);
+            Assert.NotNull(firstResult.FormattedText);
+
+            ScriptDomFormatterResult secondResult = formatter.Format(firstResult.FormattedText!, new ScriptDomFormatterSettings());
+
+            Assert.AreEqual(ScriptDomFormatterOutcome.NoChange, secondResult.Outcome);
+            Assert.Null(secondResult.FormattedText);
+        }
+
+        [Test]
+        [TestCase("\r\n")]
+        [TestCase("\n")]
+        public void FormatShouldUseEnvironmentLineEnding(string inputLineEnding)
+        {
+            string sql = "create table dbo.T (id int not null," + inputLineEnding + "name int null)";
+
+            ScriptDomFormatterResult result = new ScriptDomSqlFormatter().Format(sql, new ScriptDomFormatterSettings());
+
+            Assert.AreEqual(ScriptDomFormatterOutcome.Formatted, result.Outcome);
+            Assert.NotNull(result.FormattedText);
+            AssertUsesEnvironmentLineEndings(result.FormattedText!);
+        }
+
+        [Test]
+        public void FormatShouldUseEnvironmentLineEndingWhenInputHasNoLineEndings()
+        {
+            string sql = "create table dbo.T (id int not null, name int null)";
+
+            ScriptDomFormatterResult result = new ScriptDomSqlFormatter().Format(sql, new ScriptDomFormatterSettings());
+
+            Assert.AreEqual(ScriptDomFormatterOutcome.Formatted, result.Outcome);
+            Assert.NotNull(result.FormattedText);
+            AssertUsesEnvironmentLineEndings(result.FormattedText!);
+        }
+
+        private static void AssertUsesEnvironmentLineEndings(string text)
+        {
+            StringAssert.Contains(Environment.NewLine, text);
+            if (Environment.NewLine == "\r\n")
+            {
+                Assert.False(text.Replace("\r\n", string.Empty).Contains("\n"));
+            }
+            else
+            {
+                Assert.False(text.Contains("\r\n"));
+            }
+        }
+    }
+}

@@ -21,6 +21,10 @@ dotnet_diagnostic.CS0169.severity = error
 # Converting null literal or possible null value to non-nullable type
 # Enabled for "strict null" checking in .NET code
 dotnet_diagnostic.CS8600.severity = error
+# Internal types are often left unsealed intentionally for testing
+# purposes. And while this does provide some slight runtime perf
+# benefits, it's not something we want to enable at this time
+dotnet_diagnostic.CA1852.severity = suggestion
 
 # Errors flagged when this file was added. These should be
 # investigated and either fixed or marked as acceptable with

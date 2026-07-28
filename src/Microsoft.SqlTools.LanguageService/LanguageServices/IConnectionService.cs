@@ -66,10 +66,5 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// Tries to find the connection info for the given owner URI.
         /// </summary>
         bool TryFindConnection(string ownerUri, out ConnectionInfoBase connectionInfo);
-
-        /// <summary>
-        /// Updates the cached access token for the given connection.
-        /// </summary>
-        void UpdateAuthToken(string uri, string token, int expiresOn);
     }
 }

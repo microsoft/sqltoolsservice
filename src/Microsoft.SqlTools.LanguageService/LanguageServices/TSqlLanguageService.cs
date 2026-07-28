@@ -386,10 +386,6 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             // Parallel safe because same-URI flavor transitions are serialized before shared state is updated.
             serviceHost.SetEventHandler(LanguageFlavorChangeNotification.Type, HandleDidChangeLanguageFlavorNotification, isParallelProcessingSupported: true);
 
-            // Updates connection state after an auth token refresh completes.
-            // Parallel safe because it only updates connection info token.
-            serviceHost.SetEventHandler(TokenRefreshedNotification.Type, HandleTokenRefreshedNotification, isParallelProcessingSupported: true);
-
             serviceHost.SetRequestHandler(CompletionExtLoadRequest.Type, HandleCompletionExtLoadRequest);
 
             // Register a no-op shutdown task for validation of the shutdown logic
@@ -1175,15 +1171,6 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 oldCts.Dispose();
             }
             return newCts;
-        }
-
-        internal Task HandleTokenRefreshedNotification(
-            TokenRefreshedParams tokenRefreshedParams,
-            EventContext eventContext
-        )
-        {
-            ConnectionServiceInstance.UpdateAuthToken(tokenRefreshedParams.Uri, tokenRefreshedParams.Token, tokenRefreshedParams.ExpiresOn);
-            return Task.CompletedTask;
         }
 
         #endregion
@@ -1983,6 +1970,22 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                     });
                     return;
                 }
+            }
+
+            // Reject rename for any alias (SELECT column alias, table alias, CTE name, etc.) —
+            // aliases are syntactic constructs inside the enclosing statement, not independently
+            // renameable schema objects, and would generate an invalid .refactorlog entry.
+            if (scriptFile != null
+                && RenameScriptDomHelper.IsCursorOnAlias(
+                       scriptFile.Contents,
+                       renameParams.Position.Line,
+                       renameParams.Position.Character))
+            {
+                await requestContext.SendResult(new SqlSymbolRenameResponse
+                {
+                    Message = SR.RenameNotSupported
+                });
+                return;
             }
 
             // Reject schema names before the expensive symbol-location scan.

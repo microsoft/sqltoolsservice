@@ -304,6 +304,14 @@ Task("NugetPackNuspec")
         // For now, putting all nugets in the 1 directory
         var outputFolder = System.IO.Path.Combine(nugetPackageFolder);
         var projectFolder = System.IO.Path.Combine(packagesFolder, project.Name);
+        // Only projects that ship a nuspec are packaged here. Projects without one (e.g. those
+        // packed directly via `dotnet pack` in PackageProjects) are skipped.
+        var nuspecPath = System.IO.Path.Combine(projectFolder, $"{project.Name}.nuspec");
+        if (!System.IO.File.Exists(nuspecPath))
+        {
+            Information($"Skipping nuspec packaging for {project.Name}: no nuspec found at {nuspecPath}");
+            continue;
+        }
         NugetPackNuspec(outputFolder, projectFolder, project.Name);
     }
 });

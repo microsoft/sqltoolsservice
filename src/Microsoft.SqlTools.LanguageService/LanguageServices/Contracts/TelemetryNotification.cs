@@ -98,5 +98,53 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices.Contracts
         /// A document range format
         /// </summary>
         public const string RangeFormatType = "Range";
+
+        /// <summary>
+        /// Formatter implementation property - should be one of <see cref="LegacyFormatterImplementation"/> or <see cref="ScriptDomFormatterImplementation"/>
+        /// </summary>
+        public const string FormatterImplementation = "FormatterImplementation";
+
+        /// <summary>
+        /// Existing SQL parser-based formatter implementation
+        /// </summary>
+        public const string LegacyFormatterImplementation = "Legacy";
+
+        /// <summary>
+        /// ScriptDom-based formatter implementation
+        /// </summary>
+        public const string ScriptDomFormatterImplementation = "ScriptDom";
+
+        /// <summary>
+        /// Formatter outcome property
+        /// </summary>
+        public const string FormatterOutcome = "FormatterOutcome";
+
+        public const string FormatterOutcomeApplied = "Applied";
+
+        public const string FormatterOutcomeNoChange = "NoChange";
+
+        public const string FormatterOutcomeEmptyText = "EmptyText";
+
+        public const string FormatterOutcomeParseFailed = "ParseFailed";
+
+        public const string FormatterOutcomeException = "Exception";
+
+        public const string FormatterOutcomeSkipped = "Skipped";
+    }
+
+    /// <summary>
+    /// List of measures used in telemetry events
+    /// </summary>
+    public static class TelemetryMeasureNames
+    {
+        /// <summary>
+        /// Formatter duration in milliseconds
+        /// </summary>
+        public const string FormatterDurationMs = "FormatterDurationMs";
+
+        /// <summary>
+        /// Count of ScriptDom parse errors
+        /// </summary>
+        public const string ParseErrorCount = "ParseErrorCount";
     }
 }

@@ -16,6 +16,24 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
     public class FormatterSettings
     {
         /// <summary>
+        /// Should the preview SQL formatter implementation be used instead of the legacy formatter?
+        /// </summary>
+        public bool? EnablePreviewFormatter
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets the options used by the ScriptDom formatter.
+        /// </summary>
+        public SqlFormatterOptions Options
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Should names be escaped, for example converting dbo.T1 to [dbo].[T1]
         /// </summary>
         public bool? UseBracketForIdentifiers
