@@ -706,6 +706,8 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
             if (modelType == ModelSchema.TableValuedFunction) return "SqlTableValuedFunction";
             if (modelType == ModelSchema.DataType)            return "SqlUserDefinedDataType";
             if (modelType == ModelSchema.TableType)           return "SqlTableType";
+            if (modelType == ModelSchema.Sequence)            return "SqlSequence";
+            if (modelType == ModelSchema.DmlTrigger)          return "SqlDmlTrigger";
             return null;
         }
 

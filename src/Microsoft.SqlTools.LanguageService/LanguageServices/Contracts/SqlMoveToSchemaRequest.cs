@@ -62,6 +62,21 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices.Contracts
         public string TargetSchema { get; set; }
 
         /// <summary>
+        /// URI of the file that declares the moved object (e.g. the <c>.sql</c> file containing
+        /// <c>CREATE TABLE [dbo].[MyTable]</c>). The client uses this to physically relocate the
+        /// definition file to the new schema folder without relying on filename conventions.
+        /// Null when the defining file could not be resolved.
+        /// </summary>
+        public string DefinitionFileUri { get; set; }
+
+        /// <summary>
+        /// The STS element-type string for the moved object (e.g. <c>SqlTable</c>, <c>SqlView</c>).
+        /// The client maps this to a conventional SSDT folder name (Tables, Views, …) using its
+        /// own lookup table.
+        /// </summary>
+        public string ElementType { get; set; }
+
+        /// <summary>
         /// When non-null, a message to surface to the user. Check <see cref="IsWarning"/> to
         /// determine whether to show a confirmation dialog (<see langword="true"/>) or a blocking
         /// error (<see langword="false"/>).
