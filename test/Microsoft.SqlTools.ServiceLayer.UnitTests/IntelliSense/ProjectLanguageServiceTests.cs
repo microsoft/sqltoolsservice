@@ -1594,6 +1594,25 @@ END
             "    Region NVARCHAR(50)\n" +
             ");";  
 
+        // Sequence — a schema-level object. Line 0: "CREATE SEQUENCE dbo.OrderNumbers"
+        // "CREATE SEQUENCE dbo." is 20 chars, so "OrderNumbers" starts at char 20.
+        private const string SequenceScript =
+            "CREATE SEQUENCE dbo.OrderNumbers\n" +
+            "    AS INT\n" +
+            "    START WITH 1\n" +
+            "    INCREMENT BY 1;";
+
+        // DML trigger — schema-qualified. Line 0: "CREATE TRIGGER dbo.CustomerAudit"
+        // "CREATE TRIGGER dbo." is 19 chars, so "CustomerAudit" starts at char 19.
+        private const string TriggerScript =
+            "CREATE TRIGGER dbo.CustomerAudit\n" +
+            "ON dbo.Customers\n" +
+            "AFTER INSERT\n" +
+            "AS\n" +
+            "BEGIN\n" +
+            "    SET NOCOUNT ON;\n" +
+            "END";
+
         [SetUp]
         public void SetUp()
         {
@@ -1625,6 +1644,11 @@ END
             // View with column aliases — used to verify rename is rejected on column aliases.
             _project.SqlObjectScripts.Add(
                 new SqlObjectScript(Path.Combine("Views", "CustomerSummary.sql")), ViewWithAliasScript);
+            // Sequence and DML trigger — schema-level objects that must support Move to Schema.
+            _project.SqlObjectScripts.Add(
+                new SqlObjectScript(Path.Combine("Sequences", "OrderNumbers.sql")), SequenceScript);
+            _project.SqlObjectScripts.Add(
+                new SqlObjectScript(Path.Combine("Triggers", "CustomerAudit.sql")), TriggerScript);
 
             _model = TSqlModelBuilder.LoadModel(_project);
             _databaseName = Path.GetFileNameWithoutExtension(_projectPath);
@@ -1662,7 +1686,10 @@ END
             return new Uri(abs).AbsoluteUri;
         }
 
-        private void LoadAllFilesIntoWorkspace(bool includeMemOptTable = false, bool includeSalesSchema = false)
+        private void LoadAllFilesIntoWorkspace(
+            bool includeMemOptTable = false,
+            bool includeSalesSchema = false,
+            bool includeSequenceAndTrigger = false)
         {
             var entriesList = new System.Collections.Generic.List<(string Path, string Content)>
             {
@@ -1681,6 +1708,12 @@ END
             {
                 entriesList.Add((Path: "Schemas/sales.sql", Content: SalesSchemaScript));
                 entriesList.Add((Path: "Tables/SalesCustomers.sql", Content: SalesCustomersTableScript));
+            }
+
+            if (includeSequenceAndTrigger)
+            {
+                entriesList.Add((Path: "Sequences/OrderNumbers.sql", Content: SequenceScript));
+                entriesList.Add((Path: "Triggers/CustomerAudit.sql", Content: TriggerScript));
             }
             
             var entries = entriesList.ToArray();
@@ -2148,6 +2181,76 @@ END
             Assert.That(result.Message, Is.Not.Null.And.Not.Empty, "WarningMessage should be set on collision");
             Assert.That(result.Message, Does.Contain("[sales].[Customers]"),
                 $"Warning should include the bracketed target name. Got: {result.Message}");
+        }
+
+        [Test]
+        public async Task HandleMoveToSchemaRequest_SupportsSequence()
+        {
+            LoadAllFilesIntoWorkspace(includeSequenceAndTrigger: true);
+
+            SqlMoveToSchemaResponse result = null;
+            var ctx = new Mock<RequestContext<SqlMoveToSchemaResponse>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlMoveToSchemaResponse>()))
+               .Returns<SqlMoveToSchemaResponse>(r => { result = r; return Task.FromResult(0); });
+
+            // Cursor on "OrderNumbers" in OrderNumbers.sql line 0: "CREATE SEQUENCE dbo.OrderNumbers".
+            await _langService.HandleMoveToSchemaRequest(
+                new SqlMoveToSchemaParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = GetFileUri("Sequences/OrderNumbers.sql") },
+                    Position = new Position { Line = 0, Character = 22 },
+                    TargetSchema = "staging"
+                },
+                ctx.Object);
+
+            Assert.That(result, Is.Not.Null, "Sequences are schema-level objects and must support Move to Schema");
+            Assert.That(result.Changes, Is.Not.Null.And.Not.Empty, "Changes should rewrite the sequence's schema qualifier");
+            Assert.That(result.ElementType, Is.EqualTo("SqlSequence"));
+            Assert.That(result.DefinitionFileUri, Does.Contain("OrderNumbers.sql"));
+
+            XNamespace ns = "http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02";
+            XElement op = XDocument.Parse(result.RefactorLogContent).Root.Elements(ns + "Operation").Last();
+            string PropertyValue(string name) => op.Elements(ns + "Property")
+                .FirstOrDefault(p => (string)p.Attribute("Name") == name)?.Attribute("Value")?.Value;
+
+            Assert.That(PropertyValue("ElementType"), Is.EqualTo("SqlSequence"));
+            Assert.That(PropertyValue("ElementName"), Is.EqualTo("[dbo].[OrderNumbers]"));
+            Assert.That(PropertyValue("NewSchema"), Is.EqualTo("staging"));
+        }
+
+        [Test]
+        public async Task HandleMoveToSchemaRequest_SupportsDmlTrigger()
+        {
+            LoadAllFilesIntoWorkspace(includeSequenceAndTrigger: true);
+
+            SqlMoveToSchemaResponse result = null;
+            var ctx = new Mock<RequestContext<SqlMoveToSchemaResponse>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlMoveToSchemaResponse>()))
+               .Returns<SqlMoveToSchemaResponse>(r => { result = r; return Task.FromResult(0); });
+
+            // Cursor on "CustomerAudit" in CustomerAudit.sql line 0: "CREATE TRIGGER dbo.CustomerAudit".
+            await _langService.HandleMoveToSchemaRequest(
+                new SqlMoveToSchemaParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = GetFileUri("Triggers/CustomerAudit.sql") },
+                    Position = new Position { Line = 0, Character = 21 },
+                    TargetSchema = "staging"
+                },
+                ctx.Object);
+
+            Assert.That(result, Is.Not.Null, "DML triggers are schema-qualified and must support Move to Schema");
+            Assert.That(result.Changes, Is.Not.Null.And.Not.Empty, "Changes should rewrite the trigger's schema qualifier");
+            Assert.That(result.ElementType, Is.EqualTo("SqlDmlTrigger"));
+            Assert.That(result.DefinitionFileUri, Does.Contain("CustomerAudit.sql"));
+
+            XNamespace ns = "http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02";
+            XElement op = XDocument.Parse(result.RefactorLogContent).Root.Elements(ns + "Operation").Last();
+            string PropertyValue(string name) => op.Elements(ns + "Property")
+                .FirstOrDefault(p => (string)p.Attribute("Name") == name)?.Attribute("Value")?.Value;
+
+            Assert.That(PropertyValue("ElementType"), Is.EqualTo("SqlDmlTrigger"));
+            Assert.That(PropertyValue("ElementName"), Is.EqualTo("[dbo].[CustomerAudit]"));
+            Assert.That(PropertyValue("NewSchema"), Is.EqualTo("staging"));
         }
 
         [Test]
