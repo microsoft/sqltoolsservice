@@ -2228,6 +2228,8 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 Changes            = changes,
                 RefactorLogContent = refactorLogContent,
                 TargetSchema       = moveParams.TargetSchema,
+                DefinitionFileUri  = definingFile != null ? LocalPathToFileUri(definingFile) : null,
+                ElementType        = elementType,
                 Message            = moveCollisionWarning,
                 IsWarning          = moveCollisionWarning != null
             });

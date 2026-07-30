@@ -2042,6 +2042,15 @@ END
             Assert.That(result.TargetSchema, Is.EqualTo(targetSchema));
             Assert.That(result.Changes, Is.Not.Null.And.Not.Empty, "Changes should cover the referencing files");
 
+            // DefinitionFileUri must point to the Customers table definition file.
+            Assert.That(result.DefinitionFileUri, Is.Not.Null, "DefinitionFileUri should be populated");
+            Assert.That(result.DefinitionFileUri, Does.Contain("Customers.sql"),
+                $"DefinitionFileUri should point to Customers.sql. Got: {result.DefinitionFileUri}");
+
+            // ElementType must identify the moved object as a table.
+            Assert.That(result.ElementType, Is.EqualTo("SqlTable"),
+                $"ElementType should be SqlTable. Got: {result.ElementType}");
+
             // The two-part reference (dbo.Customers) becomes a [staging] qualifier; the bare reference
             // (Customers in ListCustomers.sql) gets a "[staging]." qualifier inserted before it.
             var allEdits = result.Changes.Values.SelectMany(e => e).ToList();
