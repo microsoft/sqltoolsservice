@@ -38,6 +38,8 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner
         public const string Type = "type";
         public const string DefaultValue = "defaultValue";
         public const string Length = "length";
+        public const string VectorDimension = "vectorDimension";
+        public const string VectorBaseType = "vectorBaseType";
         public const string AllowNulls = "allowNulls";
         public const string IsPrimaryKey = "isPrimaryKey";
         public const string Precision = "precision";
