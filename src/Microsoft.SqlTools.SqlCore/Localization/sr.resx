@@ -1404,6 +1404,22 @@
     <value>Default Constraint Name</value>
     <comment></comment>
   </data>
+  <data name="TableColumnVectorDimensionPropertyDescription" xml:space="preserve">
+    <value>Specifies the number of dimensions in the vector.</value>
+    <comment></comment>
+  </data>
+  <data name="TableColumnVectorDimensionPropertyTitle" xml:space="preserve">
+    <value>Vector Dimension</value>
+    <comment></comment>
+  </data>
+  <data name="TableColumnVectorBaseTypePropertyDescription" xml:space="preserve">
+    <value>Specifies the base type used for vector values.</value>
+    <comment></comment>
+  </data>
+  <data name="TableColumnVectorBaseTypePropertyTitle" xml:space="preserve">
+    <value>Vector Base Type</value>
+    <comment></comment>
+  </data>
   <data name="AddNewEdgeConstraintLabel" xml:space="preserve">
     <value>New Edge Constraint</value>
     <comment></comment>
