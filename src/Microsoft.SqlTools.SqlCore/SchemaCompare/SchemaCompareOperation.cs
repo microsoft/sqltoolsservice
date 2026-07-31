@@ -5,6 +5,7 @@
 
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlServer.Dac.Compare;
+using Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlTools.SqlCore.DacFx;
 using Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
 using Microsoft.SqlTools.Utility;
@@ -37,18 +38,19 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
         public List<DiffEntry> Differences;
 
         /// <summary>
-        /// The SQL platform (T-SQL dialect) the source model targets, as the short
-        /// <see cref="Microsoft.SqlServer.Dac.Model.SqlServerVersion"/> name (e.g. "Sql160",
-        /// "SqlAzureV12", "SqlDwUnified"). Read from the public
-        /// <c>ComparisonResult.SourceModel.Version</c>. Null if the comparison was never run.
+        /// The SQL platform (T-SQL dialect) the source model targets, as the
+        /// <see cref="SqlServerVersion"/> enum (e.g. Sql160, SqlAzureV12, SqlDwUnified).
+        /// Read from the public <c>ComparisonResult.SourceModel.Version</c>. Null if the
+        /// comparison was never run.
         /// </summary>
-        public string SourcePlatform { get; set; }
+        public SqlServerVersion? SourcePlatform { get; set; }
 
         /// <summary>
-        /// The SQL platform the target model targets. See <see cref="SourcePlatform"/>.
-        /// Source and Target are read per-model and can legitimately differ.
+        /// The SQL platform the target model targets, as the <see cref="SqlServerVersion"/> enum.
+        /// See <see cref="SourcePlatform"/>. Source and Target are read per-model and can
+        /// legitimately differ.
         /// </summary>
-        public string TargetPlatform { get; set; }
+        public SqlServerVersion? TargetPlatform { get; set; }
 
         public SchemaCompareOperation(SchemaCompareParams parameters, ISchemaCompareConnectionProvider connectionProvider)
         {
@@ -132,9 +134,10 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
                 }
 
                 // Surface the platform each model targets (read from TSqlModel.Version) so the UI
-                // can show the dialect (e.g. SqlDwUnified for Fabric Warehouse).
-                this.SourcePlatform = this.ComparisonResult.SourceModel?.Version.ToString();
-                this.TargetPlatform = this.ComparisonResult.TargetModel?.Version.ToString();
+                // can show the dialect (e.g. SqlDwUnified for Fabric Warehouse). Kept as the
+                // SqlServerVersion enum here; converted to string at the response boundary.
+                this.SourcePlatform = this.ComparisonResult.SourceModel?.Version;
+                this.TargetPlatform = this.ComparisonResult.TargetModel?.Version;
 
                 // Appending the set of errors that are stopping the schema compare to the ErrorMessage
                 // GetErrors return all type of warnings, and error messages. Only filtering the error type messages here

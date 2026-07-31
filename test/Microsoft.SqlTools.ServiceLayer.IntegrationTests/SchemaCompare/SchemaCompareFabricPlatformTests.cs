@@ -107,9 +107,9 @@ GO";
                 Assert.IsFalse(operation.ComparisonResult.IsEqual, "Source adds constraints the target lacks; expected differences.");
 
                 // (1) Platform surfacing: read from public TSqlModel.Version.
-                Assert.AreEqual("SqlDwUnified", operation.SourcePlatform,
+                Assert.AreEqual(SqlServerVersion.SqlDwUnified, operation.SourcePlatform,
                     "SourcePlatform should be SqlDwUnified (read from ComparisonResult.SourceModel.Version).");
-                Assert.AreEqual("SqlDwUnified", operation.TargetPlatform,
+                Assert.AreEqual(SqlServerVersion.SqlDwUnified, operation.TargetPlatform,
                     "TargetPlatform should be SqlDwUnified (read from ComparisonResult.TargetModel.Version).");
 
                 // (2) The primary key surfaces as a diff carrying its standalone ADD CONSTRAINT script.
@@ -181,8 +181,8 @@ GO";
                 Assert.IsNull(operation.ErrorMessage, "Fabric dacpac comparison should not error. " + operation.ErrorMessage);
                 Assert.IsTrue(operation.ComparisonResult.IsValid, "Fabric dacpac comparison should be valid.");
                 Assert.IsFalse(operation.ComparisonResult.IsEqual, "Source adds tables + constraints the empty target lacks; expected differences.");
-                Assert.AreEqual("SqlDwUnified", operation.SourcePlatform, "Source should be SqlDwUnified.");
-                Assert.AreEqual("SqlDwUnified", operation.TargetPlatform, "Target should be SqlDwUnified.");
+                Assert.AreEqual(SqlServerVersion.SqlDwUnified, operation.SourcePlatform, "Source should be SqlDwUnified.");
+                Assert.AreEqual(SqlServerVersion.SqlDwUnified, operation.TargetPlatform, "Target should be SqlDwUnified.");
 
                 // Generate the deployment script entirely offline against the (empty) Fabric target.
                 SchemaCompareScriptGenerationResult scriptResult = operation.ComparisonResult.GenerateScript("FabricTargetDb");
@@ -276,8 +276,8 @@ GO";
                 Assert.IsNull(operation.ErrorMessage, "Fabric dacpac-to-project comparison should not error. " + operation.ErrorMessage);
                 Assert.IsTrue(operation.ComparisonResult.IsValid, "Fabric dacpac-to-project comparison should be valid.");
                 Assert.IsFalse(operation.ComparisonResult.IsEqual, "Source adds a table + constraints the empty target project lacks; expected differences.");
-                Assert.AreEqual("SqlDwUnified", operation.SourcePlatform, "Source should be SqlDwUnified.");
-                Assert.AreEqual("SqlDwUnified", operation.TargetPlatform, "Target project should be SqlDwUnified.");
+                Assert.AreEqual(SqlServerVersion.SqlDwUnified, operation.SourcePlatform, "Source should be SqlDwUnified.");
+                Assert.AreEqual(SqlServerVersion.SqlDwUnified, operation.TargetPlatform, "Target project should be SqlDwUnified.");
 
                 // Apply the changes to the target Fabric project (Flat structure writes .sql files).
                 SchemaComparePublishProjectChangesParams publishParams = new SchemaComparePublishProjectChangesParams
