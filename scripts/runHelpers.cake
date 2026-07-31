@@ -258,7 +258,7 @@ public void DotnetPackNoBuild(string outputFolder, string projectFolder, string 
     var projectFile = System.IO.Path.Combine(projectFolder, project+".csproj");
     using (var logWriter = new StreamWriter(logPath)) {
         Information($"Packaging {projectFolder}");
-        Run(dotnetcli, $"pack --configuration {configuration} --output {outputFolder} --no-build -bl:{binlogPath} \"{projectFile}\"",
+        Run(dotnetcli, $"pack --verbosity diagnostic --configuration {configuration} --output {outputFolder} --no-build -bl:{binlogPath} \"{projectFile}\"",
             new RunOptions
             {
                 StandardOutputWriter = logWriter,
