@@ -315,6 +315,31 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DacFx
             Assert.That(result.Warning, Does.Contain("Contoso.SqlRules.dll"));
         }
 
+        [Test]
+        public void LoadFromProject_ProjectGivenAsFileUri_ResolvesTheSameProject()
+        {
+            // LSP clients send file:// URIs, so both forms must locate obj/project.assets.json.
+            WriteAssetsFileFor(AnalyzerRelativePath);
+
+            CustomRuleLoader.LoadResult result =
+                CustomRuleLoader.LoadFromProject(new Uri(projectFilePath).AbsoluteUri);
+
+            Assert.That(result.Warning, Does.Contain("Contoso.SqlRules.dll"),
+                "A file:// URI should find the assets file rather than report that restore is required");
+        }
+
+        [Test]
+        public void LoadResult_RuleIdContributedTwice_IsKeptOnceAndWarned()
+        {
+            // Two analyzer packages can declare the same rule ID.
+            CustomRuleLoader.LoadResult result = new();
+            result.AddRule(new CodeAnalysisRuleInfo { RuleId = "Contoso.SR1000" });
+            result.AddRule(new CodeAnalysisRuleInfo { RuleId = "contoso.sr1000" });
+
+            Assert.That(result.Rules, Has.Count.EqualTo(1));
+            Assert.That(result.Warning, Does.Contain("Contoso.SR1000").IgnoreCase);
+        }
+
         #endregion
 
         #region Merging built-in and custom rules

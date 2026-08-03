@@ -15,7 +15,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     public class GetCodeAnalysisRulesParams
     {
         /// <summary>
-        /// Absolute path of the .sqlproj file.
+        /// Location of the .sqlproj file, either a <c>file://</c> URI or a plain OS path.
         /// When provided, custom rules from NuGet-referenced analyzer packages are included.
         /// When absent, only built-in DacFx rules are returned (backward-compatible).
         /// </summary>

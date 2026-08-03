@@ -10907,6 +10907,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.CustomRuleConflictsWithBuiltInRule, ruleId);
         }
 
+        public static string CustomRuleDuplicateId(string ruleId)
+        {
+            return Keys.GetString(Keys.CustomRuleDuplicateId, ruleId);
+        }
+
         public static string SqlAssessmentUnsuppoertedEdition(int editionCode)
         {
             return Keys.GetString(Keys.SqlAssessmentUnsuppoertedEdition, editionCode);
@@ -11707,6 +11712,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string CustomRuleConflictsWithBuiltInRule = "CustomRuleConflictsWithBuiltInRule";
+
+
+            public const string CustomRuleDuplicateId = "CustomRuleDuplicateId";
 
 
             public const string PublishChangesTaskName = "PublishChangesTaskName";

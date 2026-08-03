@@ -1085,6 +1085,11 @@
     <comment>.
  Parameters: 0 - ruleId (string) </comment>
   </data>
+  <data name="CustomRuleDuplicateId" xml:space="preserve">
+    <value>Rule &apos;{0}&apos; is defined by more than one custom analyzer package. Duplicate rule IDs are not supported, and which definition applies during build is not guaranteed. Update the custom rules to use unique IDs.</value>
+    <comment>.
+ Parameters: 0 - ruleId (string) </comment>
+  </data>
   <data name="PublishChangesTaskName" xml:space="preserve">
     <value>Apply schema compare changes</value>
     <comment></comment>

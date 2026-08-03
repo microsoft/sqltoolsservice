@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Text.Json;
 using Microsoft.SqlServer.Dac.CodeAnalysis;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.DacFx
 {
@@ -39,6 +40,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// </summary>
         internal sealed class LoadResult
         {
+            private readonly HashSet<string> contributedRuleIds = new(StringComparer.OrdinalIgnoreCase);
+
             public List<CodeAnalysisRuleInfo> Rules { get; } = new();
 
             public List<string> Warnings { get; } = new();
@@ -47,20 +50,40 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             /// All warnings as a single message, or <c>null</c> when there are none.
             /// </summary>
             public string? Warning => Warnings.Count == 0 ? null : string.Join(Environment.NewLine, Warnings);
+
+            /// <summary>
+            /// Records a rule, keeping the first definition of any given ID and warning about the rest.
+            /// Two analyzer packages can declare the same rule ID; DacFx keeps only one of them at
+            /// build time without reporting which, so the conflict has to be surfaced here.
+            /// </summary>
+            internal void AddRule(CodeAnalysisRuleInfo rule)
+            {
+                if (contributedRuleIds.Add(rule.RuleId))
+                {
+                    Rules.Add(rule);
+                }
+                else
+                {
+                    Warnings.Add(SR.CustomRuleDuplicateId(rule.RuleId));
+                }
+            }
         }
 
         /// <summary>
         /// Loads custom rules from the NuGet analyzer packages referenced by the project.
         /// Never throws; failures are reported through <see cref="LoadResult.Warnings"/>.
         /// </summary>
-        /// <param name="projectFilePath">Absolute path of the .sqlproj file.</param>
-        public static LoadResult LoadFromProject(string projectFilePath)
+        /// <param name="projectFileUriOrPath">
+        /// Location of the .sqlproj file, either a <c>file://</c> URI as LSP clients send, or a
+        /// plain OS path.
+        /// </param>
+        public static LoadResult LoadFromProject(string projectFileUriOrPath)
         {
             LoadResult result = new();
 
             try
             {
-                string projectDirectory = Path.GetDirectoryName(projectFilePath) ?? string.Empty;
+                string projectDirectory = Path.GetDirectoryName(ToLocalPath(projectFileUriOrPath)) ?? string.Empty;
                 string assetsFilePath = Path.Combine(projectDirectory, IntermediateFolderName, AssetsFileName);
 
                 if (!File.Exists(assetsFilePath))
@@ -251,6 +274,22 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         private static bool TryGetObject(JsonElement parent, string propertyName, out JsonElement value) =>
             parent.TryGetProperty(propertyName, out value) && value.ValueKind == JsonValueKind.Object;
 
+        /// <summary>
+        /// Returns the OS-native path from either a <c>file://</c> URI string or a plain OS path,
+        /// matching how the other SQL project endpoints accept both forms.
+        /// </summary>
+        private static string ToLocalPath(string uriOrPath) =>
+            Uri.TryCreate(uriOrPath, UriKind.Absolute, out Uri? uri) && uri.IsFile
+                ? FileUtilities.UriToLocalPath(uri)
+                : uriOrPath;
+
+        /// <summary>
+        /// Loads the analyzer into the default load context so that rule metadata is read exactly as
+        /// DacFx reads it at build time. A reflection-only context would avoid running package code,
+        /// but the documented rule pattern computes <c>DisplayName</c> and <c>Description</c> in an
+        /// attribute override that reads a resource file, so those values are only correct when the
+        /// attribute actually executes.
+        /// </summary>
         private static Assembly? TryLoadAssembly(string assemblyPath, LoadResult result)
         {
             try
@@ -282,7 +321,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
                     if (attribute != null)
                     {
-                        result.Rules.Add(CreateRuleInfo(attribute));
+                        result.AddRule(CreateRuleInfo(attribute));
                     }
                 }
             }
