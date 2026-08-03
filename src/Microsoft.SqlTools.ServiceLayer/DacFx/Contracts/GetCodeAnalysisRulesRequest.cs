@@ -14,6 +14,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
     /// </summary>
     public class GetCodeAnalysisRulesParams
     {
+        /// <summary>
+        /// Absolute path of the .sqlproj file.
+        /// When provided, custom rules from NuGet-referenced analyzer packages are included.
+        /// When absent, only built-in DacFx rules are returned (backward-compatible).
+        /// </summary>
+        public string ProjectUri { get; set; }
     }
 
     /// <summary>
@@ -55,6 +61,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         /// The scope of the rule (Element or Model)
         /// </summary>
         public string RuleScope { get; set; }
+
+        /// <summary>
+        /// True for built-in DacFx rules; false for custom rules from NuGet packages.
+        /// </summary>
+        public bool IsBuiltIn { get; set; }
     }
 
     /// <summary>
@@ -66,6 +77,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         /// The list of available code analysis rules
         /// </summary>
         public CodeAnalysisRuleInfo[] Rules { get; set; }
+
+        /// <summary>
+        /// Non-fatal warning to surface in the UI (e.g., project not restored, DLL load failure, ID conflict).
+        /// </summary>
+        public string Warning { get; set; }
     }
 
     /// <summary>

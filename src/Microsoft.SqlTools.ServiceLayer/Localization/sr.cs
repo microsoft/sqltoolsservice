@@ -1599,6 +1599,14 @@ namespace Microsoft.SqlTools.ServiceLayer
             }
         }
 
+        public static string CustomRulesRestoreRequired
+        {
+            get
+            {
+                return Keys.GetString(Keys.CustomRulesRestoreRequired);
+            }
+        }
+
         public static string PublishChangesTaskName
         {
             get
@@ -10879,6 +10887,26 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.StreamingJobValidationFailed, jobName);
         }
 
+        public static string CustomRulesLoadFailed(string errorMessage)
+        {
+            return Keys.GetString(Keys.CustomRulesLoadFailed, errorMessage);
+        }
+
+        public static string CustomRulesAssemblyNotFound(string assemblyPath)
+        {
+            return Keys.GetString(Keys.CustomRulesAssemblyNotFound, assemblyPath);
+        }
+
+        public static string CustomRulesAssemblyLoadFailed(string assemblyName, string errorMessage)
+        {
+            return Keys.GetString(Keys.CustomRulesAssemblyLoadFailed, assemblyName, errorMessage);
+        }
+
+        public static string CustomRuleOverridesBuiltInRule(string ruleId)
+        {
+            return Keys.GetString(Keys.CustomRuleOverridesBuiltInRule, ruleId);
+        }
+
         public static string SqlAssessmentUnsuppoertedEdition(int editionCode)
         {
             return Keys.GetString(Keys.SqlAssessmentUnsuppoertedEdition, editionCode);
@@ -11664,6 +11692,21 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string NoCreateStreamingJobStatementFound = "NoCreateStreamingJobStatementFound";
+
+
+            public const string CustomRulesRestoreRequired = "CustomRulesRestoreRequired";
+
+
+            public const string CustomRulesLoadFailed = "CustomRulesLoadFailed";
+
+
+            public const string CustomRulesAssemblyNotFound = "CustomRulesAssemblyNotFound";
+
+
+            public const string CustomRulesAssemblyLoadFailed = "CustomRulesAssemblyLoadFailed";
+
+
+            public const string CustomRuleOverridesBuiltInRule = "CustomRuleOverridesBuiltInRule";
 
 
             public const string PublishChangesTaskName = "PublishChangesTaskName";

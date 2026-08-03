@@ -1061,6 +1061,30 @@
     <value>No External Streaming Job creation TSQL found (EXEC sp_create_streaming_job statement).</value>
     <comment></comment>
   </data>
+  <data name="CustomRulesRestoreRequired" xml:space="preserve">
+    <value>Custom code analysis rules are unavailable. Run &apos;dotnet restore&apos; on the project and then reopen this dialog.</value>
+    <comment></comment>
+  </data>
+  <data name="CustomRulesLoadFailed" xml:space="preserve">
+    <value>Failed to load custom code analysis rules: {0}</value>
+    <comment>.
+ Parameters: 0 - errorMessage (string) </comment>
+  </data>
+  <data name="CustomRulesAssemblyNotFound" xml:space="preserve">
+    <value>Analyzer assembly &apos;{0}&apos; was not found in any NuGet package folder.</value>
+    <comment>.
+ Parameters: 0 - assemblyPath (string) </comment>
+  </data>
+  <data name="CustomRulesAssemblyLoadFailed" xml:space="preserve">
+    <value>Failed to load code analysis rules from analyzer assembly &apos;{0}&apos;: {1}</value>
+    <comment>.
+ Parameters: 0 - assemblyName (string), 1 - errorMessage (string) </comment>
+  </data>
+  <data name="CustomRuleOverridesBuiltInRule" xml:space="preserve">
+    <value>Rule &apos;{0}&apos; is defined by both DacFx and a custom analyzer package. The custom definition is used.</value>
+    <comment>.
+ Parameters: 0 - ruleId (string) </comment>
+  </data>
   <data name="PublishChangesTaskName" xml:space="preserve">
     <value>Apply schema compare changes</value>
     <comment></comment>
