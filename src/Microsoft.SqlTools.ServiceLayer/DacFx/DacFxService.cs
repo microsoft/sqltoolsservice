@@ -402,7 +402,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// <summary>
         /// Gets the built-in DacFx code analysis rules, merged with the custom rules contributed by
         /// the NuGet analyzer packages the project references when <paramref name="projectFilePath"/> is supplied.
-        /// A custom rule takes precedence over a built-in rule with the same ID.
+        /// A duplicate rule ID is surfaced as a warning: DacFx gives no precedence guarantee for one,
+        /// so the custom definition is shown only so the conflict is visible in the UI.
         /// Creates a minimal TSqlModel to enumerate rules from the DacFx CodeAnalysisService;
         /// the rules are static and do not depend on model content or SQL Server version.
         /// </summary>
@@ -439,7 +440,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 {
                     if (rules.ContainsKey(customRule.RuleId))
                     {
-                        customRules.Warnings.Add(SR.CustomRuleOverridesBuiltInRule(customRule.RuleId));
+                        customRules.Warnings.Add(SR.CustomRuleConflictsWithBuiltInRule(customRule.RuleId));
                     }
 
                     rules[customRule.RuleId] = customRule;

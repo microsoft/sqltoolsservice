@@ -1080,8 +1080,8 @@
     <comment>.
  Parameters: 0 - assemblyName (string), 1 - errorMessage (string) </comment>
   </data>
-  <data name="CustomRuleOverridesBuiltInRule" xml:space="preserve">
-    <value>Rule &apos;{0}&apos; is defined by both DacFx and a custom analyzer package. The custom definition is used.</value>
+  <data name="CustomRuleConflictsWithBuiltInRule" xml:space="preserve">
+    <value>Rule &apos;{0}&apos; is defined by both DacFx and a custom analyzer package. Duplicate rule IDs are not supported, and which definition applies during build is not guaranteed. Update the custom rule to use a unique ID.</value>
     <comment>.
  Parameters: 0 - ruleId (string) </comment>
   </data>

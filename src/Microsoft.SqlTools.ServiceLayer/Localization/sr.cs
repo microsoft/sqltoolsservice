@@ -10902,9 +10902,9 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.CustomRulesAssemblyLoadFailed, assemblyName, errorMessage);
         }
 
-        public static string CustomRuleOverridesBuiltInRule(string ruleId)
+        public static string CustomRuleConflictsWithBuiltInRule(string ruleId)
         {
-            return Keys.GetString(Keys.CustomRuleOverridesBuiltInRule, ruleId);
+            return Keys.GetString(Keys.CustomRuleConflictsWithBuiltInRule, ruleId);
         }
 
         public static string SqlAssessmentUnsuppoertedEdition(int editionCode)
@@ -11706,7 +11706,7 @@ namespace Microsoft.SqlTools.ServiceLayer
             public const string CustomRulesAssemblyLoadFailed = "CustomRulesAssemblyLoadFailed";
 
 
-            public const string CustomRuleOverridesBuiltInRule = "CustomRuleOverridesBuiltInRule";
+            public const string CustomRuleConflictsWithBuiltInRule = "CustomRuleConflictsWithBuiltInRule";
 
 
             public const string PublishChangesTaskName = "PublishChangesTaskName";
