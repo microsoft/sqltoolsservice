@@ -87,9 +87,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
                         Success = operation.ComparisonResult.IsValid,
                         ErrorMessage = operation.ErrorMessage,
                         AreEqual = operation.ComparisonResult.IsEqual,
-                        Differences = operation.Differences,
-                        SourcePlatform = operation.SourcePlatform?.ToString(),
-                        TargetPlatform = operation.TargetPlatform?.ToString()
+                        Differences = operation.Differences
                     });
 
                     // clean up cancellation action now that the operation is complete (using try remove to avoid exception)

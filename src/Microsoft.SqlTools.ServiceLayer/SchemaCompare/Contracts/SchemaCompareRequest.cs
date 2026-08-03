@@ -49,20 +49,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare.Contracts
         public bool AreEqual { get; set; }
 
         public List<DiffEntry> Differences { get; set; }
-
-        /// <summary>
-        /// The SQL platform (T-SQL dialect) the source model targets, as the short
-        /// SqlServerVersion name (e.g. "Sql160", "SqlAzureV12", "SqlDwUnified"). Lets the client
-        /// surface which dialect Schema Compare is using (e.g. a Fabric Warehouse badge).
-        /// Valid values are the names of DacFx's Microsoft.SqlServer.Dac.Model.SqlServerVersion
-        /// enum (DacFx source: Source/SchemaApi/Model/SqlServerVersion.cs).
-        /// </summary>
-        public string SourcePlatform { get; set; }
-
-        /// <summary>
-        /// The SQL platform the target model targets. See <see cref="SourcePlatform"/>.
-        /// </summary>
-        public string TargetPlatform { get; set; }
     }
 
     /// <summary>
