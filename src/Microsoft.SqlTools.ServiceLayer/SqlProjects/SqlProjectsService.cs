@@ -488,7 +488,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         {
             await RunWithErrorHandling(async () =>
             {
-                GetProject(requestParams.ProjectUri).SqlObjectScripts.Move(requestParams.Path, requestParams.DestinationPath);
+                GetProject(requestParams.ProjectUri).SqlObjectScripts.Move(requestParams.Path, requestParams.DestinationPath, requestParams.MetadataOnly);
                 // The IntelliSense model is path-keyed, so a rename is a delete + add:
                 // (1) Purge the old path's objects from the model and source location index.
                 await UpdateProjectIntelliSenseAsync(requestParams.ProjectUri, requestParams.Path, deleted: true);
