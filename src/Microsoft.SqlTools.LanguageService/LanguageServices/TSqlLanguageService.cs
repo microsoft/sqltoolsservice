@@ -1216,10 +1216,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
                         if (!hasBindingContext)
                         {
-                            if (TryIncrementalParse(scriptFile.Contents, parseInfo.ParseResult, this.DefaultParseOptions, out ParseResult parseResult))
-                            {
-                                parseInfo.ParseResult = parseResult;
-                                Logger.Information($"ParseAndBind: parsed '{scriptFile.ClientUri}' without a binding context (syntax-only, no metadata binding)");
+                                Logger.Verbose($"ParseAndBind: parsed '{scriptFile.ClientUri}' without a binding context (syntax-only, no metadata binding)");
                             }
                             else
                             {
