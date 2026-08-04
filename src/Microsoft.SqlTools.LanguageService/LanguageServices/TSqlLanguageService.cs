@@ -1330,7 +1330,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             if (parseException != null)
             {
                 // Recoverable: caller resets ParseResult and performs a full parse on the next pass.
-                Logger.Warning($"An unexpected error occured while parsing: {parseException}");
+                Logger.Warning($"An unexpected error occurred while parsing: {parseException}");
                 return false;
             }
 
