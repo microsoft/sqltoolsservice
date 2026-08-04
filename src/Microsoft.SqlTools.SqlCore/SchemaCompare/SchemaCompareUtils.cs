@@ -51,14 +51,14 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
 
             if (difference.DifferenceType == SchemaDifferenceType.Object)
             {
-                // set source and target scripts
+                // DacFx's GetDiffEntry{Source,Target}Script returns the standalone script for a
+                // difference that owns one (e.g. ALTER TABLE ... ADD CONSTRAINT for a SqlDwUnified
+                // constraint) and empty for a child scripted inline in its parent's CREATE. STS
+                // renders whatever DacFx returns.
                 if (difference.SourceObject != null)
                 {
                     string sourceScript = schemaComparisonResult.GetDiffEntrySourceScript(difference);
-
-                    // Child scripts that do not use alter need to be added if they are being changed, ex: "EXECUTE sp_addextendedproperty...".
-                    // Don't add scripts that start with alter because those are handled by a top level element's create
-                    if (!sourceScript.ToLowerInvariant().StartsWith("alter"))
+                    if (sourceScript != null)
                     {
                         diffEntry.SourceScript = FormatScript(sourceScript);
                     }
@@ -66,10 +66,7 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
                 if (difference.TargetObject != null)
                 {
                     string targetScript = schemaComparisonResult.GetDiffEntryTargetScript(difference);
-
-                    // Child scripts that do not use alter need to be added if they are being changed, ex: "EXECUTE sp_addextendedproperty...".
-                    // Don't add scripts that start with alter because those are handled by a top level element's create
-                    if (!targetScript.ToLowerInvariant().StartsWith("alter"))
+                    if (targetScript != null)
                     {
                         diffEntry.TargetScript = FormatScript(targetScript);
                     }
