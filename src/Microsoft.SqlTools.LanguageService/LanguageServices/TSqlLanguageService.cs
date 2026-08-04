@@ -1260,12 +1260,12 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                                     catch (ConnectionException ex)
                                     {
                                         // Recoverable: the parse result is still returned; only metadata binding was skipped.
-                                        Logger.Warning($"ParseAndBind: connection error while binding '{scriptFile.ClientUri}': {ex.Message}");
+                                        Logger.Warning($"ParseAndBind: connection error while binding '{scriptFile.ClientUri}': {ex}");
                                     }
                                     catch (SqlParserInternalBinderError ex)
                                     {
                                         // Recoverable: the parse result is still returned; only metadata binding was skipped.
-                                        Logger.Warning($"ParseAndBind: internal binder error while binding '{scriptFile.ClientUri}': {ex.Message}");
+                                        Logger.Warning($"ParseAndBind: internal binder error while binding '{scriptFile.ClientUri}': {ex}");
                                     }
                                     catch (Exception ex)
                                     {
