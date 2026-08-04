@@ -6,7 +6,7 @@
 #nullable disable
 using System.Collections.Generic;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.LanguageService.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;

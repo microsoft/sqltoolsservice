@@ -43,7 +43,7 @@ namespace Microsoft.SqlTools.ServiceLayer
                 Logger.Initialize(tracingLevel: commandOptions.TracingLevel, commandOptions.PiiLogging, logFilePath: logFilePath, traceSource: "sqltools", commandOptions.AutoFlushLog);
 
                 // Register PII Logging configuration change callback
-                Workspace.WorkspaceService<SqlToolsSettings>.Instance.RegisterConfigChangeCallback((newSettings, oldSettings, context) =>
+                Microsoft.SqlTools.LanguageService.Workspace.WorkspaceService<SqlToolsSettings>.Instance.RegisterConfigChangeCallback((newSettings, oldSettings, context) =>
                 {
                     Logger.IsPiiEnabled = newSettings?.MssqlTools?.PiiLogging ?? false;
                     Logger.Information(Logger.IsPiiEnabled ? "PII Logging enabled" : "PII Logging disabled");

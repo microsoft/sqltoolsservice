@@ -16,7 +16,6 @@ using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.Utility;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 using static Microsoft.SqlTools.Utility.SqlConstants;
 using System.Linq;
 using Microsoft.SqlTools.SqlCore.Scripting;
@@ -123,7 +122,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                         if (connInfo.AzureTokenFetcher != null)
                         {
                             scriptingServerConnection = ConnectionServiceInstance.OpenServerConnectionInternal(connInfo);
-                            (accessToken, _) = connInfo.AzureTokenFetcher().GetAwaiter().GetResult();
+                            (accessToken, _) = connInfo.AzureTokenFetcher(connInfo.AzureResourceUri).GetAwaiter().GetResult();
                         }
                         else
                         {

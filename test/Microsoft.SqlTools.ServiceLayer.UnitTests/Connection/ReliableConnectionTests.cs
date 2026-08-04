@@ -10,7 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.LanguageService.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using NUnit.Framework;

@@ -9,21 +9,26 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlServer.Dac.Projects;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlServer.Management.SqlParser.Common;
 using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
+using Microsoft.SqlTools.LanguageService.Connection.Contracts;
+using Microsoft.SqlTools.LanguageService.LanguageServices;
+using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.SqlProjects;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.SqlProjects;
-using Microsoft.SqlTools.ServiceLayer.Workspace;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.LanguageService.Workspace;
+using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
+using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.SqlCore.IntelliSense;
+using Moq;
 using NUnit.Framework;
+using WsLocation = Microsoft.SqlTools.LanguageService.Workspace.Contracts.Location;
+using LanguageServiceSR = Microsoft.SqlTools.LanguageService.SR;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.IntelliSense
 {
@@ -33,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.IntelliSense
     [TestFixture]
     public class ProjectLanguageServiceTests
     {
-        private LanguageService _langService;
+        private TSqlLanguageService _langService;
         private WorkspaceService<SqlToolsSettings> _workspaceService;
         private string _projectPath;
         private SqlProject _project;
@@ -95,11 +100,12 @@ END
                 transactSqlVersion: TransactSqlVersion.Current);
 
             // Initialize language service
-            _langService = new LanguageService();
+            _langService = new TSqlLanguageService();
+            _langService.ConnectionServiceInstance = ConnectionService.Instance;
 
             // Set up workspace service
             _workspaceService = new WorkspaceService<SqlToolsSettings>();
-            _workspaceService.Workspace = new ServiceLayer.Workspace.Workspace();
+            _workspaceService.Workspace = new Microsoft.SqlTools.LanguageService.Workspace.Workspace();
             _langService.WorkspaceServiceInstance = _workspaceService;
 
             // Set up project context
@@ -326,9 +332,9 @@ END
                     compatibilityLevel: DatabaseCompatibilityLevel.Current,
                     transactSqlVersion: TransactSqlVersion.Current);
 
-                var langService = new LanguageService();
+                var langService = new TSqlLanguageService();
                 var workspaceService = new WorkspaceService<SqlToolsSettings>();
-                workspaceService.Workspace = new ServiceLayer.Workspace.Workspace();
+                workspaceService.Workspace = new Microsoft.SqlTools.LanguageService.Workspace.Workspace();
                 langService.WorkspaceServiceInstance = workspaceService;
 
                 string projectUri = new Uri(projectPath).AbsoluteUri;
@@ -1123,6 +1129,1428 @@ END
 
             Assert.That(db.Schemas["dbo"]?.UserDefinedTableTypes["IdTable"], Is.Not.Null, "IdTable should still exist after modify");
             Assert.That(db.Schemas["dbo"]?.UserDefinedTableTypes["NameTable"], Is.Not.Null, "NameTable should be unaffected by modify");
+        }
+    }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // Find All References (textDocument/references) tests
+    // Verifies HandleReferencesRequest, FindTokenLocationsInFile, and the
+    // TSqlModelMetadataProvider helper methods FindObject / GetReferencingFilePaths.
+    // ────────────────────────────────────────────────────────────────────────
+    [TestFixture]
+    public class FindReferencesTests
+    {
+        private string _projectPath;
+        private SqlProject _project;
+        private TSqlModel _model;
+        private TSqlLanguageService _langService;
+        private WorkspaceService<SqlToolsSettings> _workspaceService;
+        private string _projectUri;
+        private string _contextKey;
+        private string _databaseName;
+        private string _projectDir;
+
+        // SQL contents — no leading blank line so 0-based LSP line numbers match array indices.
+        //
+        // GetCustomerScript line layout (0-based):
+        //   0: "CREATE PROCEDURE dbo.GetCustomer"
+        //   1: "    @CustomerId INT"
+        //   2: "AS"
+        //   3: "BEGIN"
+        //   4: "    SELECT CustomerId, CustomerName"
+        //   5: "    FROM dbo.Customers"   ← "Customers" occupies chars 13-21
+        //   6: "    WHERE CustomerId = @CustomerId;"
+        //   7: "END"
+        private const string TableScript =
+            "CREATE TABLE dbo.Customers (\n" +
+            "    CustomerId INT PRIMARY KEY,\n" +
+            "    CustomerName NVARCHAR(100) NOT NULL\n" +
+            ");";
+
+        private const string GetCustomerScript =
+            "CREATE PROCEDURE dbo.GetCustomer\n" +
+            "    @CustomerId INT\n" +
+            "AS\n" +
+            "BEGIN\n" +
+            "    SELECT CustomerId, CustomerName\n" +
+            "    FROM dbo.Customers\n" +
+            "    WHERE CustomerId = @CustomerId;\n" +
+            "END";
+
+        // ListCustomersScript uses an unqualified reference so the tests exercise the
+        // DacFx model lookup fallback path (no preceding ".") that resolves by last name part
+        // (e.g. bare "Customers" → "dbo.Customers" via FindQualifiedNameByLastPart).
+        //
+        // ListCustomersScript line layout (0-based):
+        //   0: "CREATE PROCEDURE dbo.ListCustomers"
+        //   1: "AS"
+        //   2: "BEGIN"
+        //   3: "    SELECT CustomerId, CustomerName"
+        //   4: "    FROM Customers;"  ← bare name; "Customers" at chars 9-17
+        //   5: "END"
+        private const string ListCustomersScript =
+            "CREATE PROCEDURE dbo.ListCustomers\n" +
+            "AS\n" +
+            "BEGIN\n" +
+            "    SELECT CustomerId, CustomerName\n" +
+            "    FROM Customers;\n" +
+            "END";
+
+        // Orders table is intentionally never referenced by any stored procedure.
+        // Used by the isolation test.
+        // Line 0: "CREATE TABLE dbo.Orders ("  — "Orders" starts at char 17.
+        private const string OrdersScript =
+            "CREATE TABLE dbo.Orders (\n" +
+            "    OrderId INT PRIMARY KEY\n" +
+            ");"; 
+
+        [SetUp]
+        public void SetUp()
+        {
+            _projectPath = ProjectUtils.CreateTestProject("FindReferencesTestProject");
+            _project = SqlProject.OpenProject(_projectPath);
+            _projectDir = Path.GetDirectoryName(_projectPath);
+
+            _project.SqlObjectScripts.Add(
+                new SqlObjectScript(Path.Combine("Tables", "Customers.sql")), TableScript);
+            _project.SqlObjectScripts.Add(
+                new SqlObjectScript(Path.Combine("StoredProcedures", "GetCustomer.sql")), GetCustomerScript);
+            _project.SqlObjectScripts.Add(
+                new SqlObjectScript(Path.Combine("StoredProcedures", "ListCustomers.sql")), ListCustomersScript);
+            _project.SqlObjectScripts.Add(
+                new SqlObjectScript(Path.Combine("Tables", "Orders.sql")), OrdersScript);
+
+            _model = TSqlModelBuilder.LoadModel(_project);
+            _databaseName = Path.GetFileNameWithoutExtension(_projectPath);
+
+            var metadataProvider = new TSqlModelMetadataProvider(_model, _databaseName);
+            var parseOptions = new ParseOptions(
+                batchSeparator: "GO",
+                isQuotedIdentifierSet: true,
+                compatibilityLevel: DatabaseCompatibilityLevel.Current,
+                transactSqlVersion: TransactSqlVersion.Current);
+
+            _langService = new TSqlLanguageService();
+            _workspaceService = new WorkspaceService<SqlToolsSettings>();
+            _workspaceService.Workspace = new Microsoft.SqlTools.LanguageService.Workspace.Workspace();
+            _langService.WorkspaceServiceInstance = _workspaceService;
+
+            _projectUri = new Uri(_projectPath).AbsoluteUri;
+            _contextKey = $"project_{_projectUri}";
+
+            _langService.UpdateLanguageServiceOnProjectOpen(
+                _projectUri, metadataProvider, parseOptions, _databaseName)
+                .GetAwaiter().GetResult();
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            _model?.Dispose();
+            ProjectUtils.DeleteTestProject(_projectPath);
+        }
+
+        private string GetFileUri(string relativeSlashPath)
+        {
+            // Split on '/' so Path.Combine inserts the correct separator on all platforms.
+            string abs = Path.Combine(_projectDir, Path.Combine(relativeSlashPath.Split('/')));
+            return new Uri(abs).AbsoluteUri;
+        }
+
+        /// <summary>
+        /// Loads all four SQL files (Customers.sql, Orders.sql, GetCustomer.sql, ListCustomers.sql)
+        /// into the workspace and stamps them with the project context via
+        /// <see cref="LanguageService.InitializeProjectFileContexts"/>. ParseResult is left null
+        /// so individual tests can verify on-demand parsing behaviour.
+        /// </summary>
+        private void LoadAllFilesIntoWorkspace()
+        {
+            var entries = new[]
+            {
+                (Path: "Tables/Customers.sql",              Content: TableScript),
+                (Path: "Tables/Orders.sql",                  Content: OrdersScript),
+                (Path: "StoredProcedures/GetCustomer.sql",  Content: GetCustomerScript),
+                (Path: "StoredProcedures/ListCustomers.sql", Content: ListCustomersScript),
+            };
+
+            var fileUris = System.Array.ConvertAll(entries, e =>
+            {
+                string uri = GetFileUri(e.Path);
+                _workspaceService.Workspace.GetFileBuffer(uri, e.Content);
+                return uri;
+            });
+
+            _langService.InitializeProjectFileContexts(fileUris, _contextKey, _databaseName);
+        }
+
+        // ── Guard: IntelliSense disabled ─────────────────────────────────────
+
+        [Test]
+        public async Task HandleReferencesRequest_ReturnsEmpty_WhenIntellisenseDisabled()
+        {
+            _workspaceService.CurrentSettings.SqlTools.IntelliSense.EnableIntellisense = false;
+            LoadAllFilesIntoWorkspace();
+
+            WsLocation[] result = null;
+            var ctx = new Mock<RequestContext<WsLocation[]>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<WsLocation[]>()))
+               .Returns<WsLocation[]>(r => { result = r; return Task.FromResult(0); });
+
+            await _langService.HandleReferencesRequest(
+                new ReferencesParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = GetFileUri("StoredProcedures/GetCustomer.sql") },
+                    Position = new Position { Line = 5, Character = 15 }
+                },
+                ctx.Object);
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result, Is.Empty, "Should return empty when IntelliSense is disabled");
+        }
+
+        // ── Guard: file not in workspace ─────────────────────────────────────
+
+        [Test]
+        public async Task HandleReferencesRequest_ReturnsEmpty_WhenFileNotFound()
+        {
+            WsLocation[] result = null;
+            var ctx = new Mock<RequestContext<WsLocation[]>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<WsLocation[]>()))
+               .Returns<WsLocation[]>(r => { result = r; return Task.FromResult(0); });
+
+            await _langService.HandleReferencesRequest(
+                new ReferencesParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = "file:///no/such/file.sql" },
+                    Position = new Position { Line = 0, Character = 0 }
+                },
+                ctx.Object);
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result, Is.Empty, "Unknown file should return empty");
+        }
+
+        // ── Guard: file exists in workspace but not marked as a project file ─
+
+        [Test]
+        public async Task HandleReferencesRequest_ReturnsEmpty_ForNonProjectFile()
+        {
+            const string queryUri = "file:///test_non_project_refs.sql";
+            _workspaceService.Workspace.GetFileBuffer(queryUri, "SELECT * FROM dbo.Customers");
+            // Intentionally NOT calling InitializeProjectFileContexts → IsProject stays false.
+
+            WsLocation[] result = null;
+            var ctx = new Mock<RequestContext<WsLocation[]>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<WsLocation[]>()))
+               .Returns<WsLocation[]>(r => { result = r; return Task.FromResult(0); });
+
+            await _langService.HandleReferencesRequest(
+                new ReferencesParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = queryUri },
+                    Position = new Position { Line = 0, Character = 20 }
+                },
+                ctx.Object);
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result, Is.Empty, "Non-project file should return empty");
+        }
+
+        // ── Main integration: references returned across all project files ────
+
+        [Test]
+        public async Task HandleReferencesRequest_FindsReferencesAcrossAllProjectFiles()
+        {
+            LoadAllFilesIntoWorkspace();
+
+            // Cursor on "Customers" in line 5 of GetCustomer.sql:
+            //   "    FROM dbo.Customers"  — char 15 is inside the word (starts at char 13).
+            WsLocation[] result = null;
+            var ctx = new Mock<RequestContext<WsLocation[]>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<WsLocation[]>()))
+               .Returns<WsLocation[]>(r => { result = r; return Task.FromResult(0); });
+
+            await _langService.HandleReferencesRequest(
+                new ReferencesParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = GetFileUri("StoredProcedures/GetCustomer.sql") },
+                    Position = new Position { Line = 5, Character = 15 }
+                },
+                ctx.Object);
+
+            Assert.That(result, Is.Not.Null, "Result should not be null");
+            Assert.That(result, Is.Not.Empty, "Should find at least one reference");
+
+            var files = result.Select(l => l.Uri).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+
+            Assert.That(files.Any(f => f.Contains("GetCustomer.sql")), Is.True,
+                $"GetCustomer.sql should appear in results. Found: {string.Join(", ", files)}");
+            Assert.That(files.Any(f => f.Contains("ListCustomers.sql")), Is.True,
+                $"ListCustomers.sql should appear in results. Found: {string.Join(", ", files)}");
+            Assert.That(files.Any(f => f.Contains("Customers.sql") && !f.Contains("GetCustomer") && !f.Contains("ListCustomers")), Is.True,
+                $"Customers.sql (table definition) should appear in results. Found: {string.Join(", ", files)}");
+        }
+
+        [Test]
+        public async Task HandleReferencesRequest_FindsReferences_UnqualifiedName()
+        {
+            LoadAllFilesIntoWorkspace();
+
+            // Cursor on bare "Customers" in ListCustomers.sql line 4: "    FROM Customers;"
+            // GetPrecedingSchemaPrefix returns null → FindQualifiedNameByLastPart("Customers")
+            // resolves to "dbo.Customers" directly from the DacFx model.
+            WsLocation[] result = null;
+            var ctx = new Mock<RequestContext<WsLocation[]>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<WsLocation[]>()))
+               .Returns<WsLocation[]>(r => { result = r; return Task.FromResult(0); });
+
+            await _langService.HandleReferencesRequest(
+                new ReferencesParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = GetFileUri("StoredProcedures/ListCustomers.sql") },
+                    Position = new Position { Line = 4, Character = 12 }  // inside "Customers" (chars 9-17)
+                },
+                ctx.Object);
+
+            Assert.That(result, Is.Not.Null, "Unqualified-name result should not be null");
+            Assert.That(result, Is.Not.Empty, "Unqualified name should find references via DacFx model lookup fallback");
+            var files = result.Select(l => l.Uri).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+            Assert.That(files.Any(f => f.Contains("Customers.sql") && !f.Contains("GetCustomer") && !f.Contains("ListCustomers")), Is.True,
+                $"Customers.sql (table definition) should appear for unqualified name. Found: {string.Join(", ", files)}");
+        }
+
+        // ── Unopened files: null ParseResult is populated on demand ───────────
+
+        [Test]
+        public async Task HandleReferencesRequest_ParsesUnopenedFiles_OnDemand()
+        {
+            // Load files into workspace without calling ParseAndBind.
+            // InitializeProjectFileContexts leaves ParseResult = null for all files.
+            LoadAllFilesIntoWorkspace();
+
+            string listCustomersUri = GetFileUri("StoredProcedures/ListCustomers.sql");
+            var listParseInfo = _langService.GetScriptParseInfo(listCustomersUri);
+            Assert.That(listParseInfo, Is.Not.Null, "ParseInfo should exist for ListCustomers.sql after InitializeProjectFileContexts");
+            Assert.That(listParseInfo.ParseResult, Is.Null, "ParseResult should be null before HandleReferencesRequest");
+
+            WsLocation[] result = null;
+            var ctx = new Mock<RequestContext<WsLocation[]>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<WsLocation[]>()))
+               .Returns<WsLocation[]>(r => { result = r; return Task.FromResult(0); });
+
+            await _langService.HandleReferencesRequest(
+                new ReferencesParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = GetFileUri("StoredProcedures/GetCustomer.sql") },
+                    Position = new Position { Line = 5, Character = 15 }
+                },
+                ctx.Object);
+
+            Assert.That(result, Is.Not.Null);
+
+            // ListCustomers.sql must appear even though it had null ParseResult initially.
+            var files = result.Select(l => l.Uri).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+            Assert.That(files.Any(f => f.Contains("ListCustomers.sql")), Is.True,
+                $"ListCustomers.sql should appear even if ParseResult was initially null. Found: {string.Join(", ", files)}");
+
+            // FindTokenLocationsInFile parses the file from disk into a local ParseResult without
+            // mutating shared state, so the cached ScriptParseInfo.ParseResult stays null.
+            Assert.That(listParseInfo.ParseResult, Is.Null,
+                "On-demand disk parse should not mutate the shared ScriptParseInfo.ParseResult");
+        }
+
+        // ── Isolation: unrelated tables must not appear in each other's results ─
+
+        [Test]
+        public async Task HandleReferencesRequest_DoesNotReturnUnrelatedFiles()
+        {
+            LoadAllFilesIntoWorkspace();
+
+            var ctx1 = new Mock<RequestContext<WsLocation[]>>();
+            WsLocation[] customersResult = null;
+            ctx1.Setup(rc => rc.SendResult(It.IsAny<WsLocation[]>()))
+               .Returns<WsLocation[]>(r => { customersResult = r; return Task.FromResult(0); });
+
+            // Find References on "Customers" in GetCustomer.sql — Orders.sql must NOT appear.
+            await _langService.HandleReferencesRequest(
+                new ReferencesParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = GetFileUri("StoredProcedures/GetCustomer.sql") },
+                    Position = new Position { Line = 5, Character = 15 }
+                },
+                ctx1.Object);
+
+            Assert.That(customersResult, Is.Not.Null);
+            var customersFiles = customersResult.Select(l => l.Uri).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+            Assert.That(customersFiles.Any(f => f.Contains("Orders.sql")), Is.False,
+                $"Orders.sql should NOT appear in Customers references. Found: {string.Join(", ", customersFiles)}");
+
+            // Find References on "Orders" in Orders.sql (line 0, char 20) — Customers-related files must NOT appear.
+            var ctx2 = new Mock<RequestContext<WsLocation[]>>();
+            WsLocation[] ordersResult = null;
+            ctx2.Setup(rc => rc.SendResult(It.IsAny<WsLocation[]>()))
+               .Returns<WsLocation[]>(r => { ordersResult = r; return Task.FromResult(0); });
+
+            await _langService.HandleReferencesRequest(
+                new ReferencesParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = GetFileUri("Tables/Orders.sql") },
+                    Position = new Position { Line = 0, Character = 20 }
+                },
+                ctx2.Object);
+
+            Assert.That(ordersResult, Is.Not.Null);
+            var ordersFiles = ordersResult.Select(l => l.Uri).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+            Assert.That(ordersFiles.Any(f => f.Contains("GetCustomer.sql") || f.Contains("ListCustomers.sql")), Is.False,
+                $"Customers SPs should NOT appear in Orders references. Found: {string.Join(", ", ordersFiles)}");
+        }
+    }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // Rename (textDocument/rename) tests
+    // Verifies HandleRenameRequest builds a WorkspaceEdit from the same
+    // FindProjectSymbolLocations helper that powers Find All References.
+    // ────────────────────────────────────────────────────────────────────────
+    [TestFixture]
+    public class RenameTests
+    {
+        private string _projectPath;
+        private SqlProject _project;
+        private TSqlModel _model;
+        private TSqlLanguageService _langService;
+        private WorkspaceService<SqlToolsSettings> _workspaceService;
+        private string _projectUri;
+        private string _contextKey;
+        private string _databaseName;
+        private string _projectDir;
+
+        // Same SQL scripts as FindReferencesTests — identical line/column layout.
+        private const string TableScript =
+            "CREATE TABLE dbo.Customers (\n" +
+            "    CustomerId INT PRIMARY KEY,\n" +
+            "    CustomerName NVARCHAR(100) NOT NULL\n" +
+            ");";
+
+        private const string GetCustomerScript =
+            "CREATE PROCEDURE dbo.GetCustomer\n" +
+            "    @CustomerId INT\n" +
+            "AS\n" +
+            "BEGIN\n" +
+            "    SELECT CustomerId, CustomerName\n" +
+            "    FROM dbo.Customers\n" +       // line 5, "Customers" starts at char 13
+            "    WHERE CustomerId = @CustomerId;\n" +
+            "END";
+
+        private const string ListCustomersScript =
+            "CREATE PROCEDURE dbo.ListCustomers\n" +
+            "AS\n" +
+            "BEGIN\n" +
+            "    SELECT CustomerId, CustomerName\n" +
+            "    FROM Customers;\n" +          // line 4, bare "Customers" starts at char 9
+            "END";
+
+        private const string OrdersScript =
+            "CREATE TABLE dbo.Orders (\n" +
+            "    OrderId INT PRIMARY KEY\n" +
+            ");";
+
+        // Uses bracket-quoted [Customers] so the bracket-quoting preservation logic fires.
+        // Line 3: "    SELECT * FROM dbo.[Customers];"  — '[' at char 21, ']' at char 31.
+        private const string BracketedReferenceScript =
+            "CREATE PROCEDURE dbo.GetBracketed\n" +  // line 0
+            "AS\n" +                                  // line 1
+            "BEGIN\n" +                               // line 2
+            "    SELECT * FROM dbo.[Customers];\n" +  // line 3 — [Customers] starts at char 21
+            "END";
+
+        private const string MemoryOptimizedTableScript =
+            "CREATE TABLE dbo.MemOptTable (\n" +
+            "    Id INT NOT NULL PRIMARY KEY NONCLUSTERED HASH WITH (BUCKET_COUNT = 1000000),\n" +
+            "    Value NVARCHAR(100)\n" +
+            ") WITH (MEMORY_OPTIMIZED = ON, DURABILITY = SCHEMA_AND_DATA);";
+
+        private const string SalesSchemaScript = "CREATE SCHEMA sales;";
+
+        private const string StagingSchemaScript = "CREATE SCHEMA staging;";
+
+        // ViewWithAliasScript layout (0-based):
+        // 0: "CREATE VIEW dbo.CustomerSummary"
+        // 1: "AS"
+        // 2: "SELECT"
+        // 3: "    c.CustomerId,"
+        // 4: "    c.CustomerName AS DisplayName"  ← DisplayName starts at char 22
+        // 5: "FROM dbo.Customers c;"
+        private const string ViewWithAliasScript =
+            "CREATE VIEW dbo.CustomerSummary\n" +
+            "AS\n" +
+            "SELECT\n" +
+            "    c.CustomerId,\n" +
+            "    c.CustomerName AS DisplayName\n" +
+            "FROM dbo.Customers c;";
+
+        private const string SalesCustomersTableScript =
+            "CREATE TABLE sales.Customers (\n" +
+            "    CustomerId INT PRIMARY KEY,\n" +
+            "    Region NVARCHAR(50)\n" +
+            ");";  
+
+        // Sequence — a schema-level object. Line 0: "CREATE SEQUENCE dbo.OrderNumbers"
+        // "CREATE SEQUENCE dbo." is 20 chars, so "OrderNumbers" starts at char 20.
+        private const string SequenceScript =
+            "CREATE SEQUENCE dbo.OrderNumbers\n" +
+            "    AS INT\n" +
+            "    START WITH 1\n" +
+            "    INCREMENT BY 1;";
+
+        // DML trigger — schema-qualified. Line 0: "CREATE TRIGGER dbo.CustomerAudit"
+        // "CREATE TRIGGER dbo." is 19 chars, so "CustomerAudit" starts at char 19.
+        private const string TriggerScript =
+            "CREATE TRIGGER dbo.CustomerAudit\n" +
+            "ON dbo.Customers\n" +
+            "AFTER INSERT\n" +
+            "AS\n" +
+            "BEGIN\n" +
+            "    SET NOCOUNT ON;\n" +
+            "END";
+
+        [SetUp]
+        public void SetUp()
+        {
+            _projectPath = ProjectUtils.CreateTestProject("RenameTestProject");
+            _project = SqlProject.OpenProject(_projectPath);
+            _projectDir = Path.GetDirectoryName(_projectPath);
+
+            _project.SqlObjectScripts.Add(
+                new SqlObjectScript(Path.Combine("Tables", "Customers.sql")), TableScript);
+            _project.SqlObjectScripts.Add(
+                new SqlObjectScript(Path.Combine("StoredProcedures", "GetCustomer.sql")), GetCustomerScript);
+            _project.SqlObjectScripts.Add(
+                new SqlObjectScript(Path.Combine("StoredProcedures", "ListCustomers.sql")), ListCustomersScript);
+            _project.SqlObjectScripts.Add(
+                new SqlObjectScript(Path.Combine("Tables", "Orders.sql")), OrdersScript);
+            _project.SqlObjectScripts.Add(
+                new SqlObjectScript(Path.Combine("StoredProcedures", "GetBracketed.sql")), BracketedReferenceScript);
+            _project.SqlObjectScripts.Add(
+                new SqlObjectScript(Path.Combine("Tables", "MemOptTable.sql")), MemoryOptimizedTableScript);
+            _project.SqlObjectScripts.Add(
+                new SqlObjectScript(Path.Combine("Schemas", "sales.sql")), SalesSchemaScript);
+            _project.SqlObjectScripts.Add(
+                new SqlObjectScript(Path.Combine("Tables", "SalesCustomers.sql")), SalesCustomersTableScript);
+            // 'staging' schema exists in the model but has no Customers table — used as the
+            // collision-free target for the happy-path move test so that sales.Customers in the
+            // model doesn't trigger the name-collision guard.
+            _project.SqlObjectScripts.Add(
+                new SqlObjectScript(Path.Combine("Schemas", "staging.sql")), StagingSchemaScript);
+            // View with column aliases — used to verify rename is rejected on column aliases.
+            _project.SqlObjectScripts.Add(
+                new SqlObjectScript(Path.Combine("Views", "CustomerSummary.sql")), ViewWithAliasScript);
+            // Sequence and DML trigger — schema-level objects that must support Move to Schema.
+            _project.SqlObjectScripts.Add(
+                new SqlObjectScript(Path.Combine("Sequences", "OrderNumbers.sql")), SequenceScript);
+            _project.SqlObjectScripts.Add(
+                new SqlObjectScript(Path.Combine("Triggers", "CustomerAudit.sql")), TriggerScript);
+
+            _model = TSqlModelBuilder.LoadModel(_project);
+            _databaseName = Path.GetFileNameWithoutExtension(_projectPath);
+
+            var metadataProvider = new TSqlModelMetadataProvider(_model, _databaseName);
+            var parseOptions = new ParseOptions(
+                batchSeparator: "GO",
+                isQuotedIdentifierSet: true,
+                compatibilityLevel: DatabaseCompatibilityLevel.Current,
+                transactSqlVersion: TransactSqlVersion.Current);
+
+            _langService = new TSqlLanguageService();
+            _workspaceService = new WorkspaceService<SqlToolsSettings>();
+            _workspaceService.Workspace = new Microsoft.SqlTools.LanguageService.Workspace.Workspace();
+            _langService.WorkspaceServiceInstance = _workspaceService;
+
+            _projectUri = new Uri(_projectPath).AbsoluteUri;
+            _contextKey = $"project_{_projectUri}";
+
+            _langService.UpdateLanguageServiceOnProjectOpen(
+                _projectUri, metadataProvider, parseOptions, _databaseName)
+                .GetAwaiter().GetResult();
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            _model?.Dispose();
+            ProjectUtils.DeleteTestProject(_projectPath);
+        }
+
+        private string GetFileUri(string relativeSlashPath)
+        {
+            string abs = Path.Combine(_projectDir, Path.Combine(relativeSlashPath.Split('/')));
+            return new Uri(abs).AbsoluteUri;
+        }
+
+        private void LoadAllFilesIntoWorkspace(
+            bool includeMemOptTable = false,
+            bool includeSalesSchema = false,
+            bool includeSequenceAndTrigger = false)
+        {
+            var entriesList = new System.Collections.Generic.List<(string Path, string Content)>
+            {
+                (Path: "Tables/Customers.sql",               Content: TableScript),
+                (Path: "Tables/Orders.sql",                   Content: OrdersScript),
+                (Path: "StoredProcedures/GetCustomer.sql",   Content: GetCustomerScript),
+                (Path: "StoredProcedures/ListCustomers.sql", Content: ListCustomersScript),
+            };
+            
+            if (includeMemOptTable)
+            {
+                entriesList.Add((Path: "Tables/MemOptTable.sql", Content: MemoryOptimizedTableScript));
+            }
+            
+            if (includeSalesSchema)
+            {
+                entriesList.Add((Path: "Schemas/sales.sql", Content: SalesSchemaScript));
+                entriesList.Add((Path: "Tables/SalesCustomers.sql", Content: SalesCustomersTableScript));
+            }
+
+            if (includeSequenceAndTrigger)
+            {
+                entriesList.Add((Path: "Sequences/OrderNumbers.sql", Content: SequenceScript));
+                entriesList.Add((Path: "Triggers/CustomerAudit.sql", Content: TriggerScript));
+            }
+            
+            var entries = entriesList.ToArray();
+
+            var fileUris = System.Array.ConvertAll(entries, e =>
+            {
+                string uri = GetFileUri(e.Path);
+                _workspaceService.Workspace.GetFileBuffer(uri, e.Content);
+                return uri;
+            });
+
+            _langService.InitializeProjectFileContexts(fileUris, _contextKey, _databaseName);
+        }
+
+        // ── Guard: non-project file returns null WorkspaceEdit ───────────────
+        // The three null-return paths (IntelliSense disabled, file not found, non-project file)
+        // all flow through FindProjectSymbolLocations, which is already exhaustively covered by
+        // the FindReferencesTests guards above. One representative case is sufficient here.
+
+        [Test]
+        public async Task HandleRenameRequest_ReturnsNull_ForNonProjectFile()
+        {
+            const string queryUri = "file:///test_non_project_rename.sql";
+            _workspaceService.Workspace.GetFileBuffer(queryUri, "SELECT * FROM dbo.Customers");
+            // Intentionally NOT calling InitializeProjectFileContexts → IsProject stays false.
+
+            SqlSymbolRenameResponse result = null;
+            bool resultSent = false;
+            var ctx = new Mock<RequestContext<SqlSymbolRenameResponse>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlSymbolRenameResponse>()))
+               .Returns<SqlSymbolRenameResponse>(r => { result = r; resultSent = true; return Task.FromResult(0); });
+
+            await _langService.HandleSqlRenameRequest(
+                new SqlSymbolRenameParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = queryUri },
+                    Position = new Position { Line = 0, Character = 20 },
+                    NewName = "dbo.NewName"
+                },
+                ctx.Object);
+
+            Assert.That(resultSent, Is.True, "SendResult should have been called");
+            Assert.That(result?.Changes, Is.Null, "Non-project file should return null Changes");
+        }
+
+        // ── Happy path: WorkspaceEdit covers all referencing files, every edit uses the new name ─
+
+        [Test]
+        public async Task HandleRenameRequest_ProducesWorkspaceEditAcrossAllProjectFiles()
+        {
+            LoadAllFilesIntoWorkspace();
+            const string newName = "Clients";
+
+            SqlSymbolRenameResponse result = null;
+            var ctx = new Mock<RequestContext<SqlSymbolRenameResponse>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlSymbolRenameResponse>()))
+               .Returns<SqlSymbolRenameResponse>(r => { result = r; return Task.FromResult(0); });
+
+            // Cursor on "Customers" in line 5 of GetCustomer.sql:
+            //   "    FROM dbo.Customers"  — char 15 is inside "Customers" (starts at char 13).
+            await _langService.HandleSqlRenameRequest(
+                new SqlSymbolRenameParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = GetFileUri("StoredProcedures/GetCustomer.sql") },
+                    Position = new Position { Line = 5, Character = 15 },
+                    NewName = newName
+                },
+                ctx.Object);
+
+            Assert.That(result, Is.Not.Null, "SqlSymbolRenameResponse should not be null");
+            Assert.That(result.Changes, Is.Not.Null.And.Not.Empty, "Changes should contain at least one file");
+
+            var files = result.Changes.Keys.ToList();
+            Assert.That(files.Any(f => f.Contains("GetCustomer.sql")), Is.True,
+                $"GetCustomer.sql should be in the edit set. Keys: {string.Join(", ", files)}");
+            Assert.That(files.Any(f => f.Contains("ListCustomers.sql")), Is.True,
+                $"ListCustomers.sql should be in the edit set. Keys: {string.Join(", ", files)}");
+            Assert.That(files.Any(f => f.Contains("Customers.sql") && !f.Contains("GetCustomer") && !f.Contains("ListCustomers")), Is.True,
+                $"Customers.sql (table definition) should be in the edit set. Keys: {string.Join(", ", files)}");
+
+            // Every edit renames to the new name. The bracket-quoted occurrence in GetBracketed.sql
+            // (a project file scanned from disk) is preserved as [Clients]; all others are plain.
+            var allEdits = result.Changes.Values.SelectMany(e => e).ToList();
+            Assert.That(allEdits.All(e => e.NewText == newName || e.NewText == $"[{newName}]"), Is.True,
+                $"Every TextEdit.NewText should equal '{newName}' or '[{newName}]'. Found: {string.Join(", ", allEdits.Select(e => e.NewText).Distinct())}");
+        }
+
+        // ── Isolation: unrelated files must not appear in the edit set ──────────
+
+        [Test]
+        public async Task HandleRenameRequest_DoesNotIncludeUnrelatedFiles()
+        {
+            LoadAllFilesIntoWorkspace();
+
+            SqlSymbolRenameResponse result = null;
+            var ctx = new Mock<RequestContext<SqlSymbolRenameResponse>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlSymbolRenameResponse>()))
+               .Returns<SqlSymbolRenameResponse>(r => { result = r; return Task.FromResult(0); });
+
+            // Rename "Customers" — Orders.sql references a completely different table.
+            await _langService.HandleSqlRenameRequest(
+                new SqlSymbolRenameParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = GetFileUri("StoredProcedures/GetCustomer.sql") },
+                    Position = new Position { Line = 5, Character = 15 },
+                    NewName = "Clients"
+                },
+                ctx.Object);
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Changes, Is.Not.Null);
+            Assert.That(result.Changes.Keys.Any(f => f.Contains("Orders.sql")), Is.False,
+                $"Orders.sql should NOT appear when renaming Customers. Keys: {string.Join(", ", result.Changes.Keys)}");
+        }
+
+        // ── Bracket-quoting preservation ─────────────────────────────────────
+        // When the original token is bracket-quoted (e.g. [Customers]), the rename edit for
+        // that occurrence must also be bracket-quoted ([Clients]), while unbracketed occurrences
+        // (dbo.Customers, bare Customers) keep plain text.
+
+        [Test]
+        public async Task HandleRenameRequest_PreservesBracketQuoting()
+        {
+            LoadAllFilesIntoWorkspace();
+            const string newName = "Clients";
+
+            SqlSymbolRenameResponse result = null;
+            var ctx = new Mock<RequestContext<SqlSymbolRenameResponse>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlSymbolRenameResponse>()))
+               .Returns<SqlSymbolRenameResponse>(r => { result = r; return Task.FromResult(0); });
+
+            // Load GetBracketed.sql into the workspace (not in LoadAllFilesIntoWorkspace to avoid
+            // affecting other tests that assert all NewText values are unbracketed).
+            string bracketedUri = GetFileUri("StoredProcedures/GetBracketed.sql");
+            _workspaceService.Workspace.GetFileBuffer(bracketedUri, BracketedReferenceScript);
+            _langService.InitializeProjectFileContexts(new[] { bracketedUri }, _contextKey, _databaseName);
+
+            // Cursor on [Customers] in GetBracketed.sql line 3:
+            //   "    SELECT * FROM dbo.[Customers];"
+            // '[' is at char 22, 'C' is at char 23 — place cursor on 'C' (inside the bracket token).
+            await _langService.HandleSqlRenameRequest(
+                new SqlSymbolRenameParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = bracketedUri },
+                    Position = new Position { Line = 3, Character = 23 },
+                    NewName = newName
+                },
+                ctx.Object);
+
+            string bracketedFileUri = bracketedUri;
+
+            Assert.That(result, Is.Not.Null, "SqlSymbolRenameResponse should not be null");
+            Assert.That(result.Changes, Is.Not.Null.And.Not.Empty, "Changes should not be empty");
+
+            // GetBracketed.sql uses [Customers] — that edit must be bracket-wrapped.
+            Assert.That(result.Changes.ContainsKey(bracketedFileUri), Is.True,
+                "GetBracketed.sql should be in the edit set");
+            var bracketedEdits = result.Changes[bracketedFileUri];
+            Assert.That(bracketedEdits.Any(e => e.NewText == $"[{newName}]"), Is.True,
+                $"The bracketed occurrence must be renamed to [{newName}], but got: " +
+                string.Join(", ", bracketedEdits.Select(e => e.NewText)));
+
+            // All other files use unbracketed identifiers — those edits must NOT be bracket-wrapped.
+            foreach (var kvp in result.Changes)
+            {
+                if (string.Equals(kvp.Key, bracketedFileUri, StringComparison.OrdinalIgnoreCase))
+                    continue;
+                Assert.That(kvp.Value.All(e => e.NewText == newName), Is.True,
+                    $"Unbracketed occurrences in {kvp.Key} should be renamed to plain '{newName}', " +
+                    $"but got: {string.Join(", ", kvp.Value.Select(e => e.NewText))}");
+            }
+        }
+
+        // ── Refactorlog content generation ───────────────────────────────────
+        // The rename response carries the full .refactorlog document with the new Rename Refactor
+        // operation appended. Verify that supplying ExistingRefactorLogContent produces a valid
+        // document whose appended operation has the expected ElementType/ElementName/NewName.
+
+        [Test]
+        public async Task HandleRenameRequest_AppendsRenameOperationToExistingRefactorLog()
+        {
+            LoadAllFilesIntoWorkspace();
+            const string newName = "Clients";
+
+            XNamespace ns = "http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02";
+            // A pre-existing .refactorlog with one unrelated operation already recorded.
+            var existingDoc = new XDocument(
+                new XDeclaration("1.0", "utf-8", null),
+                new XElement(ns + "Operations",
+                    new XAttribute("Version", "1.0"),
+                    new XElement(ns + "Operation",
+                        new XAttribute("Name", "Rename Refactor"),
+                        new XAttribute("Key", Guid.NewGuid().ToString()),
+                        new XAttribute("ChangeDateTime", "01/01/2020 00:00:00"),
+                        new XElement(ns + "Property",
+                            new XAttribute("Name", "ElementName"),
+                            new XAttribute("Value", "[dbo].[Orders]")))));
+            string existingRefactorLog = existingDoc.Declaration + Environment.NewLine + existingDoc.ToString();
+
+            SqlSymbolRenameResponse result = null;
+            var ctx = new Mock<RequestContext<SqlSymbolRenameResponse>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlSymbolRenameResponse>()))
+               .Returns<SqlSymbolRenameResponse>(r => { result = r; return Task.FromResult(0); });
+
+            // Cursor on "Customers" in GetCustomer.sql line 5: "    FROM dbo.Customers".
+            await _langService.HandleSqlRenameRequest(
+                new SqlSymbolRenameParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = GetFileUri("StoredProcedures/GetCustomer.sql") },
+                    Position = new Position { Line = 5, Character = 15 },
+                    NewName = newName,
+                    ExistingRefactorLogContent = existingRefactorLog
+                },
+                ctx.Object);
+
+            Assert.That(result, Is.Not.Null, "SqlSymbolRenameResponse should not be null");
+            Assert.That(result.NewName, Is.EqualTo(newName));
+            Assert.That(result.RefactorLogContent, Is.Not.Null.And.Not.Empty,
+                "RefactorLogContent should be populated for a schema-level table rename");
+
+            // The returned content must be valid XML rooted at the Operations element.
+            XDocument doc = XDocument.Parse(result.RefactorLogContent);
+            Assert.That(doc.Root?.Name, Is.EqualTo(ns + "Operations"),
+                "Refactorlog root should be the Operations element");
+
+            var operations = doc.Root.Elements(ns + "Operation").ToList();
+            Assert.That(operations.Count, Is.EqualTo(2),
+                "The pre-existing operation should be preserved and the new rename appended");
+
+            // The newly appended operation describes the Customers → Clients table rename.
+            XElement appended = operations.Last();
+            string PropertyValue(string name) => appended.Elements(ns + "Property")
+                .FirstOrDefault(p => (string)p.Attribute("Name") == name)?.Attribute("Value")?.Value;
+
+            Assert.That((string)appended.Attribute("Name"), Is.EqualTo("Rename Refactor"));
+            Assert.That(PropertyValue("ElementType"), Is.EqualTo("SqlTable"));
+            Assert.That(PropertyValue("ElementName"), Is.EqualTo("[dbo].[Customers]"));
+            Assert.That(PropertyValue("ParentElementType"), Is.EqualTo("SqlSchema"));
+            Assert.That(PropertyValue("ParentElementName"), Is.EqualTo("[dbo]"));
+            Assert.That(PropertyValue("NewName"), Is.EqualTo(newName));
+        }
+
+        // ── TryGetRefactorInfo: refactorlog element-type resolution ──────────────
+        // The client uses these fields to write a Rename Refactor operation into the
+        // .refactorlog. A schema-level object resolves to its Sql* type with a SqlSchema
+        // parent; a column resolves to SqlSimpleColumn with its owning SqlTable parent.
+
+        [Test]
+        public void TryGetRefactorInfo_SchemaLevelTable_ReturnsSqlTableWithSchemaParent()
+        {
+            var provider = new TSqlModelMetadataProvider(_model, _databaseName);
+
+            bool resolved = provider.TryGetRefactorInfo(
+                "dbo.Customers", "Customers",
+                out string elementName, out string elementType,
+                out string parentElementName, out string parentElementType);
+
+            Assert.That(resolved, Is.True, "A schema-level table should resolve refactor info");
+            Assert.That(elementName, Is.EqualTo("[dbo].[Customers]"));
+            Assert.That(elementType, Is.EqualTo("SqlTable"));
+            Assert.That(parentElementName, Is.EqualTo("[dbo]"));
+            Assert.That(parentElementType, Is.EqualTo("SqlSchema"));
+        }
+
+        [Test]
+        public void TryGetRefactorInfo_Column_ReturnsSqlSimpleColumnWithTableParent()
+        {
+            var provider = new TSqlModelMetadataProvider(_model, _databaseName);
+
+            // "CustomerName" is a column on dbo.Customers, not a schema-level object,
+            // so Case 1 misses and the column scan (Case 2) resolves it. The production call site
+            // passes the resolved schema.table.column name, so exercise that qualified path here.
+            bool resolved = provider.TryGetRefactorInfo(
+                "dbo.Customers.CustomerName", "CustomerName",
+                out string elementName, out string elementType,
+                out string parentElementName, out string parentElementType);
+
+            Assert.That(resolved, Is.True, "A table column should resolve refactor info");
+            Assert.That(elementName, Is.EqualTo("[dbo].[Customers].[CustomerName]"));
+            Assert.That(elementType, Is.EqualTo("SqlSimpleColumn"));
+            Assert.That(parentElementName, Is.EqualTo("[dbo].[Customers]"));
+            Assert.That(parentElementType, Is.EqualTo("SqlTable"));
+        }
+
+        [Test]
+        public void TryGetRefactorInfo_UnknownSymbol_ReturnsFalse()
+        {
+            var provider = new TSqlModelMetadataProvider(_model, _databaseName);
+
+            bool resolved = provider.TryGetRefactorInfo(
+                "dbo.DoesNotExist", "DoesNotExist",
+                out string elementName, out string elementType,
+                out string parentElementName, out string parentElementType);
+
+            Assert.That(resolved, Is.False, "An unknown symbol should not resolve refactor info");
+            Assert.That(elementName, Is.Null);
+            Assert.That(elementType, Is.Null);
+            Assert.That(parentElementName, Is.Null);
+            Assert.That(parentElementType, Is.Null);
+        }
+
+        // ── Move to Schema (sql/moveToSchema) ────────────────────────────────
+        // HandleMoveToSchemaRequest reuses FindProjectSymbolLocations to find every reference, then
+        // rewrites the schema qualifier (or inserts one for unqualified names) and appends a
+        // "Move Schema" operation to the .refactorlog. These cover the guard, the happy path with
+        // refactorlog generation, and the same-schema no-op.
+
+        [Test]
+        public async Task HandleMoveToSchemaRequest_ReturnsNull_ForNonProjectFile()
+        {
+            const string queryUri = "file:///test_non_project_move.sql";
+            _workspaceService.Workspace.GetFileBuffer(queryUri, "SELECT * FROM dbo.Customers");
+            // Intentionally NOT calling InitializeProjectFileContexts → IsProject stays false.
+
+            SqlMoveToSchemaResponse result = null;
+            bool resultSent = false;
+            var ctx = new Mock<RequestContext<SqlMoveToSchemaResponse>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlMoveToSchemaResponse>()))
+               .Returns<SqlMoveToSchemaResponse>(r => { result = r; resultSent = true; return Task.FromResult(0); });
+
+            await _langService.HandleMoveToSchemaRequest(
+                new SqlMoveToSchemaParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = queryUri },
+                    Position = new Position { Line = 0, Character = 20 },
+                    TargetSchema = "sales"
+                },
+                ctx.Object);
+
+            Assert.That(resultSent, Is.True, "SendResult should have been called");
+            Assert.That(result, Is.Null, "Non-project file should return a null response");
+        }
+
+        [Test]
+        public async Task HandleMoveToSchemaRequest_RewritesReferencesAndAppendsMoveSchemaOperation()
+        {
+            LoadAllFilesIntoWorkspace();
+            // Use 'staging' as the target: it exists in the model (so IsNewSchemaExternal=False)
+            // but has no Customers table, so the name-collision guard does not trigger.
+            // (The model has sales.Customers, which would block a move to 'sales'.)
+            const string targetSchema = "staging";
+
+            SqlMoveToSchemaResponse result = null;
+            var ctx = new Mock<RequestContext<SqlMoveToSchemaResponse>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlMoveToSchemaResponse>()))
+               .Returns<SqlMoveToSchemaResponse>(r => { result = r; return Task.FromResult(0); });
+
+            // Cursor on "Customers" in GetCustomer.sql line 5: "    FROM dbo.Customers".
+            await _langService.HandleMoveToSchemaRequest(
+                new SqlMoveToSchemaParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = GetFileUri("StoredProcedures/GetCustomer.sql") },
+                    Position = new Position { Line = 5, Character = 15 },
+                    TargetSchema = targetSchema
+                },
+                ctx.Object);
+
+            Assert.That(result, Is.Not.Null, "SqlMoveToSchemaResponse should not be null");
+            Assert.That(result.TargetSchema, Is.EqualTo(targetSchema));
+            Assert.That(result.Changes, Is.Not.Null.And.Not.Empty, "Changes should cover the referencing files");
+
+            // DefinitionFileUri must point to the Customers table definition file.
+            Assert.That(result.DefinitionFileUri, Is.Not.Null, "DefinitionFileUri should be populated");
+            Assert.That(result.DefinitionFileUri, Does.Contain("Customers.sql"),
+                $"DefinitionFileUri should point to Customers.sql. Got: {result.DefinitionFileUri}");
+
+            // ElementType must identify the moved object as a table.
+            Assert.That(result.ElementType, Is.EqualTo("SqlTable"),
+                $"ElementType should be SqlTable. Got: {result.ElementType}");
+
+            // The two-part reference (dbo.Customers) becomes a [staging] qualifier; the bare reference
+            // (Customers in ListCustomers.sql) gets a "[staging]." qualifier inserted before it.
+            var allEdits = result.Changes.Values.SelectMany(e => e).ToList();
+            Assert.That(allEdits.Any(e => e.NewText == "[staging]"), Is.True,
+                "A two-part reference should have its schema qualifier rewritten to [staging]");
+            Assert.That(allEdits.Any(e => e.NewText == "[staging]."), Is.True,
+                "An unqualified reference should have a [staging]. qualifier inserted");
+
+            // The refactorlog carries a Move Schema operation for the moved table.
+            XNamespace ns = "http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02";
+            XDocument doc = XDocument.Parse(result.RefactorLogContent);
+            XElement op = doc.Root.Elements(ns + "Operation").Last();
+            string PropertyValue(string name) => op.Elements(ns + "Property")
+                .FirstOrDefault(p => (string)p.Attribute("Name") == name)?.Attribute("Value")?.Value;
+
+            Assert.That((string)op.Attribute("Name"), Is.EqualTo("Move Schema"));
+            Assert.That(PropertyValue("ElementType"), Is.EqualTo("SqlTable"));
+            Assert.That(PropertyValue("ElementName"), Is.EqualTo("[dbo].[Customers]"));
+            Assert.That(PropertyValue("NewSchema"), Is.EqualTo(targetSchema));
+            Assert.That(PropertyValue("IsNewSchemaExternal"), Is.EqualTo("False"));
+        }
+
+        [Test]
+        public async Task HandleMoveToSchemaRequest_ReturnsNull_WhenTargetSchemaMatchesCurrent()
+        {
+            LoadAllFilesIntoWorkspace();
+
+            SqlMoveToSchemaResponse result = null;
+            bool resultSent = false;
+            var ctx = new Mock<RequestContext<SqlMoveToSchemaResponse>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlMoveToSchemaResponse>()))
+               .Returns<SqlMoveToSchemaResponse>(r => { result = r; resultSent = true; return Task.FromResult(0); });
+
+            // dbo.Customers is already in dbo — moving it to dbo is a no-op.
+            await _langService.HandleMoveToSchemaRequest(
+                new SqlMoveToSchemaParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = GetFileUri("StoredProcedures/GetCustomer.sql") },
+                    Position = new Position { Line = 5, Character = 15 },
+                    TargetSchema = "dbo"
+                },
+                ctx.Object);
+
+            Assert.That(resultSent, Is.True, "SendResult should have been called");
+            Assert.That(result, Is.Null, "Moving to the current schema should return a null response");
+        }
+
+        [Test]
+        public async Task HandleMoveToSchemaRequest_ReturnsNull_ForMemoryOptimizedTable()
+        {
+            LoadAllFilesIntoWorkspace(includeMemOptTable: true);
+
+            SqlMoveToSchemaResponse result = null;
+            bool resultSent = false;
+            var ctx = new Mock<RequestContext<SqlMoveToSchemaResponse>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlMoveToSchemaResponse>()))
+               .Returns<SqlMoveToSchemaResponse>(r => { result = r; resultSent = true; return Task.FromResult(0); });
+
+            // Try to move memory-optimized table to another schema (cursor on "MemOptTable" in the CREATE TABLE line)
+            await _langService.HandleMoveToSchemaRequest(
+                new SqlMoveToSchemaParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = GetFileUri("Tables/MemOptTable.sql") },
+                    Position = new Position { Line = 0, Character = 20 },
+                    TargetSchema = "sales"
+                },
+                ctx.Object);
+
+            Assert.That(resultSent, Is.True, "SendResult should have been called");
+            Assert.That(result, Is.Null, "Memory-optimized tables should be rejected (ALTER SCHEMA TRANSFER does not support them)");
+        }
+
+        [Test]
+        public async Task HandleMoveToSchemaRequest_ReturnsWarning_WhenNameCollisionExists()
+        {
+            LoadAllFilesIntoWorkspace(includeSalesSchema: true);
+
+            SqlMoveToSchemaResponse result = null;
+            var ctx = new Mock<RequestContext<SqlMoveToSchemaResponse>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlMoveToSchemaResponse>()))
+               .Returns<SqlMoveToSchemaResponse>(r => { result = r; return Task.FromResult(0); });
+
+            // Try to move dbo.Customers to sales schema (but sales.Customers already exists)
+            await _langService.HandleMoveToSchemaRequest(
+                new SqlMoveToSchemaParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = GetFileUri("StoredProcedures/GetCustomer.sql") },
+                    Position = new Position { Line = 5, Character = 15 },
+                    TargetSchema = "sales"
+                },
+                ctx.Object);
+
+            Assert.That(result, Is.Not.Null, "Should return a response even on collision");
+            Assert.That(result.Changes, Is.Not.Null.And.Not.Empty, "Workspace edits should still be returned");
+            Assert.That(result.Message, Is.Not.Null.And.Not.Empty, "WarningMessage should be set on collision");
+            Assert.That(result.Message, Does.Contain("[sales].[Customers]"),
+                $"Warning should include the bracketed target name. Got: {result.Message}");
+        }
+
+        [Test]
+        public async Task HandleMoveToSchemaRequest_SupportsSequence()
+        {
+            LoadAllFilesIntoWorkspace(includeSequenceAndTrigger: true);
+
+            SqlMoveToSchemaResponse result = null;
+            var ctx = new Mock<RequestContext<SqlMoveToSchemaResponse>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlMoveToSchemaResponse>()))
+               .Returns<SqlMoveToSchemaResponse>(r => { result = r; return Task.FromResult(0); });
+
+            // Cursor on "OrderNumbers" in OrderNumbers.sql line 0: "CREATE SEQUENCE dbo.OrderNumbers".
+            await _langService.HandleMoveToSchemaRequest(
+                new SqlMoveToSchemaParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = GetFileUri("Sequences/OrderNumbers.sql") },
+                    Position = new Position { Line = 0, Character = 22 },
+                    TargetSchema = "staging"
+                },
+                ctx.Object);
+
+            Assert.That(result, Is.Not.Null, "Sequences are schema-level objects and must support Move to Schema");
+            Assert.That(result.Changes, Is.Not.Null.And.Not.Empty, "Changes should rewrite the sequence's schema qualifier");
+            Assert.That(result.ElementType, Is.EqualTo("SqlSequence"));
+            Assert.That(result.DefinitionFileUri, Does.Contain("OrderNumbers.sql"));
+
+            XNamespace ns = "http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02";
+            XElement op = XDocument.Parse(result.RefactorLogContent).Root.Elements(ns + "Operation").Last();
+            string PropertyValue(string name) => op.Elements(ns + "Property")
+                .FirstOrDefault(p => (string)p.Attribute("Name") == name)?.Attribute("Value")?.Value;
+
+            Assert.That(PropertyValue("ElementType"), Is.EqualTo("SqlSequence"));
+            Assert.That(PropertyValue("ElementName"), Is.EqualTo("[dbo].[OrderNumbers]"));
+            Assert.That(PropertyValue("NewSchema"), Is.EqualTo("staging"));
+        }
+
+        [Test]
+        public async Task HandleMoveToSchemaRequest_SupportsDmlTrigger()
+        {
+            LoadAllFilesIntoWorkspace(includeSequenceAndTrigger: true);
+
+            SqlMoveToSchemaResponse result = null;
+            var ctx = new Mock<RequestContext<SqlMoveToSchemaResponse>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlMoveToSchemaResponse>()))
+               .Returns<SqlMoveToSchemaResponse>(r => { result = r; return Task.FromResult(0); });
+
+            // Cursor on "CustomerAudit" in CustomerAudit.sql line 0: "CREATE TRIGGER dbo.CustomerAudit".
+            await _langService.HandleMoveToSchemaRequest(
+                new SqlMoveToSchemaParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = GetFileUri("Triggers/CustomerAudit.sql") },
+                    Position = new Position { Line = 0, Character = 21 },
+                    TargetSchema = "staging"
+                },
+                ctx.Object);
+
+            Assert.That(result, Is.Not.Null, "DML triggers are schema-qualified and must support Move to Schema");
+            Assert.That(result.Changes, Is.Not.Null.And.Not.Empty, "Changes should rewrite the trigger's schema qualifier");
+            Assert.That(result.ElementType, Is.EqualTo("SqlDmlTrigger"));
+            Assert.That(result.DefinitionFileUri, Does.Contain("CustomerAudit.sql"));
+
+            XNamespace ns = "http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02";
+            XElement op = XDocument.Parse(result.RefactorLogContent).Root.Elements(ns + "Operation").Last();
+            string PropertyValue(string name) => op.Elements(ns + "Property")
+                .FirstOrDefault(p => (string)p.Attribute("Name") == name)?.Attribute("Value")?.Value;
+
+            Assert.That(PropertyValue("ElementType"), Is.EqualTo("SqlDmlTrigger"));
+            Assert.That(PropertyValue("ElementName"), Is.EqualTo("[dbo].[CustomerAudit]"));
+            Assert.That(PropertyValue("NewSchema"), Is.EqualTo("staging"));
+        }
+
+        [Test]
+        public async Task HandleRenameRequest_ReturnsWarningAndEdits_WhenNewNameAlreadyExists()
+        {
+            LoadAllFilesIntoWorkspace();
+
+            SqlSymbolRenameResponse result = null;
+            var ctx = new Mock<RequestContext<SqlSymbolRenameResponse>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlSymbolRenameResponse>()))
+               .Returns<SqlSymbolRenameResponse>(r => { result = r; return Task.FromResult(0); });
+
+            // Rename dbo.Customers to "Orders" — dbo.Orders already exists in the model.
+            // Cursor on "Customers" in GetCustomer.sql line 5: "    FROM dbo.Customers".
+            await _langService.HandleSqlRenameRequest(
+                new SqlSymbolRenameParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = GetFileUri("StoredProcedures/GetCustomer.sql") },
+                    Position = new Position { Line = 5, Character = 15 },
+                    NewName = "Orders"
+                },
+                ctx.Object);
+
+            Assert.That(result, Is.Not.Null, "Should return a response even on collision");
+            Assert.That(result.Changes, Is.Not.Null.And.Not.Empty, "Workspace edits should still be returned");
+            Assert.That(result.Message, Is.Not.Null.And.Not.Empty, "WarningMessage should be set on collision");
+            Assert.That(result.Message, Does.Contain("[Orders]"),
+                $"Warning should include the bracketed new name. Got: {result.Message}");
+        }
+
+        // ── Rename rejection: specific error messages ─────────────────────────
+
+        [Test]
+        public async Task HandleRenameRequest_ReturnsNotSupportedMessage_WhenCursorOnKeyword()
+        {
+            LoadAllFilesIntoWorkspace();
+            string fileUri = GetFileUri("StoredProcedures/GetCustomer.sql");
+
+            SqlSymbolRenameResponse result = null;
+            var ctx = new Mock<RequestContext<SqlSymbolRenameResponse>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlSymbolRenameResponse>()))
+               .Returns<SqlSymbolRenameResponse>(r => { result = r; return Task.FromResult(0); });
+
+            // Line 0: "CREATE PROCEDURE dbo.GetCustomer" — char 0 is 'C' in "CREATE" (a keyword).
+            await _langService.HandleSqlRenameRequest(
+                new SqlSymbolRenameParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = fileUri },
+                    Position = new Position { Line = 0, Character = 0 },
+                    NewName = "Whatever"
+                },
+                ctx.Object);
+
+            Assert.That(result?.Message, Is.EqualTo(LanguageServiceSR.RenameNotSupported),
+                $"Expected not-supported message. Got: {result?.Message}");
+        }
+
+        [Test]
+        public async Task HandleRenameRequest_ReturnsNotSupportedMessage_WhenSymbolUnresolved()
+        {
+            LoadAllFilesIntoWorkspace();
+
+            const string ghostUri = "file:///ghost.sql";
+            _workspaceService.Workspace.GetFileBuffer(ghostUri, "SELECT * FROM dbo.NonExistentTable");
+            _langService.InitializeProjectFileContexts(new[] { ghostUri }, _contextKey, _databaseName);
+
+            SqlSymbolRenameResponse result = null;
+            var ctx = new Mock<RequestContext<SqlSymbolRenameResponse>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlSymbolRenameResponse>()))
+               .Returns<SqlSymbolRenameResponse>(r => { result = r; return Task.FromResult(0); });
+
+            // Char 22 is inside "NonExistentTable".
+            await _langService.HandleSqlRenameRequest(
+                new SqlSymbolRenameParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = ghostUri },
+                    Position = new Position { Line = 0, Character = 22 },
+                    NewName = "SomeName"
+                },
+                ctx.Object);
+
+            Assert.That(result?.Message, Is.EqualTo(LanguageServiceSR.RenameNotSupported),
+                $"Expected not-supported message. Got: {result?.Message}");
+        }
+
+        // Cursor on the schema prefix of a qualified name (e.g. "dbo" in "dbo.Customers").
+        // The FAR scan must NOT run — we should get the schema error immediately.
+        [Test]
+        public async Task HandleRenameRequest_ReturnsNotSupportedMessage_WhenCursorOnSchemaPrefix()
+        {
+            LoadAllFilesIntoWorkspace();
+            string fileUri = GetFileUri("StoredProcedures/GetCustomer.sql");
+
+            SqlSymbolRenameResponse result = null;
+            var ctx = new Mock<RequestContext<SqlSymbolRenameResponse>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlSymbolRenameResponse>()))
+               .Returns<SqlSymbolRenameResponse>(r => { result = r; return Task.FromResult(0); });
+
+            // Line 5 of GetCustomerScript: "    FROM dbo.Customers"
+            // "dbo" starts at char 9.
+            await _langService.HandleSqlRenameRequest(
+                new SqlSymbolRenameParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = fileUri },
+                    Position = new Position { Line = 5, Character = 10 },
+                    NewName = "sales"
+                },
+                ctx.Object);
+
+            Assert.That(result?.Message, Is.EqualTo(LanguageServiceSR.RenameNotSupported),
+                $"Expected not-supported message. Got: {result?.Message}");
+        }
+
+        // File connected to a live server must be rejected before any project-model work runs.
+        [Test]
+        public async Task HandleRenameRequest_ReturnsNotSupportedMessage_WhenCursorOnViewColumnAlias()
+        {
+            // Load the view into the workspace (it is already in the DacFx model via SetUp).
+            string viewUri = GetFileUri("Views/CustomerSummary.sql");
+            _workspaceService.Workspace.GetFileBuffer(viewUri, ViewWithAliasScript);
+            _langService.InitializeProjectFileContexts(new[] { viewUri }, _contextKey, _databaseName);
+
+            SqlSymbolRenameResponse result = null;
+            var ctx = new Mock<RequestContext<SqlSymbolRenameResponse>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlSymbolRenameResponse>()))
+               .Returns<SqlSymbolRenameResponse>(r => { result = r; return Task.FromResult(0); });
+
+            // Line 4: "    c.CustomerName AS DisplayName"
+            // "DisplayName" starts at char 22 — place cursor at char 25 (inside the name).
+            await _langService.HandleSqlRenameRequest(
+                new SqlSymbolRenameParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = viewUri },
+                    Position = new Position { Line = 4, Character = 25 },
+                    NewName = "AliasName"
+                },
+                ctx.Object);
+
+            Assert.That(result?.Message, Is.EqualTo(LanguageServiceSR.RenameNotSupported),
+                $"Rename should be rejected for a SELECT column alias. Got: {result?.Message}");
+            Assert.That(result?.Changes, Is.Null.Or.Empty,
+                "No workspace edits should be produced for a column alias rename");
+        }
+
+        // File connected to a live server must be rejected before any project-model work runs.
+        [Test]
+        public async Task HandleRenameRequest_ReturnsLiveServerMessage_WhenFileConnectedToServer()
+        {
+            const string connectedUri = "file:///test_live_server.sql";
+            _workspaceService.Workspace.GetFileBuffer(connectedUri, "SELECT * FROM dbo.Customers");
+
+            // Stamp the file as a live-connection context (IsConnected = true, IsProject = false).
+            var parseInfo = new Microsoft.SqlTools.LanguageService.LanguageServices.ScriptParseInfo
+            {
+                BindingContextKind = BindingContextKindEnum.LiveConnection,
+                ConnectionKey = "some-live-connection-key"
+            };
+            _langService.AddOrUpdateScriptParseInfo(connectedUri, parseInfo);
+
+            SqlSymbolRenameResponse result = null;
+            var ctx = new Mock<RequestContext<SqlSymbolRenameResponse>>();
+            ctx.Setup(rc => rc.SendResult(It.IsAny<SqlSymbolRenameResponse>()))
+               .Returns<SqlSymbolRenameResponse>(r => { result = r; return Task.FromResult(0); });
+
+            await _langService.HandleSqlRenameRequest(
+                new SqlSymbolRenameParams
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = connectedUri },
+                    Position = new Position { Line = 0, Character = 20 },
+                    NewName = "NewName"
+                },
+                ctx.Object);
+
+            Assert.That(result?.Message, Is.EqualTo(LanguageServiceSR.RenameNotSupportedLiveServer),
+                $"Expected live-server message. Got: {result?.Message}");
+        }
+
+    }
+
+    /// <summary>
+    /// Focused tests for <see cref="RenameScriptDomHelper"/>, the ScriptDom-based syntactic
+    /// analysis that backs rename / find-all-references. These cover the behaviour the AST visitor
+    /// adds over the old token scan: bracket spans and extended-property precision.
+    /// </summary>
+    [TestFixture]
+    public class RenameScriptDomHelperTests
+    {
+        private string _tempFile;
+
+        [TearDown]
+        public void TearDown()
+        {
+            if (_tempFile != null && File.Exists(_tempFile))
+            {
+                File.Delete(_tempFile);
+            }
+            _tempFile = null;
+        }
+
+        /// <summary>Writes <paramref name="sql"/> to a fresh temp .sql file and returns its path.</summary>
+        private string WriteTempSql(string sql)
+        {
+            _tempFile = Path.Combine(Path.GetTempPath(), $"rename_{Guid.NewGuid():N}.sql");
+            File.WriteAllText(_tempFile, sql);
+            return _tempFile;
+        }
+
+        private static string MatchedText(string sql, WsLocation loc)
+        {
+            string[] lines = sql.Replace("\r\n", "\n").Split('\n');
+            string line = lines[loc.Range.Start.Line];
+            return line.Substring(loc.Range.Start.Character, loc.Range.End.Character - loc.Range.Start.Character);
+        }
+
+        [Test]
+        public void FindNameLocationsInFile_BracketedIdentifier_SpanIncludesBrackets()
+        {
+            // The emitted span must cover the brackets so bracket-quoting can be re-applied on rename.
+            const string sql = "SELECT * FROM dbo.[Customers];";
+            string path = WriteTempSql(sql);
+
+            var locations = RenameScriptDomHelper.FindNameLocationsInFile(path, "Customers").ToList();
+
+            Assert.That(locations.Count, Is.EqualTo(1));
+            Assert.That(MatchedText(sql, locations[0]), Is.EqualTo("[Customers]"));
+        }
+
+        [Test]
+        public void FindNameLocationsInFile_MatchesExtendedPropertyLevelName_NotUnrelatedLiterals()
+        {
+            // Only the @level1name literal denotes the object; the matching @value literal and a
+            // plain INSERT literal must be ignored — this precision is the key win over a token scan.
+            const string sql =
+                "EXEC sp_addextendedproperty @name = N'MS_Description', @value = N'Customers', " +
+                "@level0type = N'SCHEMA', @level0name = N'dbo', " +
+                "@level1type = N'TABLE', @level1name = N'Customers';\n" +
+                "INSERT INTO dbo.Log (Note) VALUES (N'Customers');";
+            string path = WriteTempSql(sql);
+
+            var locations = RenameScriptDomHelper.FindNameLocationsInFile(path, "Customers").ToList();
+
+            Assert.That(locations.Count, Is.EqualTo(1), "Only the @level1name literal should match");
+            // Inner text only — the N'...' quoting is left intact by the rename.
+            Assert.That(MatchedText(sql, locations[0]), Is.EqualTo("Customers"));
+        }
+
+        [Test]
+        public void TryResolveCursorName_DottedReference_ReturnsQualifiedName()
+        {
+            const string sql = "SELECT * FROM dbo.Customers;";
+            // "Customers" starts at char 18 — place the cursor inside it.
+            bool ok = RenameScriptDomHelper.TryResolveCursorName(sql, 0, 20, out string bare, out string qualified);
+
+            Assert.That(ok, Is.True);
+            Assert.That(bare, Is.EqualTo("Customers"));
+            Assert.That(qualified, Is.EqualTo("dbo.Customers"));
+        }
+
+        // ── Schema-move edits ────────────────────────────────────────────────
+        // FindSchemaMoveEditsInFile rewrites an existing schema qualifier in place, and inserts a
+        // new qualifier (zero-width edit) before an otherwise-unqualified reference.
+
+        [Test]
+        public void FindSchemaMoveEditsInFile_TwoPartName_RewritesSchemaQualifier()
+        {
+            const string sql = "SELECT * FROM dbo.Customers;";
+            string path = WriteTempSql(sql);
+
+            var edits = RenameScriptDomHelper.FindSchemaMoveEditsInFile(path, "Customers", "dbo", "sales").ToList();
+
+            Assert.That(edits.Count, Is.EqualTo(1));
+            Assert.That(edits[0].NewText, Is.EqualTo("[sales]"));
+            Assert.That(MatchedText(sql, edits[0].Location), Is.EqualTo("dbo"),
+                "The replaced span should cover the existing schema qualifier");
+        }
+
+        [Test]
+        public void FindSchemaMoveEditsInFile_UnqualifiedName_InsertsSchemaQualifier()
+        {
+            const string sql = "SELECT * FROM Customers;";
+            string path = WriteTempSql(sql);
+
+            var edits = RenameScriptDomHelper.FindSchemaMoveEditsInFile(path, "Customers", "dbo", "sales").ToList();
+
+            Assert.That(edits.Count, Is.EqualTo(1));
+            Assert.That(edits[0].NewText, Is.EqualTo("[sales]."));
+            Assert.That(edits[0].Location.Range.Start.Character,
+                Is.EqualTo(edits[0].Location.Range.End.Character),
+                "An inserted qualifier should be a zero-width edit");
+        }
+
+        [TestCase("SELECT c.CustomerName AS DisplayName FROM dbo.Customers c;", 0, 25, TestName = "SelectColumnAliasWithAs")]
+        [TestCase("SELECT c.CustomerName FullName FROM dbo.Customers c;",        0, 22, TestName = "PositionalSelectColumnAlias")]
+        [TestCase("SELECT c.Id FROM dbo.Customers AS c;",                        0, 34, TestName = "TableAliasWithAs")]
+        [TestCase("SELECT c.Id FROM dbo.Customers c;",                           0, 31, TestName = "PositionalTableAlias")]
+        [TestCase("SELECT sub.Id FROM (SELECT Id FROM dbo.T) AS sub;",           0, 46, TestName = "SubqueryAlias")]
+        [TestCase("WITH cte AS (SELECT Id FROM dbo.T) SELECT * FROM cte;",       0, 5,  TestName = "CteAlias")]
+        public void IsCursorOnAlias_ReturnsTrue_ForAllAliasScenarios(string sql, int line, int col)
+        {
+            Assert.That(RenameScriptDomHelper.IsCursorOnAlias(sql, line, col), Is.True);
         }
     }
 }

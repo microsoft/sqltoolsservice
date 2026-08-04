@@ -15,7 +15,6 @@ using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage;
-using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.Utility;
 
 

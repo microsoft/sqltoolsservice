@@ -18,8 +18,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
     /// </summary>
     internal class XEventAuthenticationProvider : SqlAuthenticationProvider
     {
-        private static readonly ConcurrentDictionary<(string accountId, string tenantId), Func<Task<(string token, DateTimeOffset expiresOn)>>> s_fetchers =
-            new ConcurrentDictionary<(string accountId, string tenantId), Func<Task<(string token, DateTimeOffset expiresOn)>>>();
+        private static readonly ConcurrentDictionary<(string accountId, string tenantId), Func<string, Task<(string token, DateTimeOffset expiresOn)>>> s_fetchers =
+            new ConcurrentDictionary<(string accountId, string tenantId), Func<string, Task<(string token, DateTimeOffset expiresOn)>>>();
 
         private static readonly System.Threading.Lock s_registrationLock = new System.Threading.Lock();
         private static bool s_registered;
@@ -33,7 +33,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
         public static void Register(
             string accountId,
             string tenantId,
-            Func<Task<(string token, DateTimeOffset expiresOn)>> fetcher)
+            Func<string, Task<(string token, DateTimeOffset expiresOn)>> fetcher)
         {
             if (string.IsNullOrEmpty(accountId) || fetcher == null)
             {
@@ -116,7 +116,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Profiler
                 throw new Exception($"Unable to acquire token fetcher for account '{accountId}' (tenant '{tenantId}')");
             }
 
-            var (token, expiresOn) = await fetcher().ConfigureAwait(false);
+            var (token, expiresOn) = await fetcher(parameters.Resource).ConfigureAwait(false);
             return new SqlAuthenticationToken(token, expiresOn);
         }
 

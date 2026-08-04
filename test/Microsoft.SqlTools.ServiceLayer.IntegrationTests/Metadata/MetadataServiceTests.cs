@@ -19,7 +19,7 @@ using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Metadata;
 using Microsoft.SqlTools.ServiceLayer.Metadata.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using Microsoft.SqlTools.SqlCore.Metadata;
 using Moq;
 using NUnit.Framework;

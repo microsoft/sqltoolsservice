@@ -11,7 +11,6 @@ using Microsoft.SqlServer.Dac;
 using Microsoft.SqlServer.Dac.Compare;
 using Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
-using Microsoft.SqlTools.SqlCore.Utility;
 
 namespace Microsoft.SqlTools.SqlCore.SchemaCompare
 {
@@ -122,10 +121,10 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
                 case SchemaCompareEndpointType.Database:
                     {
                         string connectionString = connectionProvider.GetConnectionString(endpointInfo);
-                        string accessToken = connectionProvider.GetAccessToken(endpointInfo);
+                        IUniversalAuthProvider authProvider = connectionProvider.GetAuthProvider(endpointInfo);
 
-                        return accessToken != null
-                            ? new SchemaCompareDatabaseEndpoint(connectionString, new AccessTokenProvider(accessToken))
+                        return authProvider != null
+                            ? new SchemaCompareDatabaseEndpoint(connectionString, authProvider)
                             : new SchemaCompareDatabaseEndpoint(connectionString);
                     }
                 default:

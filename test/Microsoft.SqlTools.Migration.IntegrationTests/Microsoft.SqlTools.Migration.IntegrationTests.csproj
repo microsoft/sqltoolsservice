@@ -11,6 +11,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />
+    <ProjectReference Include="../../src/Microsoft.SqlTools.LanguageService/Microsoft.SqlTools.LanguageService.csproj" />
     <ProjectReference Include="../../src/Microsoft.SqlTools.Migration/Microsoft.SqlTools.Migration.csproj" />
     <ProjectReference Include="../Microsoft.SqlTools.ServiceLayer.Test.Common/Microsoft.SqlTools.ServiceLayer.Test.Common.csproj" />
     <ProjectReference Include="../Microsoft.SqlTools.Test.CompletionExtension/Microsoft.SqlTools.Test.CompletionExtension.csproj" />

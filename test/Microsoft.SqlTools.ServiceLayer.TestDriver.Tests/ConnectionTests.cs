@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using NUnit.Framework;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.LanguageService.Connection.Contracts;
 
 namespace Microsoft.SqlTools.ServiceLayer.TestDriver.Tests
 {

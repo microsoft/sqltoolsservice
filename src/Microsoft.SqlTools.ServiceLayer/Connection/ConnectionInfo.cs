@@ -12,7 +12,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.LanguageService.Connection.Contracts;
 using Microsoft.SqlTools.SqlCore.Connection;
 using Microsoft.SqlTools.Utility;
 
@@ -21,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
     /// <summary>
     /// Information pertaining to a unique connection instance.
     /// </summary>
-    public class ConnectionInfo
+    public class ConnectionInfo : Microsoft.SqlTools.LanguageService.LanguageServices.ConnectionInfoBase
     {
         private static readonly DateTime UnixEpochUtc = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
 
@@ -29,12 +29,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// Constructor
         /// </summary>
         public ConnectionInfo(ISqlConnectionFactory factory, string ownerUri, ConnectionDetails details)
+            : base(ownerUri, details)
         {
             Factory = factory;
-            OwnerUri = ownerUri;
-            ConnectionDetails = details;
             ConnectionId = Guid.NewGuid();
-            IntellisenseMetrics = new InteractionMetrics<double>(new int[] { 50, 100, 200, 500, 1000, 2000 });
         }
 
         /// <summary>
@@ -43,19 +41,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public Guid ConnectionId { get; private set; }
 
         /// <summary>
-        /// URI identifying the owner/user of the connection. Could be a file, service, resource, etc.
-        /// </summary>
-        public string OwnerUri { get; set; }
-
-        /// <summary>
         /// Factory used for creating the SQL connection associated with the connection info.
         /// </summary>
         public ISqlConnectionFactory Factory { get; private set; }
-
-        /// <summary>
-        /// Properties used for creating/opening the SQL connection.
-        /// </summary>
-        public ConnectionDetails ConnectionDetails { get; set; }
 
         /// <summary>
         /// A map containing all connections to the database that are associated with 
@@ -66,14 +54,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             new ConcurrentDictionary<string, DbConnection>();
 
         /// <summary>
-        /// Intellisense Metrics
-        /// </summary>
-        public InteractionMetrics<double> IntellisenseMetrics { get; private set; }
-
-        /// <summary>
         /// Returns true if the db connection is to any cloud instance
         /// </summary>
-        public bool IsCloud { get; set; }
+        public override bool IsCloud { get; set; }
 
         /// <summary>
         /// Returns true if the db connection is to a SQL db instance
@@ -91,10 +74,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public bool IsAzureAuth { get; set; }
 
         /// <summary>
-        /// Delegate to fetches a fresh Azure access token from the client via <c>account/securityTokenRequest</c>.
+        /// Delegate to fetch a fresh Azure access token from the client via <c>account/securityTokenRequest</c>
+        /// for a given target resource.
         /// Only used when RequestMfaTokenFromClient is enabled.
         /// </summary>
-        public Func<Task<(string token, DateTimeOffset expiresOn)>> AzureTokenFetcher { get; set; }
+        public Func<string, Task<(string token, DateTimeOffset expiresOn)>> AzureTokenFetcher { get; set; }
+
+        /// <summary>
+        /// The Entra resource URI for this connection
+        /// (e.g. <c>https://database.windows.net/</c> for Azure SQL or
+        /// <c>https://[org].crm.dynamics.com/</c> for a Dataverse TDS endpoint).
+        ///
+        /// Captured because SMO's <c>IRenewableToken.GetAccessToken()</c> has no per-call resource parameter.
+        /// The SqlClient handshake on connection open populates this with the resource the server requires,
+        /// so SMO can request a fresh token for the correct resource later. Set with the first AccessTokenCallback invocation.
+        /// </summary>
+        public string AzureResourceUri { get; set; }
 
         /// <summary>
         /// Returns the connection Engine Edition
@@ -152,7 +147,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <returns>true if a connection with type connectionType was located and out connection was set, 
         /// false otherwise </returns>
         /// <exception cref="ArgumentException">Thrown when connectionType is null or empty</exception>
-        public bool TryGetConnection(string connectionType, out DbConnection connection)
+        public override bool TryGetConnection(string connectionType, out DbConnection connection)
         {
             Validate.IsNotNullOrEmptyString("Connection Type", connectionType);
             return ConnectionTypeToConnectionMap.TryGetValue(connectionType, out connection);
@@ -192,10 +187,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         }
 
         /// <summary>
-        /// Updates the Auth Token and Expires On fields
+        /// Updates the Auth Token and Expires On fields when <see cref="AzureTokenFetcher"/> is not set.
         /// </summary>
         public bool TryUpdateAccessToken(SecurityToken? securityToken)
         {
+            if (AzureTokenFetcher != null)
+            {
+                return false;
+            }
+
             if (securityToken != null && !string.IsNullOrEmpty(securityToken.Token) && IsAzureAuth && IsAccessTokenExpired)
             {
                 ConnectionDetails.AzureAccountToken = securityToken.Token;

@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -11,10 +11,10 @@ using System.ComponentModel.Composition;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices.Completion.Extension;
-using Microsoft.SqlTools.ServiceLayer.LanguageServices.Contracts;
+using Microsoft.SqlTools.LanguageService.LanguageServices;
+using Microsoft.SqlTools.LanguageService.LanguageServices.Completion.Extension;
+using Microsoft.SqlTools.LanguageService.LanguageServices.Completion;
+using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;
 
 namespace Microsoft.SqlTools.Test.CompletionExtension
 {
@@ -34,9 +34,9 @@ namespace Microsoft.SqlTools.Test.CompletionExtension
         {
         }
 
-        async Task<CompletionItem[]> ICompletionExtension.HandleCompletionAsync(ConnectionInfo connInfo, ScriptDocumentInfo scriptDocumentInfo, CompletionItem[] completions, CancellationToken token)
+        async Task<CompletionItem[]> ICompletionExtension.HandleCompletionAsync(ConnectionInfoBase connInfo, ScriptDocumentInfo scriptDocumentInfo, CompletionItem[] completions, CancellationToken token)
         {
-            if (completions == null || completions == null || completions.Length == 0)
+            if (completions == null || completions.Length == 0)
             {
                 return completions;
             }

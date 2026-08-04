@@ -11,6 +11,7 @@ using System.Globalization;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.Credentials.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.LanguageService.Connection.Contracts;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.Test.Common

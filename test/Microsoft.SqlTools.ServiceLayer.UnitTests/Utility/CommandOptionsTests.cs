@@ -191,5 +191,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
 
             Assert.That(options.RequestMfaTokenFromClient, Is.False);
         }
+
+        [Test]
+        public void StdioFlagIsAcceptedForLanguageClientLaunches()
+        {
+            var options = new ServiceLayerCommandOptions(["--stdio"]);
+
+            Assert.That(options.ShouldExit, Is.False);
+            Assert.That(options.ErrorMessage, Is.Empty);
+        }
     }
 }

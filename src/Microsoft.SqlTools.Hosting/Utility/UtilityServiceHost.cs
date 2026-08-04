@@ -47,7 +47,7 @@ namespace Microsoft.SqlTools.Utility
         /// Constructs new instance of ServiceHost using the host and profile details provided.
         /// Access is private to ensure only one instance exists at a time.
         /// </summary>
-        private UtilityServiceHost() : base(new StdioServerChannel())
+        private UtilityServiceHost() : base(new ServerChannel())
         {
             // Initialize the shutdown activities
             shutdownCallbacks = new List<ShutdownCallback>();

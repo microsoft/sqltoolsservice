@@ -17,6 +17,7 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.LanguageService.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;

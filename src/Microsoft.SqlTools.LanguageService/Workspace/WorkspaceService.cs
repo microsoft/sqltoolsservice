@@ -1,0 +1,452 @@
+//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+#nullable disable
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Microsoft.SqlTools.Hosting.Contracts;
+using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.LanguageService.LanguageServices;
+using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
+using Microsoft.SqlTools.Utility;
+using Range = Microsoft.SqlTools.LanguageService.Workspace.Contracts.Range;
+
+namespace Microsoft.SqlTools.LanguageService.Workspace
+{
+    /// <summary>
+    /// Class for handling requests/events that deal with the state of the workspace, including the
+    /// opening and closing of files, the changing of configuration, etc.
+    /// </summary>
+    /// <typeparam name="TConfig">
+    /// The type of the class used for serializing and deserializing the configuration. Must be the
+    /// actual type of the instance otherwise deserialization will be incomplete.
+    /// </typeparam>
+    public class WorkspaceService<TConfig> : ILanguageWorkspaceService where TConfig : class, ILanguageServiceSettings, new()
+    {
+
+        #region Singleton Instance Implementation
+
+        private static Lazy<WorkspaceService<TConfig>> instance = new Lazy<WorkspaceService<TConfig>>(() => new WorkspaceService<TConfig>());
+
+        public static WorkspaceService<TConfig> Instance
+        {
+            get { return instance.Value; }
+        }
+
+        /// <summary>
+        /// Default, parameterless constructor.
+        /// TODO: Figure out how to make this truely singleton even with dependency injection for tests
+        /// </summary>
+        public WorkspaceService()
+        {
+            ConfigChangeCallbacks = new List<ConfigChangeCallback>();
+            TextDocChangeCallbacks = new List<TextDocChangeCallback>();
+            TextDocOpenCallbacks = new List<TextDocOpenCallback>();
+            TextDocCloseCallbacks = new List<TextDocCloseCallback>();
+            TextDocSaveCallbacks = new List<TextDocSaveCallback>();
+
+            CurrentSettings = new TConfig();
+        }
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// Workspace object for the service. Virtual to allow for mocking
+        /// </summary>
+        public virtual Workspace Workspace { get; internal set; }
+
+        /// <summary>
+        /// Current settings for the workspace
+        /// </summary>
+        public TConfig CurrentSettings { get; internal set; }
+
+        /// <summary>
+        /// Delegate for callbacks that occur when the configuration for the workspace changes
+        /// </summary>
+        /// <param name="newSettings">The settings that were just set</param>
+        /// <param name="oldSettings">The settings before they were changed</param>
+        /// <param name="eventContext">Context of the event that triggered the callback</param>
+        /// <returns></returns>
+        public delegate Task ConfigChangeCallback(TConfig newSettings, TConfig oldSettings, EventContext eventContext);
+
+        /// <summary>
+        /// Delegate for callbacks that occur when the current text document changes
+        /// </summary>
+        /// <param name="changedFiles">Array of files that changed</param>
+        /// <param name="eventContext">Context of the event raised for the changed files</param>
+        public delegate Task TextDocChangeCallback(ScriptFile[] changedFiles, EventContext eventContext);
+
+        /// <summary>
+        /// Delegate for callbacks that occur when a text document is opened
+        /// </summary>
+        /// <param name="uri">Request uri</param>
+        /// <param name="openFile">File that was opened</param>
+        /// <param name="eventContext">Context of the event raised for the changed files</param>
+        public delegate Task TextDocOpenCallback(string uri, ScriptFile openFile, EventContext eventContext);
+
+        /// <summary>
+        /// Delegate for callbacks that occur when a text document is closed
+        /// </summary>
+        /// <param name="uri">Request uri</param>
+        /// <param name="closedFile">File that was closed</param>
+        /// <param name="eventContext">Context of the event raised for changed files</param>
+        public delegate Task TextDocCloseCallback(string uri, ScriptFile closedFile, EventContext eventContext);
+
+        /// <summary>
+        /// Delegate for callbacks that occur when a text document is saved
+        /// </summary>
+        /// <param name="uri">URI of the saved document</param>
+        /// <param name="eventContext">Context of the event</param>
+        public delegate Task TextDocSaveCallback(string uri, EventContext eventContext);
+
+        /// <summary>
+        /// List of callbacks to call when the configuration of the workspace changes
+        /// </summary>
+        private List<ConfigChangeCallback> ConfigChangeCallbacks { get; set; }
+
+        /// <summary>
+        /// List of callbacks to call when the current text document changes
+        /// </summary>
+        private List<TextDocChangeCallback> TextDocChangeCallbacks { get; set; }
+
+        /// <summary>
+        /// List of callbacks to call when a text document is opened
+        /// </summary>
+        private List<TextDocOpenCallback> TextDocOpenCallbacks { get; set; }
+
+        /// <summary>
+        /// List of callbacks to call when a text document is closed
+        /// </summary>
+        private List<TextDocCloseCallback> TextDocCloseCallbacks { get; set; }
+
+        /// <summary>
+        /// List of callbacks to call when a text document is saved
+        /// </summary>
+        private List<TextDocSaveCallback> TextDocSaveCallbacks { get; set; }
+
+
+        #endregion
+
+        #region Public Methods
+
+        public void InitializeService(IProtocolEndpoint serviceHost)
+        {
+            // Create a workspace that will handle state for the session
+            Workspace = new Workspace();
+
+            // Not enabling parallel processing for WorkspaceService as it might cause doc out of sync.
+            // Register the handlers for when changes to the workspae occur
+            serviceHost.SetEventHandler(DidChangeTextDocumentNotification.Type, HandleDidChangeTextDocumentNotification);
+            serviceHost.SetEventHandler(DidOpenTextDocumentNotification.Type, HandleDidOpenTextDocumentNotification);
+            serviceHost.SetEventHandler(DidCloseTextDocumentNotification.Type, HandleDidCloseTextDocumentNotification);
+            serviceHost.SetEventHandler(DidSaveTextDocumentNotification.Type, HandleDidSaveTextDocumentNotification);
+            serviceHost.SetEventHandler(DidChangeConfigurationNotification<TConfig>.Type, HandleDidChangeConfigurationNotification);
+        }
+
+        /// <summary>
+        /// Initialization handler that sets the workspace path. Wired up by the host
+        /// (e.g. via <c>ServiceHost.RegisterInitializeTask</c>) which owns the lifecycle callbacks.
+        /// </summary>
+        public Task HandleInitialize(InitializeRequest parameters, RequestContext<InitializeResult> context)
+        {
+            Logger.Verbose("Initializing workspace service");
+
+            if (Workspace != null)
+            {
+                Workspace.WorkspacePath = parameters.RootPath;
+            }
+
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Shutdown handler that disposes the workspace. Wired up by the host
+        /// (e.g. via <c>ServiceHost.RegisterShutdownTask</c>) which owns the lifecycle callbacks.
+        /// </summary>
+        public Task HandleShutdown(object parameters, RequestContext<object> context)
+        {
+            Logger.Verbose("Shutting down workspace service");
+
+            if (Workspace != null)
+            {
+                Workspace.Dispose();
+                Workspace = null;
+            }
+
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Adds a new task to be called when the configuration has been changed. Use this to
+        /// handle changing configuration and changing the current configuration.
+        /// </summary>
+        /// <param name="task">Task to handle the request</param>
+        public void RegisterConfigChangeCallback(ConfigChangeCallback task)
+        {
+            ConfigChangeCallbacks.Add(task);
+        }
+
+        /// <summary>
+        /// Adds a new task to be called when the text of a document changes.
+        /// </summary>
+        /// <param name="task">Delegate to call when the document changes</param>
+        public void RegisterTextDocChangeCallback(TextDocChangeCallback task)
+        {
+            TextDocChangeCallbacks.Add(task);
+        }
+
+        /// <summary>
+        /// Adds a new task to be called when a text document is closed.
+        /// </summary>
+        /// <param name="task">Delegate to call when the document closes</param>
+        public void RegisterTextDocCloseCallback(TextDocCloseCallback task)
+        {
+            TextDocCloseCallbacks.Add(task);
+        }
+
+        /// <summary>
+        /// Adds a new task to be called when a text document is saved.
+        /// </summary>
+        /// <param name="task">Delegate to call when the document is saved</param>
+        public void RegisterTextDocSaveCallback(TextDocSaveCallback task)
+        {
+            TextDocSaveCallbacks.Add(task);
+        }
+
+        /// <summary>
+        /// Adds a new task to be called when a file is opened
+        /// </summary>
+        /// <param name="task">Delegate to call when a document is opened</param>
+        public void RegisterTextDocOpenCallback(TextDocOpenCallback task)
+        {
+            TextDocOpenCallbacks.Add(task);
+        }
+
+        #endregion
+
+        #region ILanguageWorkspaceService
+
+        ILanguageServiceSettings ILanguageWorkspaceService.CurrentSettings => CurrentSettings;
+
+        void ILanguageWorkspaceService.RegisterConfigChangeCallback(WorkspaceConfigChangeCallback task)
+            => RegisterConfigChangeCallback((newSettings, oldSettings, eventContext) => task(newSettings, oldSettings, eventContext));
+
+        void ILanguageWorkspaceService.RegisterTextDocChangeCallback(WorkspaceTextDocChangeCallback task)
+            => RegisterTextDocChangeCallback((changedFiles, eventContext) => task(changedFiles, eventContext));
+
+        void ILanguageWorkspaceService.RegisterTextDocOpenCallback(WorkspaceTextDocOpenCallback task)
+            => RegisterTextDocOpenCallback((uri, openFile, eventContext) => task(uri, openFile, eventContext));
+
+        void ILanguageWorkspaceService.RegisterTextDocCloseCallback(WorkspaceTextDocCloseCallback task)
+            => RegisterTextDocCloseCallback((uri, closedFile, eventContext) => task(uri, closedFile, eventContext));
+
+        void ILanguageWorkspaceService.RegisterTextDocSaveCallback(WorkspaceTextDocSaveCallback task)
+            => RegisterTextDocSaveCallback((uri, eventContext) => task(uri, eventContext));
+
+        #endregion
+
+        #region Event Handlers
+
+        /// <summary>
+        /// Handles text document change events
+        /// </summary>
+        internal Task HandleDidChangeTextDocumentNotification(
+            DidChangeTextDocumentParams textChangeParams,
+            EventContext eventContext)
+        {
+            try
+            {
+                StringBuilder msg = new StringBuilder();
+                msg.Append("HandleDidChangeTextDocumentNotification");
+                List<ScriptFile> changedFiles = new List<ScriptFile>();
+
+                // A text change notification can batch multiple change requests
+                foreach (var textChange in textChangeParams.ContentChanges)
+                {
+                    string fileUri = textChangeParams.TextDocument.Uri ?? textChangeParams.TextDocument.Uri;
+                    msg.AppendLine(string.Format("  File: {0}", fileUri));
+
+                    ScriptFile changedFile = Workspace.GetFile(fileUri);
+                    if (changedFile != null)
+                    {
+                        changedFile.ApplyChange(
+                            GetFileChangeDetails(
+                                textChange.Range.Value,
+                                textChange.Text));
+
+                        changedFiles.Add(changedFile);
+                    }
+                }
+
+                Logger.Verbose(msg.ToString());
+
+                var handlers = TextDocChangeCallbacks.Select(t => t(changedFiles.ToArray(), eventContext));
+                return Task.WhenAll(handlers);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Unknown error " + ex.ToString());
+                // Swallow exceptions here to prevent us from crashing
+                // TODO: this probably means the ScriptFile model is in a bad state or out of sync with the actual file; we should recover here
+                return Task.FromResult(true);
+            }
+        }
+
+        internal async Task HandleDidOpenTextDocumentNotification(
+            DidOpenTextDocumentNotification openParams,
+            EventContext eventContext)
+        {
+            try
+            {
+                Logger.Verbose("HandleDidOpenTextDocumentNotification");
+
+                if (IsScmEvent(openParams.TextDocument.Uri))
+                {
+                    return;
+                }
+
+                // read the SQL file contents into the ScriptFile
+                ScriptFile openedFile = Workspace.GetFileBuffer(openParams.TextDocument.Uri, openParams.TextDocument.Text);
+                if (openedFile == null)
+                {
+                    return;
+                }
+                // Propagate the changes to the event handlers
+                var textDocOpenTasks = TextDocOpenCallbacks.Select(
+                    t => t(openParams.TextDocument.Uri, openedFile, eventContext));
+
+                await Task.WhenAll(textDocOpenTasks);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Unknown error " + ex.ToString());
+                // Swallow exceptions here to prevent us from crashing
+                // TODO: this probably means the ScriptFile model is in a bad state or out of sync with the actual file; we should recover here
+                return;
+            }
+        }
+
+        internal async Task HandleDidCloseTextDocumentNotification(
+           DidCloseTextDocumentParams closeParams,
+           EventContext eventContext)
+        {
+            try
+            {
+                Logger.Verbose("HandleDidCloseTextDocumentNotification");
+
+                if (IsScmEvent(closeParams.TextDocument.Uri))
+                {
+                    return;
+                }
+
+                // Skip closing this file if the file doesn't exist
+                var closedFile = Workspace.GetFile(closeParams.TextDocument.Uri);
+                if (closedFile == null)
+                {
+                    return;
+                }
+
+                // Trash the existing document from our mapping
+                Workspace.CloseFile(closedFile);
+
+                // Send out a notification to other services that have subscribed to this event
+                var textDocClosedTasks = TextDocCloseCallbacks.Select(t => t(closeParams.TextDocument.Uri, closedFile, eventContext));
+                await Task.WhenAll(textDocClosedTasks);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Unknown error " + ex.ToString());
+                // Swallow exceptions here to prevent us from crashing
+                // TODO: this probably means the ScriptFile model is in a bad state or out of sync with the actual file; we should recover here
+                return;
+            }
+        }
+
+        internal async Task HandleDidSaveTextDocumentNotification(
+            DidSaveTextDocumentParams saveParams,
+            EventContext eventContext)
+        {
+            try
+            {
+                Logger.Verbose("HandleDidSaveTextDocumentNotification");
+
+                if (IsScmEvent(saveParams.TextDocument.Uri))
+                {
+                    return;
+                }
+
+                var handlers = TextDocSaveCallbacks.Select(t => t(saveParams.TextDocument.Uri, eventContext));
+                await Task.WhenAll(handlers);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Unknown error " + ex.ToString());
+                return;
+            }
+        }
+
+        /// <summary>
+        /// Handles the configuration change event
+        /// </summary>
+        internal async Task HandleDidChangeConfigurationNotification(
+            DidChangeConfigurationParams<TConfig> configChangeParams,
+            EventContext eventContext)
+        {
+            try
+            {
+                Logger.Verbose("HandleDidChangeConfigurationNotification");
+
+                this.CurrentSettings = configChangeParams.Settings;
+                // Propagate the changes to the event handlers
+                var configUpdateTasks = ConfigChangeCallbacks.Select(
+                    t => t(configChangeParams.Settings, CurrentSettings, eventContext));
+                await Task.WhenAll(configUpdateTasks);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Unknown error " + ex.ToString());
+                // Swallow exceptions here to prevent us from crashing
+                // TODO: this probably means the ScriptFile model is in a bad state or out of sync with the actual file; we should recover here
+                return;
+            }
+        }
+
+        #endregion
+
+        #region Private Helpers
+
+        /// <summary>
+        /// Switch from 0-based offsets to 1 based offsets
+        /// </summary>
+        /// <param name="changeRange"></param>
+        /// <param name="insertString"></param>
+        private static FileChange GetFileChangeDetails(Range changeRange, string insertString)
+        {
+            // The protocol's positions are zero-based so add 1 to all offsets
+            return new FileChange
+            {
+                InsertString = insertString,
+                Line = changeRange.Start.Line + 1,
+                Offset = changeRange.Start.Character + 1,
+                EndLine = changeRange.End.Line + 1,
+                EndOffset = changeRange.End.Character + 1
+            };
+        }
+
+        internal static bool IsScmEvent(string filePath)
+        {
+            // if the URI is prefixed with git: then we want to skip processing that file
+            return filePath.StartsWith("git:");
+        }
+
+        #endregion
+    }
+}

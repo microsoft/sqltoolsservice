@@ -31,7 +31,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
             // serialize\deserialize a request
             var message = new Message();
             message.MessageType = MessageType.Request;
-            message.Id = "id";            
+            message.Id = new MessageId("id");
             message.Method = "method";
             message.Contents = null;
             var serializedMessage = this.messageSerializer.SerializeMessage(message);

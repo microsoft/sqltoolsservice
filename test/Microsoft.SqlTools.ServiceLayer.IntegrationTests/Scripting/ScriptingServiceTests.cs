@@ -11,7 +11,7 @@ using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.Scripting;
 using Microsoft.SqlTools.ServiceLayer.Scripting.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
-using Microsoft.SqlTools.ServiceLayer.Workspace.Contracts;
+using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using Moq;
 using System.Collections.Generic;
 using System.Linq;

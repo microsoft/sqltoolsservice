@@ -69,6 +69,8 @@ namespace Microsoft.SqlTools.ServiceLayer.FlatFile.Contracts
         public string DatabaseName { get; set; }
 
         public int BatchSize { get; set; }
+
+        public string AzureAccessToken { get; set; }
     }
 
     public class InsertDataResponse
