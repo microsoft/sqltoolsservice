@@ -229,14 +229,8 @@ void SaveXlfTargetsAsResx(string xlfPath, string resxPath)
 /// &lt;Item&gt; whose ItemId starts with ';' represents one translated string;
 /// the source value lives at Str/Val and the translated value at Str/Tgt/Val.
 /// Items with no &lt;Tgt&gt; element are skipped (untranslated).
-///
-/// This is used as a fallback for languages that exist as .lcl files under
-/// Localization/LCL/{lang}/ but have not yet been synced into the corresponding
-/// transXliff/sr.{lang}.xlf file (e.g. newly added languages where the
-/// OneLocBuild round-trip PR has not yet landed). Without this fallback those
-/// languages would be missing satellite assemblies in produced packages.
 /// </summary>
-void SaveLclTargetsAsResx(string lclPath, string resxPath)
+void SaveLclTargetAsResx(string lclPath, string resxPath)
 {
     var lclDocument = XDocument.Load(lclPath, LoadOptions.PreserveWhitespace);
     var resxDocument = CreateResxDocument();
@@ -282,6 +276,42 @@ void SaveLclTargetsAsResx(string lclPath, string resxPath)
     }
 
     resxDocument.Save(resxPath);
+}
+
+/// <summary>
+/// Converts every LocStudio .lcl localization file under a project's
+/// Localization directory to a culture-specific .resx file.
+/// </summary>
+int SaveLclTargetsAsResx(string localizationDir, HashSet<string> generatedCultures = null)
+{
+    var lclRoot = System.IO.Path.Combine(localizationDir, "LCL");
+    if (!System.IO.Directory.Exists(lclRoot))
+    {
+        return 0;
+    }
+
+    var generatedCount = 0;
+    var lclLanguageDirectories = System.IO.Directory.GetDirectories(lclRoot)
+        .OrderBy(path => path, StringComparer.OrdinalIgnoreCase);
+
+    foreach (var lclLanguageDirectory in lclLanguageDirectories)
+    {
+        var lclPath = System.IO.Path.Combine(lclLanguageDirectory, "sr.xlf.lcl");
+        if (!System.IO.File.Exists(lclPath))
+        {
+            continue;
+        }
+
+        var language = new System.IO.DirectoryInfo(lclLanguageDirectory).Name;
+        var canonicalCulture = CanonicalizeLocalizationFileName(language);
+        var resxPath = System.IO.Path.Combine(localizationDir, $"sr.{canonicalCulture}.resx");
+        SaveLclTargetAsResx(lclPath, resxPath);
+        NormalizeToCrlf(resxPath);
+        generatedCultures?.Add(canonicalCulture);
+        generatedCount++;
+    }
+
+    return generatedCount;
 }
 
 /// <summary>
