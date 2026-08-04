@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -391,38 +392,70 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         }
 
         /// <summary>
-        /// Handles request to get all available built-in SQL code analysis rules.
-        /// Creates a minimal TSqlModel to enumerate rules from DacFx CodeAnalysisService.
-        /// The rules are static and do not depend on model content or SQL Server version.
+        /// Handles request to get all available SQL code analysis rules.
         /// </summary>
         public async Task HandleGetCodeAnalysisRulesRequest(GetCodeAnalysisRulesParams parameters, RequestContext<GetCodeAnalysisRulesResult> requestContext)
         {
-            await BaseService.RunWithErrorHandling(() =>
+            await BaseService.RunWithErrorHandling(() => GetCodeAnalysisRules(parameters?.ProjectUri), requestContext);
+        }
+
+        /// <summary>
+        /// Gets the built-in DacFx code analysis rules, merged with the custom rules contributed by
+        /// the NuGet analyzer packages the project references when <paramref name="projectFilePath"/> is supplied.
+        /// A duplicate rule ID is surfaced as a warning: DacFx gives no precedence guarantee for one,
+        /// so the custom definition is shown only so the conflict is visible in the UI.
+        /// Creates a minimal TSqlModel to enumerate rules from the DacFx CodeAnalysisService;
+        /// the rules are static and do not depend on model content or SQL Server version.
+        /// </summary>
+        internal static GetCodeAnalysisRulesResult GetCodeAnalysisRules(string? projectFilePath)
+        {
+            // Version doesn't affect the rules returned; a model is only needed to obtain a CodeAnalysisService instance.
+            using var model = new TSqlModel(SqlServerVersion.Sql170, new TSqlModelOptions());
+            var codeAnalysisService = new CodeAnalysisServiceFactory().CreateAnalysisService(model);
+
+            Dictionary<string, CodeAnalysisRuleInfo> rules = new(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var rule in codeAnalysisService.GetRules())
             {
-                // Version doesn't affect the rules returned; a model is only needed to obtain a CodeAnalysisService instance.
-                using var model = new TSqlModel(SqlServerVersion.Sql170, new TSqlModelOptions());
-                var factory = new CodeAnalysisServiceFactory();
-                var codeAnalysisService = factory.CreateAnalysisService(model);
-                var rules = codeAnalysisService.GetRules();
-
-                var ruleInfos = rules.Select(r => new CodeAnalysisRuleInfo
+                rules[rule.RuleId] = new CodeAnalysisRuleInfo
                 {
-                    RuleId = r.RuleId,
-                    ShortRuleId = r.ShortRuleId,
-                    DisplayName = r.DisplayName,
-                    Description = r.DisplayDescription,
-                    Category = r.Metadata?.Category ?? string.Empty,
-                    Severity = r.Severity.ToString(),
-                    RuleScope = r.Metadata?.RuleScope.ToString() ?? string.Empty
-                }).ToArray();
-
-                return new GetCodeAnalysisRulesResult
-                {
-                    Success = true,
-                    ErrorMessage = null,
-                    Rules = ruleInfos
+                    RuleId = rule.RuleId,
+                    ShortRuleId = rule.ShortRuleId,
+                    DisplayName = rule.DisplayName,
+                    Description = rule.DisplayDescription,
+                    Category = rule.Metadata?.Category ?? string.Empty,
+                    Severity = rule.Severity.ToString(),
+                    RuleScope = rule.Metadata?.RuleScope.ToString() ?? string.Empty,
+                    IsBuiltIn = true
                 };
-            }, requestContext);
+            }
+
+            string? warning = null;
+
+            if (!string.IsNullOrWhiteSpace(projectFilePath))
+            {
+                CustomRuleLoader.LoadResult customRules = CustomRuleLoader.LoadFromProject(projectFilePath);
+
+                foreach (CodeAnalysisRuleInfo customRule in customRules.Rules)
+                {
+                    if (rules.ContainsKey(customRule.RuleId))
+                    {
+                        customRules.Warnings.Add(SR.CustomRuleConflictsWithBuiltInRule(customRule.RuleId));
+                    }
+
+                    rules[customRule.RuleId] = customRule;
+                }
+
+                warning = customRules.Warning;
+            }
+
+            return new GetCodeAnalysisRulesResult
+            {
+                Success = true,
+                ErrorMessage = null,
+                Rules = rules.Values.ToArray(),
+                Warning = warning
+            };
         }
 
         private void ExecuteOperation(DacFxOperation operation, DacFxParams parameters, string taskName, RequestContext<DacFxResult> requestContext)
