@@ -25,7 +25,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         private const string AssetsFileName = "project.assets.json";
         private const string IntermediateFolderName = "obj";
         private const string AnalyzerPathPrefix = "analyzers/dotnet/cs/";
-        private const string LibraryPathPrefix = "lib/";
         private const string AssemblyExtension = ".dll";
         private const string PackageLibraryType = "package";
 
@@ -258,18 +257,15 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         }
 
         /// <summary>
-        /// Rule packages ship their assembly in one of two layouts, and both are in real-world use:
-        /// <list type="bullet">
-        /// <item><description><c>analyzers/dotnet/cs/</c> - the DacFx analyzer convention, used by
-        /// ErikEJ.DacFX.SqlServer.Rules. Those packages ship no <c>lib/</c> folder at all.</description></item>
-        /// <item><description><c>lib/</c> - what the documented walkthrough produces, since it builds
-        /// the rules as an ordinary class library and packs the build output as-is.</description></item>
-        /// </list>
+        /// Matches the assemblies the build itself would load. The SQL projects SDK sets
+        /// <c>$(Language)</c> to C# so that NuGet resolves <c>analyzers/dotnet/cs/</c> into the
+        /// <c>@(Analyzer)</c> item group, and that item group is the only analyzer input handed to
+        /// the code analysis build task. Rules shipped anywhere else in a package, <c>lib/</c>
+        /// included, never run during a build, so listing them here would be misleading.
         /// </summary>
         private static bool IsCandidateAssembly(string packageRelativePath) =>
             packageRelativePath.EndsWith(AssemblyExtension, StringComparison.OrdinalIgnoreCase) &&
-            (packageRelativePath.StartsWith(AnalyzerPathPrefix, StringComparison.OrdinalIgnoreCase) ||
-             packageRelativePath.StartsWith(LibraryPathPrefix, StringComparison.OrdinalIgnoreCase));
+            packageRelativePath.StartsWith(AnalyzerPathPrefix, StringComparison.OrdinalIgnoreCase);
 
         private static bool TryGetObject(JsonElement parent, string propertyName, out JsonElement value) =>
             parent.TryGetProperty(propertyName, out value) && value.ValueKind == JsonValueKind.Object;

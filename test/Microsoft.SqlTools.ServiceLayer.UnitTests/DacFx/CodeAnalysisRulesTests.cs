@@ -196,12 +196,11 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DacFx
 
         #region Finding custom rule assemblies from package references
 
-        [TestCase(AnalyzerRelativePath, Description = "analyzers/dotnet/cs layout, e.g. ErikEJ.DacFX.SqlServer.Rules")]
-        [TestCase(LibRelativePath, Description = "lib layout, e.g. a class library packed as-is")]
-        public void ResolveAnalyzerAssemblyPaths_PackagedAssembly_IsResolvedFromTheContainingPackageFolder(string packageRelativePath)
+        [Test]
+        public void ResolveAnalyzerAssemblyPaths_PackagedAssembly_IsResolvedFromTheContainingPackageFolder()
         {
-            string expectedPath = WriteFileIntoPackage(packageRelativePath);
-            string assetsFilePath = WriteAssetsFileFor(packageRelativePath);
+            string expectedPath = WriteFileIntoPackage(AnalyzerRelativePath);
+            string assetsFilePath = WriteAssetsFileFor(AnalyzerRelativePath);
 
             CustomRuleLoader.LoadResult result = new();
             List<string> assemblyPaths = CustomRuleLoader.ResolveAnalyzerAssemblyPaths(assetsFilePath, result);
@@ -211,13 +210,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DacFx
         }
 
         [Test]
-        public void ResolveAnalyzerAssemblyPaths_FilesOutsideAnalyzerAndLibFolders_AreIgnored()
+        public void ResolveAnalyzerAssemblyPaths_FilesOutsideTheAnalyzerFolder_AreIgnored()
         {
+            // The build only loads assemblies NuGet resolves into @(Analyzer), which is the
+            // analyzers/dotnet/cs folder. Rules shipped anywhere else never run.
             string assetsFilePath = WriteAssetsFileFor(
                 "readme.md",                                 // not an assembly
                 "analyzers/dotnet/cs/Contoso.SqlRules.xml",  // not an assembly
-                "Contoso.SqlRules.dll",                      // outside analyzers/ and lib/
-                "tools/Contoso.SqlRules.dll");               // outside analyzers/ and lib/
+                LibRelativePath,                             // lib/ is not discovered by the build
+                "Contoso.SqlRules.dll",                      // package root
+                "tools/Contoso.SqlRules.dll");               // tools/
 
             CustomRuleLoader.LoadResult result = new();
             List<string> assemblyPaths = CustomRuleLoader.ResolveAnalyzerAssemblyPaths(assetsFilePath, result);
