@@ -1200,6 +1200,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// <returns>The ParseResult instance returned from SQL Parser</returns>
         public Task<ParseResult> ParseAndBind(ScriptFile scriptFile, ConnectionInfoBase connInfo)
         {
+            Logger.Verbose($"ParseAndBind - {scriptFile}");
             // get or create the current parse info object
             ScriptParseInfo parseInfo = GetScriptParseInfo(scriptFile.ClientUri, createIfNotExists: true);
 
