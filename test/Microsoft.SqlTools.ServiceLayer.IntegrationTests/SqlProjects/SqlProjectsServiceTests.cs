@@ -183,17 +183,38 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             Assert.IsTrue(File.Exists(movedScriptAbsolutePath), "Script should exist at new location");
             Assert.AreEqual(1, service.Projects[projectUri].SqlObjectScripts.Count, "SqlObjectScripts count after move");
 
+            // Validate metadata-only move (caller already moved the file on disk)
+            string metadataOnlyMovedScriptRelativePath = @"SubPath\MyRenamedTableMetadataOnly.sql";
+            string metadataOnlyMovedScriptAbsolutePath = Path.Join(Path.GetDirectoryName(projectUri), FileUtils.NormalizePath(metadataOnlyMovedScriptRelativePath));
+            File.Move(movedScriptAbsolutePath, metadataOnlyMovedScriptAbsolutePath);
+
+            requestMock = new();
+            await service.HandleMoveSqlObjectScriptRequest(new MoveItemParams()
+            {
+                ProjectUri = projectUri,
+                Path = movedScriptRelativePath,
+                DestinationPath = metadataOnlyMovedScriptRelativePath,
+                MetadataOnly = true
+            }, requestMock.Object);
+
+            requestMock.AssertSuccess(nameof(service.HandleMoveSqlObjectScriptRequest));
+            Assert.AreEqual(1, service.Projects[projectUri].SqlObjectScripts.Count, "SqlObjectScripts count after metadata-only move");
+            Assert.IsTrue(service.Projects[projectUri].SqlObjectScripts.Contains(metadataOnlyMovedScriptRelativePath), "SqlObjectScripts should track metadata-only destination path");
+            Assert.IsFalse(service.Projects[projectUri].SqlObjectScripts.Contains(movedScriptRelativePath), "SqlObjectScripts should not track pre-move path after metadata-only move");
+            Assert.IsTrue(File.Exists(metadataOnlyMovedScriptAbsolutePath), "Script should stay at caller-moved location after metadata-only move");
+            Assert.IsFalse(File.Exists(movedScriptAbsolutePath), "Script should not be recreated at the previous path");
+
             // Validate deleting a SQL object script
             requestMock = new();
             await service.HandleDeleteSqlObjectScriptRequest(new SqlProjectScriptParams()
             {
                 ProjectUri = projectUri,
-                Path = movedScriptRelativePath
+                Path = metadataOnlyMovedScriptRelativePath
             }, requestMock.Object);
 
             requestMock.AssertSuccess(nameof(service.HandleDeleteSqlObjectScriptRequest));
             Assert.AreEqual(0, service.Projects[projectUri].SqlObjectScripts.Count, "SqlObjectScripts count after delete");
-            Assert.IsFalse(File.Exists(movedScriptAbsolutePath), $"{movedScriptAbsolutePath} expected to have been deleted from disk");
+            Assert.IsFalse(File.Exists(metadataOnlyMovedScriptAbsolutePath), $"{metadataOnlyMovedScriptAbsolutePath} expected to have been deleted from disk");
         }
 
         [Test]
