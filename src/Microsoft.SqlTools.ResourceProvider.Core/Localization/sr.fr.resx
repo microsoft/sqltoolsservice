@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!--
     Microsoft ResX Schema
@@ -128,6 +128,15 @@
   <data name="FirewallRuleAccessForbidden" xml:space="preserve">
     <value>{0} n'a pas d'autorisation pour changer la règle de pare-feu du serveur. Réessayez avec un autre compte qui est propriétaire ou contributeur de l'abonnement Azure ou du serveur.</value>
   </data>
+  <data name="FirewallRuleCreationFailed" xml:space="preserve">
+    <value>Une erreur s'est produite lors de la création d'une règle de pare-feu.</value>
+  </data>
+  <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
+    <value>Une erreur s’est produite lors de la création d’une règle de pare-feu : « {0} »</value>
+  </data>
+  <data name="FirewallRuleUnsupportedConnectionType" xml:space="preserve">
+    <value>Impossible d’ouvrir une règle de pare-feu pour le type de connexion spécifié</value>
+  </data>
   <data name="InvalidIpAddress" xml:space="preserve">
     <value>Adresse IP non valide</value>
   </data>
@@ -136,15 +145,6 @@
   </data>
   <data name="LoadingExportableFailedGeneralErrorMessage" xml:space="preserve">
     <value>Impossible de charger une dll requise. Veuillez réparer votre application.</value>
-  </data>
-  <data name="FirewallRuleCreationFailed" xml:space="preserve">
-    <value>Une erreur s'est produite lors de la création d'une règle de pare-feu.</value>
-  </data>
-  <data name="FirewallRuleUnsupportedConnectionType" xml:space="preserve">
-    <value>Impossible d’ouvrir une règle de pare-feu pour le type de connexion spécifié</value>
-  </data>
-  <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
-    <value>Une erreur s’est produite lors de la création d’une règle de pare-feu : « {0} »</value>
   </data>
   <data name="NoSubscriptionsFound" xml:space="preserve">
     <value>Aucun abonnement n’a été trouvé pour le compte d’utilisateur actuellement connecté.</value>

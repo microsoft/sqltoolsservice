@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!--
     Microsoft ResX Schema
@@ -116,53 +116,17 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="EE_BatchSqlMessageNoProcedureInfo" xml:space="preserve">
-    <value>Meldung {0}, Ebene {1}, Status {2}, Zeile {3}</value>
+  <data name="BatchParserWrapperExecutionEngineBatchCancelling" xml:space="preserve">
+    <value>Die Batchausführung des Batchanalysewrappers wird abgebrochen.</value>
   </data>
-  <data name="EE_BatchSqlMessageWithProcedureInfo" xml:space="preserve">
-    <value>Meldung {0}, Ebene {1}, Status {2}, Prozedur {3}, Zeile {4}</value>
+  <data name="BatchParserWrapperExecutionEngineBatchMessage" xml:space="preserve">
+    <value>Batchmeldung der Ausführungs-Engine für den Batchanalysewrapper empfangen: Meldung: {0} Ausführliche Meldung: {1}</value>
   </data>
-  <data name="EE_BatchSqlMessageNoLineInfo" xml:space="preserve">
-    <value>Meldung {0}, Ebene {1}, Status {2}</value>
+  <data name="BatchParserWrapperExecutionEngineBatchResultSetFinished" xml:space="preserve">
+    <value>Das Batch-ResultSet der Ausführungs-Engine für den Batchanalysewrapper wurde beendet.</value>
   </data>
-  <data name="EE_BatchError_Exception" xml:space="preserve">
-    <value>Fehler bei der Batchverarbeitung. Fehlermeldung: {0}</value>
-  </data>
-  <data name="EE_BatchExecutionInfo_RowsAffected" xml:space="preserve">
-    <value>({0} Zeile(n) betroffen)</value>
-  </data>
-  <data name="EE_ExecutionNotYetCompleteError" xml:space="preserve">
-    <value>Die vorherige Ausführung ist noch nicht abgeschlossen.</value>
-  </data>
-  <data name="EE_ScriptError_Error" xml:space="preserve">
-    <value>Skriptfehler.</value>
-  </data>
-  <data name="EE_ScriptError_ParsingSyntax" xml:space="preserve">
-    <value>Falsche Syntax beim Analysieren von {0}</value>
-  </data>
-  <data name="EE_ScriptError_FatalError" xml:space="preserve">
-    <value>Schwerwiegender Fehler</value>
-  </data>
-  <data name="EE_ExecutionInfo_FinalizingLoop" xml:space="preserve">
-    <value>Die Batchausführung wurde {0}-mal abgeschlossen...</value>
-  </data>
-  <data name="EE_ExecutionInfo_QueryCancelledbyUser" xml:space="preserve">
-    <value>Die Abfrage wurde von Ihnen abgebrochen.</value>
-  </data>
-  <data name="EE_BatchExecutionError_Halting" xml:space="preserve">
-    <value>Fehler bei der Batchausführung.</value>
-  </data>
-  <data name="EE_BatchExecutionError_Ignoring" xml:space="preserve">
-    <value>Fehler während der Batchausführung, aber der Fehler wurde ignoriert.</value>
-  </data>
-  <data name="EE_ExecutionInfo_InitializingLoop" xml:space="preserve">
-    <value>Die Ausführungsschleife wird begonnen.</value>
-  </data>
-  <data name="EE_ExecutionError_CommandNotSupported" xml:space="preserve">
-    <value>Der Befehl {0} wird nicht unterstützt.</value>
-  </data>
-  <data name="EE_ExecutionError_VariableNotFound" xml:space="preserve">
-    <value>Die Variable '{0}' wurde nicht gefunden.</value>
+  <data name="BatchParserWrapperExecutionEngineBatchResultSetProcessing" xml:space="preserve">
+    <value>Das Batch-ResultSet der Ausführungs-Engine für den Batchanalysewrapper wird verarbeitet: DataReader.FieldCount: {0} DataReader.RecordsAffected: {1}</value>
   </data>
   <data name="BatchParserWrapperExecutionEngineError" xml:space="preserve">
     <value>SQL-Ausführungsfehler: {0}</value>
@@ -170,38 +134,77 @@
   <data name="BatchParserWrapperExecutionError" xml:space="preserve">
     <value>Ausführung des Batchanalysewrappers: "{0}" in Zeile {1} gefunden: {2}. Beschreibung: {3}</value>
   </data>
-  <data name="BatchParserWrapperExecutionEngineBatchMessage" xml:space="preserve">
-    <value>Batchmeldung der Ausführungs-Engine für den Batchanalysewrapper empfangen: Meldung: {0} Ausführliche Meldung: {1}</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineBatchResultSetProcessing" xml:space="preserve">
-    <value>Das Batch-ResultSet der Ausführungs-Engine für den Batchanalysewrapper wird verarbeitet: DataReader.FieldCount: {0} DataReader.RecordsAffected: {1}</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineBatchResultSetFinished" xml:space="preserve">
-    <value>Das Batch-ResultSet der Ausführungs-Engine für den Batchanalysewrapper wurde beendet.</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineBatchCancelling" xml:space="preserve">
-    <value>Die Batchausführung des Batchanalysewrappers wird abgebrochen.</value>
-  </data>
-  <data name="EE_ScriptError_Warning" xml:space="preserve">
-    <value>Warnung für die Skripterstellung.</value>
-  </data>
-  <data name="TroubleshootingAssistanceMessage" xml:space="preserve">
-    <value>Weitere Informationen über diesen Fehler finden Sie in der Produktdokumentation in den Themen zur Problembehandlung.</value>
-  </data>
   <data name="BatchParser_CircularReference" xml:space="preserve">
     <value>Die Datei '{0}' ist rekursiv eingeschlossen.</value>
   </data>
   <data name="BatchParser_CommentNotTerminated" xml:space="preserve">
     <value>Eine Kommentarendemarkierung '*/' fehlt.</value>
   </data>
-  <data name="BatchParser_StringNotTerminated" xml:space="preserve">
-    <value>Kein schließendes Anführungszeichen nach der Zeichenfolge.</value>
-  </data>
   <data name="BatchParser_IncorrectSyntax" xml:space="preserve">
     <value>Fehlerhafte Syntax beim Analysieren von '{0}'.</value>
   </data>
+  <data name="BatchParser_StringNotTerminated" xml:space="preserve">
+    <value>Kein schließendes Anführungszeichen nach der Zeichenfolge.</value>
+  </data>
   <data name="BatchParser_VariableNotDefined" xml:space="preserve">
     <value>Die {0}-Variable ist nicht definiert.</value>
+  </data>
+  <data name="EE_BatchError_Exception" xml:space="preserve">
+    <value>Fehler bei der Batchverarbeitung. Fehlermeldung: {0}</value>
+  </data>
+  <data name="EE_BatchExecutionError_Halting" xml:space="preserve">
+    <value>Fehler bei der Batchausführung.</value>
+  </data>
+  <data name="EE_BatchExecutionError_Ignoring" xml:space="preserve">
+    <value>Fehler während der Batchausführung, aber der Fehler wurde ignoriert.</value>
+  </data>
+  <data name="EE_BatchExecutionInfo_RowsAffected" xml:space="preserve">
+    <value>({0} Zeile(n) betroffen)</value>
+  </data>
+  <data name="EE_BatchSqlMessageNoLineInfo" xml:space="preserve">
+    <value>Meldung {0}, Ebene {1}, Status {2}</value>
+  </data>
+  <data name="EE_BatchSqlMessageNoProcedureInfo" xml:space="preserve">
+    <value>Meldung {0}, Ebene {1}, Status {2}, Zeile {3}</value>
+  </data>
+  <data name="EE_BatchSqlMessageWithProcedureInfo" xml:space="preserve">
+    <value>Meldung {0}, Ebene {1}, Status {2}, Prozedur {3}, Zeile {4}</value>
+  </data>
+  <data name="EE_ExecutionError_CommandNotSupported" xml:space="preserve">
+    <value>Der Befehl {0} wird nicht unterstützt.</value>
+  </data>
+  <data name="EE_ExecutionError_VariableNotFound" xml:space="preserve">
+    <value>Die Variable '{0}' wurde nicht gefunden.</value>
+  </data>
+  <data name="EE_ExecutionInfo_FinalizingLoop" xml:space="preserve">
+    <value>Die Batchausführung wurde {0}-mal abgeschlossen...</value>
+  </data>
+  <data name="EE_ExecutionInfo_InitializingLoop" xml:space="preserve">
+    <value>Die Ausführungsschleife wird begonnen.</value>
+  </data>
+  <data name="EE_ExecutionInfo_QueryCancelledbyUser" xml:space="preserve">
+    <value>Die Abfrage wurde von Ihnen abgebrochen.</value>
+  </data>
+  <data name="EE_ExecutionNotYetCompleteError" xml:space="preserve">
+    <value>Die vorherige Ausführung ist noch nicht abgeschlossen.</value>
+  </data>
+  <data name="EE_ScriptError_Error" xml:space="preserve">
+    <value>Skriptfehler.</value>
+  </data>
+  <data name="EE_ScriptError_FatalError" xml:space="preserve">
+    <value>Schwerwiegender Fehler</value>
+  </data>
+  <data name="EE_ScriptError_ParsingSyntax" xml:space="preserve">
+    <value>Falsche Syntax beim Analysieren von {0}</value>
+  </data>
+  <data name="EE_ScriptError_Warning" xml:space="preserve">
+    <value>Warnung für die Skripterstellung.</value>
+  </data>
+  <data name="NullEmptyOrWhitespaceString" xml:space="preserve">
+    <value>Der Parameter enthält eine Null-, leer- oder Leerraumzeichenfolge.</value>
+  </data>
+  <data name="SqlCmd_FailedInclude" xml:space="preserve">
+    <value>Die eingeschlossene Datei {0} wurde nicht gefunden.</value>
   </data>
   <data name="SqlCmd_PathInvalid" xml:space="preserve">
     <value>Der Pfad enthält ungültige Zeichen.</value>
@@ -209,10 +212,7 @@
   <data name="SqlCmd_PathLong" xml:space="preserve">
     <value>Der Pfad ist zu lang.</value>
   </data>
-  <data name="SqlCmd_FailedInclude" xml:space="preserve">
-    <value>Die eingeschlossene Datei {0} wurde nicht gefunden.</value>
-  </data>
-  <data name="NullEmptyOrWhitespaceString" xml:space="preserve">
-    <value>Der Parameter enthält eine Null-, leer- oder Leerraumzeichenfolge.</value>
+  <data name="TroubleshootingAssistanceMessage" xml:space="preserve">
+    <value>Weitere Informationen über diesen Fehler finden Sie in der Produktdokumentation in den Themen zur Problembehandlung.</value>
   </data>
 </root>

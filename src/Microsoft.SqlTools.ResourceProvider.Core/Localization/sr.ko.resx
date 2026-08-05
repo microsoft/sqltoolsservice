@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!--
     Microsoft ResX Schema
@@ -128,6 +128,15 @@
   <data name="FirewallRuleAccessForbidden" xml:space="preserve">
     <value>{0}에 서버 방화벽 규칙을 변경할 수 있는 권한이 없습니다. Azure 구독 또는 서버의 소유자나 참가자인 다른 계정으로 다시 시도하세요.</value>
   </data>
+  <data name="FirewallRuleCreationFailed" xml:space="preserve">
+    <value>새 방화벽 규칙을 만드는 동안 오류가 발생했습니다.</value>
+  </data>
+  <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
+    <value>새 방화벽 규칙을 만드는 동안 다음 오류가 발생했습니다. '{0}'</value>
+  </data>
+  <data name="FirewallRuleUnsupportedConnectionType" xml:space="preserve">
+    <value>지정한 연결 유형에 대한 방화벽 규칙을 열 수 없습니다</value>
+  </data>
   <data name="InvalidIpAddress" xml:space="preserve">
     <value>잘못된 IP 주소</value>
   </data>
@@ -136,15 +145,6 @@
   </data>
   <data name="LoadingExportableFailedGeneralErrorMessage" xml:space="preserve">
     <value>요청한 dll을 로드할 수 없습니다. 애플리케이션을 복구하세요.</value>
-  </data>
-  <data name="FirewallRuleCreationFailed" xml:space="preserve">
-    <value>새 방화벽 규칙을 만드는 동안 오류가 발생했습니다.</value>
-  </data>
-  <data name="FirewallRuleUnsupportedConnectionType" xml:space="preserve">
-    <value>지정한 연결 유형에 대한 방화벽 규칙을 열 수 없습니다</value>
-  </data>
-  <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
-    <value>새 방화벽 규칙을 만드는 동안 다음 오류가 발생했습니다. '{0}'</value>
   </data>
   <data name="NoSubscriptionsFound" xml:space="preserve">
     <value>현재 로그인한 사용자 계정에 대한 구독을 찾을 수 없습니다.</value>

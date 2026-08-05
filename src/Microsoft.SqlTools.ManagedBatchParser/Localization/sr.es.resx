@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!--
     Microsoft ResX Schema
@@ -116,53 +116,17 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="EE_BatchSqlMessageNoProcedureInfo" xml:space="preserve">
-    <value>Mens. {0}, Nivel {1}, Estado {2}, Línea {3}</value>
+  <data name="BatchParserWrapperExecutionEngineBatchCancelling" xml:space="preserve">
+    <value>Se está cancelando la ejecución por lotes del contenedor del analizador por lotes.</value>
   </data>
-  <data name="EE_BatchSqlMessageWithProcedureInfo" xml:space="preserve">
-    <value>Mensaje {0}, Nivel {1}, Estado {2}, Procedimiento {3}, Línea {4}</value>
+  <data name="BatchParserWrapperExecutionEngineBatchMessage" xml:space="preserve">
+    <value>Mensaje recibido por el lote del motor de ejecución del contenedor del analizador por lotes: mensaje {0}, mensaje detallado: {1}</value>
   </data>
-  <data name="EE_BatchSqlMessageNoLineInfo" xml:space="preserve">
-    <value>Mens. {0}, nivel {1}, estado {2}</value>
+  <data name="BatchParserWrapperExecutionEngineBatchResultSetFinished" xml:space="preserve">
+    <value>Finalizó el elemento ResultSet por lotes del motor de ejecución del contenedor del analizador por lotes.</value>
   </data>
-  <data name="EE_BatchError_Exception" xml:space="preserve">
-    <value>Error al procesar el lote. El mensaje de error es: {0}</value>
-  </data>
-  <data name="EE_BatchExecutionInfo_RowsAffected" xml:space="preserve">
-    <value>({0} filas afectadas)</value>
-  </data>
-  <data name="EE_ExecutionNotYetCompleteError" xml:space="preserve">
-    <value>Aún no se ha completado la ejecución anterior.</value>
-  </data>
-  <data name="EE_ScriptError_Error" xml:space="preserve">
-    <value>Error de scripting.</value>
-  </data>
-  <data name="EE_ScriptError_ParsingSyntax" xml:space="preserve">
-    <value>Se encontró sintaxis incorrecta al analizar {0}.</value>
-  </data>
-  <data name="EE_ScriptError_FatalError" xml:space="preserve">
-    <value>Error irrecuperable.</value>
-  </data>
-  <data name="EE_ExecutionInfo_FinalizingLoop" xml:space="preserve">
-    <value>Ejecución de lotes completada {0} veces...</value>
-  </data>
-  <data name="EE_ExecutionInfo_QueryCancelledbyUser" xml:space="preserve">
-    <value>Ha cancelado la consulta.</value>
-  </data>
-  <data name="EE_BatchExecutionError_Halting" xml:space="preserve">
-    <value>Error al ejecutar el lote.</value>
-  </data>
-  <data name="EE_BatchExecutionError_Ignoring" xml:space="preserve">
-    <value>Error al ejecutar el lote, pero se ignoró.</value>
-  </data>
-  <data name="EE_ExecutionInfo_InitializingLoop" xml:space="preserve">
-    <value>Iniciando bucle de ejecución</value>
-  </data>
-  <data name="EE_ExecutionError_CommandNotSupported" xml:space="preserve">
-    <value>No se admite el comando {0}.</value>
-  </data>
-  <data name="EE_ExecutionError_VariableNotFound" xml:space="preserve">
-    <value>No se encuentra la variable {0}.</value>
+  <data name="BatchParserWrapperExecutionEngineBatchResultSetProcessing" xml:space="preserve">
+    <value>Procesamiento de ResultSet por lotes del motor de ejecución del contenedor del analizador por lotes: DataReader.FieldCount: {0} DataReader.RecordsAffected: {1}</value>
   </data>
   <data name="BatchParserWrapperExecutionEngineError" xml:space="preserve">
     <value>Error de ejecución de SQL: {0}</value>
@@ -170,38 +134,77 @@
   <data name="BatchParserWrapperExecutionError" xml:space="preserve">
     <value>Ejecución del contenedor del analizador por lotes: {0} encontrados en la línea {1}: {2} Descripción: {3}</value>
   </data>
-  <data name="BatchParserWrapperExecutionEngineBatchMessage" xml:space="preserve">
-    <value>Mensaje recibido por el lote del motor de ejecución del contenedor del analizador por lotes: mensaje {0}, mensaje detallado: {1}</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineBatchResultSetProcessing" xml:space="preserve">
-    <value>Procesamiento de ResultSet por lotes del motor de ejecución del contenedor del analizador por lotes: DataReader.FieldCount: {0} DataReader.RecordsAffected: {1}</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineBatchResultSetFinished" xml:space="preserve">
-    <value>Finalizó el elemento ResultSet por lotes del motor de ejecución del contenedor del analizador por lotes.</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineBatchCancelling" xml:space="preserve">
-    <value>Se está cancelando la ejecución por lotes del contenedor del analizador por lotes.</value>
-  </data>
-  <data name="EE_ScriptError_Warning" xml:space="preserve">
-    <value>Advertencia de scripting.</value>
-  </data>
-  <data name="TroubleshootingAssistanceMessage" xml:space="preserve">
-    <value>Para obtener más información acerca de este error, consulte los temas de resolución de problemas en la documentación del producto.</value>
-  </data>
   <data name="BatchParser_CircularReference" xml:space="preserve">
     <value>El archivo '{0}' se incluyó de forma recursiva.</value>
   </data>
   <data name="BatchParser_CommentNotTerminated" xml:space="preserve">
     <value>Falta la marca de fin del comentario '*/'.</value>
   </data>
-  <data name="BatchParser_StringNotTerminated" xml:space="preserve">
-    <value>Comillas sin cerrar a continuación de la cadena de caracteres.</value>
-  </data>
   <data name="BatchParser_IncorrectSyntax" xml:space="preserve">
     <value>Se encontró un sintaxis incorrecta al analizar '{0}'.</value>
   </data>
+  <data name="BatchParser_StringNotTerminated" xml:space="preserve">
+    <value>Comillas sin cerrar a continuación de la cadena de caracteres.</value>
+  </data>
   <data name="BatchParser_VariableNotDefined" xml:space="preserve">
     <value>La variable {0} no está definida.</value>
+  </data>
+  <data name="EE_BatchError_Exception" xml:space="preserve">
+    <value>Error al procesar el lote. El mensaje de error es: {0}</value>
+  </data>
+  <data name="EE_BatchExecutionError_Halting" xml:space="preserve">
+    <value>Error al ejecutar el lote.</value>
+  </data>
+  <data name="EE_BatchExecutionError_Ignoring" xml:space="preserve">
+    <value>Error al ejecutar el lote, pero se ignoró.</value>
+  </data>
+  <data name="EE_BatchExecutionInfo_RowsAffected" xml:space="preserve">
+    <value>({0} filas afectadas)</value>
+  </data>
+  <data name="EE_BatchSqlMessageNoLineInfo" xml:space="preserve">
+    <value>Mens. {0}, nivel {1}, estado {2}</value>
+  </data>
+  <data name="EE_BatchSqlMessageNoProcedureInfo" xml:space="preserve">
+    <value>Mens. {0}, Nivel {1}, Estado {2}, Línea {3}</value>
+  </data>
+  <data name="EE_BatchSqlMessageWithProcedureInfo" xml:space="preserve">
+    <value>Mensaje {0}, Nivel {1}, Estado {2}, Procedimiento {3}, Línea {4}</value>
+  </data>
+  <data name="EE_ExecutionError_CommandNotSupported" xml:space="preserve">
+    <value>No se admite el comando {0}.</value>
+  </data>
+  <data name="EE_ExecutionError_VariableNotFound" xml:space="preserve">
+    <value>No se encuentra la variable {0}.</value>
+  </data>
+  <data name="EE_ExecutionInfo_FinalizingLoop" xml:space="preserve">
+    <value>Ejecución de lotes completada {0} veces...</value>
+  </data>
+  <data name="EE_ExecutionInfo_InitializingLoop" xml:space="preserve">
+    <value>Iniciando bucle de ejecución</value>
+  </data>
+  <data name="EE_ExecutionInfo_QueryCancelledbyUser" xml:space="preserve">
+    <value>Ha cancelado la consulta.</value>
+  </data>
+  <data name="EE_ExecutionNotYetCompleteError" xml:space="preserve">
+    <value>Aún no se ha completado la ejecución anterior.</value>
+  </data>
+  <data name="EE_ScriptError_Error" xml:space="preserve">
+    <value>Error de scripting.</value>
+  </data>
+  <data name="EE_ScriptError_FatalError" xml:space="preserve">
+    <value>Error irrecuperable.</value>
+  </data>
+  <data name="EE_ScriptError_ParsingSyntax" xml:space="preserve">
+    <value>Se encontró sintaxis incorrecta al analizar {0}.</value>
+  </data>
+  <data name="EE_ScriptError_Warning" xml:space="preserve">
+    <value>Advertencia de scripting.</value>
+  </data>
+  <data name="NullEmptyOrWhitespaceString" xml:space="preserve">
+    <value>El parámetro contiene una cadena nula, vacía o con espacios en blanco.</value>
+  </data>
+  <data name="SqlCmd_FailedInclude" xml:space="preserve">
+    <value>No se pudo encontrar el archivo incluido {0}.</value>
   </data>
   <data name="SqlCmd_PathInvalid" xml:space="preserve">
     <value>La ruta de acceso contiene caracteres no válidos.</value>
@@ -209,10 +212,7 @@
   <data name="SqlCmd_PathLong" xml:space="preserve">
     <value>La ruta de acceso es demasiado larga.</value>
   </data>
-  <data name="SqlCmd_FailedInclude" xml:space="preserve">
-    <value>No se pudo encontrar el archivo incluido {0}.</value>
-  </data>
-  <data name="NullEmptyOrWhitespaceString" xml:space="preserve">
-    <value>El parámetro contiene una cadena nula, vacía o con espacios en blanco.</value>
+  <data name="TroubleshootingAssistanceMessage" xml:space="preserve">
+    <value>Para obtener más información acerca de este error, consulte los temas de resolución de problemas en la documentación del producto.</value>
   </data>
 </root>

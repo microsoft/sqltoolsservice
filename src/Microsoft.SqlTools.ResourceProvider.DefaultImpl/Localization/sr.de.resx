@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!--
     Microsoft ResX Schema
@@ -125,20 +125,20 @@
   <data name="FailedToGetAzureSqlServersErrorMessage" xml:space="preserve">
     <value>Fehler beim Abrufen von Azure Sql Servers-Instanzen.</value>
   </data>
-  <data name="FirewallRuleCreationFailed" xml:space="preserve">
-    <value>Fehler beim Erstellen einer neuen Firewallregel.</value>
-  </data>
-  <data name="UnsupportedAuthType" xml:space="preserve">
-    <value>Nicht unterstützter Kontotyp „{0}“ für diesen Anbieter</value>
-  </data>
   <data name="FailedToGetAzureSqlServersWithError" xml:space="preserve">
     <value>Fehler beim Abrufen von Azure SQL-Serverinstanzen: „{0}“</value>
+  </data>
+  <data name="FailedToGetAzureSubscriptionsErrorMessage" xml:space="preserve">
+    <value>Fehler beim Abrufen von Azure-Abonnements: {0}</value>
+  </data>
+  <data name="FirewallRuleCreationFailed" xml:space="preserve">
+    <value>Fehler beim Erstellen einer neuen Firewallregel.</value>
   </data>
   <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
     <value>Fehler beim Erstellen einer neuen Firewallregel: „{0}“</value>
   </data>
-  <data name="FailedToGetAzureSubscriptionsErrorMessage" xml:space="preserve">
-    <value>Fehler beim Abrufen von Azure-Abonnements: {0}</value>
+  <data name="UnsupportedAuthType" xml:space="preserve">
+    <value>Nicht unterstützter Kontotyp „{0}“ für diesen Anbieter</value>
   </data>
   <data name="UserNeedsAuthenticationError" xml:space="preserve">
     <value>Der aktuelle Benutzer muss erneut authentifiziert werden, bevor dieser Vorgang ausgeführt wird. </value>

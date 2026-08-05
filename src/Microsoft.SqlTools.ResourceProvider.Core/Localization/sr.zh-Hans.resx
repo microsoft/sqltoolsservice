@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!--
     Microsoft ResX Schema
@@ -128,6 +128,15 @@
   <data name="FirewallRuleAccessForbidden" xml:space="preserve">
     <value>{0} 无权更改此服务器防火墙规则。请使用作为 Azure 订阅或此服务器的所有者或参与者的其他帐户重试。</value>
   </data>
+  <data name="FirewallRuleCreationFailed" xml:space="preserve">
+    <value>新建防火墙规则时出错。</value>
+  </data>
+  <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
+    <value>新建防火墙规则 {0} 时出错</value>
+  </data>
+  <data name="FirewallRuleUnsupportedConnectionType" xml:space="preserve">
+    <value>无法打开指定连接类型的防火墙规则</value>
+  </data>
   <data name="InvalidIpAddress" xml:space="preserve">
     <value>无效 IP 地址</value>
   </data>
@@ -136,15 +145,6 @@
   </data>
   <data name="LoadingExportableFailedGeneralErrorMessage" xml:space="preserve">
     <value>无法加载所需 dll。请修复应用程序。</value>
-  </data>
-  <data name="FirewallRuleCreationFailed" xml:space="preserve">
-    <value>新建防火墙规则时出错。</value>
-  </data>
-  <data name="FirewallRuleUnsupportedConnectionType" xml:space="preserve">
-    <value>无法打开指定连接类型的防火墙规则</value>
-  </data>
-  <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
-    <value>新建防火墙规则 {0} 时出错</value>
   </data>
   <data name="NoSubscriptionsFound" xml:space="preserve">
     <value>找不到当前登录用户帐户的订阅。</value>

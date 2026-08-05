@@ -81,25 +81,13 @@ The build script itself is `build.cake`, written in Cake's C#-like DSL using the
 Run the complete resource-generation workflow from the repository root:
 
 ```bash
-./build.sh --target=SRGen
-```
-
-On Windows:
-
-```cmd
-build.cmd --target=SRGen
+./build.[ps1|sh] --target=SRGen
 ```
 
 To regenerate only culture-specific `.resx` files from LCL files:
 
 ```bash
-./build.sh --target=LclToResx
-```
-
-On Windows:
-
-```cmd
-build.cmd --target=LclToResx
+./build.[ps1|sh] --target=LclToResx
 ```
 
 ## Common Issues

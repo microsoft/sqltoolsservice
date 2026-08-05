@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!--
     Microsoft ResX Schema
@@ -128,6 +128,15 @@
   <data name="FirewallRuleAccessForbidden" xml:space="preserve">
     <value>{0} no tiene permiso para cambiar la regla de firewall del servidor. Vuelva a intentarlo con otra cuenta que sea de un propietario o colaborador del servidor o de la suscripción a Azure.</value>
   </data>
+  <data name="FirewallRuleCreationFailed" xml:space="preserve">
+    <value>Error al crear una regla de firewall nueva.</value>
+  </data>
+  <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
+    <value>Error al crear una regla de firewall nueva: '{0}'</value>
+  </data>
+  <data name="FirewallRuleUnsupportedConnectionType" xml:space="preserve">
+    <value>No se puede abrir una regla de firewall para el tipo de conexión especificado</value>
+  </data>
   <data name="InvalidIpAddress" xml:space="preserve">
     <value>Dirección IP no válida</value>
   </data>
@@ -136,15 +145,6 @@
   </data>
   <data name="LoadingExportableFailedGeneralErrorMessage" xml:space="preserve">
     <value>No se puede cargar una dll necesaria. Repare la aplicación.</value>
-  </data>
-  <data name="FirewallRuleCreationFailed" xml:space="preserve">
-    <value>Error al crear una regla de firewall nueva.</value>
-  </data>
-  <data name="FirewallRuleUnsupportedConnectionType" xml:space="preserve">
-    <value>No se puede abrir una regla de firewall para el tipo de conexión especificado</value>
-  </data>
-  <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
-    <value>Error al crear una regla de firewall nueva: '{0}'</value>
   </data>
   <data name="NoSubscriptionsFound" xml:space="preserve">
     <value>No se encontraron suscripciones para la cuenta de usuario que ha iniciado sesión actualmente.</value>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!--
     Microsoft ResX Schema
@@ -128,6 +128,15 @@
   <data name="FirewallRuleAccessForbidden" xml:space="preserve">
     <value>У {0} нет разрешения на изменение правила брандмауэра сервера. Повторите попытку с другой учетной записью, имеющей разрешения владельца или участника подписки Azure или сервера.</value>
   </data>
+  <data name="FirewallRuleCreationFailed" xml:space="preserve">
+    <value>Произошла ошибка при создании правила брандмауэра.</value>
+  </data>
+  <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
+    <value>Ошибка при создании правила брандмауэра: "{0}"</value>
+  </data>
+  <data name="FirewallRuleUnsupportedConnectionType" xml:space="preserve">
+    <value>Не удается открыть правило брандмауэра для указанного типа соединения</value>
+  </data>
   <data name="InvalidIpAddress" xml:space="preserve">
     <value>Недопустимый IP-адрес</value>
   </data>
@@ -136,15 +145,6 @@
   </data>
   <data name="LoadingExportableFailedGeneralErrorMessage" xml:space="preserve">
     <value>Невозможно загрузить необходимую библиотеку dll Восстановите ваше приложение.</value>
-  </data>
-  <data name="FirewallRuleCreationFailed" xml:space="preserve">
-    <value>Произошла ошибка при создании правила брандмауэра.</value>
-  </data>
-  <data name="FirewallRuleUnsupportedConnectionType" xml:space="preserve">
-    <value>Не удается открыть правило брандмауэра для указанного типа соединения</value>
-  </data>
-  <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
-    <value>Ошибка при создании правила брандмауэра: "{0}"</value>
   </data>
   <data name="NoSubscriptionsFound" xml:space="preserve">
     <value>Подписки для текущей учетной записи пользователя, выполнившего вход, не найдены.</value>

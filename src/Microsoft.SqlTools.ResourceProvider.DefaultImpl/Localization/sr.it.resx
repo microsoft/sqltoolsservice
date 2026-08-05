@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!--
     Microsoft ResX Schema
@@ -125,20 +125,20 @@
   <data name="FailedToGetAzureSqlServersErrorMessage" xml:space="preserve">
     <value>Si è verificato un errore durante il recupero di Azure Sql Servers</value>
   </data>
-  <data name="FirewallRuleCreationFailed" xml:space="preserve">
-    <value>Si è verificato un errore durante la creazione di una nuova regola del firewall.</value>
-  </data>
-  <data name="UnsupportedAuthType" xml:space="preserve">
-    <value>Tipo di account '{0}' non supportato per questo provider</value>
-  </data>
   <data name="FailedToGetAzureSqlServersWithError" xml:space="preserve">
     <value>Si è verificato un errore durante il recupero dei server Azure SQL: '{0}'</value>
+  </data>
+  <data name="FailedToGetAzureSubscriptionsErrorMessage" xml:space="preserve">
+    <value>Si è verificato un errore durante il recupero delle sottoscrizioni di Azure: {0}</value>
+  </data>
+  <data name="FirewallRuleCreationFailed" xml:space="preserve">
+    <value>Si è verificato un errore durante la creazione di una nuova regola del firewall.</value>
   </data>
   <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
     <value>Si è verificato un errore durante la creazione di una nuova regola del firewall: '{0}'</value>
   </data>
-  <data name="FailedToGetAzureSubscriptionsErrorMessage" xml:space="preserve">
-    <value>Si è verificato un errore durante il recupero delle sottoscrizioni di Azure: {0}</value>
+  <data name="UnsupportedAuthType" xml:space="preserve">
+    <value>Tipo di account '{0}' non supportato per questo provider</value>
   </data>
   <data name="UserNeedsAuthenticationError" xml:space="preserve">
     <value>Prima di eseguire l’operazione, è necessario autenticare nuovamente l'utente corrente</value>

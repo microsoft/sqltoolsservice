@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!--
     Microsoft ResX Schema
@@ -116,53 +116,17 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="EE_BatchSqlMessageNoProcedureInfo" xml:space="preserve">
-    <value>Mensagem {0}, Nível {1}, Estado {2}, Linha {3}</value>
+  <data name="BatchParserWrapperExecutionEngineBatchCancelling" xml:space="preserve">
+    <value>Cancelando a execução em lotes do wrapper analisador de lotes.</value>
   </data>
-  <data name="EE_BatchSqlMessageWithProcedureInfo" xml:space="preserve">
-    <value>Mensagem {0}, Nível {1}, Estado {2}, Procedimento {3}, Linha {4}</value>
+  <data name="BatchParserWrapperExecutionEngineBatchMessage" xml:space="preserve">
+    <value>Mensagem em lotes do mecanismo de execução do wrapper analisador de lotes recebida: Mensagem: {0}    Mensagem detalhada: {1}</value>
   </data>
-  <data name="EE_BatchSqlMessageNoLineInfo" xml:space="preserve">
-    <value>Mensagem {0}, Nível {1}, Estado {2}</value>
+  <data name="BatchParserWrapperExecutionEngineBatchResultSetFinished" xml:space="preserve">
+    <value>ResultSet em lotes do mecanismo de execução do wrapper analisador de lotes concluído.</value>
   </data>
-  <data name="EE_BatchError_Exception" xml:space="preserve">
-    <value>Um erro ocorreu enquanto o lote era processado. A mensagem de erro é: {0}</value>
-  </data>
-  <data name="EE_BatchExecutionInfo_RowsAffected" xml:space="preserve">
-    <value>({0} linha(s) afetada(s))</value>
-  </data>
-  <data name="EE_ExecutionNotYetCompleteError" xml:space="preserve">
-    <value>A execução anterior ainda não foi concluída.</value>
-  </data>
-  <data name="EE_ScriptError_Error" xml:space="preserve">
-    <value>Erro de script.</value>
-  </data>
-  <data name="EE_ScriptError_ParsingSyntax" xml:space="preserve">
-    <value>Sintaxe incorreta encontrada durante a análise de {0}.</value>
-  </data>
-  <data name="EE_ScriptError_FatalError" xml:space="preserve">
-    <value>Erro fatal.</value>
-  </data>
-  <data name="EE_ExecutionInfo_FinalizingLoop" xml:space="preserve">
-    <value>A execução do lote foi concluída {0} vezes...</value>
-  </data>
-  <data name="EE_ExecutionInfo_QueryCancelledbyUser" xml:space="preserve">
-    <value>Você cancelou a consulta.</value>
-  </data>
-  <data name="EE_BatchExecutionError_Halting" xml:space="preserve">
-    <value>Um erro ocorreu enquanto o lote era executado.</value>
-  </data>
-  <data name="EE_BatchExecutionError_Ignoring" xml:space="preserve">
-    <value>Ocorreu um erro enquanto o lote era executado, mas esse erro foi ignorado.</value>
-  </data>
-  <data name="EE_ExecutionInfo_InitializingLoop" xml:space="preserve">
-    <value>Início do loop de execução</value>
-  </data>
-  <data name="EE_ExecutionError_CommandNotSupported" xml:space="preserve">
-    <value>Comando {0} sem suporte.</value>
-  </data>
-  <data name="EE_ExecutionError_VariableNotFound" xml:space="preserve">
-    <value>A variável {0} não foi encontrada.</value>
+  <data name="BatchParserWrapperExecutionEngineBatchResultSetProcessing" xml:space="preserve">
+    <value>Processamento do ResultSet em lotes do mecanismo de execução do wrapper analisador de lotes: DataReader.FieldCount: {0}  DataReader.RecordsAffected: {1}</value>
   </data>
   <data name="BatchParserWrapperExecutionEngineError" xml:space="preserve">
     <value>Erro de Execução SQL: {0}</value>
@@ -170,38 +134,77 @@
   <data name="BatchParserWrapperExecutionError" xml:space="preserve">
     <value>Execução do wrapper do analisador de lotes: {0} encontrado... na linha {1}: {2}    Descrição: {3}</value>
   </data>
-  <data name="BatchParserWrapperExecutionEngineBatchMessage" xml:space="preserve">
-    <value>Mensagem em lotes do mecanismo de execução do wrapper analisador de lotes recebida: Mensagem: {0}    Mensagem detalhada: {1}</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineBatchResultSetProcessing" xml:space="preserve">
-    <value>Processamento do ResultSet em lotes do mecanismo de execução do wrapper analisador de lotes: DataReader.FieldCount: {0}  DataReader.RecordsAffected: {1}</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineBatchResultSetFinished" xml:space="preserve">
-    <value>ResultSet em lotes do mecanismo de execução do wrapper analisador de lotes concluído.</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineBatchCancelling" xml:space="preserve">
-    <value>Cancelando a execução em lotes do wrapper analisador de lotes.</value>
-  </data>
-  <data name="EE_ScriptError_Warning" xml:space="preserve">
-    <value>Aviso de script.</value>
-  </data>
-  <data name="TroubleshootingAssistanceMessage" xml:space="preserve">
-    <value>Para obter mais informações sobre este erro, consulte os tópicos de solução de problemas na documentação do produto.</value>
-  </data>
   <data name="BatchParser_CircularReference" xml:space="preserve">
     <value>Arquivo '{0}' incluído recursivamente.</value>
   </data>
   <data name="BatchParser_CommentNotTerminated" xml:space="preserve">
     <value>Marca de fim de comentário ausente '*/'.</value>
   </data>
-  <data name="BatchParser_StringNotTerminated" xml:space="preserve">
-    <value>Aspas não fechadas depois da cadeia de caracteres.</value>
-  </data>
   <data name="BatchParser_IncorrectSyntax" xml:space="preserve">
     <value>A sintaxe incorreta foi encontrada ao analisar '{0}'.</value>
   </data>
+  <data name="BatchParser_StringNotTerminated" xml:space="preserve">
+    <value>Aspas não fechadas depois da cadeia de caracteres.</value>
+  </data>
   <data name="BatchParser_VariableNotDefined" xml:space="preserve">
     <value>Variável {0} não definida.</value>
+  </data>
+  <data name="EE_BatchError_Exception" xml:space="preserve">
+    <value>Um erro ocorreu enquanto o lote era processado. A mensagem de erro é: {0}</value>
+  </data>
+  <data name="EE_BatchExecutionError_Halting" xml:space="preserve">
+    <value>Um erro ocorreu enquanto o lote era executado.</value>
+  </data>
+  <data name="EE_BatchExecutionError_Ignoring" xml:space="preserve">
+    <value>Ocorreu um erro enquanto o lote era executado, mas esse erro foi ignorado.</value>
+  </data>
+  <data name="EE_BatchExecutionInfo_RowsAffected" xml:space="preserve">
+    <value>({0} linha(s) afetada(s))</value>
+  </data>
+  <data name="EE_BatchSqlMessageNoLineInfo" xml:space="preserve">
+    <value>Mensagem {0}, Nível {1}, Estado {2}</value>
+  </data>
+  <data name="EE_BatchSqlMessageNoProcedureInfo" xml:space="preserve">
+    <value>Mensagem {0}, Nível {1}, Estado {2}, Linha {3}</value>
+  </data>
+  <data name="EE_BatchSqlMessageWithProcedureInfo" xml:space="preserve">
+    <value>Mensagem {0}, Nível {1}, Estado {2}, Procedimento {3}, Linha {4}</value>
+  </data>
+  <data name="EE_ExecutionError_CommandNotSupported" xml:space="preserve">
+    <value>Comando {0} sem suporte.</value>
+  </data>
+  <data name="EE_ExecutionError_VariableNotFound" xml:space="preserve">
+    <value>A variável {0} não foi encontrada.</value>
+  </data>
+  <data name="EE_ExecutionInfo_FinalizingLoop" xml:space="preserve">
+    <value>A execução do lote foi concluída {0} vezes...</value>
+  </data>
+  <data name="EE_ExecutionInfo_InitializingLoop" xml:space="preserve">
+    <value>Início do loop de execução</value>
+  </data>
+  <data name="EE_ExecutionInfo_QueryCancelledbyUser" xml:space="preserve">
+    <value>Você cancelou a consulta.</value>
+  </data>
+  <data name="EE_ExecutionNotYetCompleteError" xml:space="preserve">
+    <value>A execução anterior ainda não foi concluída.</value>
+  </data>
+  <data name="EE_ScriptError_Error" xml:space="preserve">
+    <value>Erro de script.</value>
+  </data>
+  <data name="EE_ScriptError_FatalError" xml:space="preserve">
+    <value>Erro fatal.</value>
+  </data>
+  <data name="EE_ScriptError_ParsingSyntax" xml:space="preserve">
+    <value>Sintaxe incorreta encontrada durante a análise de {0}.</value>
+  </data>
+  <data name="EE_ScriptError_Warning" xml:space="preserve">
+    <value>Aviso de script.</value>
+  </data>
+  <data name="NullEmptyOrWhitespaceString" xml:space="preserve">
+    <value>O parâmetro contém uma cadeia de caracteres nula, vazia ou de espaço em branco.</value>
+  </data>
+  <data name="SqlCmd_FailedInclude" xml:space="preserve">
+    <value>Não foi possível encontrar o arquivo incluído {0}.</value>
   </data>
   <data name="SqlCmd_PathInvalid" xml:space="preserve">
     <value>O caminho contém caracteres inválidos.</value>
@@ -209,10 +212,7 @@
   <data name="SqlCmd_PathLong" xml:space="preserve">
     <value>O caminho é muito longo.</value>
   </data>
-  <data name="SqlCmd_FailedInclude" xml:space="preserve">
-    <value>Não foi possível encontrar o arquivo incluído {0}.</value>
-  </data>
-  <data name="NullEmptyOrWhitespaceString" xml:space="preserve">
-    <value>O parâmetro contém uma cadeia de caracteres nula, vazia ou de espaço em branco.</value>
+  <data name="TroubleshootingAssistanceMessage" xml:space="preserve">
+    <value>Para obter mais informações sobre este erro, consulte os tópicos de solução de problemas na documentação do produto.</value>
   </data>
 </root>
