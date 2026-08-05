@@ -67,8 +67,28 @@ The build script itself is `build.cake`, written in Cake's C#-like DSL using the
 **SetPackageVersions**: Updates the dependency versions found within `project.json` files using information from `depversion.json`.
   Used for maintainence within the project, not needed for end-users. More information below.
 
-**SRGen**: Generates a new version of the `sr.resx`, `sr.cs`, and `sr.designer.cs` files that contain
-  the string resources defined in `sr.strings`. Run this after adding a new string to `sr.strings`
+**SRGen**: Generates new `sr.resx` and strongly typed `sr.cs` files from the string resources defined
+  in `sr.strings`, then updates the source `sr.xlf`. Run this after adding a new string to
+  `sr.strings`. Culture-specific resources are generated from LocStudio `.lcl` files, falling back
+  to translated XLIFF files for cultures that do not have an LCL file.
+
+**LclToResx**: Generates culture-specific `.resx` files for every language represented by a
+  `Localization/LCL/{language}/sr.xlf.lcl` file. It does not regenerate the neutral `sr.resx`,
+  strongly typed `sr.cs`, or source `sr.xlf` files.
+
+### Resource generation
+
+Run the complete resource-generation workflow from the repository root:
+
+```bash
+./build.[ps1|sh] --target=SRGen
+```
+
+To regenerate only culture-specific `.resx` files from LCL files:
+
+```bash
+./build.[ps1|sh] --target=LclToResx
+```
 
 ## Common Issues
 

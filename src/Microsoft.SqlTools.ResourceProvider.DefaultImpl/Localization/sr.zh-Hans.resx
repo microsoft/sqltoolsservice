@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!--
     Microsoft ResX Schema
@@ -125,20 +125,20 @@
   <data name="FailedToGetAzureSqlServersErrorMessage" xml:space="preserve">
     <value>获取 Azure Sql Servers 时出错</value>
   </data>
-  <data name="FirewallRuleCreationFailed" xml:space="preserve">
-    <value>新建防火墙规则时出错。</value>
-  </data>
-  <data name="UnsupportedAuthType" xml:space="preserve">
-    <value>此提供程序不支持的帐户类型 "{0}"</value>
-  </data>
   <data name="FailedToGetAzureSqlServersWithError" xml:space="preserve">
     <value>获取 Azure Sql Servers {0} 时出错</value>
+  </data>
+  <data name="FailedToGetAzureSubscriptionsErrorMessage" xml:space="preserve">
+    <value>获取 Azure 订阅 {0} 时出错</value>
+  </data>
+  <data name="FirewallRuleCreationFailed" xml:space="preserve">
+    <value>新建防火墙规则时出错。</value>
   </data>
   <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
     <value>新建防火墙规则 {0} 时出错</value>
   </data>
-  <data name="FailedToGetAzureSubscriptionsErrorMessage" xml:space="preserve">
-    <value>获取 Azure 订阅 {0} 时出错</value>
+  <data name="UnsupportedAuthType" xml:space="preserve">
+    <value>此提供程序不支持的帐户类型 "{0}"</value>
   </data>
   <data name="UserNeedsAuthenticationError" xml:space="preserve">
     <value>执行此操作之前，必须重新对当前用户进行身份验证</value>

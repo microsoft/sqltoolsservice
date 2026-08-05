@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!--
     Microsoft ResX Schema
@@ -116,53 +116,17 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="EE_BatchSqlMessageNoProcedureInfo" xml:space="preserve">
-    <value>Сообщение {0}, уровень {1}, состояние {2}, строка {3}</value>
+  <data name="BatchParserWrapperExecutionEngineBatchCancelling" xml:space="preserve">
+    <value>Происходит отмена выполнения программы-оболочки для пакетного синтаксического анализатора.</value>
   </data>
-  <data name="EE_BatchSqlMessageWithProcedureInfo" xml:space="preserve">
-    <value>Сообщение {0}, уровень {1}, состояние {2}, процедура {3}, строка {4}</value>
+  <data name="BatchParserWrapperExecutionEngineBatchMessage" xml:space="preserve">
+    <value>Получено сообщение при выполнении программы-оболочки для пакетного синтаксического анализатора: Сообщение: {0} Подробное сообщение: {1}</value>
   </data>
-  <data name="EE_BatchSqlMessageNoLineInfo" xml:space="preserve">
-    <value>Сообщение {0}, уровень {1}, состояние {2}</value>
+  <data name="BatchParserWrapperExecutionEngineBatchResultSetFinished" xml:space="preserve">
+    <value>Завершен пакет ResultSet при выполнении программы-оболочки для пакетного синтаксического анализатора.</value>
   </data>
-  <data name="EE_BatchError_Exception" xml:space="preserve">
-    <value>При обработке пакета произошла ошибка. Сообщение об ошибке: {0}</value>
-  </data>
-  <data name="EE_BatchExecutionInfo_RowsAffected" xml:space="preserve">
-    <value>({0} затронутых строк)</value>
-  </data>
-  <data name="EE_ExecutionNotYetCompleteError" xml:space="preserve">
-    <value>Предыдущее выполнение еще не завершено.</value>
-  </data>
-  <data name="EE_ScriptError_Error" xml:space="preserve">
-    <value>Произошла ошибка скрипта.</value>
-  </data>
-  <data name="EE_ScriptError_ParsingSyntax" xml:space="preserve">
-    <value>В ходе синтаксического анализа {0} обнаружен недопустимый синтаксис.</value>
-  </data>
-  <data name="EE_ScriptError_FatalError" xml:space="preserve">
-    <value>Произошла неустранимая ошибка.</value>
-  </data>
-  <data name="EE_ExecutionInfo_FinalizingLoop" xml:space="preserve">
-    <value>Выполнение пакетного задания завершено {0} раз…</value>
-  </data>
-  <data name="EE_ExecutionInfo_QueryCancelledbyUser" xml:space="preserve">
-    <value>Запрос отменен.</value>
-  </data>
-  <data name="EE_BatchExecutionError_Halting" xml:space="preserve">
-    <value>При выполнении пакета произошла ошибка.</value>
-  </data>
-  <data name="EE_BatchExecutionError_Ignoring" xml:space="preserve">
-    <value>Произошла ошибка во время выполнения пакета, которая была проигнорирована.</value>
-  </data>
-  <data name="EE_ExecutionInfo_InitializingLoop" xml:space="preserve">
-    <value>Начало цикла выполнения</value>
-  </data>
-  <data name="EE_ExecutionError_CommandNotSupported" xml:space="preserve">
-    <value>Команда {0} не поддерживается.</value>
-  </data>
-  <data name="EE_ExecutionError_VariableNotFound" xml:space="preserve">
-    <value>Не удалось найти переменную {0}.</value>
+  <data name="BatchParserWrapperExecutionEngineBatchResultSetProcessing" xml:space="preserve">
+    <value>Программа-оболочка для пакетного синтаксического анализатора - подсистема выполнения - пакетная обработка ResultSet: DataReader.FieldCount: {0}  DataReader.RecordsAffected: {1}</value>
   </data>
   <data name="BatchParserWrapperExecutionEngineError" xml:space="preserve">
     <value>Ошибка выполнения SQL: {0}</value>
@@ -170,38 +134,77 @@
   <data name="BatchParserWrapperExecutionError" xml:space="preserve">
     <value>Выполнение программы-оболочки пакетного синтаксического анализатора: {0} найдено... в строке {1}: {2}  Описание: {3}</value>
   </data>
-  <data name="BatchParserWrapperExecutionEngineBatchMessage" xml:space="preserve">
-    <value>Получено сообщение при выполнении программы-оболочки для пакетного синтаксического анализатора: Сообщение: {0} Подробное сообщение: {1}</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineBatchResultSetProcessing" xml:space="preserve">
-    <value>Программа-оболочка для пакетного синтаксического анализатора - подсистема выполнения - пакетная обработка ResultSet: DataReader.FieldCount: {0}  DataReader.RecordsAffected: {1}</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineBatchResultSetFinished" xml:space="preserve">
-    <value>Завершен пакет ResultSet при выполнении программы-оболочки для пакетного синтаксического анализатора.</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineBatchCancelling" xml:space="preserve">
-    <value>Происходит отмена выполнения программы-оболочки для пакетного синтаксического анализатора.</value>
-  </data>
-  <data name="EE_ScriptError_Warning" xml:space="preserve">
-    <value>Предупреждение выполнения скрипта.</value>
-  </data>
-  <data name="TroubleshootingAssistanceMessage" xml:space="preserve">
-    <value>Дополнительные сведения об этой ошибке см. в разделах документации продукта, посвященных устранению неполадок.</value>
-  </data>
   <data name="BatchParser_CircularReference" xml:space="preserve">
     <value>Файл "{0}" включен рекурсивно.</value>
   </data>
   <data name="BatchParser_CommentNotTerminated" xml:space="preserve">
     <value>Отсутствует знак окончания комментария "*/".</value>
   </data>
-  <data name="BatchParser_StringNotTerminated" xml:space="preserve">
-    <value>Незакрытые кавычки в конце символьной строки.</value>
-  </data>
   <data name="BatchParser_IncorrectSyntax" xml:space="preserve">
     <value>В ходе анализа "{0}" обнаружен неверный синтаксис.</value>
   </data>
+  <data name="BatchParser_StringNotTerminated" xml:space="preserve">
+    <value>Незакрытые кавычки в конце символьной строки.</value>
+  </data>
   <data name="BatchParser_VariableNotDefined" xml:space="preserve">
     <value>Переменная {0} не определена.</value>
+  </data>
+  <data name="EE_BatchError_Exception" xml:space="preserve">
+    <value>При обработке пакета произошла ошибка. Сообщение об ошибке: {0}</value>
+  </data>
+  <data name="EE_BatchExecutionError_Halting" xml:space="preserve">
+    <value>При выполнении пакета произошла ошибка.</value>
+  </data>
+  <data name="EE_BatchExecutionError_Ignoring" xml:space="preserve">
+    <value>Произошла ошибка во время выполнения пакета, которая была проигнорирована.</value>
+  </data>
+  <data name="EE_BatchExecutionInfo_RowsAffected" xml:space="preserve">
+    <value>({0} затронутых строк)</value>
+  </data>
+  <data name="EE_BatchSqlMessageNoLineInfo" xml:space="preserve">
+    <value>Сообщение {0}, уровень {1}, состояние {2}</value>
+  </data>
+  <data name="EE_BatchSqlMessageNoProcedureInfo" xml:space="preserve">
+    <value>Сообщение {0}, уровень {1}, состояние {2}, строка {3}</value>
+  </data>
+  <data name="EE_BatchSqlMessageWithProcedureInfo" xml:space="preserve">
+    <value>Сообщение {0}, уровень {1}, состояние {2}, процедура {3}, строка {4}</value>
+  </data>
+  <data name="EE_ExecutionError_CommandNotSupported" xml:space="preserve">
+    <value>Команда {0} не поддерживается.</value>
+  </data>
+  <data name="EE_ExecutionError_VariableNotFound" xml:space="preserve">
+    <value>Не удалось найти переменную {0}.</value>
+  </data>
+  <data name="EE_ExecutionInfo_FinalizingLoop" xml:space="preserve">
+    <value>Выполнение пакетного задания завершено {0} раз…</value>
+  </data>
+  <data name="EE_ExecutionInfo_InitializingLoop" xml:space="preserve">
+    <value>Начало цикла выполнения</value>
+  </data>
+  <data name="EE_ExecutionInfo_QueryCancelledbyUser" xml:space="preserve">
+    <value>Запрос отменен.</value>
+  </data>
+  <data name="EE_ExecutionNotYetCompleteError" xml:space="preserve">
+    <value>Предыдущее выполнение еще не завершено.</value>
+  </data>
+  <data name="EE_ScriptError_Error" xml:space="preserve">
+    <value>Произошла ошибка скрипта.</value>
+  </data>
+  <data name="EE_ScriptError_FatalError" xml:space="preserve">
+    <value>Произошла неустранимая ошибка.</value>
+  </data>
+  <data name="EE_ScriptError_ParsingSyntax" xml:space="preserve">
+    <value>В ходе синтаксического анализа {0} обнаружен недопустимый синтаксис.</value>
+  </data>
+  <data name="EE_ScriptError_Warning" xml:space="preserve">
+    <value>Предупреждение выполнения скрипта.</value>
+  </data>
+  <data name="NullEmptyOrWhitespaceString" xml:space="preserve">
+    <value>Параметр содержит строку, имеющую значение NULL, пустую строку или строку с пробелом.</value>
+  </data>
+  <data name="SqlCmd_FailedInclude" xml:space="preserve">
+    <value>Не удалось найти включенные файлы {0}.</value>
   </data>
   <data name="SqlCmd_PathInvalid" xml:space="preserve">
     <value>Путь содержит недопустимые символы.</value>
@@ -209,10 +212,7 @@
   <data name="SqlCmd_PathLong" xml:space="preserve">
     <value>Слишком длинный путь.</value>
   </data>
-  <data name="SqlCmd_FailedInclude" xml:space="preserve">
-    <value>Не удалось найти включенные файлы {0}.</value>
-  </data>
-  <data name="NullEmptyOrWhitespaceString" xml:space="preserve">
-    <value>Параметр содержит строку, имеющую значение NULL, пустую строку или строку с пробелом.</value>
+  <data name="TroubleshootingAssistanceMessage" xml:space="preserve">
+    <value>Дополнительные сведения об этой ошибке см. в разделах документации продукта, посвященных устранению неполадок.</value>
   </data>
 </root>
