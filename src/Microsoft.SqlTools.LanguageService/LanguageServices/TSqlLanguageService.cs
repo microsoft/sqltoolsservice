@@ -1217,9 +1217,14 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
                         if (!hasBindingContext)
                         {
-                            if (TryIncrementalParse(scriptFile.Contents, parseInfo.ParseResult, this.DefaultParseOptions, out ParseResult parseResult))
+                            if (TryIncrementalParse(
+                                scriptFile.Contents,
+                                parseInfo.ParseResult,
+                                this.DefaultParseOptions,
+                                out ParseResult syntaxOnlyParseResult))
                             {
-                                parseInfo.ParseResult = parseResult;
+                                parseInfo.ParseResult = syntaxOnlyParseResult;
+                                Logger.Verbose($"ParseAndBind: parsed '{scriptFile.ClientUri}' without a binding context (syntax-only, no metadata binding)");
                             }
                             else
                             {
@@ -1257,19 +1262,22 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                                                 parseResults,
                                                 dbName,
                                                 BindMode.Batch);
+                                            Logger.Verbose($"ParseAndBind: bound parse result for '{scriptFile.ClientUri}' against database '{dbName}' using connection key '{parseInfo.ConnectionKey}'");
                                         }
                                     }
-                                    catch (ConnectionException)
+                                    catch (ConnectionException ex)
                                     {
-                                        Logger.Error("Hit connection exception while binding - disposing binder object...");
+                                        // Recoverable: the parse result is still returned; only metadata binding was skipped.
+                                        Logger.Warning($"ParseAndBind: connection error while binding '{scriptFile.ClientUri}': {ex}");
                                     }
-                                    catch (SqlParserInternalBinderError)
+                                    catch (SqlParserInternalBinderError ex)
                                     {
-                                        Logger.Error("Hit connection exception while binding - disposing binder object...");
+                                        // Recoverable: the parse result is still returned; only metadata binding was skipped.
+                                        Logger.Warning($"ParseAndBind: internal binder error while binding '{scriptFile.ClientUri}': {ex}");
                                     }
                                     catch (Exception ex)
                                     {
-                                        Logger.Error("Unknown exception during parsing " + ex.ToString());
+                                        Logger.Error($"ParseAndBind: unexpected error while parsing/binding '{scriptFile.ClientUri}': {ex}");
                                     }
 
                                     return null;
@@ -1282,7 +1290,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                     {
                         // reset the parse result to do a full parse next time
                         parseInfo.ParseResult = null;
-                        Logger.Error("Unknown exception during parsing " + ex.ToString());
+                        Logger.Error($"ParseAndBind: unexpected error parsing '{scriptFile.ClientUri}': {ex}");
                     }
                     finally
                     {
@@ -1291,7 +1299,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 }
                 else
                 {
-                    Logger.Warning("Binding metadata lock timeout in ParseAndBind");
+                    Logger.Warning($"ParseAndBind: timed out waiting for the binding metadata lock for '{scriptFile.ClientUri}'");
                 }
 
                 return parseInfo.ParseResult;
@@ -1329,13 +1337,14 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
             if (parseException != null)
             {
-                Logger.Error($"An unexpected error occured while parsing: {parseException}");
+                // Recoverable: caller resets ParseResult and performs a full parse on the next pass.
+                Logger.Warning($"An unexpected error occurred while parsing: {parseException}");
                 return false;
             }
 
             if (incrementalParseResult == null)
             {
-                Logger.Error("Parser returned a null ParseResult.");
+                Logger.Warning("Parser returned a null ParseResult.");
                 return false;
             }
 
@@ -1380,6 +1389,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             if (ConnectionStringHelper.IsDedicatedAdminConnection(info.ConnectionDetails, ConnectionServiceInstance.EnableSqlAuthenticationProvider, !ConnectionServiceInstance.EnableGlobalConnectionPooling))
             {
                 // Intellisense cannot be run on these connections as only 1 SqlConnection can be opened on them at a time
+                Logger.Information($"UpdateLanguageServiceOnConnection: skipping '{info.OwnerUri}' - IntelliSense is not supported on dedicated admin connections");
                 return;
             }
             ScriptParseInfo scriptInfo = GetScriptParseInfo(info.OwnerUri, createIfNotExists: true);
@@ -1388,6 +1398,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             // overwrite it and redirect the file to the SMO binder.
             if (scriptInfo.IsProject)
             {
+                Logger.Information($"UpdateLanguageServiceOnConnection: skipping '{info.OwnerUri}' - file already has a SQL project binding context");
                 return;
             }
 
@@ -1402,7 +1413,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 }
                 catch (Exception ex)
                 {
-                    Logger.Error("Unknown error in OnConnection " + ex.ToString());
+                    Logger.Error($"UpdateLanguageServiceOnConnection: failed setting up binding for '{info.OwnerUri}': {ex}");
                     scriptInfo.BindingContextKind = BindingContextKindEnum.None;
                 }
                 finally
@@ -1461,6 +1472,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 }
 
                 await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = projectUri });
+                Logger.Information($"UpdateLanguageServiceOnProjectOpen: offline IntelliSense ready for project '{projectUri}' (database: '{databaseName}')");
             }
             catch (Exception ex)
             {

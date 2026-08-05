@@ -212,6 +212,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 else
                 {
                     // no need to populate the context again since the context already exists
+                    Logger.Information($"AddConnectionContext: reusing existing binding context for connection key '{connectionKey}' (feature: '{featureName ?? "unknown"}')");
                     return connectionKey;
                 }
             }
@@ -222,7 +223,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 try
                 {
                     bindingContext.BindingLock.Reset();
-                   
+
                     // populate the binding context to work with the SMO metadata provider
                     bindingContext.ServerConnection = connectionOpener.OpenServerConnection(connInfo, featureName);
 
@@ -236,6 +237,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             
                     bindingContext.BindingTimeout = ConnectedBindingQueue.DefaultBindingTimeout;
                     bindingContext.IsConnected = true;
+                    Logger.Information($"AddConnectionContext: binding context ready for connection key '{connectionKey}' (feature: '{featureName ?? "unknown"}', metadata: {this.needsMetadata}, overwrite: {overwrite})");
                 }
                 catch (Exception ex)
                 {
