@@ -445,7 +445,7 @@ END
             // Assert: hover tooltip should mention "table" and "Customers"
             Assert.IsNotNull(hover, "Hover result should not be null");
             Assert.IsNotNull(hover.Contents, "Hover contents should not be null");
-            Assert.AreEqual("markdown", hover.Contents.Kind, "Hover contents should use Markdown markup");
+            Assert.AreEqual("plaintext", hover.Contents.Kind, "Hover contents should use plaintext markup");
             string hoverText = hover.Contents.Value;
             StringAssert.Contains("Customers", hoverText, "Hover should mention the table name");
             StringAssert.Contains("table", hoverText, "Hover should identify the object type as table");
