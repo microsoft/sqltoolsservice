@@ -444,10 +444,9 @@ END
 
             // Assert: hover tooltip should mention "table" and "Customers"
             Assert.IsNotNull(hover, "Hover result should not be null");
-            // Contents is MarkedString[] — each entry has a .Value string
-            var markedStrings = hover.Contents as MarkedString[];
-            Assert.IsNotNull(markedStrings, "Hover contents should be a MarkedString array");
-            string hoverText = string.Join(" ", markedStrings.Select(m => m.Value));
+            Assert.IsNotNull(hover.Contents, "Hover contents should not be null");
+            Assert.AreEqual("markdown", hover.Contents.Kind, "Hover contents should use Markdown markup");
+            string hoverText = hover.Contents.Value;
             StringAssert.Contains("Customers", hoverText, "Hover should mention the table name");
             StringAssert.Contains("table", hoverText, "Hover should identify the object type as table");
         }
@@ -477,9 +476,8 @@ END
             };
             var hoverCustomerId = _langService.GetHoverItem(posCustomerId, scriptFile);
             Assert.IsNotNull(hoverCustomerId, "Hover result should not be null for CustomerId");
-            var stringsCustomerId = hoverCustomerId.Contents as MarkedString[];
-            Assert.IsNotNull(stringsCustomerId, "Hover contents should be MarkedString[] for CustomerId");
-            string textCustomerId = string.Join(" ", stringsCustomerId.Select(m => m.Value));
+            Assert.IsNotNull(hoverCustomerId.Contents, "Hover contents should not be null for CustomerId");
+            string textCustomerId = hoverCustomerId.Contents.Value;
             StringAssert.Contains("int", textCustomerId,
                 $"Hover for CustomerId should contain data type 'int'. Got: {textCustomerId}");
             StringAssert.DoesNotContain("(, null)", textCustomerId,
@@ -493,9 +491,8 @@ END
             };
             var hoverEmail = _langService.GetHoverItem(posEmail, scriptFile);
             Assert.IsNotNull(hoverEmail, "Hover result should not be null for Email");
-            var stringsEmail = hoverEmail.Contents as MarkedString[];
-            Assert.IsNotNull(stringsEmail, "Hover contents should be MarkedString[] for Email");
-            string textEmail = string.Join(" ", stringsEmail.Select(m => m.Value));
+            Assert.IsNotNull(hoverEmail.Contents, "Hover contents should not be null for Email");
+            string textEmail = hoverEmail.Contents.Value;
             StringAssert.Contains("nvarchar", textEmail,
                 $"Hover for Email should contain data type 'nvarchar'. Got: {textEmail}");
             StringAssert.DoesNotContain("(, null)", textEmail,
