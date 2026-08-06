@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>STS2 wire DTOs, stable error codes, limits, and schema attributes. BCL only.</Description>
+    <Sts2DeterministicTimeBan>true</Sts2DeterministicTimeBan>
+    <Sts2PublicApiTracked>true</Sts2PublicApiTracked>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,8 @@
+P:System.DateTime.Now;Deterministic STS2 assemblies must not read ambient time (SPEC §9.3.1); use the injected time provider
+P:System.DateTime.UtcNow;Deterministic STS2 assemblies must not read ambient time (SPEC §9.3.1); use the injected time provider
+P:System.DateTime.Today;Deterministic STS2 assemblies must not read ambient time (SPEC §9.3.1); use the injected time provider
+P:System.DateTimeOffset.Now;Deterministic STS2 assemblies must not read ambient time (SPEC §9.3.1); use the injected time provider
+P:System.DateTimeOffset.UtcNow;Deterministic STS2 assemblies must not read ambient time (SPEC §9.3.1); use the injected time provider
+T:System.Diagnostics.Stopwatch;Deterministic STS2 assemblies must not measure ambient time (SPEC §9.3.1)
+P:System.Environment.TickCount;Deterministic STS2 assemblies must not read ambient time (SPEC §9.3.1)
+P:System.Environment.TickCount64;Deterministic STS2 assemblies must not read ambient time (SPEC §9.3.1)
