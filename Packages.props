@@ -68,6 +68,7 @@
     <!-- STS2 architecture and public-surface enforcement. -->
     <PackageReference Update="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="4.14.0" />
     <PackageReference Update="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="4.14.0" />
+    <PackageReference Update="YamlDotNet" Version="18.0.0" />
   </ItemGroup>
 
   <!-- When updating version of Dependencies in the below section, please also update the version in the following files:

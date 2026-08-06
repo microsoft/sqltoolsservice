@@ -1,0 +1,16 @@
+# STS2 scenario (SPEC $14.2). Editing expectations to match broken behavior is forbidden.
+name: open-timeout
+tags: [connection, fault, dialect:neutral]
+status: active
+milestone: M2
+adapter: fake
+driver:
+  open:
+    - outcome: timeout
+steps:
+  - request:
+      method: v2/connection.open
+      params: { openId: open-1, profile: $profiles.fakeBasic }
+    expectError: { dataCode: Sts2.ConnectionFailed.Timeout, jsonRpcCode: -32042 }
+expect:
+  invariants: [I1, I5, I6, I7, I8, I12]
