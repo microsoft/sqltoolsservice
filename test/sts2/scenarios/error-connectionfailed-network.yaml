@@ -1,0 +1,16 @@
+# STS2 scenario (SPEC $14.2). Editing expectations to match broken behavior is forbidden.
+name: error-connectionfailed-network
+tags: [error, connection, dialect:neutral]
+status: active
+milestone: M2
+adapter: fake
+driver:
+  open:
+    - outcome: networkFail
+steps:
+  - request:
+      method: v2/connection.open
+      params: { openId: open-1, profile: $profiles.fakeBasic }
+    expectError: { dataCode: Sts2.ConnectionFailed.Network, jsonRpcCode: -32041 }
+expect:
+  invariants: [I1, I12]

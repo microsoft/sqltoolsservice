@@ -1,0 +1,13 @@
+# STS2 scenario (SPEC $14.2). Editing expectations to match broken behavior is forbidden.
+name: error-notfound
+tags: [error, contract, dialect:neutral]
+status: active
+milestone: M3
+adapter: fake
+steps:
+  - request:
+      method: v2/query.execute
+      params: { connectionId: "c-never-existed", sql: "select 1" }
+    expectError: { dataCode: Sts2.NotFound, jsonRpcCode: -32062 }
+expect:
+  invariants: [I1, I5, I6, I7, I12]
