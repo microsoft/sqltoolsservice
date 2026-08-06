@@ -8,6 +8,8 @@
       "src\\sts2\\Microsoft.SqlTools.Sts2.Runtime\\Microsoft.SqlTools.Sts2.Runtime.csproj",
       "src\\sts2\\Microsoft.SqlTools.Sts2.Testing\\Microsoft.SqlTools.Sts2.Testing.csproj",
       "src\\sts2\\Microsoft.SqlTools.Sts2.Multiplexer\\Microsoft.SqlTools.Sts2.Multiplexer.csproj",
+      "src\\sts2\\Microsoft.SqlTools.Sts2.Drivers.SqlClient\\Microsoft.SqlTools.Sts2.Drivers.SqlClient.csproj",
+      "src\\sts2\\Microsoft.SqlTools.Sts2.Drivers.Sqlite\\Microsoft.SqlTools.Sts2.Drivers.Sqlite.csproj",
       "tools\\sts2-replay\\sts2-replay.csproj",
       "test\\sts2\\Microsoft.SqlTools.Sts2.UnitTests\\Microsoft.SqlTools.Sts2.UnitTests.csproj"
     ]

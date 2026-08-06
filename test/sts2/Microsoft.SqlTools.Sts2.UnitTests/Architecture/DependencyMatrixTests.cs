@@ -31,6 +31,11 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Architecture
             ["Microsoft.SqlTools.Sts2.Testing"] =
                 (["Microsoft.SqlTools.Sts2.Runtime", "Microsoft.SqlTools.Sts2.Core", "Microsoft.SqlTools.Sts2.Contracts", "Microsoft.SqlTools.Sts2.Abstractions"], ["YamlDotNet"]),
             ["Microsoft.SqlTools.Sts2.Multiplexer"] = ([], []),
+            ["Microsoft.SqlTools.Sts2.Drivers.SqlClient"] =
+                (["Microsoft.SqlTools.Sts2.Abstractions", "Microsoft.SqlTools.Sts2.Contracts"],
+                 ["Microsoft.Data.SqlClient", "Microsoft.SqlServer.Types"]),
+            ["Microsoft.SqlTools.Sts2.Drivers.Sqlite"] =
+                (["Microsoft.SqlTools.Sts2.Abstractions", "Microsoft.SqlTools.Sts2.Contracts"], ["Microsoft.Data.Sqlite", "SQLitePCLRaw.lib.e_sqlite3"]),
         };
 
         private static readonly string[] AnalyzerPackages =
