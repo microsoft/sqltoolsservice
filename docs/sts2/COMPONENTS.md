@@ -10,6 +10,13 @@ Driver port (IDbDriver/IDbSession), clock and id abstractions.
 - Project references: Microsoft.SqlTools.Sts2.Contracts
 - Package references: none (BCL only)
 
+## Microsoft.SqlTools.Sts2.Bootstrap
+
+Composition root invoked by legacy Program.cs; owns --enable-sts2 / STS_ENABLE_STS2 activation and process wiring.
+
+- Project references: Microsoft.SqlTools.Sts2.Contracts, Microsoft.SqlTools.Sts2.Drivers.SqlClient, Microsoft.SqlTools.Sts2.Drivers.Sqlite, Microsoft.SqlTools.Sts2.Hosting, Microsoft.SqlTools.Sts2.Multiplexer, Microsoft.SqlTools.Sts2.Runtime
+- Package references: none (BCL only)
+
 ## Microsoft.SqlTools.Sts2.Contracts
 
 Wire DTOs, stable error codes, limits, schema attributes.
@@ -37,6 +44,13 @@ Portable real-I/O driver adapter over Microsoft.Data.Sqlite.
 
 - Project references: Microsoft.SqlTools.Sts2.Abstractions, Microsoft.SqlTools.Sts2.Contracts
 - Package references: Microsoft.Data.Sqlite, SQLitePCLRaw.lib.e_sqlite3
+
+## Microsoft.SqlTools.Sts2.Hosting
+
+StreamJsonRpc gateway; translates v2 JSON-RPC methods to sanitized envelopes and back.
+
+- Project references: Microsoft.SqlTools.Sts2.Abstractions, Microsoft.SqlTools.Sts2.Contracts, Microsoft.SqlTools.Sts2.Core, Microsoft.SqlTools.Sts2.Runtime
+- Package references: StreamJsonRpc
 
 ## Microsoft.SqlTools.Sts2.Multiplexer
 
