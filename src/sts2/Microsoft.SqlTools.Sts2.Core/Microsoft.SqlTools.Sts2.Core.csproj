@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>STS2 pure deterministic reducer: state, command/event/effect DTOs. No I/O, no time, no async.</Description>
+    <Sts2DeterministicTimeBan>true</Sts2DeterministicTimeBan>
+    <Sts2DeterministicCoreBan>true</Sts2DeterministicCoreBan>
+    <Sts2PublicApiTracked>true</Sts2PublicApiTracked>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.SqlTools.Sts2.Contracts\Microsoft.SqlTools.Sts2.Contracts.csproj" />
+  </ItemGroup>
+</Project>
