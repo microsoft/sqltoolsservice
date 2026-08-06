@@ -69,6 +69,11 @@
     <PackageReference Update="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="4.14.0" />
     <PackageReference Update="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="4.14.0" />
     <PackageReference Update="YamlDotNet" Version="18.0.0" />
+    <PackageReference Update="Microsoft.Data.Sqlite" Version="10.0.9" />
+    <!-- Security override (CVE-2025-6965 / GHSA-2m69-gcr7-jv3q): Microsoft.Data.Sqlite
+         10.0.9 pins the vulnerable SQLitePCLRaw.lib.e_sqlite3 2.1.11 native library. Pin the
+         patched native library until Microsoft.Data.Sqlite carries an updated dependency. -->
+    <PackageReference Update="SQLitePCLRaw.lib.e_sqlite3" Version="3.50.3" />
   </ItemGroup>
 
   <!-- When updating version of Dependencies in the below section, please also update the version in the following files:
@@ -76,6 +81,7 @@
   <ItemGroup>
     <PackageReference Update="Azure.Identity" version="1.17.1" />
     <PackageReference Update="Microsoft.Data.SqlClient" Version="6.1.5" />
+    <PackageReference Update="Microsoft.SqlServer.Types" Version="170.1000.7" />
     <PackageReference Update="Microsoft.SqlServer.SqlManagementObjects" Version="181.25.0" />
     <PackageReference Update="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
