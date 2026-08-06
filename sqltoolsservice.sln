@@ -119,6 +119,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.SqlTools.Sts2.Tes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "sts2-replay", "tools\sts2-replay\sts2-replay.csproj", "{0B6B16BB-3ADD-434C-B171-12794439FD80}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.SqlTools.Sts2.Multiplexer", "src\sts2\Microsoft.SqlTools.Sts2.Multiplexer\Microsoft.SqlTools.Sts2.Multiplexer.csproj", "{4FE33D1B-4414-40DB-8D3B-29D65BF75CA2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -708,6 +710,24 @@ Global
 		{0B6B16BB-3ADD-434C-B171-12794439FD80}.Release|x64.Build.0 = Release|Any CPU
 		{0B6B16BB-3ADD-434C-B171-12794439FD80}.Release|x86.ActiveCfg = Release|Any CPU
 		{0B6B16BB-3ADD-434C-B171-12794439FD80}.Release|x86.Build.0 = Release|Any CPU
+		{4FE33D1B-4414-40DB-8D3B-29D65BF75CA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4FE33D1B-4414-40DB-8D3B-29D65BF75CA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4FE33D1B-4414-40DB-8D3B-29D65BF75CA2}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{4FE33D1B-4414-40DB-8D3B-29D65BF75CA2}.Debug|x64.Build.0 = Debug|Any CPU
+		{4FE33D1B-4414-40DB-8D3B-29D65BF75CA2}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4FE33D1B-4414-40DB-8D3B-29D65BF75CA2}.Debug|x86.Build.0 = Debug|Any CPU
+		{4FE33D1B-4414-40DB-8D3B-29D65BF75CA2}.Integration|Any CPU.ActiveCfg = Debug|Any CPU
+		{4FE33D1B-4414-40DB-8D3B-29D65BF75CA2}.Integration|Any CPU.Build.0 = Debug|Any CPU
+		{4FE33D1B-4414-40DB-8D3B-29D65BF75CA2}.Integration|x64.ActiveCfg = Debug|Any CPU
+		{4FE33D1B-4414-40DB-8D3B-29D65BF75CA2}.Integration|x64.Build.0 = Debug|Any CPU
+		{4FE33D1B-4414-40DB-8D3B-29D65BF75CA2}.Integration|x86.ActiveCfg = Debug|Any CPU
+		{4FE33D1B-4414-40DB-8D3B-29D65BF75CA2}.Integration|x86.Build.0 = Debug|Any CPU
+		{4FE33D1B-4414-40DB-8D3B-29D65BF75CA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4FE33D1B-4414-40DB-8D3B-29D65BF75CA2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4FE33D1B-4414-40DB-8D3B-29D65BF75CA2}.Release|x64.ActiveCfg = Release|Any CPU
+		{4FE33D1B-4414-40DB-8D3B-29D65BF75CA2}.Release|x64.Build.0 = Release|Any CPU
+		{4FE33D1B-4414-40DB-8D3B-29D65BF75CA2}.Release|x86.ActiveCfg = Release|Any CPU
+		{4FE33D1B-4414-40DB-8D3B-29D65BF75CA2}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -746,6 +766,7 @@ Global
 		{BC6557A4-E7BB-4744-A37D-BF50B7227D8D} = {8AFACB56-5A36-36F4-E3C3-98E87E8C2DB5}
 		{AB883B1F-E138-4EAB-82FF-A9E44B96E413} = {8AFACB56-5A36-36F4-E3C3-98E87E8C2DB5}
 		{0B6B16BB-3ADD-434C-B171-12794439FD80} = {8AFACB56-5A36-36F4-E3C3-98E87E8C2DB5}
+		{4FE33D1B-4414-40DB-8D3B-29D65BF75CA2} = {8AFACB56-5A36-36F4-E3C3-98E87E8C2DB5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B31CDF4B-2851-45E5-8C5F-BE97125D9DD8}
