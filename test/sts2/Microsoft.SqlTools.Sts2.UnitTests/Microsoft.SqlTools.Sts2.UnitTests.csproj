@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>STS2 foundation, runtime, replay, multiplexer, driver, scenario, and architecture tests.</Description>
+    <Description>STS2 runtime, transport, provider, bootstrap, scenario, and architecture tests.</Description>
     <TargetFramework>$(SqlToolsServiceDotNetVersion)</TargetFramework>
     <RootNamespace>Microsoft.SqlTools.Sts2.UnitTests</RootNamespace>
     <IsPackable>false</IsPackable>
@@ -26,5 +26,7 @@
     <ProjectReference Include="..\..\..\src\sts2\Microsoft.SqlTools.Sts2.Multiplexer\Microsoft.SqlTools.Sts2.Multiplexer.csproj" />
     <ProjectReference Include="..\..\..\src\sts2\Microsoft.SqlTools.Sts2.Drivers.SqlClient\Microsoft.SqlTools.Sts2.Drivers.SqlClient.csproj" />
     <ProjectReference Include="..\..\..\src\sts2\Microsoft.SqlTools.Sts2.Drivers.Sqlite\Microsoft.SqlTools.Sts2.Drivers.Sqlite.csproj" />
+    <ProjectReference Include="..\..\..\src\sts2\Microsoft.SqlTools.Sts2.Hosting\Microsoft.SqlTools.Sts2.Hosting.csproj" />
+    <ProjectReference Include="..\..\..\src\sts2\Microsoft.SqlTools.Sts2.Bootstrap\Microsoft.SqlTools.Sts2.Bootstrap.csproj" />
   </ItemGroup>
 </Project>

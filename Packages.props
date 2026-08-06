@@ -66,6 +66,7 @@
     <PackageReference Update="System.ClientModel" Version="1.8.1" />
 
     <!-- STS2 architecture and public-surface enforcement. -->
+    <PackageReference Update="StreamJsonRpc" Version="2.25.28" />
     <PackageReference Update="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="4.14.0" />
     <PackageReference Update="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="4.14.0" />
     <PackageReference Update="YamlDotNet" Version="18.0.0" />
