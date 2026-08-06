@@ -29,9 +29,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 
             internal int RebuildCount => Volatile.Read(ref this.rebuildCount);
 
-            internal bool ConcurrentRebuildObserved { get; private set; }
+            internal bool ConcurrentRebuildObserved => Volatile.Read(ref this.concurrentRebuildObserved) != 0;
 
             private int activeRebuildCount;
+            private int concurrentRebuildObserved;
             private int rebuildCount;
 
             internal void ReleaseFirstRebuild()
@@ -46,7 +47,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                 int rebuildNumber = Interlocked.Increment(ref this.rebuildCount);
                 if (Interlocked.Increment(ref this.activeRebuildCount) > 1)
                 {
-                    this.ConcurrentRebuildObserved = true;
+                    Interlocked.Exchange(ref this.concurrentRebuildObserved, 1);
                 }
 
                 try
