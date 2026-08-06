@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>STS2 replay tool: run, verify, until, diff, explain, export-check over journals and bundles.</Description>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>$(SqlToolsServiceDotNetVersion)</TargetFramework>
+    <AssemblyName>sts2-replay</AssemblyName>
+    <RootNamespace>Microsoft.SqlTools.Sts2.Replay</RootNamespace>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>sts2-replay</ToolCommandName>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\sts2\Microsoft.SqlTools.Sts2.Runtime\Microsoft.SqlTools.Sts2.Runtime.csproj" />
+    <ProjectReference Include="..\..\src\sts2\Microsoft.SqlTools.Sts2.Core\Microsoft.SqlTools.Sts2.Core.csproj" />
+    <ProjectReference Include="..\..\src\sts2\Microsoft.SqlTools.Sts2.Contracts\Microsoft.SqlTools.Sts2.Contracts.csproj" />
+  </ItemGroup>
+</Project>

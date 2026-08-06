@@ -1,0 +1,14 @@
+# STS2 scenario (SPEC $14.2). Editing expectations to match broken behavior is forbidden.
+name: ack-unknown
+tags: [query, ack, dialect:neutral]
+status: active
+milestone: M3
+adapter: fake
+steps:
+  - notify: { method: v2/query.ack, params: { queryId: "q-never-existed", pageSeq: 0 } }
+  - request:
+      method: v2/diagnostics.ping
+      params: { echo: "unbothered" }
+    expectResult: { echo: "unbothered" }
+expect:
+  invariants: [I1, I5, I6, I7, I12]

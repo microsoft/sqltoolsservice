@@ -11,7 +11,9 @@ CoverageReport
 project.lock.json
 
 # Tool Runtime Dir
-/[Tt]ools/
+/[Tt]ools/*
+!/[Tt]ools/sts2-replay/
+!/[Tt]ools/sts2-replay/**
 
 # User-specific files
 *.suo
