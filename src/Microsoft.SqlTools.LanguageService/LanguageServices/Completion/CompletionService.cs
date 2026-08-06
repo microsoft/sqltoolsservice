@@ -20,7 +20,11 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices.Completion
     /// </summary>
     internal sealed class CompletionService
     {
+        private const int DefaultCompletionHardTimeout = 5_000;
+
         private ConnectedBindingQueue BindingQueue { get; set; }
+
+        internal int HardTimeout { get; set; } = DefaultCompletionHardTimeout;
 
         /// <summary>
         /// Created new instance given binding queue
@@ -67,6 +71,12 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices.Completion
                     // wait for the queue item
                     queueItem.ItemProcessed.WaitOne();
                     Logger.Verbose($"Finished processing completion request for {connInfo?.OwnerUri} in CompletionService.CreateCompletions");
+                    if (queueItem.TimedOut)
+                    {
+                        Logger.Warning($"Completion request timed out for {connInfo?.OwnerUri}");
+                        return null;
+                    }
+
                     var completionResult = queueItem.GetResultAsT<AutoCompletionResult>();
                     if (completionResult != null && completionResult.CompletionItems != null && completionResult.CompletionItems.Length > 0)
                     {
@@ -96,6 +106,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices.Completion
             QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
                 key: scriptParseInfo.ConnectionKey,
                 bindingTimeout: ConnectedBindingQueue.BindingTimeout,
+                hardTimeout: this.HardTimeout,
                 bindOperation: (bindingContext, cancelToken) =>
                 {
                     return CreateCompletionsFromSqlParser(connInfo, scriptParseInfo, scriptDocumentInfo, bindingContext.MetadataDisplayInfoProvider);

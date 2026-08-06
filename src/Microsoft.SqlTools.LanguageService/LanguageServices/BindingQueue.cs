@@ -94,7 +94,8 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             Func<IBindingContext, object>? timeoutOperation = null,
             Func<Exception, object>? errorHandler = null,
             int? bindingTimeout = null,
-            int? waitForLockTimeout = null)
+            int? waitForLockTimeout = null,
+            int? hardTimeout = null)
         {
             QueueItem queueItem = new QueueItem()
             {
@@ -103,7 +104,8 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 TimeoutOperation = timeoutOperation,
                 ErrorHandler = errorHandler,
                 BindingTimeout = bindingTimeout,
-                WaitForLockTimeout = waitForLockTimeout
+                WaitForLockTimeout = waitForLockTimeout,
+                HardTimeout = hardTimeout
             };
 
             lock (this.bindingQueueLock)
@@ -333,6 +335,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             {
                 // prefer the queue item binding item, otherwise use the context default timeout - timeout is in milliseconds
                 int bindTimeoutInMs = queueItem.BindingTimeout ?? bindingContext.BindingTimeout;
+                int hardTimeoutInMs = queueItem.HardTimeout ?? bindTimeoutInMs;
 
                 // handle the case a previous binding operation is still running
                 if (!bindingContext.BindingLock.WaitOne(queueItem.WaitForLockTimeout ?? 0))
@@ -340,6 +343,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                     try
                     {
                         Logger.Warning("Binding queue operation timed out waiting for previous operation to finish");
+                        queueItem.TimedOut = true;
                         queueItem.Result = queueItem.TimeoutOperation != null
                             ? queueItem.TimeoutOperation(bindingContext)
                             : null;
@@ -352,6 +356,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                     {
                         queueItem.ItemProcessed.Set();
                     }
+                    return;
                 }
 
                 bindingContext.BindingLock.Reset();
@@ -367,6 +372,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 {
                     try
                     {
+                        queueItem.WasExecuted = true;
                         result = queueItem.BindOperation(
                                             bindingContext,
                                             cancelToken.Token);
@@ -400,22 +406,46 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 {
                     try
                     {
-                        // check if the binding tasks completed within the binding timeout                           
-                        if (bindTask.Wait(bindTimeoutInMs))
+                        int slowWaitInMs = Math.Min(bindTimeoutInMs, hardTimeoutInMs);
+
+                        // The first timeout is only a slow-operation threshold when a later hard timeout is set.
+                        if (bindTask.Wait(slowWaitInMs))
                         {
                             queueItem.Result = result;
                         }
                         else
                         {
-                            cancelToken.Cancel();
-                            // if the task didn't complete then call the timeout callback
-                            if (queueItem.TimeoutOperation != null)
+                            if (slowWaitInMs == bindTimeoutInMs)
                             {
-                                queueItem.Result = queueItem.TimeoutOperation(bindingContext);
+                                Logger.Warning($"Binding queue operation exceeded the {bindTimeoutInMs} ms slow-operation threshold");
                             }
-                            bindTask.ContinueWithOnFaulted(t => Logger.Error("Binding queue threw exception " + t.Exception.ToString()));
-                            // Give the task a chance to complete before moving on to the next operation
-                            bindTask.Wait();
+
+                            int remainingWaitInMs = hardTimeoutInMs - slowWaitInMs;
+                            if (remainingWaitInMs > 0 && bindTask.Wait(remainingWaitInMs))
+                            {
+                                queueItem.Result = result;
+                            }
+                            else
+                            {
+                                Logger.Warning($"Binding queue operation reached its {hardTimeoutInMs} ms hard timeout");
+                                queueItem.TimedOut = true;
+
+                                // Keep this context unavailable until the old operation actually exits.
+                                bindTask.ContinueWith(
+                                    task => bindingContext.BindingLock.Set(),
+                                    CancellationToken.None,
+                                    TaskContinuationOptions.ExecuteSynchronously,
+                                    TaskScheduler.Default);
+                                lockTaken = false;
+
+                                cancelToken.Cancel();
+                                if (queueItem.TimeoutOperation != null)
+                                {
+                                    queueItem.Result = queueItem.TimeoutOperation(bindingContext);
+                                }
+
+                                bindTask.ContinueWithOnFaulted(t => Logger.Error("Binding queue threw exception " + t.Exception.ToString()));
+                            }
                         }
                     }
                     catch (Exception ex)

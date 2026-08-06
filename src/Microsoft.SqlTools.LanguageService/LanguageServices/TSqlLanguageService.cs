@@ -1195,8 +1195,8 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// <summary>
         /// Parses the SQL text and binds it to the SMO metadata provider if connected
         /// </summary>
-        /// <param name="filePath"></param>
-        /// <param name="sqlText"></param>
+        /// <param name="scriptFile">The current document and its SQL text.</param>
+        /// <param name="connInfo">Connection information used for metadata binding.</param>
         /// <returns>The ParseResult instance returned from SQL Parser</returns>
         public Task<ParseResult> ParseAndBind(ScriptFile scriptFile, ConnectionInfoBase connInfo)
         {
@@ -1284,6 +1284,11 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                                 });
 
                             queueItem.ItemProcessed.WaitOne();
+                            if (!queueItem.WasExecuted || queueItem.TimedOut)
+                            {
+                                Logger.Verbose($"ParseAndBind: binding queue did not complete the parse for '{scriptFile.ClientUri}'");
+                                return null;
+                            }
                         }
                     }
                     catch (Exception ex)
@@ -1300,6 +1305,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 else
                 {
                     Logger.Warning($"ParseAndBind: timed out waiting for the binding metadata lock for '{scriptFile.ClientUri}'");
+                    return null;
                 }
 
                 return parseInfo.ParseResult;
@@ -2848,7 +2854,13 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             // reparse and bind the SQL statement if needed
             if (RequiresReparse(scriptParseInfo, scriptFile))
             {
-                await ParseAndBind(scriptFile, connInfo);
+                ParseResult parseResult = await ParseAndBind(scriptFile, connInfo);
+                if (parseResult == null || RequiresReparse(scriptParseInfo, scriptFile))
+                {
+                    Logger.Verbose($"Stopping completion for {scriptFile.ClientUri} because the required reparse did not produce a current parse result");
+                    return null;
+                }
+
                 Logger.Verbose($"Reparsed script for {scriptFile.ClientUri} in GetCompletionItems");
             }
 
@@ -2871,6 +2883,11 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             }
 
             AutoCompletionResult result = completionService.CreateCompletions(connInfo, scriptDocumentInfo, useLowerCaseSuggestions);
+            if (result == null)
+            {
+                Logger.Verbose($"Stopping completion for {scriptFile.ClientUri} because the binding operation timed out");
+                return null;
+            }
 
             // A newer request may have cancelled us while we were in CreateCompletions.
             // Bail out so we don't overwrite currentCompletionParseInfo with stale data.

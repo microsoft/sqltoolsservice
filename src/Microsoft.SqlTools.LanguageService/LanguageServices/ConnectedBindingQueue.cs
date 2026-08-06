@@ -28,7 +28,8 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             Func<IBindingContext, object> timeoutOperation = null,
             Func<Exception, object> errorHandler = null,
             int? bindingTimeout = null,
-            int? waitForLockTimeout = null);
+            int? waitForLockTimeout = null,
+            int? hardTimeout = null);
     }
 
     public class SqlConnectionOpener
@@ -54,7 +55,8 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
     public class ConnectedBindingQueue : BindingQueue<ConnectedBindingContext>, IConnectedBindingQueue
     {
         /// <summary>
-        /// Default binding operation timeout in milliseconds.
+        /// Default slow-operation threshold in milliseconds. Callers can provide a later hard
+        /// timeout when the operation should be allowed to continue beyond this threshold.
         /// </summary>
         public const int BindingTimeout = 500;
 
