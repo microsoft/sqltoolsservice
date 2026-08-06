@@ -62,6 +62,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices.Completion
             AutoCompletionResult result = new AutoCompletionResult();
             if (scriptDocumentInfo.ScriptParseInfo.IsConnected || scriptDocumentInfo.ScriptParseInfo.IsProject)
             {
+                Logger.Verbose($"Queueing completion binding operation for {connInfo?.OwnerUri}");
                 QueueItem queueItem = AddToQueue(connInfo, scriptDocumentInfo.ScriptParseInfo, scriptDocumentInfo, useLowerCaseSuggestions);
 
                 // wait for the queue item

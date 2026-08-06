@@ -9,6 +9,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -597,12 +598,20 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             CompletionRequestState state = completionRequestStates.GetOrAdd(uri, _ => new CompletionRequestState());
             var cancellation = new CancellationTokenSource();
             CancellationToken cancellationToken = cancellation.Token;
+            bool cancelledPreviousRequest;
             lock (state)
             {
+                cancelledPreviousRequest = state.CurrentCancellation != null;
                 state.CurrentCancellation?.Cancel();
                 state.CurrentCancellation = cancellation;
             }
+            if (cancelledPreviousRequest)
+            {
+                Logger.Verbose($"Completion request for '{uri}' cancelled the previous request for the same document");
+            }
 
+            Stopwatch requestStopwatch = Stopwatch.StartNew();
+            Logger.Verbose($"Completion request queued for '{uri}'");
             try
             {
                 T result = null;
@@ -610,13 +619,20 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 {
                     if (!cancellationToken.IsCancellationRequested)
                     {
+                        Logger.Verbose($"Completion request started for '{uri}' after waiting {requestStopwatch.ElapsedMilliseconds} ms for URI serialization");
                         result = await operation(cancellationToken);
                     }
+                    else
+                    {
+                        Logger.Verbose($"Skipping superseded completion request for '{uri}' after waiting {requestStopwatch.ElapsedMilliseconds} ms for URI serialization");
+                    }
                 });
+                Logger.Verbose($"Completion request finished for '{uri}' after {requestStopwatch.ElapsedMilliseconds} ms; cancelled: {cancellationToken.IsCancellationRequested}");
                 return cancellationToken.IsCancellationRequested ? null : result;
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
+                Logger.Verbose($"Completion request cancelled for '{uri}' after {requestStopwatch.ElapsedMilliseconds} ms");
                 return null;
             }
             finally
@@ -2915,12 +2931,16 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             }
 
             ScriptDocumentInfo scriptDocumentInfo;
+            Stopwatch buildingMetadataLockStopwatch = Stopwatch.StartNew();
             if (!Monitor.TryEnter(scriptParseInfo.BuildingMetadataLock, ConnectedBindingQueue.BindingTimeout))
             {
-                Logger.Verbose($"Stopping completion for {scriptFile.ClientUri} because the document lock is busy");
+                Logger.Warning($"Completion for '{scriptFile.ClientUri}' timed out after {buildingMetadataLockStopwatch.ElapsedMilliseconds} ms waiting for BuildingMetadataLock");
                 return null;
             }
 
+            long buildingMetadataLockWaitMs = buildingMetadataLockStopwatch.ElapsedMilliseconds;
+            buildingMetadataLockStopwatch.Restart();
+            Logger.Verbose($"Completion for '{scriptFile.ClientUri}' acquired BuildingMetadataLock after {buildingMetadataLockWaitMs} ms");
             try
             {
                 if (RequiresReparse(scriptParseInfo, scriptFile))
@@ -2933,6 +2953,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             finally
             {
                 Monitor.Exit(scriptParseInfo.BuildingMetadataLock);
+                Logger.Verbose($"Completion for '{scriptFile.ClientUri}' released BuildingMetadataLock after holding it for {buildingMetadataLockStopwatch.ElapsedMilliseconds} ms");
             }
 
             // if the parse failed then return the default list
