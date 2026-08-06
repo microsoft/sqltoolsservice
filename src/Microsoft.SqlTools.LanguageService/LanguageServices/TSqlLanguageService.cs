@@ -124,8 +124,13 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
         private readonly ConcurrentDictionary<string, ICompletionExtension> completionExtensions = new();
         private readonly ConcurrentDictionary<string, DateTime> extAssemblyLastUpdateTime = new();
-        private readonly ConcurrentDictionary<string, AsyncLock> uriAsyncLocks = new();
-        private CancellationTokenSource completionRequestCancellation;
+        private readonly ConcurrentDictionary<string, AsyncLock> uriAsyncLocks = new(StringComparer.OrdinalIgnoreCase);
+        private readonly ConcurrentDictionary<string, CompletionRequestState> completionRequestStates = new(StringComparer.OrdinalIgnoreCase);
+
+        private sealed class CompletionRequestState
+        {
+            internal CancellationTokenSource CurrentCancellation { get; set; }
+        }
 
         // Debounce state for project IntelliSense model updates (one CTS per file URI).
         private readonly ConcurrentDictionary<string, CancellationTokenSource> _intelliSenseUpdateDebounce = new(StringComparer.OrdinalIgnoreCase);
@@ -540,35 +545,91 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             TextDocumentPosition textDocumentPosition,
             RequestContext<CompletionItem[]> requestContext)
         {
-            var scriptFile = CurrentWorkspace.GetFile(textDocumentPosition.TextDocument.Uri);
-            if (scriptFile == null)
-            {
-                await requestContext.SendResult(null);
-                return;
-            }
-            // check if Intellisense suggestions are enabled
-            if (ShouldSkipIntellisense(scriptFile.ClientUri))
-            {
-                Logger.Verbose($"Skipping completion request for {scriptFile.ClientUri} because intellisense is disabled or file is non-MSSQL");
-                await requestContext.SendResult(null);
-                return;
-            }
+            string uri = textDocumentPosition?.TextDocument?.Uri;
+            CompletionItem[] completionItems = await RunLatestCompletionByUriAsync(
+                uri,
+                async cancellationToken =>
+                {
+                    ScriptFile scriptFile = CurrentWorkspace.GetFile(uri);
+                    if (scriptFile == null)
+                    {
+                        return null;
+                    }
 
-            // Cancel any previous in-flight completion so it doesn't
-            // overwrite currentCompletionParseInfo after we do.
-            var cts = CancelPreviousCompletionRequest();
+                    if (ShouldSkipIntellisense(scriptFile.ClientUri))
+                    {
+                        Logger.Verbose($"Skipping completion request for {scriptFile.ClientUri} because intellisense is disabled or file is non-MSSQL");
+                        return null;
+                    }
 
-            ConnectionInfoBase connInfo = null;
-            // Check if we need to refresh the auth token, and if we do then don't pass in the 
-            // connection so that we only show the default options until the refreshed token is returned
-            if (!await ConnectionServiceInstance.TryRequestRefreshAuthToken(scriptFile.ClientUri))
-            {
-                ConnectionServiceInstance.TryFindConnection(scriptFile.ClientUri, out connInfo);
-            }
-            var completionItems = await GetCompletionItems(
-                textDocumentPosition, scriptFile, connInfo, cts.Token);
+                    ConnectionInfoBase connInfo = null;
+                    // Check if we need to refresh the auth token, and if we do then don't pass in the
+                    // connection so that we only show the default options until the refreshed token is returned
+                    if (!await ConnectionServiceInstance.TryRequestRefreshAuthToken(scriptFile.ClientUri))
+                    {
+                        ConnectionServiceInstance.TryFindConnection(scriptFile.ClientUri, out connInfo);
+                    }
+
+                    return await GetCompletionItems(
+                        textDocumentPosition,
+                        scriptFile,
+                        connInfo,
+                        cancellationToken);
+                });
 
             await requestContext.SendResult(completionItems);
+        }
+
+        /// <summary>
+        /// Runs completion requests independently per document while allowing only the latest
+        /// request for a URI to enter the completion operation or publish a result.
+        /// </summary>
+        internal async Task<T> RunLatestCompletionByUriAsync<T>(
+            string uri,
+            Func<CancellationToken, Task<T>> operation)
+            where T : class
+        {
+            if (string.IsNullOrWhiteSpace(uri))
+            {
+                return await operation(CancellationToken.None);
+            }
+
+            CompletionRequestState state = completionRequestStates.GetOrAdd(uri, _ => new CompletionRequestState());
+            var cancellation = new CancellationTokenSource();
+            CancellationToken cancellationToken = cancellation.Token;
+            lock (state)
+            {
+                state.CurrentCancellation?.Cancel();
+                state.CurrentCancellation = cancellation;
+            }
+
+            try
+            {
+                T result = null;
+                await RunSerializedByUriAsync(uri, async () =>
+                {
+                    if (!cancellationToken.IsCancellationRequested)
+                    {
+                        result = await operation(cancellationToken);
+                    }
+                });
+                return cancellationToken.IsCancellationRequested ? null : result;
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                return null;
+            }
+            finally
+            {
+                lock (state)
+                {
+                    if (ReferenceEquals(state.CurrentCancellation, cancellation))
+                    {
+                        state.CurrentCancellation = null;
+                    }
+                }
+                cancellation.Dispose();
+            }
         }
 
         /// <summary>
@@ -1154,23 +1215,6 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             {
                 await operation();
             }
-        }
-
-        /// <summary>
-        /// Cancels any previous in-flight completion request and returns a new CTS for the current request.
-        /// This ensures only the latest request's result wins the write to currentCompletionParseInfo.
-        /// </summary>
-        private CancellationTokenSource CancelPreviousCompletionRequest()
-        {
-            var newCts = new CancellationTokenSource();
-            var oldCts = Interlocked.Exchange(ref completionRequestCancellation, newCts);
-            if (oldCts != null)
-            {
-                Logger.Verbose("Cancelling previous completion request");
-                oldCts.Cancel();
-                oldCts.Dispose();
-            }
-            return newCts;
         }
 
         #endregion
@@ -2870,7 +2914,26 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 return null;
             }
 
-            ScriptDocumentInfo scriptDocumentInfo = new ScriptDocumentInfo(textDocumentPosition, scriptFile, scriptParseInfo);
+            ScriptDocumentInfo scriptDocumentInfo;
+            if (!Monitor.TryEnter(scriptParseInfo.BuildingMetadataLock, ConnectedBindingQueue.BindingTimeout))
+            {
+                Logger.Verbose($"Stopping completion for {scriptFile.ClientUri} because the document lock is busy");
+                return null;
+            }
+
+            try
+            {
+                if (RequiresReparse(scriptParseInfo, scriptFile))
+                {
+                    return null;
+                }
+
+                scriptDocumentInfo = new ScriptDocumentInfo(textDocumentPosition, scriptFile, scriptParseInfo);
+            }
+            finally
+            {
+                Monitor.Exit(scriptParseInfo.BuildingMetadataLock);
+            }
 
             // if the parse failed then return the default list
             if (scriptParseInfo.ParseResult == null)
@@ -2891,14 +2954,12 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
             // A newer request may have cancelled us while we were in CreateCompletions.
             // Bail out so we don't overwrite currentCompletionParseInfo with stale data.
-            if (cancellationToken.IsCancellationRequested)
+            if (cancellationToken.IsCancellationRequested || RequiresReparse(scriptParseInfo, scriptFile))
             {
-                Logger.Verbose($"Cancellation requested for {scriptFile.ClientUri} in GetCompletionItems after CreateCompletions");
+                Logger.Verbose($"Stopping stale completion for {scriptFile.ClientUri}");
                 return null;
             }
 
-            // cache the current script parse info object to resolve completions later
-            this.currentCompletionParseInfo = scriptParseInfo;
             resultCompletionItems = result.CompletionItems;
 
 
@@ -2911,6 +2972,12 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 Logger.Verbose($"Sending default items for {scriptFile.ClientUri} as no completions were found");
             }
 
+            if (cancellationToken.IsCancellationRequested || RequiresReparse(scriptParseInfo, scriptFile))
+            {
+                return null;
+            }
+
+            this.currentCompletionParseInfo = scriptParseInfo;
             return resultCompletionItems;
         }
 

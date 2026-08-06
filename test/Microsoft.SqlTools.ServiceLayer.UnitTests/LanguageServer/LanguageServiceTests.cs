@@ -48,6 +48,63 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         }
 
         /// <summary>
+        /// Reproduces rapid typing while an older completion ignores cancellation. Only the
+        /// latest request for that document runs, while another editor remains independent.
+        /// </summary>
+        [Test]
+        [Timeout(10_000)]
+        public async Task CompletionCoordinatorRunsOnlyLatestRequestPerDocument()
+        {
+            var service = new TestLanguageService();
+            var firstStarted = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var releaseFirst = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            CancellationToken firstToken = default;
+            int secondOperationCount = 0;
+            int thirdOperationCount = 0;
+
+            Task<string> first = service.RunLatestCompletionByUriAsync(
+                "file://query.sql",
+                async cancellationToken =>
+                {
+                    firstToken = cancellationToken;
+                    firstStarted.SetResult(true);
+                    await releaseFirst.Task;
+                    return "old";
+                });
+            await firstStarted.Task;
+
+            Task<string> otherDocument = service.RunLatestCompletionByUriAsync(
+                "file://other.sql",
+                _ => Task.FromResult("other"));
+            Assert.That(await otherDocument, Is.EqualTo("other"));
+            Assert.That(firstToken.IsCancellationRequested, Is.False);
+
+            Task<string> second = service.RunLatestCompletionByUriAsync(
+                "file://query.sql",
+                _ =>
+                {
+                    Interlocked.Increment(ref secondOperationCount);
+                    return Task.FromResult("middle");
+                });
+            Task<string> third = service.RunLatestCompletionByUriAsync(
+                "file://query.sql",
+                _ =>
+                {
+                    Interlocked.Increment(ref thirdOperationCount);
+                    return Task.FromResult("latest");
+                });
+
+            Assert.That(firstToken.IsCancellationRequested, Is.True);
+            releaseFirst.SetResult(true);
+
+            Assert.That(await first, Is.Null);
+            Assert.That(await second, Is.Null);
+            Assert.That(await third, Is.EqualTo("latest"));
+            Assert.That(secondOperationCount, Is.Zero);
+            Assert.That(thirdOperationCount, Is.EqualTo(1));
+        }
+
+        /// <summary>
         /// Verify that the SQL parser correctly detects errors in text
         /// </summary>
         [Test]
