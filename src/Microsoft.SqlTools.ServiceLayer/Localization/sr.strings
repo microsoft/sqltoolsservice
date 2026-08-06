@@ -437,6 +437,15 @@ FragmentShouldHaveOnlyOneBatch = TSQL fragment should contain exactly one batch.
 NoCreateStreamingJobStatementFound = No External Streaming Job creation TSQL found (EXEC sp_create_streaming_job statement).
 
 ############################################################################
+# DacFx Custom Code Analysis Rules
+CustomRulesRestoreRequired = Custom code analysis rules are unavailable. Run 'dotnet restore' on the project and then reopen this dialog.
+CustomRulesLoadFailed(string errorMessage) = Failed to load custom code analysis rules: {0}
+CustomRulesAssemblyNotFound(string assemblyPath) = Analyzer assembly '{0}' was not found in any NuGet package folder.
+CustomRulesAssemblyLoadFailed(string assemblyName, string errorMessage) = Failed to load code analysis rules from analyzer assembly '{0}': {1}
+CustomRuleConflictsWithBuiltInRule(string ruleId) = Rule '{0}' is defined by both DacFx and a custom analyzer package. Duplicate rule IDs are not supported, and which definition applies during build is not guaranteed. Update the custom rule to use a unique ID.
+CustomRuleDuplicateId(string ruleId) = Rule '{0}' is defined by more than one custom analyzer package. Duplicate rule IDs are not supported, and which definition applies during build is not guaranteed. Update the custom rules to use unique IDs.
+
+############################################################################
 # Schema Compare
 PublishChangesTaskName = Apply schema compare changes
 SchemaCompareExcludeIncludeNodeNotFound = Failed to find the specified change in the model

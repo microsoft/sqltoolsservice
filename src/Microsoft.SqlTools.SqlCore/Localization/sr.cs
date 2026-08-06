@@ -2575,6 +2575,38 @@ namespace Microsoft.SqlTools.SqlCore
             }
         }
 
+        public static string TableColumnVectorDimensionPropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableColumnVectorDimensionPropertyDescription);
+            }
+        }
+
+        public static string TableColumnVectorDimensionPropertyTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableColumnVectorDimensionPropertyTitle);
+            }
+        }
+
+        public static string TableColumnVectorBaseTypePropertyDescription
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableColumnVectorBaseTypePropertyDescription);
+            }
+        }
+
+        public static string TableColumnVectorBaseTypePropertyTitle
+        {
+            get
+            {
+                return Keys.GetString(Keys.TableColumnVectorBaseTypePropertyTitle);
+            }
+        }
+
         public static string AddNewEdgeConstraintLabel
         {
             get
@@ -4642,6 +4674,18 @@ namespace Microsoft.SqlTools.SqlCore
 
 
             public const string TableColumnDefaultConstraintNamePropertyTitle = "TableColumnDefaultConstraintNamePropertyTitle";
+
+
+            public const string TableColumnVectorDimensionPropertyDescription = "TableColumnVectorDimensionPropertyDescription";
+
+
+            public const string TableColumnVectorDimensionPropertyTitle = "TableColumnVectorDimensionPropertyTitle";
+
+
+            public const string TableColumnVectorBaseTypePropertyDescription = "TableColumnVectorBaseTypePropertyDescription";
+
+
+            public const string TableColumnVectorBaseTypePropertyTitle = "TableColumnVectorBaseTypePropertyTitle";
 
 
             public const string AddNewEdgeConstraintLabel = "AddNewEdgeConstraintLabel";

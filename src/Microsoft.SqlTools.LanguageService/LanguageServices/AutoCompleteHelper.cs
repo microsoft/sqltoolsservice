@@ -727,18 +727,15 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             int endColumn)
         {
             // convert from the parser format to the VS Code wire format
-            var markedStrings = new MarkedString[1];
             if (quickInfo != null)
             {
-                markedStrings[0] = new MarkedString()
-                {
-                    Language = "SQL",
-                    Value = quickInfo.Text
-                };
-
                 return new Hover()
                 {
-                    Contents = markedStrings,
+                    Contents = new MarkupContent
+                    {
+                        Kind = "plaintext",
+                        Value = quickInfo.Text
+                    },
                     Range = new Range
                     {
                         Start = new Position

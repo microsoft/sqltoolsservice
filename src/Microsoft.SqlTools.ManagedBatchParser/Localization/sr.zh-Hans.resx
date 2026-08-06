@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!--
     Microsoft ResX Schema
@@ -116,53 +116,17 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="EE_BatchSqlMessageNoProcedureInfo" xml:space="preserve">
-    <value>消息 {0}，级别 {1}，状态 {2}，第 {3} 行</value>
+  <data name="BatchParserWrapperExecutionEngineBatchCancelling" xml:space="preserve">
+    <value>取消批处理分析器包装批处理执行。</value>
   </data>
-  <data name="EE_BatchSqlMessageWithProcedureInfo" xml:space="preserve">
-    <value>消息 {0}，级别 {1}，状态 {2}，过程 {3}，第 {4} 行</value>
+  <data name="BatchParserWrapperExecutionEngineBatchMessage" xml:space="preserve">
+    <value>已收到批处理分析器包装执行引擎批处理消息:  消息: {0}    详细消息: {1}</value>
   </data>
-  <data name="EE_BatchSqlMessageNoLineInfo" xml:space="preserve">
-    <value>消息 {0}，级别 {1}，状态 {2}</value>
+  <data name="BatchParserWrapperExecutionEngineBatchResultSetFinished" xml:space="preserve">
+    <value>批处理分析器包装执行引擎批处理 ResultSet 已完成。</value>
   </data>
-  <data name="EE_BatchError_Exception" xml:space="preserve">
-    <value>执行批处理时出错。错误消息为: {0}</value>
-  </data>
-  <data name="EE_BatchExecutionInfo_RowsAffected" xml:space="preserve">
-    <value>({0} 行受影响)</value>
-  </data>
-  <data name="EE_ExecutionNotYetCompleteError" xml:space="preserve">
-    <value>上一次执行尚未完成。</value>
-  </data>
-  <data name="EE_ScriptError_Error" xml:space="preserve">
-    <value>出现脚本错误。</value>
-  </data>
-  <data name="EE_ScriptError_ParsingSyntax" xml:space="preserve">
-    <value>分析 {0} 时遇到语法错误。</value>
-  </data>
-  <data name="EE_ScriptError_FatalError" xml:space="preserve">
-    <value>出现错误。</value>
-  </data>
-  <data name="EE_ExecutionInfo_FinalizingLoop" xml:space="preserve">
-    <value>已执行完 {0} 次批处理…</value>
-  </data>
-  <data name="EE_ExecutionInfo_QueryCancelledbyUser" xml:space="preserve">
-    <value>您已取消查询。</value>
-  </data>
-  <data name="EE_BatchExecutionError_Halting" xml:space="preserve">
-    <value>执行批处理时出错。</value>
-  </data>
-  <data name="EE_BatchExecutionError_Ignoring" xml:space="preserve">
-    <value>执行批处理时出错，但已忽略该错误。</value>
-  </data>
-  <data name="EE_ExecutionInfo_InitializingLoop" xml:space="preserve">
-    <value>开始执行循环</value>
-  </data>
-  <data name="EE_ExecutionError_CommandNotSupported" xml:space="preserve">
-    <value>不支持命令 {0}。</value>
-  </data>
-  <data name="EE_ExecutionError_VariableNotFound" xml:space="preserve">
-    <value>找不到变量 {0}。</value>
+  <data name="BatchParserWrapperExecutionEngineBatchResultSetProcessing" xml:space="preserve">
+    <value>批处理分析器包装执行引擎批处理 ResultSet 正在处理: DataReader.FieldCount: {0}  DataReader.RecordsAffected: {1}</value>
   </data>
   <data name="BatchParserWrapperExecutionEngineError" xml:space="preserve">
     <value>SQL 执行错误: {0}</value>
@@ -170,38 +134,77 @@
   <data name="BatchParserWrapperExecutionError" xml:space="preserve">
     <value>批处理分析器包装执行: 在第 {1} 行处发现 {0}: {2} 说明: {3}</value>
   </data>
-  <data name="BatchParserWrapperExecutionEngineBatchMessage" xml:space="preserve">
-    <value>已收到批处理分析器包装执行引擎批处理消息:  消息: {0}    详细消息: {1}</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineBatchResultSetProcessing" xml:space="preserve">
-    <value>批处理分析器包装执行引擎批处理 ResultSet 正在处理: DataReader.FieldCount: {0}  DataReader.RecordsAffected: {1}</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineBatchResultSetFinished" xml:space="preserve">
-    <value>批处理分析器包装执行引擎批处理 ResultSet 已完成。</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineBatchCancelling" xml:space="preserve">
-    <value>取消批处理分析器包装批处理执行。</value>
-  </data>
-  <data name="EE_ScriptError_Warning" xml:space="preserve">
-    <value>脚本警告。</value>
-  </data>
-  <data name="TroubleshootingAssistanceMessage" xml:space="preserve">
-    <value>有关此错误的详细信息，请参见产品文档中的疑难解答主题。</value>
-  </data>
   <data name="BatchParser_CircularReference" xml:space="preserve">
     <value>反复包括文件“{0}”。</value>
   </data>
   <data name="BatchParser_CommentNotTerminated" xml:space="preserve">
     <value>缺少结束注释标记“*/”。</value>
   </data>
-  <data name="BatchParser_StringNotTerminated" xml:space="preserve">
-    <value>字符串后的引号不完整。</value>
-  </data>
   <data name="BatchParser_IncorrectSyntax" xml:space="preserve">
     <value>分析“{0}”时遇到错误的语法。</value>
   </data>
+  <data name="BatchParser_StringNotTerminated" xml:space="preserve">
+    <value>字符串后的引号不完整。</value>
+  </data>
   <data name="BatchParser_VariableNotDefined" xml:space="preserve">
     <value>未定义变量 {0}。</value>
+  </data>
+  <data name="EE_BatchError_Exception" xml:space="preserve">
+    <value>执行批处理时出错。错误消息为: {0}</value>
+  </data>
+  <data name="EE_BatchExecutionError_Halting" xml:space="preserve">
+    <value>执行批处理时出错。</value>
+  </data>
+  <data name="EE_BatchExecutionError_Ignoring" xml:space="preserve">
+    <value>执行批处理时出错，但已忽略该错误。</value>
+  </data>
+  <data name="EE_BatchExecutionInfo_RowsAffected" xml:space="preserve">
+    <value>({0} 行受影响)</value>
+  </data>
+  <data name="EE_BatchSqlMessageNoLineInfo" xml:space="preserve">
+    <value>消息 {0}，级别 {1}，状态 {2}</value>
+  </data>
+  <data name="EE_BatchSqlMessageNoProcedureInfo" xml:space="preserve">
+    <value>消息 {0}，级别 {1}，状态 {2}，第 {3} 行</value>
+  </data>
+  <data name="EE_BatchSqlMessageWithProcedureInfo" xml:space="preserve">
+    <value>消息 {0}，级别 {1}，状态 {2}，过程 {3}，第 {4} 行</value>
+  </data>
+  <data name="EE_ExecutionError_CommandNotSupported" xml:space="preserve">
+    <value>不支持命令 {0}。</value>
+  </data>
+  <data name="EE_ExecutionError_VariableNotFound" xml:space="preserve">
+    <value>找不到变量 {0}。</value>
+  </data>
+  <data name="EE_ExecutionInfo_FinalizingLoop" xml:space="preserve">
+    <value>已执行完 {0} 次批处理…</value>
+  </data>
+  <data name="EE_ExecutionInfo_InitializingLoop" xml:space="preserve">
+    <value>开始执行循环</value>
+  </data>
+  <data name="EE_ExecutionInfo_QueryCancelledbyUser" xml:space="preserve">
+    <value>您已取消查询。</value>
+  </data>
+  <data name="EE_ExecutionNotYetCompleteError" xml:space="preserve">
+    <value>上一次执行尚未完成。</value>
+  </data>
+  <data name="EE_ScriptError_Error" xml:space="preserve">
+    <value>出现脚本错误。</value>
+  </data>
+  <data name="EE_ScriptError_FatalError" xml:space="preserve">
+    <value>出现错误。</value>
+  </data>
+  <data name="EE_ScriptError_ParsingSyntax" xml:space="preserve">
+    <value>分析 {0} 时遇到语法错误。</value>
+  </data>
+  <data name="EE_ScriptError_Warning" xml:space="preserve">
+    <value>脚本警告。</value>
+  </data>
+  <data name="NullEmptyOrWhitespaceString" xml:space="preserve">
+    <value>参数包含 null、空或空格字符串。</value>
+  </data>
+  <data name="SqlCmd_FailedInclude" xml:space="preserve">
+    <value>找不到包含的文件 {0}。</value>
   </data>
   <data name="SqlCmd_PathInvalid" xml:space="preserve">
     <value>路径包含无效的字符。</value>
@@ -209,10 +212,7 @@
   <data name="SqlCmd_PathLong" xml:space="preserve">
     <value>路径过长。</value>
   </data>
-  <data name="SqlCmd_FailedInclude" xml:space="preserve">
-    <value>找不到包含的文件 {0}。</value>
-  </data>
-  <data name="NullEmptyOrWhitespaceString" xml:space="preserve">
-    <value>参数包含 null、空或空格字符串。</value>
+  <data name="TroubleshootingAssistanceMessage" xml:space="preserve">
+    <value>有关此错误的详细信息，请参见产品文档中的疑难解答主题。</value>
   </data>
 </root>

@@ -19,6 +19,10 @@ namespace Microsoft.SqlTools.SqlCore.TableDesigner.Contracts
         public DropdownProperties Type { get; set; } = new DropdownProperties();
         [DataMember(Name = "length")]
         public InputBoxProperties Length { get; set; } = new InputBoxProperties();
+        [DataMember(Name = "vectorDimension")]
+        public InputBoxProperties VectorDimension { get; set; } = new InputBoxProperties();
+        [DataMember(Name = "vectorBaseType")]
+        public DropdownProperties VectorBaseType { get; set; } = new DropdownProperties();
         [DataMember(Name = "scale")]
         public InputBoxProperties Scale { get; set; } = new InputBoxProperties();
         [DataMember(Name = "precision")]

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!--
     Microsoft ResX Schema
@@ -125,20 +125,20 @@
   <data name="FailedToGetAzureSqlServersErrorMessage" xml:space="preserve">
     <value>Произошла ошибка при получении серверов Azure Sql Servers</value>
   </data>
-  <data name="FirewallRuleCreationFailed" xml:space="preserve">
-    <value>Произошла ошибка при создании правила брандмауэра.</value>
-  </data>
-  <data name="UnsupportedAuthType" xml:space="preserve">
-    <value>Тип учетной записи {0} не поддерживается для этого поставщика</value>
-  </data>
   <data name="FailedToGetAzureSqlServersWithError" xml:space="preserve">
     <value>Ошибка при получении серверов Azure SQL: "{0}"</value>
+  </data>
+  <data name="FailedToGetAzureSubscriptionsErrorMessage" xml:space="preserve">
+    <value>Ошибка при получении подписок Azure: {0}</value>
+  </data>
+  <data name="FirewallRuleCreationFailed" xml:space="preserve">
+    <value>Произошла ошибка при создании правила брандмауэра.</value>
   </data>
   <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
     <value>Ошибка при создании правила брандмауэра: "{0}"</value>
   </data>
-  <data name="FailedToGetAzureSubscriptionsErrorMessage" xml:space="preserve">
-    <value>Ошибка при получении подписок Azure: {0}</value>
+  <data name="UnsupportedAuthType" xml:space="preserve">
+    <value>Тип учетной записи {0} не поддерживается для этого поставщика</value>
   </data>
   <data name="UserNeedsAuthenticationError" xml:space="preserve">
     <value>Перед выполнением этой операции текущий пользователь должен заново пройти проверку подлинности </value>

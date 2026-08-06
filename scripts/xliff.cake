@@ -5,6 +5,7 @@ using System.Xml.Linq;
 
 var xliffNamespace = (XNamespace)"urn:oasis:names:tc:xliff:document:1.2";
 var xmlNamespace = (XNamespace)"http://www.w3.org/XML/1998/namespace";
+var lcxNamespace = (XNamespace)"http://schemas.microsoft.com/locstudio/2006/6/lcx";
 
 /// <summary>
 /// Rewrites a text file in place with CRLF line endings so that generated
@@ -67,14 +68,13 @@ void UpdateXlfTargetsFromSource(string xlfPath)
 }
 
 /// <summary>
-/// Converts an XLF file to a .resx file, emitting the standard Microsoft ResX schema
-/// comment and XSD block followed by one &lt;data&gt; element per trans-unit.
-/// Only trans-units that already have a &lt;target&gt; element are included.
+/// Creates an empty .resx XDocument with the standard Microsoft ResX schema
+/// comment, XSD block, and resheader elements. Callers add &lt;data&gt; elements
+/// to the returned document's root before saving.
 /// </summary>
-void SaveXlfTargetsAsResx(string xlfPath, string resxPath)
+XDocument CreateResxDocument()
 {
-    var xlfDocument = XDocument.Load(xlfPath, LoadOptions.PreserveWhitespace);
-    var resxDocument = new XDocument(
+    return new XDocument(
         new XDeclaration("1.0", "utf-8", null),
         new XElement("root",
             new XComment(@"
@@ -185,6 +185,17 @@ void SaveXlfTargetsAsResx(string xlfPath, string resxPath)
             CreateResHeader("version", "2.0"),
             CreateResHeader("reader", "System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
             CreateResHeader("writer", "System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089")));
+}
+
+/// <summary>
+/// Converts an XLF file to a .resx file, emitting the standard Microsoft ResX schema
+/// comment and XSD block followed by one &lt;data&gt; element per trans-unit.
+/// Only trans-units that already have a &lt;target&gt; element are included.
+/// </summary>
+void SaveXlfTargetsAsResx(string xlfPath, string resxPath)
+{
+    var xlfDocument = XDocument.Load(xlfPath, LoadOptions.PreserveWhitespace);
+    var resxDocument = CreateResxDocument();
 
     var root = resxDocument.Root;
     foreach (var unit in GetTransUnits(xlfDocument))
@@ -210,6 +221,97 @@ void SaveXlfTargetsAsResx(string xlfPath, string resxPath)
     }
 
     resxDocument.Save(resxPath);
+}
+
+/// <summary>
+/// Converts a LocStudio .lcl localization file (as produced by the internal
+/// localization pipeline from LocProject.json) to a .resx file. Each leaf
+/// &lt;Item&gt; whose ItemId starts with ';' represents one translated string;
+/// the source value lives at Str/Val and the translated value at Str/Tgt/Val.
+/// Items with no &lt;Tgt&gt; element are skipped (untranslated).
+/// </summary>
+void SaveLclTargetAsResx(string lclPath, string resxPath)
+{
+    var lclDocument = XDocument.Load(lclPath, LoadOptions.PreserveWhitespace);
+    var resxDocument = CreateResxDocument();
+
+    var root = resxDocument.Root;
+    foreach (var item in lclDocument.Descendants(lcxNamespace + "Item"))
+    {
+        if ((string)item.Attribute("Leaf") != "true")
+        {
+            continue;
+        }
+
+        var itemId = (string)item.Attribute("ItemId");
+        if (string.IsNullOrEmpty(itemId) || !itemId.StartsWith(";"))
+        {
+            continue;
+        }
+
+        var str = item.Element(lcxNamespace + "Str");
+        if (str == null)
+        {
+            continue;
+        }
+
+        var tgt = str.Element(lcxNamespace + "Tgt");
+        if (tgt == null)
+        {
+            continue;
+        }
+
+        var tgtVal = tgt.Element(lcxNamespace + "Val");
+        if (tgtVal == null)
+        {
+            continue;
+        }
+
+        var data = new XElement("data",
+            new XAttribute("name", itemId.Substring(1)),
+            new XAttribute(xmlNamespace + "space", "preserve"),
+            new XElement("value", tgtVal.Value));
+
+        root.Add(data);
+    }
+
+    resxDocument.Save(resxPath);
+}
+
+/// <summary>
+/// Converts every LocStudio .lcl localization file under a project's
+/// Localization directory to a culture-specific .resx file.
+/// </summary>
+int SaveLclTargetsAsResx(string localizationDir, HashSet<string> generatedCultures = null)
+{
+    var lclRoot = System.IO.Path.Combine(localizationDir, "LCL");
+    if (!System.IO.Directory.Exists(lclRoot))
+    {
+        return 0;
+    }
+
+    var generatedCount = 0;
+    var lclLanguageDirectories = System.IO.Directory.GetDirectories(lclRoot)
+        .OrderBy(path => path, StringComparer.OrdinalIgnoreCase);
+
+    foreach (var lclLanguageDirectory in lclLanguageDirectories)
+    {
+        var lclPath = System.IO.Path.Combine(lclLanguageDirectory, "sr.xlf.lcl");
+        if (!System.IO.File.Exists(lclPath))
+        {
+            continue;
+        }
+
+        var language = new System.IO.DirectoryInfo(lclLanguageDirectory).Name;
+        var canonicalCulture = CanonicalizeLocalizationFileName(language);
+        var resxPath = System.IO.Path.Combine(localizationDir, $"sr.{canonicalCulture}.resx");
+        SaveLclTargetAsResx(lclPath, resxPath);
+        NormalizeToCrlf(resxPath);
+        generatedCultures?.Add(canonicalCulture);
+        generatedCount++;
+    }
+
+    return generatedCount;
 }
 
 /// <summary>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!--
     Microsoft ResX Schema
@@ -125,20 +125,20 @@
   <data name="FailedToGetAzureSqlServersErrorMessage" xml:space="preserve">
     <value>Error al obtener servidores Azure Sql Servers</value>
   </data>
-  <data name="FirewallRuleCreationFailed" xml:space="preserve">
-    <value>Error al crear una regla de firewall nueva.</value>
-  </data>
-  <data name="UnsupportedAuthType" xml:space="preserve">
-    <value>Tipo de cuenta '{0}' no admitido para este proveedor</value>
-  </data>
   <data name="FailedToGetAzureSqlServersWithError" xml:space="preserve">
     <value>Error al obtener los servidores de Azure SQL: '{0}'</value>
+  </data>
+  <data name="FailedToGetAzureSubscriptionsErrorMessage" xml:space="preserve">
+    <value>Error al obtener las suscripciones de Azure: {0}</value>
+  </data>
+  <data name="FirewallRuleCreationFailed" xml:space="preserve">
+    <value>Error al crear una regla de firewall nueva.</value>
   </data>
   <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
     <value>Error al crear una nueva regla de firewall: '{0}'</value>
   </data>
-  <data name="FailedToGetAzureSubscriptionsErrorMessage" xml:space="preserve">
-    <value>Error al obtener las suscripciones de Azure: {0}</value>
+  <data name="UnsupportedAuthType" xml:space="preserve">
+    <value>Tipo de cuenta '{0}' no admitido para este proveedor</value>
   </data>
   <data name="UserNeedsAuthenticationError" xml:space="preserve">
     <value>Se debe volver a autenticar al usuario actual antes de ejecutar esta operación.</value>

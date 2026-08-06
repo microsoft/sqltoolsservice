@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!--
     Microsoft ResX Schema
@@ -128,6 +128,15 @@
   <data name="FirewallRuleAccessForbidden" xml:space="preserve">
     <value>{0} にはサーバーのファイアウォール規則を変更するためのアクセス許可がありません。Azure サブスクリプションかサーバーの所有者または共同作成者のアカウントでもう一度試してください。</value>
   </data>
+  <data name="FirewallRuleCreationFailed" xml:space="preserve">
+    <value>新しいファイアウォール規則を作成中にエラーが発生しました。</value>
+  </data>
+  <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
+    <value>新しいファイアウォール規則を作成中にエラーが発生しました: '{0}'</value>
+  </data>
+  <data name="FirewallRuleUnsupportedConnectionType" xml:space="preserve">
+    <value>指定された接続の種類のファイアウォール規則を開けません</value>
+  </data>
   <data name="InvalidIpAddress" xml:space="preserve">
     <value>無効な IP アドレス</value>
   </data>
@@ -136,15 +145,6 @@
   </data>
   <data name="LoadingExportableFailedGeneralErrorMessage" xml:space="preserve">
     <value>必要な dll を読み込むことができません。アプリケーションを修復してください。</value>
-  </data>
-  <data name="FirewallRuleCreationFailed" xml:space="preserve">
-    <value>新しいファイアウォール規則を作成中にエラーが発生しました。</value>
-  </data>
-  <data name="FirewallRuleUnsupportedConnectionType" xml:space="preserve">
-    <value>指定された接続の種類のファイアウォール規則を開けません</value>
-  </data>
-  <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
-    <value>新しいファイアウォール規則を作成中にエラーが発生しました: '{0}'</value>
   </data>
   <data name="NoSubscriptionsFound" xml:space="preserve">
     <value>現在ログインしているユーザー アカウントのサブスクリプションが見つかりませんでした。</value>

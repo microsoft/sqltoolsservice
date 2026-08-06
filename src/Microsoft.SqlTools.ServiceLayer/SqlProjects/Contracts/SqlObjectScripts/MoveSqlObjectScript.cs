@@ -18,7 +18,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts
         /// <summary>
         /// Destination path of the file or folder, relative to the .sqlproj
         /// </summary>
-        public string DestinationPath { get; set; } 
+        public string DestinationPath { get; set; }
+
+        /// <summary>
+        /// When true, only updates the .sqlproj metadata without moving the physical file on disk.
+        /// Use this when the caller has already moved the file (e.g. via VS Code's WorkspaceEdit API).
+        /// </summary>
+        public bool MetadataOnly { get; set; }
     }
 
     /// <summary>

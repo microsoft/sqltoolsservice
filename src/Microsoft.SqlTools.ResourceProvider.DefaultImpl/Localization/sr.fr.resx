@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!--
     Microsoft ResX Schema
@@ -125,20 +125,20 @@
   <data name="FailedToGetAzureSqlServersErrorMessage" xml:space="preserve">
     <value>Une erreur s'est produite lors de la récupération Azure Sql Servers</value>
   </data>
-  <data name="FirewallRuleCreationFailed" xml:space="preserve">
-    <value>Une erreur s'est produite lors de la création d'une règle de pare-feu.</value>
-  </data>
-  <data name="UnsupportedAuthType" xml:space="preserve">
-    <value>Type de compte « {0} » non pris en charge pour ce fournisseur</value>
-  </data>
   <data name="FailedToGetAzureSqlServersWithError" xml:space="preserve">
     <value>Une erreur s’est produite lors de l’obtention des serveurs Azure Sql Server : « {0} »</value>
+  </data>
+  <data name="FailedToGetAzureSubscriptionsErrorMessage" xml:space="preserve">
+    <value>Une erreur s’est produite lors de l’obtention des abonnements Azure : {0}</value>
+  </data>
+  <data name="FirewallRuleCreationFailed" xml:space="preserve">
+    <value>Une erreur s'est produite lors de la création d'une règle de pare-feu.</value>
   </data>
   <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
     <value>Une erreur s’est produite lors de la création d’une règle de pare-feu : « {0} »</value>
   </data>
-  <data name="FailedToGetAzureSubscriptionsErrorMessage" xml:space="preserve">
-    <value>Une erreur s’est produite lors de l’obtention des abonnements Azure : {0}</value>
+  <data name="UnsupportedAuthType" xml:space="preserve">
+    <value>Type de compte « {0} » non pris en charge pour ce fournisseur</value>
   </data>
   <data name="UserNeedsAuthenticationError" xml:space="preserve">
     <value>L’utilisateur actuel doit être réauthentifié avant d’exécuter cette opération </value>

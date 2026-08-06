@@ -768,11 +768,25 @@ Task("SRGen")
             // Update XLF file from new Resx file
             UpdateXlfTargetsFromSource(outputXlf);
 
-            // Update ResX files from new xliff files
+            // Generate translated resources from LCL first, then use translated
+            // XLIFF only for cultures that don't have an LCL file.
+            var generatedCultures = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            SaveLclTargetsAsResx(localizationDir, generatedCultures);
+
             var xlfDocNames = System.IO.Directory.GetFiles(inputXliff, "*.xlf", SearchOption.AllDirectories).ToList();
             foreach(var docName in xlfDocNames)
             {
                 var generatedFileName = CanonicalizeLocalizationFileName(System.IO.Path.GetFileName(docName).Replace("xlf", "resx"));
+                var nameWithoutExtension = System.IO.Path.GetFileNameWithoutExtension(generatedFileName);
+                var cultureSeparatorIndex = nameWithoutExtension.IndexOf('.');
+                var culture = cultureSeparatorIndex >= 0
+                    ? nameWithoutExtension.Substring(cultureSeparatorIndex + 1)
+                    : string.Empty;
+                if (generatedCultures.Contains(culture))
+                {
+                    continue;
+                }
+
                 var targetResxPath = System.IO.Path.Combine(localizationDir, generatedFileName);
                 SaveXlfTargetsAsResx(docName, targetResxPath);
             }
@@ -783,6 +797,25 @@ Task("SRGen")
         // restore the original working directory
         System.IO.Directory.SetCurrentDirectory(taskStartedWorkingDirectory);
     }
+});
+
+/// <summary>
+/// Generates culture-specific ResX files from all LocStudio LCL files.
+/// </summary>
+Task("LclToResx")
+    .Does(() =>
+{
+    var lclDirectories = System.IO.Directory.GetDirectories(sourceFolder, "LCL", SearchOption.AllDirectories)
+        .OrderBy(path => path, StringComparer.OrdinalIgnoreCase)
+        .ToList();
+    var generatedCount = 0;
+
+    foreach (var lclDirectory in lclDirectories)
+    {
+        generatedCount += SaveLclTargetsAsResx(System.IO.Path.GetDirectoryName(lclDirectory));
+    }
+
+    Information("Generated {0} culture-specific ResX files from LCL files", generatedCount);
 });
 
 /// <summary>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!--
     Microsoft ResX Schema
@@ -128,6 +128,15 @@
   <data name="FirewallRuleAccessForbidden" xml:space="preserve">
     <value>{0} ist nicht berechtigt, die Serverfirewallregel zu ändern. Versuchen Sie es noch mal mit einem anderen Konto, das Besitzer oder Mitwirkender des Azure-Abonnements oder des Servers ist.</value>
   </data>
+  <data name="FirewallRuleCreationFailed" xml:space="preserve">
+    <value>Fehler beim Erstellen einer neuen Firewallregel.</value>
+  </data>
+  <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
+    <value>Fehler beim Erstellen einer neuen Firewallregel: „{0}“</value>
+  </data>
+  <data name="FirewallRuleUnsupportedConnectionType" xml:space="preserve">
+    <value>Für den angegebenen Verbindungstyp kann keine Firewallregel geöffnet werden.</value>
+  </data>
   <data name="InvalidIpAddress" xml:space="preserve">
     <value>Ungültige IP-Adresse.</value>
   </data>
@@ -136,15 +145,6 @@
   </data>
   <data name="LoadingExportableFailedGeneralErrorMessage" xml:space="preserve">
     <value>Eine erforderliche dll kann nicht geladen werden. Reparieren Sie Ihre Anwendung.</value>
-  </data>
-  <data name="FirewallRuleCreationFailed" xml:space="preserve">
-    <value>Fehler beim Erstellen einer neuen Firewallregel.</value>
-  </data>
-  <data name="FirewallRuleUnsupportedConnectionType" xml:space="preserve">
-    <value>Für den angegebenen Verbindungstyp kann keine Firewallregel geöffnet werden.</value>
-  </data>
-  <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
-    <value>Fehler beim Erstellen einer neuen Firewallregel: „{0}“</value>
   </data>
   <data name="NoSubscriptionsFound" xml:space="preserve">
     <value>Für das aktuell angemeldete Benutzerkonto wurden keine Abonnements gefunden.</value>

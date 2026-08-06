@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!--
     Microsoft ResX Schema
@@ -128,6 +128,15 @@
   <data name="FirewallRuleAccessForbidden" xml:space="preserve">
     <value>{0} non ha l'autorizzazione per modificare la regola del firewall del server. Riprovare con un altro account che sia Proprietario o Collaboratore della sottoscrizione di Azure o del server.</value>
   </data>
+  <data name="FirewallRuleCreationFailed" xml:space="preserve">
+    <value>Si è verificato un errore durante la creazione di una nuova regola del firewall.</value>
+  </data>
+  <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
+    <value>Si è verificato un errore durante la creazione di una nuova regola del firewall: '{0}'</value>
+  </data>
+  <data name="FirewallRuleUnsupportedConnectionType" xml:space="preserve">
+    <value>Impossibile aprire una regola del firewall per il tipo di connessione specificato</value>
+  </data>
   <data name="InvalidIpAddress" xml:space="preserve">
     <value>Indirizzo IP non valido</value>
   </data>
@@ -136,15 +145,6 @@
   </data>
   <data name="LoadingExportableFailedGeneralErrorMessage" xml:space="preserve">
     <value>Non è possibile caricare una dll necessaria. Ripristinare l'applicazione.</value>
-  </data>
-  <data name="FirewallRuleCreationFailed" xml:space="preserve">
-    <value>Si è verificato un errore durante la creazione di una nuova regola del firewall.</value>
-  </data>
-  <data name="FirewallRuleUnsupportedConnectionType" xml:space="preserve">
-    <value>Impossibile aprire una regola del firewall per il tipo di connessione specificato</value>
-  </data>
-  <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
-    <value>Si è verificato un errore durante la creazione di una nuova regola del firewall: '{0}'</value>
   </data>
   <data name="NoSubscriptionsFound" xml:space="preserve">
     <value>Non sono state trovate sottoscrizioni per l'account utente attualmente connesso.</value>

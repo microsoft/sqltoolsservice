@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!--
     Microsoft ResX Schema
@@ -125,20 +125,20 @@
   <data name="FailedToGetAzureSqlServersErrorMessage" xml:space="preserve">
     <value>Azure Sql Servers를 가져오는 동안 오류가 발생했습니다.</value>
   </data>
-  <data name="FirewallRuleCreationFailed" xml:space="preserve">
-    <value>새 방화벽 규칙을 만드는 동안 오류가 발생했습니다.</value>
-  </data>
-  <data name="UnsupportedAuthType" xml:space="preserve">
-    <value>이 공급자에 대해 지원되지 않는 계정 유형 '{0}'</value>
-  </data>
   <data name="FailedToGetAzureSqlServersWithError" xml:space="preserve">
     <value>Azure SQL Servers를 가져오는 중 오류 발생: ‘{0}’</value>
+  </data>
+  <data name="FailedToGetAzureSubscriptionsErrorMessage" xml:space="preserve">
+    <value>Azure 구독을 가져오는 중 오류 발생: {0}</value>
+  </data>
+  <data name="FirewallRuleCreationFailed" xml:space="preserve">
+    <value>새 방화벽 규칙을 만드는 동안 오류가 발생했습니다.</value>
   </data>
   <data name="FirewallRuleCreationFailedWithError" xml:space="preserve">
     <value>새 방화벽 규칙을 만드는 중 오류 발생: ‘{0}’</value>
   </data>
-  <data name="FailedToGetAzureSubscriptionsErrorMessage" xml:space="preserve">
-    <value>Azure 구독을 가져오는 중 오류 발생: {0}</value>
+  <data name="UnsupportedAuthType" xml:space="preserve">
+    <value>이 공급자에 대해 지원되지 않는 계정 유형 '{0}'</value>
   </data>
   <data name="UserNeedsAuthenticationError" xml:space="preserve">
     <value>이 작업을 실행하기 전에 현재 사용자를 다시 인증해야 합니다. </value>

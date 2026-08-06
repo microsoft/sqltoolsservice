@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!--
     Microsoft ResX Schema
@@ -116,53 +116,17 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="EE_BatchSqlMessageNoProcedureInfo" xml:space="preserve">
-    <value>メッセージ {0}、レベル {1}、状態 {2}、行 {3}</value>
+  <data name="BatchParserWrapperExecutionEngineBatchCancelling" xml:space="preserve">
+    <value>バッチ パーサー ラッパーのバッチ実行を取り消しています。</value>
   </data>
-  <data name="EE_BatchSqlMessageWithProcedureInfo" xml:space="preserve">
-    <value>メッセージ {0}、レベル {1}、状態 {2}、プロシージャ {3}、行 {4}</value>
+  <data name="BatchParserWrapperExecutionEngineBatchMessage" xml:space="preserve">
+    <value>バッチ パーサー ラッパー実行エンジンのバッチ メッセージを受信しました:  メッセージ: {0}    詳細メッセージ: {1}</value>
   </data>
-  <data name="EE_BatchSqlMessageNoLineInfo" xml:space="preserve">
-    <value>メッセージ {0}、レベル {1}、状態 {2}</value>
+  <data name="BatchParserWrapperExecutionEngineBatchResultSetFinished" xml:space="preserve">
+    <value>バッチ パーサー ラッパー実行エンジンのバッチ ResultSet が完了しました。</value>
   </data>
-  <data name="EE_BatchError_Exception" xml:space="preserve">
-    <value>バッチの処理中にエラーが発生しました。エラー メッセージは次のとおりです: {0}</value>
-  </data>
-  <data name="EE_BatchExecutionInfo_RowsAffected" xml:space="preserve">
-    <value>({0} 行が影響を受けました)</value>
-  </data>
-  <data name="EE_ExecutionNotYetCompleteError" xml:space="preserve">
-    <value>前回の実行が完了していません。</value>
-  </data>
-  <data name="EE_ScriptError_Error" xml:space="preserve">
-    <value>スクリプト作成エラーが発生しました。</value>
-  </data>
-  <data name="EE_ScriptError_ParsingSyntax" xml:space="preserve">
-    <value>{0} の解析中に無効な構文が見つかりました。</value>
-  </data>
-  <data name="EE_ScriptError_FatalError" xml:space="preserve">
-    <value>致命的なエラーが発生しました。</value>
-  </data>
-  <data name="EE_ExecutionInfo_FinalizingLoop" xml:space="preserve">
-    <value>バッチの実行が {0} 回完了しました...</value>
-  </data>
-  <data name="EE_ExecutionInfo_QueryCancelledbyUser" xml:space="preserve">
-    <value>クエリを取り消しました。</value>
-  </data>
-  <data name="EE_BatchExecutionError_Halting" xml:space="preserve">
-    <value>バッチの実行中にエラーが発生しました。</value>
-  </data>
-  <data name="EE_BatchExecutionError_Ignoring" xml:space="preserve">
-    <value>バッチの実行中にエラーが発生しましたが、エラーは無視されました。</value>
-  </data>
-  <data name="EE_ExecutionInfo_InitializingLoop" xml:space="preserve">
-    <value>実行ループを開始しています</value>
-  </data>
-  <data name="EE_ExecutionError_CommandNotSupported" xml:space="preserve">
-    <value>コマンド {0} はサポートされていません。</value>
-  </data>
-  <data name="EE_ExecutionError_VariableNotFound" xml:space="preserve">
-    <value>変数 {0} が見つかりませんでした。</value>
+  <data name="BatchParserWrapperExecutionEngineBatchResultSetProcessing" xml:space="preserve">
+    <value>バッチ パーサー ラッパー実行エンジンのバッチ ResultSet 処理: DataReader.FieldCount: {0}  DataReader.RecordsAffected: {1}</value>
   </data>
   <data name="BatchParserWrapperExecutionEngineError" xml:space="preserve">
     <value>SQL 実行エラー: {0}</value>
@@ -170,38 +134,77 @@
   <data name="BatchParserWrapperExecutionError" xml:space="preserve">
     <value>バッチ パーサー ラッパー実行: {0} が見つかりました... 行 {1}: {2}    説明: {3}</value>
   </data>
-  <data name="BatchParserWrapperExecutionEngineBatchMessage" xml:space="preserve">
-    <value>バッチ パーサー ラッパー実行エンジンのバッチ メッセージを受信しました:  メッセージ: {0}    詳細メッセージ: {1}</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineBatchResultSetProcessing" xml:space="preserve">
-    <value>バッチ パーサー ラッパー実行エンジンのバッチ ResultSet 処理: DataReader.FieldCount: {0}  DataReader.RecordsAffected: {1}</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineBatchResultSetFinished" xml:space="preserve">
-    <value>バッチ パーサー ラッパー実行エンジンのバッチ ResultSet が完了しました。</value>
-  </data>
-  <data name="BatchParserWrapperExecutionEngineBatchCancelling" xml:space="preserve">
-    <value>バッチ パーサー ラッパーのバッチ実行を取り消しています。</value>
-  </data>
-  <data name="EE_ScriptError_Warning" xml:space="preserve">
-    <value>スクリプト作成の警告です。</value>
-  </data>
-  <data name="TroubleshootingAssistanceMessage" xml:space="preserve">
-    <value>このエラーの詳細については、製品ドキュメントのトラブルシューティングの部分を参照してください。</value>
-  </data>
   <data name="BatchParser_CircularReference" xml:space="preserve">
     <value>ファイル '{0}' が再帰的に含まれています。</value>
   </data>
   <data name="BatchParser_CommentNotTerminated" xml:space="preserve">
     <value>コメントの終了マーク '*/' がありません。</value>
   </data>
-  <data name="BatchParser_StringNotTerminated" xml:space="preserve">
-    <value>文字列の後で引用符が閉じていません。</value>
-  </data>
   <data name="BatchParser_IncorrectSyntax" xml:space="preserve">
     <value>'{0}' の解析中に無効な構文が見つかりました。</value>
   </data>
+  <data name="BatchParser_StringNotTerminated" xml:space="preserve">
+    <value>文字列の後で引用符が閉じていません。</value>
+  </data>
   <data name="BatchParser_VariableNotDefined" xml:space="preserve">
     <value>変数 {0} が定義されていません。</value>
+  </data>
+  <data name="EE_BatchError_Exception" xml:space="preserve">
+    <value>バッチの処理中にエラーが発生しました。エラー メッセージは次のとおりです: {0}</value>
+  </data>
+  <data name="EE_BatchExecutionError_Halting" xml:space="preserve">
+    <value>バッチの実行中にエラーが発生しました。</value>
+  </data>
+  <data name="EE_BatchExecutionError_Ignoring" xml:space="preserve">
+    <value>バッチの実行中にエラーが発生しましたが、エラーは無視されました。</value>
+  </data>
+  <data name="EE_BatchExecutionInfo_RowsAffected" xml:space="preserve">
+    <value>({0} 行が影響を受けました)</value>
+  </data>
+  <data name="EE_BatchSqlMessageNoLineInfo" xml:space="preserve">
+    <value>メッセージ {0}、レベル {1}、状態 {2}</value>
+  </data>
+  <data name="EE_BatchSqlMessageNoProcedureInfo" xml:space="preserve">
+    <value>メッセージ {0}、レベル {1}、状態 {2}、行 {3}</value>
+  </data>
+  <data name="EE_BatchSqlMessageWithProcedureInfo" xml:space="preserve">
+    <value>メッセージ {0}、レベル {1}、状態 {2}、プロシージャ {3}、行 {4}</value>
+  </data>
+  <data name="EE_ExecutionError_CommandNotSupported" xml:space="preserve">
+    <value>コマンド {0} はサポートされていません。</value>
+  </data>
+  <data name="EE_ExecutionError_VariableNotFound" xml:space="preserve">
+    <value>変数 {0} が見つかりませんでした。</value>
+  </data>
+  <data name="EE_ExecutionInfo_FinalizingLoop" xml:space="preserve">
+    <value>バッチの実行が {0} 回完了しました...</value>
+  </data>
+  <data name="EE_ExecutionInfo_InitializingLoop" xml:space="preserve">
+    <value>実行ループを開始しています</value>
+  </data>
+  <data name="EE_ExecutionInfo_QueryCancelledbyUser" xml:space="preserve">
+    <value>クエリを取り消しました。</value>
+  </data>
+  <data name="EE_ExecutionNotYetCompleteError" xml:space="preserve">
+    <value>前回の実行が完了していません。</value>
+  </data>
+  <data name="EE_ScriptError_Error" xml:space="preserve">
+    <value>スクリプト作成エラーが発生しました。</value>
+  </data>
+  <data name="EE_ScriptError_FatalError" xml:space="preserve">
+    <value>致命的なエラーが発生しました。</value>
+  </data>
+  <data name="EE_ScriptError_ParsingSyntax" xml:space="preserve">
+    <value>{0} の解析中に無効な構文が見つかりました。</value>
+  </data>
+  <data name="EE_ScriptError_Warning" xml:space="preserve">
+    <value>スクリプト作成の警告です。</value>
+  </data>
+  <data name="NullEmptyOrWhitespaceString" xml:space="preserve">
+    <value>パラメーターに null 値、空、または空白の文字列が含まれています。</value>
+  </data>
+  <data name="SqlCmd_FailedInclude" xml:space="preserve">
+    <value>インクルード ファイル {0}が見つかりませんでした。</value>
   </data>
   <data name="SqlCmd_PathInvalid" xml:space="preserve">
     <value>パスに無効な文字が含まれています。</value>
@@ -209,10 +212,7 @@
   <data name="SqlCmd_PathLong" xml:space="preserve">
     <value>パスが長すぎます。</value>
   </data>
-  <data name="SqlCmd_FailedInclude" xml:space="preserve">
-    <value>インクルード ファイル {0}が見つかりませんでした。</value>
-  </data>
-  <data name="NullEmptyOrWhitespaceString" xml:space="preserve">
-    <value>パラメーターに null 値、空、または空白の文字列が含まれています。</value>
+  <data name="TroubleshootingAssistanceMessage" xml:space="preserve">
+    <value>このエラーの詳細については、製品ドキュメントのトラブルシューティングの部分を参照してください。</value>
   </data>
 </root>
