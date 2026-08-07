@@ -363,6 +363,8 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                         Logger.Verbose($"Binding queue item {queueItem.Id} signalling ItemProcessed after lock-wait timeout at {queueItem.Lifetime.ElapsedMilliseconds} ms");
                         queueItem.ItemProcessed.Set();
                     }
+
+                    // This item never acquired BindingLock, so stop after completing its timeout path.
                     return;
                 }
 
