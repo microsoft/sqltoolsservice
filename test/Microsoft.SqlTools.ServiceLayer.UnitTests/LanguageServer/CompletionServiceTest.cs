@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.SqlParser.Common;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
@@ -137,6 +138,66 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             {
                 releaseOperation.Set();
                 Assert.That(operationFinished.WaitOne(TimeSpan.FromSeconds(1)), Is.True);
+                bindingQueue.StopQueueProcessor(2_000);
+            }
+        }
+
+        /// <summary>
+        /// Reproduces the PR5 contention path: a lazy parser/SMO lookup may block, but it must
+        /// not hold BuildingMetadataLock and prevent the editor's current document from changing.
+        /// </summary>
+        [Test]
+        [Timeout(10_000)]
+        public async Task CompletionDoesNotHoldDocumentLockWhileParserIsBlocked()
+        {
+            using var operationStarted = new ManualResetEvent(false);
+            using var releaseOperation = new ManualResetEvent(false);
+            using ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue();
+            ScriptDocumentInfo docInfo = CreateScriptDocumentInfo();
+            CompletionService completionService = new CompletionService(bindingQueue);
+            ConnectionInfo connectionInfo = new ConnectionInfo(null, null, null);
+
+            var sqlParserWrapper = new Mock<ISqlParserWrapper>();
+            sqlParserWrapper.Setup(x => x.FindCompletions(
+                docInfo.ScriptParseInfo.ParseResult,
+                docInfo.ParserLine,
+                docInfo.ParserColumn,
+                It.IsAny<IMetadataDisplayInfoProvider>()))
+                .Callback(() =>
+                {
+                    operationStarted.Set();
+                    releaseOperation.WaitOne();
+                })
+                .Returns(new List<Declaration>());
+            completionService.SqlParserWrapper = sqlParserWrapper.Object;
+
+            Task<AutoCompletionResult> completionTask = Task.Run(() => completionService.CreateCompletions(
+                connectionInfo,
+                docInfo,
+                useLowerCaseSuggestions: true));
+
+            try
+            {
+                Assert.That(operationStarted.WaitOne(TimeSpan.FromSeconds(1)), Is.True);
+
+                bool documentLockTaken = Monitor.TryEnter(docInfo.ScriptParseInfo.BuildingMetadataLock, 500);
+                try
+                {
+                    Assert.That(documentLockTaken, Is.True,
+                        "Completion must release the document lock before parser or SMO work begins.");
+                }
+                finally
+                {
+                    if (documentLockTaken)
+                    {
+                        Monitor.Exit(docInfo.ScriptParseInfo.BuildingMetadataLock);
+                    }
+                }
+            }
+            finally
+            {
+                releaseOperation.Set();
+                await completionTask;
                 bindingQueue.StopQueueProcessor(2_000);
             }
         }

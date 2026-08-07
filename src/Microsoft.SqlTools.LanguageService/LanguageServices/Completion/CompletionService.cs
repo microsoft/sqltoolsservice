@@ -6,7 +6,6 @@
 #nullable disable
 
 using System.Collections.Generic;
-using System.Threading;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
@@ -61,35 +60,28 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices.Completion
             bool useLowerCaseSuggestions)
         {
             AutoCompletionResult result = new AutoCompletionResult();
-            // check if the file has a binding context ready and the file lock is available
-            if ((scriptDocumentInfo.ScriptParseInfo.IsConnected || scriptDocumentInfo.ScriptParseInfo.IsProject) && Monitor.TryEnter(scriptDocumentInfo.ScriptParseInfo.BuildingMetadataLock))
+            if (scriptDocumentInfo.ScriptParseInfo.IsConnected || scriptDocumentInfo.ScriptParseInfo.IsProject)
             {
-                try
+                Logger.Verbose($"Queueing completion binding operation for {connInfo?.OwnerUri}");
+                QueueItem queueItem = AddToQueue(connInfo, scriptDocumentInfo.ScriptParseInfo, scriptDocumentInfo, useLowerCaseSuggestions);
+
+                // wait for the queue item
+                queueItem.ItemProcessed.WaitOne();
+                Logger.Verbose($"Finished processing completion request for {connInfo?.OwnerUri} in CompletionService.CreateCompletions");
+                if (queueItem.TimedOut)
                 {
-                    QueueItem queueItem = AddToQueue(connInfo, scriptDocumentInfo.ScriptParseInfo, scriptDocumentInfo, useLowerCaseSuggestions);
-
-                    // wait for the queue item
-                    queueItem.ItemProcessed.WaitOne();
-                    Logger.Verbose($"Finished processing completion request for {connInfo?.OwnerUri} in CompletionService.CreateCompletions");
-                    if (queueItem.TimedOut)
-                    {
-                        Logger.Warning($"Completion request timed out for {connInfo?.OwnerUri}");
-                        return null;
-                    }
-
-                    var completionResult = queueItem.GetResultAsT<AutoCompletionResult>();
-                    if (completionResult != null && completionResult.CompletionItems != null && completionResult.CompletionItems.Length > 0)
-                    {
-                        result = completionResult;
-                    }
-                    else if (!ShouldShowCompletionList(scriptDocumentInfo.Token))
-                    {
-                        result.CompleteResult(AutoCompleteHelper.EmptyCompletionList);
-                    }
+                    Logger.Warning($"Completion request timed out for {connInfo?.OwnerUri}");
+                    return null;
                 }
-                finally
+
+                var completionResult = queueItem.GetResultAsT<AutoCompletionResult>();
+                if (completionResult != null && completionResult.CompletionItems != null && completionResult.CompletionItems.Length > 0)
                 {
-                    Monitor.Exit(scriptDocumentInfo.ScriptParseInfo.BuildingMetadataLock);
+                    result = completionResult;
+                }
+                else if (!ShouldShowCompletionList(scriptDocumentInfo.Token))
+                {
+                    result.CompleteResult(AutoCompleteHelper.EmptyCompletionList);
                 }
             }
             Logger.Verbose($"Sending completion result for {connInfo?.OwnerUri} in CompletionService.CreateCompletions");
