@@ -999,18 +999,23 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                     {
                         try
                         {
-                            this.BindingQueue.AddConnectionContext(connInfo, featureName: Constants.LanguageServiceFeature, overwrite: true);
-                            RemoveScriptParseInfo(rebuildParams.OwnerUri);
+                            try
+                            {
+                                this.BindingQueue.AddConnectionContext(connInfo, featureName: Constants.LanguageServiceFeature, overwrite: true);
+                                RemoveScriptParseInfo(rebuildParams.OwnerUri);
+                            }
+                            finally
+                            {
+                                // A Monitor is owned by the thread that entered it, so it must be
+                                // released before the asynchronous metadata rebuild can change threads.
+                                Monitor.Exit(scriptInfo.BuildingMetadataLock);
+                            }
+
                             await UpdateLanguageServiceOnConnection(connInfo);
                         }
                         catch (Exception ex)
                         {
                             Logger.Error("Unknown error " + ex.ToString());
-                        }
-                        finally
-                        {
-                            // Set Metadata Build event to Signal state.
-                            Monitor.Exit(scriptInfo.BuildingMetadataLock);
                         }
 
                         // if not in the preview window and diagnostics are enabled then run diagnostics
