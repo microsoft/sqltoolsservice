@@ -53,7 +53,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 
         /// <summary>
         /// Protects the #21930 large-dbo case: valid semantic completion can take longer than the
-        /// 500 ms slow threshold and must remain eligible to win before the 5-second hard timeout.
+        /// 500 ms slow threshold and must remain eligible to win before the 2-second hard timeout.
         /// </summary>
         [Test]
         public void CompletionSlowOperationUsesParserResultBeforeHardTimeout()
@@ -75,7 +75,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             {
                 AutoCompletionResult result = completionService.CreateCompletions(connectionInfo, docInfo, useLowerCaseSuggestions);
 
-                Assert.That(completionService.HardTimeout, Is.EqualTo(5_000));
+                Assert.That(completionService.HardTimeout, Is.EqualTo(2_000));
                 Assert.That(defaultCompletionList, Is.Not.Empty);
                 Assert.NotNull(result);
                 Assert.That(result.CompletionItems, Is.Null,

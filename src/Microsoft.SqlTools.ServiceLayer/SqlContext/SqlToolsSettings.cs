@@ -4,6 +4,7 @@
 //
 
 #nullable disable
+using System;
 using Microsoft.SqlTools.LanguageService.LanguageServices;
 using Newtonsoft.Json;
 
@@ -219,6 +220,22 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
                 }
 
                 return formatSettings.KeywordCasing;
+            }
+        }
+
+        /// <summary>
+        /// Gets the maximum time, in milliseconds, to wait for a completion operation.
+        /// </summary>
+        public int CompletionTimeoutInMilliseconds
+        {
+            get
+            {
+                int configuredTimeout = this.SqlTools.IntelliSense.CompletionTimeoutMilliseconds
+                    ?? IntelliSenseSettings.DefaultCompletionTimeoutInMilliseconds;
+                return Math.Clamp(
+                    configuredTimeout,
+                    IntelliSenseSettings.MinimumCompletionTimeoutInMilliseconds,
+                    IntelliSenseSettings.MaximumCompletionTimeoutInMilliseconds);
             }
         }
 

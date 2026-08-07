@@ -2900,7 +2900,10 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             // initialize some state to parse and bind the current script file
             this.currentCompletionParseInfo = null;
             CompletionItem[] resultCompletionItems = null;
-            CompletionService completionService = new CompletionService(BindingQueue);
+            CompletionService completionService = new CompletionService(BindingQueue)
+            {
+                HardTimeout = this.CurrentWorkspaceSettings.CompletionTimeoutInMilliseconds
+            };
             bool useLowerCaseSuggestions = this.CurrentWorkspaceSettings.FormatKeywordCasing == Microsoft.SqlTools.LanguageService.Formatter.CasingOptions.Lowercase;
 
             // get the current script parse info object

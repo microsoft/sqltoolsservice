@@ -19,7 +19,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices.Completion
     /// </summary>
     internal sealed class CompletionService
     {
-        private const int DefaultCompletionHardTimeout = 5_000;
+        private const int DefaultCompletionHardTimeout = 2_000;
 
         private ConnectedBindingQueue BindingQueue { get; set; }
 
