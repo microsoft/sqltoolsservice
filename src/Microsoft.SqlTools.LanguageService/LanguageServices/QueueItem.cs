@@ -5,6 +5,7 @@
 
 
 using System;
+using System.Diagnostics;
 using System.Threading;
 
 namespace Microsoft.SqlTools.LanguageService.LanguageServices
@@ -14,13 +15,27 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
     /// </summary>    
     public class QueueItem
     {
+        private static long nextId;
+
         /// <summary>
         /// QueueItem constructor
         /// </summary>
         public QueueItem()
         {
+            this.Id = Interlocked.Increment(ref nextId);
+            this.Lifetime = Stopwatch.StartNew();
             this.ItemProcessed = new ManualResetEvent(initialState: false);
         }
+
+        /// <summary>
+        /// Gets an identifier used to correlate this item in queue logs.
+        /// </summary>
+        internal long Id { get; }
+
+        /// <summary>
+        /// Gets elapsed time since the item was queued.
+        /// </summary>
+        internal Stopwatch Lifetime { get; }
 
         /// <summary>
         /// Gets or sets the queue item key
