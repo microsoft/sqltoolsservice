@@ -6,7 +6,6 @@
 #nullable disable
 
 using System.Collections.Generic;
-using System.Threading;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
@@ -20,7 +19,11 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices.Completion
     /// </summary>
     internal sealed class CompletionService
     {
+        private const int DefaultCompletionHardTimeout = 2_000;
+
         private ConnectedBindingQueue BindingQueue { get; set; }
+
+        internal int HardTimeout { get; set; } = DefaultCompletionHardTimeout;
 
         /// <summary>
         /// Created new instance given binding queue
@@ -57,29 +60,28 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices.Completion
             bool useLowerCaseSuggestions)
         {
             AutoCompletionResult result = new AutoCompletionResult();
-            // check if the file has a binding context ready and the file lock is available
-            if ((scriptDocumentInfo.ScriptParseInfo.IsConnected || scriptDocumentInfo.ScriptParseInfo.IsProject) && Monitor.TryEnter(scriptDocumentInfo.ScriptParseInfo.BuildingMetadataLock))
+            if (scriptDocumentInfo.ScriptParseInfo.IsConnected || scriptDocumentInfo.ScriptParseInfo.IsProject)
             {
-                try
-                {
-                    QueueItem queueItem = AddToQueue(connInfo, scriptDocumentInfo.ScriptParseInfo, scriptDocumentInfo, useLowerCaseSuggestions);
+                Logger.Verbose($"Queueing completion binding operation for {connInfo?.OwnerUri}");
+                QueueItem queueItem = AddToQueue(connInfo, scriptDocumentInfo.ScriptParseInfo, scriptDocumentInfo, useLowerCaseSuggestions);
 
-                    // wait for the queue item
-                    queueItem.ItemProcessed.WaitOne();
-                    Logger.Verbose($"Finished processing completion request for {connInfo?.OwnerUri} in CompletionService.CreateCompletions");
-                    var completionResult = queueItem.GetResultAsT<AutoCompletionResult>();
-                    if (completionResult != null && completionResult.CompletionItems != null && completionResult.CompletionItems.Length > 0)
-                    {
-                        result = completionResult;
-                    }
-                    else if (!ShouldShowCompletionList(scriptDocumentInfo.Token))
-                    {
-                        result.CompleteResult(AutoCompleteHelper.EmptyCompletionList);
-                    }
-                }
-                finally
+                // wait for the queue item
+                queueItem.ItemProcessed.WaitOne();
+                Logger.Verbose($"Finished processing completion request for {connInfo?.OwnerUri} in CompletionService.CreateCompletions");
+                if (queueItem.TimedOut)
                 {
-                    Monitor.Exit(scriptDocumentInfo.ScriptParseInfo.BuildingMetadataLock);
+                    Logger.Warning($"Completion request timed out for {connInfo?.OwnerUri}");
+                    return null;
+                }
+
+                var completionResult = queueItem.GetResultAsT<AutoCompletionResult>();
+                if (completionResult != null && completionResult.CompletionItems != null && completionResult.CompletionItems.Length > 0)
+                {
+                    result = completionResult;
+                }
+                else if (!ShouldShowCompletionList(scriptDocumentInfo.Token))
+                {
+                    result.CompleteResult(AutoCompleteHelper.EmptyCompletionList);
                 }
             }
             Logger.Verbose($"Sending completion result for {connInfo?.OwnerUri} in CompletionService.CreateCompletions");
@@ -96,6 +98,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices.Completion
             QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
                 key: scriptParseInfo.ConnectionKey,
                 bindingTimeout: ConnectedBindingQueue.BindingTimeout,
+                hardTimeout: this.HardTimeout,
                 bindOperation: (bindingContext, cancelToken) =>
                 {
                     return CreateCompletionsFromSqlParser(connInfo, scriptParseInfo, scriptDocumentInfo, bindingContext.MetadataDisplayInfoProvider);

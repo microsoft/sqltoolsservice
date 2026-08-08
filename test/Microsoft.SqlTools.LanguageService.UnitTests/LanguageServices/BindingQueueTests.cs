@@ -7,6 +7,7 @@
 
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SmoMetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
@@ -267,5 +268,185 @@ namespace Microsoft.SqlTools.LanguageService.UnitTests.LanguageServices
             Assert.False(firstOperationCanceled);
             Assert.False(secondOperationExecuted);
         }
+
+        /// <summary>
+        /// Verifies that an item which times out waiting for the binding lock completes with its
+        /// timeout result and returns from dispatch immediately. The context lock is held before
+        /// the item is queued so the test deterministically exercises the lock-wait timeout path.
+        /// The binding callback must never run, even after the timeout has been reported, and a
+        /// late success result must not replace the terminal timeout result.
+        /// </summary>
+        [Test]
+        [Timeout(10_000)]
+        public void QueueLockWaitTimeoutDoesNotExecuteBindingOperation()
+        {
+            const string operationKey = "lock-timeout-test";
+            object timeoutResult = new object();
+            object successResult = new object();
+            using var operationStarted = new ManualResetEvent(false);
+            InitializeTestSettings();
+
+            var lockedContext = new TestBindingContext();
+            lockedContext.BindingLock.Reset();
+            this.bindingQueue.BindingContextMap.TryAdd(operationKey, lockedContext);
+            this.bindingQueue.BindingContextTasks.TryAdd(lockedContext, Task.CompletedTask);
+
+            QueueItem queueItem = this.bindingQueue.QueueBindingOperation(
+                key: operationKey,
+                waitForLockTimeout: 50,
+                bindOperation: (context, cancellationToken) =>
+                {
+                    operationStarted.Set();
+                    return successResult;
+                },
+                timeoutOperation: context => timeoutResult);
+
+            try
+            {
+                Assert.That(queueItem.ItemProcessed.WaitOne(TimeSpan.FromSeconds(2)), Is.True);
+                Assert.That(queueItem.Result, Is.SameAs(timeoutResult));
+                Assert.That(operationStarted.WaitOne(TimeSpan.FromMilliseconds(500)), Is.False);
+                Assert.That(queueItem.Result, Is.SameAs(timeoutResult));
+            }
+            finally
+            {
+                lockedContext.BindingLock.Set();
+                this.bindingQueue.StopQueueProcessor(2_000);
+                this.bindingQueue.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Verifies that crossing the slow-operation threshold does not select the timeout result.
+        /// An operation which finishes before its hard timeout must return its real result, even
+        /// though it was reported as slow. This protects the #21930 large-dbo reproduction, where
+        /// about 36,900 suggestions took 650-760 ms and were previously discarded at 500 ms.
+        /// </summary>
+        [Test]
+        [Timeout(10_000)]
+        public void QueueSlowOperationCanCompleteBeforeHardTimeout()
+        {
+            object successResult = new object();
+            object timeoutResult = new object();
+            using var operationStarted = new ManualResetEvent(false);
+            using var releaseOperation = new ManualResetEvent(false);
+            InitializeTestSettings();
+
+            QueueItem queueItem = this.bindingQueue.QueueBindingOperation(
+                key: "slow-operation-test",
+                bindingTimeout: 50,
+                hardTimeout: 2_000,
+                bindOperation: (context, cancellationToken) =>
+                {
+                    operationStarted.Set();
+                    releaseOperation.WaitOne();
+                    return successResult;
+                },
+                timeoutOperation: context => timeoutResult);
+
+            try
+            {
+                Assert.That(operationStarted.WaitOne(TimeSpan.FromSeconds(1)), Is.True);
+                Assert.That(queueItem.ItemProcessed.WaitOne(TimeSpan.FromMilliseconds(200)), Is.False,
+                    "The slow threshold must not complete the queue item.");
+
+                releaseOperation.Set();
+
+                Assert.That(queueItem.ItemProcessed.WaitOne(TimeSpan.FromSeconds(1)), Is.True);
+                Assert.That(queueItem.Result, Is.SameAs(successResult));
+                Assert.That(queueItem.TimedOut, Is.False);
+            }
+            finally
+            {
+                releaseOperation.Set();
+                this.bindingQueue.StopQueueProcessor(2_000);
+                this.bindingQueue.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Verifies that the hard timeout signals the caller while a non-cooperative operation is
+        /// still blocked, but keeps the binding context locked until that operation really ends.
+        /// A second item must time out waiting for the lock instead of running concurrently, and
+        /// the late result from the first operation must not replace its timeout result. This
+        /// models the #22236 repro where SMO's sys.all_columns query waited on LCK_M_S behind a
+        /// schema-modification lock and did not observe queue cancellation.
+        /// </summary>
+        [Test]
+        [Timeout(10_000)]
+        public void QueueHardTimeoutSignalsCallerAndRetainsBindingLock()
+        {
+            const string operationKey = "hard-timeout-test";
+            object timeoutResult = new object();
+            object lateResult = new object();
+            using var operationStarted = new ManualResetEvent(false);
+            using var operationFinished = new ManualResetEvent(false);
+            using var releaseOperation = new ManualResetEvent(false);
+            using var cancellationRequested = new ManualResetEvent(false);
+            using var secondOperationStarted = new ManualResetEvent(false);
+            InitializeTestSettings();
+
+            var bindingContext = new TestBindingContext();
+            this.bindingQueue.BindingContextMap.TryAdd(operationKey, bindingContext);
+            this.bindingQueue.BindingContextTasks.TryAdd(bindingContext, Task.CompletedTask);
+
+            QueueItem firstItem = this.bindingQueue.QueueBindingOperation(
+                key: operationKey,
+                bindingTimeout: 50,
+                hardTimeout: 150,
+                bindOperation: (context, cancellationToken) =>
+                {
+                    using CancellationTokenRegistration registration = cancellationToken.Register(
+                        () => cancellationRequested.Set());
+                    operationStarted.Set();
+                    releaseOperation.WaitOne();
+                    operationFinished.Set();
+                    return lateResult;
+                },
+                timeoutOperation: context => timeoutResult);
+
+            try
+            {
+                Assert.That(operationStarted.WaitOne(TimeSpan.FromSeconds(1)), Is.True);
+                Assert.That(firstItem.ItemProcessed.WaitOne(TimeSpan.FromSeconds(1)), Is.True,
+                    "The caller must not wait for the blocked operation after the hard timeout.");
+                Assert.That(firstItem.Result, Is.SameAs(timeoutResult));
+                Assert.That(firstItem.TimedOut, Is.True);
+                Assert.That(cancellationRequested.WaitOne(TimeSpan.FromSeconds(1)), Is.True);
+                Assert.That(bindingContext.BindingLock.WaitOne(0), Is.False,
+                    "The context must remain unavailable while the timed-out operation is still running.");
+
+                QueueItem secondItem = this.bindingQueue.QueueBindingOperation(
+                    key: operationKey,
+                    waitForLockTimeout: 50,
+                    bindOperation: (context, cancellationToken) =>
+                    {
+                        secondOperationStarted.Set();
+                        return null;
+                    },
+                    timeoutOperation: context => timeoutResult);
+
+                Assert.That(secondItem.ItemProcessed.WaitOne(TimeSpan.FromSeconds(1)), Is.True);
+                Assert.That(secondItem.Result, Is.SameAs(timeoutResult));
+                Assert.That(secondOperationStarted.WaitOne(TimeSpan.FromMilliseconds(200)), Is.False,
+                    "A second operation must not use the same context concurrently.");
+
+                releaseOperation.Set();
+
+                Assert.That(operationFinished.WaitOne(TimeSpan.FromSeconds(1)), Is.True);
+                Assert.That(bindingContext.BindingLock.WaitOne(TimeSpan.FromSeconds(1)), Is.True);
+                Assert.That(firstItem.Result, Is.SameAs(timeoutResult),
+                    "A late operation result must not replace the hard-timeout result.");
+            }
+            finally
+            {
+                releaseOperation.Set();
+                operationFinished.WaitOne(TimeSpan.FromSeconds(1));
+                bindingContext.BindingLock.Set();
+                this.bindingQueue.StopQueueProcessor(2_000);
+                this.bindingQueue.Dispose();
+            }
+        }
+
     }
 }

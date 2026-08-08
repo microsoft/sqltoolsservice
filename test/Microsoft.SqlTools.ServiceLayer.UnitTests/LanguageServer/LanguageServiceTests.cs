@@ -14,7 +14,9 @@ using Microsoft.SqlTools.LanguageService.LanguageServices;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Completion;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
+using Microsoft.SqlTools.LanguageService.Workspace;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
@@ -43,6 +45,63 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                     ? this.CreateParseThreadOverride(threadStart)
                     : base.CreateParseThread(threadStart);
             }
+        }
+
+        /// <summary>
+        /// Reproduces rapid typing while an older completion ignores cancellation. Only the
+        /// latest request for that document runs, while another editor remains independent.
+        /// </summary>
+        [Test]
+        [Timeout(10_000)]
+        public async Task CompletionCoordinatorRunsOnlyLatestRequestPerDocument()
+        {
+            var service = new TestLanguageService();
+            var firstStarted = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var releaseFirst = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            CancellationToken firstToken = default;
+            int secondOperationCount = 0;
+            int thirdOperationCount = 0;
+
+            Task<string> first = service.RunLatestCompletionByUriAsync(
+                "file://query.sql",
+                async cancellationToken =>
+                {
+                    firstToken = cancellationToken;
+                    firstStarted.SetResult(true);
+                    await releaseFirst.Task;
+                    return "old";
+                });
+            await firstStarted.Task;
+
+            Task<string> otherDocument = service.RunLatestCompletionByUriAsync(
+                "file://other.sql",
+                _ => Task.FromResult("other"));
+            Assert.That(await otherDocument, Is.EqualTo("other"));
+            Assert.That(firstToken.IsCancellationRequested, Is.False);
+
+            Task<string> second = service.RunLatestCompletionByUriAsync(
+                "file://query.sql",
+                _ =>
+                {
+                    Interlocked.Increment(ref secondOperationCount);
+                    return Task.FromResult("middle");
+                });
+            Task<string> third = service.RunLatestCompletionByUriAsync(
+                "file://query.sql",
+                _ =>
+                {
+                    Interlocked.Increment(ref thirdOperationCount);
+                    return Task.FromResult("latest");
+                });
+
+            Assert.That(firstToken.IsCancellationRequested, Is.True);
+            releaseFirst.SetResult(true);
+
+            Assert.That(await first, Is.Null);
+            Assert.That(await second, Is.Null);
+            Assert.That(await third, Is.EqualTo("latest"));
+            Assert.That(secondOperationCount, Is.Zero);
+            Assert.That(thirdOperationCount, Is.EqualTo(1));
         }
 
         /// <summary>
@@ -332,6 +391,99 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             {
                 bindingQueue.StopQueueProcessor(1000);
                 bindingQueue.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Verifies that a completion request does not consume the previous document's parse
+        /// result when its required incremental parse cannot acquire the binding lock. The busy
+        /// request must stop without running the parser or replacing the stored parse state. Once
+        /// the lock is available, the next request must detect the text mismatch, retry parsing,
+        /// and update the stored result to the latest document text. This models the #21930
+        /// overlap where a slow completion owned the binding lock while a newer parse arrived.
+        /// </summary>
+        [Test]
+        [Timeout(10_000)]
+        public async Task CompletionStopsWhenRequiredReparseCannotGetBindingLock()
+        {
+            const string oldSql = "SELECT OldColumn";
+            const string currentSql = "SELECT CurrentColumn";
+            const string connectionKey = "stale-parse-test-connection";
+
+            var service = new TestLanguageService();
+            var bindingQueue = new ConnectedBindingQueue(false);
+            service.BindingQueue = bindingQueue;
+            WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings = new SqlToolsSettings();
+            service.WorkspaceServiceInstance = WorkspaceService<SqlToolsSettings>.Instance;
+
+            var scriptFile = new ScriptFile(TestObjects.ScriptUri, TestObjects.ScriptUri, currentSql);
+            var parseOptions = new ParseOptions(
+                batchSeparator: TSqlLanguageService.DefaultBatchSeperator,
+                isQuotedIdentifierSet: true,
+                compatibilityLevel: DatabaseCompatibilityLevel.Current,
+                transactSqlVersion: TransactSqlVersion.Current);
+            ParseResult oldParseResult = Parser.IncrementalParse(oldSql, null, parseOptions);
+            var scriptParseInfo = new ScriptParseInfo
+            {
+                BindingContextKind = BindingContextKindEnum.LiveConnection,
+                ConnectionKey = connectionKey,
+                ParseResult = oldParseResult
+            };
+            service.AddOrUpdateScriptParseInfo(scriptFile.ClientUri, scriptParseInfo);
+
+            var bindingContext = new ConnectedBindingContext { IsConnected = false };
+            bindingContext.BindingLock.Reset();
+            bindingQueue.BindingContextMap.TryAdd(connectionKey, bindingContext);
+            bindingQueue.BindingContextTasks.TryAdd(bindingContext, Task.CompletedTask);
+
+            int incrementalParseCount = 0;
+            service.IncrementalParseOverride = (sqlText, previousParseResult, options) =>
+            {
+                Interlocked.Increment(ref incrementalParseCount);
+                return Parser.IncrementalParse(sqlText, previousParseResult, options);
+            };
+
+            var position = new TextDocumentPosition
+            {
+                TextDocument = new TextDocumentIdentifier { Uri = scriptFile.ClientUri },
+                Position = new Position { Line = 0, Character = currentSql.Length }
+            };
+
+            try
+            {
+                ParseResult publicParseResult = await service.ParseAndBind(
+                    scriptFile,
+                    TestObjects.GetTestConnectionInfo());
+
+                Assert.That(publicParseResult, Is.Null, "NotExecuted must not be exposed as the previous parse result.");
+                Assert.That(scriptParseInfo.ParseResult, Is.SameAs(oldParseResult));
+
+                CompletionItem[] busyResult = await service.GetCompletionItems(
+                    position,
+                    scriptFile,
+                    TestObjects.GetTestConnectionInfo());
+
+                Assert.That(busyResult, Is.Null, "A busy reparse must stop the current completion request.");
+                Assert.That(incrementalParseCount, Is.Zero, "The timed-out queue item must not run later.");
+                Assert.That(scriptParseInfo.ParseResult, Is.SameAs(oldParseResult));
+                Assert.That(scriptParseInfo.ParseResult.Script.Sql, Is.EqualTo(oldSql));
+
+                bindingContext.BindingLock.Set();
+
+                await service.GetCompletionItems(
+                    position,
+                    scriptFile,
+                    TestObjects.GetTestConnectionInfo());
+
+                Assert.That(incrementalParseCount, Is.EqualTo(1));
+                Assert.That(scriptParseInfo.ParseResult, Is.Not.Null);
+                Assert.That(scriptParseInfo.ParseResult.Script.Sql, Is.EqualTo(currentSql));
+            }
+            finally
+            {
+                bindingContext.BindingLock.Set();
+                bindingQueue.StopQueueProcessor(2_000);
+                service.Dispose();
             }
         }
     }
