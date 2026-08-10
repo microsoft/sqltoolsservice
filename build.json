@@ -57,9 +57,6 @@
     "Microsoft.SqlTools.SqlCore",
     "Microsoft.SqlTools.LanguageService"
   ],
-  "DotnetToolProjects": [
-    "Microsoft.SqlTools.ServiceLayer"
-  ],
   "Projects": [
     {
       "Name": "Microsoft.SqlTools.Migration",
