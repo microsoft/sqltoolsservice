@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
+using System.Xml.Linq;
 using Microsoft.SqlServer.Dac.CodeAnalysis;
 using Microsoft.SqlTools.ServiceLayer.DacFx.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
@@ -27,12 +28,28 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         private const string AnalyzerPathPrefix = "analyzers/dotnet/cs/";
         private const string AssemblyExtension = ".dll";
         private const string PackageLibraryType = "package";
+        private const string PackageReferenceElementName = "PackageReference";
+        private const string IncludeAttributeName = "Include";
+        private const string VersionMetadataName = "Version";
+
+        /// <summary>
+        /// Characters that mark a version as a range or floating version rather than a single pinned
+        /// value. Resolving those requires NuGet's range semantics, so they are left uncompared.
+        /// </summary>
+        private static readonly char[] VersionRangeCharacters = { '*', '[', ']', '(', ')', ',' };
 
         /// <summary>
         /// Severity reported for custom rules. Analyzer packages don't declare one, and any severity
         /// saved in the .sqlproj is applied on top of this by the caller.
         /// </summary>
         private static readonly string DefaultCustomRuleSeverity = SqlRuleProblemSeverity.Warning.ToString();
+
+        /// <summary>
+        /// A package as recorded by the last restore.
+        /// </summary>
+        /// <param name="Version">Version that was restored.</param>
+        /// <param name="ContributesRules">Whether the package ships analyzer assemblies.</param>
+        private readonly record struct RestoredPackage(string Version, bool ContributesRules);
 
         /// <summary>
         /// Rules and non-fatal warnings produced by a load operation.
@@ -44,6 +61,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             public List<CodeAnalysisRuleInfo> Rules { get; } = new();
 
             public List<string> Warnings { get; } = new();
+
+            /// <summary>
+            /// True when restoring the project would resolve a reported warning. Lets a client offer
+            /// a restore action without having to parse the localized warning text.
+            /// </summary>
+            public bool RestoreRequired { get; set; }
 
             /// <summary>
             /// All warnings as a single message, or <c>null</c> when there are none.
@@ -82,20 +105,30 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
             try
             {
-                string projectDirectory = Path.GetDirectoryName(ToLocalPath(projectFileUriOrPath)) ?? string.Empty;
+                string projectFilePath = ToLocalPath(projectFileUriOrPath);
+                string projectDirectory = Path.GetDirectoryName(projectFilePath) ?? string.Empty;
                 string assetsFilePath = Path.Combine(projectDirectory, IntermediateFolderName, AssetsFileName);
 
                 if (!File.Exists(assetsFilePath))
                 {
+                    result.RestoreRequired = true;
                     result.Warnings.Add(SR.CustomRulesRestoreRequired);
                     return result;
                 }
+
+                using JsonDocument document = JsonDocument.Parse(File.ReadAllText(assetsFilePath));
+                JsonElement root = document.RootElement;
+
+                // The assets file only reflects the last successful restore, so it stays internally
+                // consistent after a package upgrade that has not been restored. Comparing it against
+                // the project is the only way to notice that the loaded rules are stale.
+                ReportPackagesNeedingRestore(projectFilePath, root, result);
 
                 // A package can ship the same assembly under several target frameworks, so each
                 // distinct assembly identity is reflected over only once.
                 HashSet<string> processedAssemblies = new(StringComparer.OrdinalIgnoreCase);
 
-                foreach (string assemblyPath in ResolveAnalyzerAssemblyPaths(assetsFilePath, result))
+                foreach (string assemblyPath in ResolveAnalyzerAssemblyPaths(root, result))
                 {
                     Assembly? assembly = TryLoadAssembly(assemblyPath, result);
 
@@ -114,14 +147,95 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         }
 
         /// <summary>
+        /// Reports packages whose referenced version does not match what was restored, so stale
+        /// rules are not presented as though they matched the project.
+        /// Only exact versions are compared; a floating version or range cannot be matched against a
+        /// single restored version by string comparison, so those are left alone.
+        /// </summary>
+        private static void ReportPackagesNeedingRestore(string projectFilePath, JsonElement root, LoadResult result)
+        {
+            IReadOnlyDictionary<string, RestoredPackage> restoredPackages = ReadRestoredPackages(root);
+
+            foreach ((string packageName, string referencedVersion) in ReadReferencedPackageVersions(projectFilePath))
+            {
+                // A package absent from the assets file is left alone: without a restore there is no
+                // file list to tell whether it contributes rules, and warning about every unrestored
+                // package would report unrelated ones as code analysis problems.
+                if (referencedVersion.IndexOfAny(VersionRangeCharacters) < 0
+                    && restoredPackages.TryGetValue(packageName, out RestoredPackage restored)
+                    && restored.ContributesRules
+                    && !string.Equals(referencedVersion, restored.Version, StringComparison.OrdinalIgnoreCase))
+                {
+                    result.RestoreRequired = true;
+                    result.Warnings.Add(SR.CustomRulesPackageOutOfDate(packageName, referencedVersion, restored.Version));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Reads the packages the last restore resolved, keyed by package name.
+        /// </summary>
+        private static IReadOnlyDictionary<string, RestoredPackage> ReadRestoredPackages(JsonElement root)
+        {
+            Dictionary<string, RestoredPackage> restoredPackages = new(StringComparer.OrdinalIgnoreCase);
+
+            if (!TryGetObject(root, "libraries", out JsonElement libraries))
+            {
+                return restoredPackages;
+            }
+
+            foreach (JsonProperty library in libraries.EnumerateObject())
+            {
+                // Entry names use the "PackageId/Version" format.
+                string[] nameParts = library.Name.Split('/');
+
+                if (nameParts.Length == 2)
+                {
+                    restoredPackages[nameParts[0]] = new RestoredPackage(nameParts[1], ContributesRules(library));
+                }
+            }
+
+            return restoredPackages;
+        }
+
+        /// <summary>
+        /// Whether a restored package ships analyzer assemblies, which is what makes it a source of
+        /// custom rules.
+        /// </summary>
+        private static bool ContributesRules(JsonProperty library) =>
+            library.Value.TryGetProperty("files", out JsonElement files)
+            && files.ValueKind == JsonValueKind.Array
+            && files.EnumerateArray().Any(file =>
+                file.ValueKind == JsonValueKind.String && IsCandidateAssembly(file.GetString()!));
+
+        /// <summary>
+        /// Reads the package references declared by the project. The version can be either an
+        /// attribute or a child element, and the element is namespace-qualified in original-style
+        /// projects, so both forms are handled.
+        /// </summary>
+        private static IEnumerable<KeyValuePair<string, string>> ReadReferencedPackageVersions(string projectFilePath)
+        {
+            XDocument project = XDocument.Load(projectFilePath);
+
+            foreach (XElement element in project.Descendants().Where(x => x.Name.LocalName == PackageReferenceElementName))
+            {
+                string? packageName = element.Attribute(IncludeAttributeName)?.Value;
+                string? version = element.Attribute(VersionMetadataName)?.Value
+                    ?? element.Elements().FirstOrDefault(x => x.Name.LocalName == VersionMetadataName)?.Value;
+
+                if (!string.IsNullOrWhiteSpace(packageName) && !string.IsNullOrWhiteSpace(version))
+                {
+                    yield return new KeyValuePair<string, string>(packageName.Trim(), version.Trim());
+                }
+            }
+        }
+
+        /// <summary>
         /// Resolves the on-disk paths of the analyzer assemblies contributed by the packages the
         /// project references directly.
         /// </summary>
-        internal static List<string> ResolveAnalyzerAssemblyPaths(string assetsFilePath, LoadResult result)
+        internal static List<string> ResolveAnalyzerAssemblyPaths(JsonElement root, LoadResult result)
         {
-            using JsonDocument document = JsonDocument.Parse(File.ReadAllText(assetsFilePath));
-            JsonElement root = document.RootElement;
-
             IReadOnlyList<string> packageFolders = ReadPackageFolders(root);
             HashSet<string> directDependencies = ReadDirectDependencies(root);
             List<string> assemblyPaths = new();

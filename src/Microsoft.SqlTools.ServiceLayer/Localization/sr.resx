@@ -1062,7 +1062,7 @@
     <comment></comment>
   </data>
   <data name="CustomRulesRestoreRequired" xml:space="preserve">
-    <value>Custom code analysis rules are unavailable. Run &apos;dotnet restore&apos; on the project and then reopen this dialog.</value>
+    <value>Custom code analysis rules are unavailable until the project is restored.</value>
     <comment></comment>
   </data>
   <data name="CustomRulesLoadFailed" xml:space="preserve">
@@ -1089,6 +1089,11 @@
     <value>Rule &apos;{0}&apos; is defined by more than one custom analyzer package. Duplicate rule IDs are not supported, and which definition applies during build is not guaranteed. Update the custom rules to use unique IDs.</value>
     <comment>.
  Parameters: 0 - ruleId (string) </comment>
+  </data>
+  <data name="CustomRulesPackageOutOfDate" xml:space="preserve">
+    <value>The project references {0} {1}, but version {2} was restored.</value>
+    <comment>.
+ Parameters: 0 - packageName (string), 1 - referencedVersion (string), 2 - restoredVersion (string) </comment>
   </data>
   <data name="PublishChangesTaskName" xml:space="preserve">
     <value>Apply schema compare changes</value>

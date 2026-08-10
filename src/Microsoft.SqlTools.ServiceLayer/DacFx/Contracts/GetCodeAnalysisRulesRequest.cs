@@ -82,6 +82,13 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         /// Non-fatal warning to surface in the UI (e.g., project not restored, DLL load failure, ID conflict).
         /// </summary>
         public string Warning { get; set; }
+
+        /// <summary>
+        /// True when running a package restore would resolve the reported warning, either because the
+        /// project has never been restored or because a referenced package no longer matches what was
+        /// restored. Lets the client offer a restore action without parsing the localized warning text.
+        /// </summary>
+        public bool RestoreRequired { get; set; }
     }
 
     /// <summary>

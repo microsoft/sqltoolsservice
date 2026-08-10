@@ -10912,6 +10912,11 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.CustomRuleDuplicateId, ruleId);
         }
 
+        public static string CustomRulesPackageOutOfDate(string packageName, string referencedVersion, string restoredVersion)
+        {
+            return Keys.GetString(Keys.CustomRulesPackageOutOfDate, packageName, referencedVersion, restoredVersion);
+        }
+
         public static string SqlAssessmentUnsuppoertedEdition(int editionCode)
         {
             return Keys.GetString(Keys.SqlAssessmentUnsuppoertedEdition, editionCode);
@@ -11715,6 +11720,9 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string CustomRuleDuplicateId = "CustomRuleDuplicateId";
+
+
+            public const string CustomRulesPackageOutOfDate = "CustomRulesPackageOutOfDate";
 
 
             public const string PublishChangesTaskName = "PublishChangesTaskName";

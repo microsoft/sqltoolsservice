@@ -431,6 +431,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             }
 
             string? warning = null;
+            bool restoreRequired = false;
 
             if (!string.IsNullOrWhiteSpace(projectFilePath))
             {
@@ -447,6 +448,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 }
 
                 warning = customRules.Warning;
+                restoreRequired = customRules.RestoreRequired;
             }
 
             return new GetCodeAnalysisRulesResult
@@ -454,7 +456,8 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 Success = true,
                 ErrorMessage = null,
                 Rules = rules.Values.ToArray(),
-                Warning = warning
+                Warning = warning,
+                RestoreRequired = restoreRequired
             };
         }
 

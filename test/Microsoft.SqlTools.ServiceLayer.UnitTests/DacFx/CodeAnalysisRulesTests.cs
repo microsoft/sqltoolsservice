@@ -203,7 +203,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DacFx
             string assetsFilePath = WriteAssetsFileFor(AnalyzerRelativePath);
 
             CustomRuleLoader.LoadResult result = new();
-            List<string> assemblyPaths = CustomRuleLoader.ResolveAnalyzerAssemblyPaths(assetsFilePath, result);
+            List<string> assemblyPaths = ResolveAnalyzerAssemblyPaths(assetsFilePath, result);
 
             Assert.That(assemblyPaths, Is.EqualTo(new[] { expectedPath }));
             Assert.That(result.Warnings, Is.Empty);
@@ -222,7 +222,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DacFx
                 "tools/Contoso.SqlRules.dll");               // tools/
 
             CustomRuleLoader.LoadResult result = new();
-            List<string> assemblyPaths = CustomRuleLoader.ResolveAnalyzerAssemblyPaths(assetsFilePath, result);
+            List<string> assemblyPaths = ResolveAnalyzerAssemblyPaths(assetsFilePath, result);
 
             Assert.That(assemblyPaths, Is.Empty);
             Assert.That(result.Warnings, Is.Empty, "Ignored files should not be reported as missing assemblies");
@@ -245,7 +245,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DacFx
                 }));
 
             CustomRuleLoader.LoadResult result = new();
-            List<string> assemblyPaths = CustomRuleLoader.ResolveAnalyzerAssemblyPaths(assetsFilePath, result);
+            List<string> assemblyPaths = ResolveAnalyzerAssemblyPaths(assetsFilePath, result);
 
             Assert.That(assemblyPaths, Is.Empty);
         }
@@ -257,7 +257,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DacFx
             string assetsFilePath = WriteAssetsFileFor(AnalyzerRelativePath);
 
             CustomRuleLoader.LoadResult result = new();
-            List<string> assemblyPaths = CustomRuleLoader.ResolveAnalyzerAssemblyPaths(assetsFilePath, result);
+            List<string> assemblyPaths = ResolveAnalyzerAssemblyPaths(assetsFilePath, result);
 
             Assert.That(assemblyPaths, Is.Empty);
             Assert.That(result.Warnings, Has.Count.EqualTo(1));
@@ -280,7 +280,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DacFx
                     libraries: new[] { new LibraryEntry(PackageId, "package", new[] { AnalyzerRelativePath }) }));
 
                 CustomRuleLoader.LoadResult result = new();
-                List<string> assemblyPaths = CustomRuleLoader.ResolveAnalyzerAssemblyPaths(assetsFilePath, result);
+                List<string> assemblyPaths = ResolveAnalyzerAssemblyPaths(assetsFilePath, result);
 
                 Assert.That(assemblyPaths, Is.EqualTo(new[] { expectedPath }));
             }
@@ -447,6 +447,168 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DacFx
             };
 
             return JsonSerializer.Serialize(root);
+        }
+
+        /// <summary>
+        /// Parses an assets file and resolves the analyzer assemblies it records. The loader takes the
+        /// parsed document so the file is only read once per load; the tests start from a path.
+        /// </summary>
+        private static List<string> ResolveAnalyzerAssemblyPaths(string assetsFilePath, CustomRuleLoader.LoadResult result)
+        {
+            using JsonDocument document = JsonDocument.Parse(File.ReadAllText(assetsFilePath));
+            return CustomRuleLoader.ResolveAnalyzerAssemblyPaths(document.RootElement, result);
+        }
+
+        /// <summary>
+        /// Writes a project referencing <paramref name="packageId"/> at <paramref name="version"/>.
+        /// </summary>
+        /// <param name="useChildElement">
+        /// When true the version is written as a child element rather than an attribute, which MSBuild
+        /// allows for either form.
+        /// </param>
+        private void WriteProjectReferencing(string packageId, string version, bool useChildElement = false)
+        {
+            string reference = useChildElement
+                ? $"<PackageReference Include=\"{packageId}\"><Version>{version}</Version></PackageReference>"
+                : $"<PackageReference Include=\"{packageId}\" Version=\"{version}\" />";
+
+            File.WriteAllText(projectFilePath, $"<Project><ItemGroup>{reference}</ItemGroup></Project>");
+        }
+
+        /// <summary>
+        /// Writes an assets file recording <paramref name="packageId"/> as restored at
+        /// <paramref name="restoredVersion"/>, containing <paramref name="packageFiles"/>.
+        /// </summary>
+        private void WriteAssetsFileWithRestoredVersion(string packageId, string restoredVersion, params string[] packageFiles)
+        {
+            Dictionary<string, object> root = new()
+            {
+                ["version"] = 3,
+                ["libraries"] = new Dictionary<string, object>
+                {
+                    [$"{packageId}/{restoredVersion}"] = new Dictionary<string, object>
+                    {
+                        ["type"] = "package",
+                        ["files"] = packageFiles,
+                    },
+                },
+                ["packageFolders"] = new Dictionary<string, object> { [packagesDirectory] = new Dictionary<string, object>() },
+                ["project"] = new Dictionary<string, object>
+                {
+                    ["frameworks"] = new Dictionary<string, object>
+                    {
+                        ["net8.0"] = new Dictionary<string, object>
+                        {
+                            ["dependencies"] = new Dictionary<string, object>
+                            {
+                                [packageId] = new Dictionary<string, string> { ["target"] = "Package", ["version"] = "[1.0.0, )" },
+                            },
+                        },
+                    },
+                },
+            };
+
+            WriteRawAssetsFile(JsonSerializer.Serialize(root));
+        }
+
+        #endregion
+
+        #region Restore required detection
+
+        /// <summary>
+        /// The assets file only records the last successful restore, so a version bump that has not
+        /// been restored has to be reported rather than silently loading the old rules.
+        /// </summary>
+        [Test]
+        public void LoadFromProject_AnalyzerPackageVersionDiffersFromRestored_ReportsRestoreRequired()
+        {
+            WriteProjectReferencing(PackageId, "2.0.0");
+            WriteAssetsFileWithRestoredVersion(PackageId, "1.0.0", AnalyzerRelativePath);
+
+            CustomRuleLoader.LoadResult result = CustomRuleLoader.LoadFromProject(projectFilePath);
+
+            Assert.That(result.RestoreRequired, Is.True, "an unrestored version bump should require a restore");
+            Assert.That(result.Warning, Does.Contain("2.0.0").And.Contain("1.0.0"),
+                "the warning should name both the referenced and the restored version");
+        }
+
+        [Test]
+        public void LoadFromProject_AnalyzerPackageVersionMatchesRestored_ReportsNoRestoreRequired()
+        {
+            WriteProjectReferencing(PackageId, PackageVersion);
+            WriteAssetsFileWithRestoredVersion(PackageId, PackageVersion, AnalyzerRelativePath);
+
+            CustomRuleLoader.LoadResult result = CustomRuleLoader.LoadFromProject(projectFilePath);
+
+            Assert.That(result.RestoreRequired, Is.False, "a matching version needs no restore");
+        }
+
+        /// <summary>
+        /// Only analyzer packages contribute rules, so an unrelated package left behind by a partial
+        /// restore must not raise a code analysis warning.
+        /// </summary>
+        [Test]
+        public void LoadFromProject_NonAnalyzerPackageVersionDiffersFromRestored_IsIgnored()
+        {
+            WriteProjectReferencing(PackageId, "2.0.0");
+            WriteAssetsFileWithRestoredVersion(PackageId, "1.0.0", LibRelativePath);
+
+            CustomRuleLoader.LoadResult result = CustomRuleLoader.LoadFromProject(projectFilePath);
+
+            Assert.That(result.RestoreRequired, Is.False, "a package that ships no analyzers is not a source of rules");
+            Assert.That(result.Warning, Is.Null);
+        }
+
+        /// <summary>
+        /// Without a restore there is no file list for the package, so whether it contributes rules is
+        /// unknowable. Reporting it anyway would flag unrelated packages as code analysis problems.
+        /// </summary>
+        [Test]
+        public void LoadFromProject_ReferencedPackageMissingFromAssets_IsIgnored()
+        {
+            WriteProjectReferencing("Contoso.NotRestored", "1.0.0");
+            WriteAssetsFileWithRestoredVersion(PackageId, PackageVersion, AnalyzerRelativePath);
+
+            CustomRuleLoader.LoadResult result = CustomRuleLoader.LoadFromProject(projectFilePath);
+
+            Assert.That(result.RestoreRequired, Is.False, "a package with no restored file list cannot be classified");
+        }
+
+        /// <summary>
+        /// A range or floating version can resolve to many versions, so comparing it against a single
+        /// restored version by string equality would report a mismatch that does not exist.
+        /// </summary>
+        [TestCase("2.*")]
+        [TestCase("[1.0.0, 2.0.0)")]
+        public void LoadFromProject_ReferencedVersionIsNotPinned_IsIgnored(string referencedVersion)
+        {
+            WriteProjectReferencing(PackageId, referencedVersion);
+            WriteAssetsFileWithRestoredVersion(PackageId, "1.5.0", AnalyzerRelativePath);
+
+            CustomRuleLoader.LoadResult result = CustomRuleLoader.LoadFromProject(projectFilePath);
+
+            Assert.That(result.RestoreRequired, Is.False, $"'{referencedVersion}' cannot be compared by string equality");
+        }
+
+        [Test]
+        public void LoadFromProject_VersionGivenAsChildElement_IsComparedTheSameAsAnAttribute()
+        {
+            WriteProjectReferencing(PackageId, "2.0.0", useChildElement: true);
+            WriteAssetsFileWithRestoredVersion(PackageId, "1.0.0", AnalyzerRelativePath);
+
+            CustomRuleLoader.LoadResult result = CustomRuleLoader.LoadFromProject(projectFilePath);
+
+            Assert.That(result.RestoreRequired, Is.True, "the version element form should be read like the attribute form");
+        }
+
+        [Test]
+        public void LoadFromProject_ProjectNeverRestored_ReportsRestoreRequired()
+        {
+            WriteProjectReferencing(PackageId, PackageVersion);
+
+            CustomRuleLoader.LoadResult result = CustomRuleLoader.LoadFromProject(projectFilePath);
+
+            Assert.That(result.RestoreRequired, Is.True, "a project with no assets file has never been restored");
         }
 
         #endregion
