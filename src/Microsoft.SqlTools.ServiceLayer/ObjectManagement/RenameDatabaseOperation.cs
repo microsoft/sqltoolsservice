@@ -62,7 +62,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
             catch (Exception ex)
             {
-                ErrorMessage = ex.Message;
+                ErrorMessage = TaskOperationHelper.GetInnermostExceptionMessage(ex);
                 Logger.Error(ex);
                 throw;
             }
