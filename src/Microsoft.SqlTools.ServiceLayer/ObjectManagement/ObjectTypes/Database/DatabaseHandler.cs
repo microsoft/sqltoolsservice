@@ -670,9 +670,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             string connectionDatabaseName = GetDatabaseOperationConnectionDatabaseName(connectionInfo, renameParams.Database);
             using (var dataContainer = CreateDatabaseDataContainer(
                 renameParams.ConnectionUri,
-                false,
-                renameParams.Database,
-                connectionDatabaseName))
+                isNewDatabase: false,
+                databaseName: renameParams.Database,
+                connectionDatabaseName: connectionDatabaseName))
             {
                 var smoDatabase = dataContainer.SqlDialogSubject as Database;
                 if (smoDatabase != null)
@@ -761,9 +761,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             string connectionDatabaseName = GetDatabaseOperationConnectionDatabaseName(connectionInfo, dropParams.Database);
             using (var dataContainer = CreateDatabaseDataContainer(
                 dropParams.ConnectionUri,
-                false,
-                dropParams.Database,
-                connectionDatabaseName))
+                isNewDatabase: false,
+                databaseName: dropParams.Database,
+                connectionDatabaseName: connectionDatabaseName))
             {
                 var smoDatabase = dataContainer.SqlDialogSubject as Database;
                 if (smoDatabase != null)

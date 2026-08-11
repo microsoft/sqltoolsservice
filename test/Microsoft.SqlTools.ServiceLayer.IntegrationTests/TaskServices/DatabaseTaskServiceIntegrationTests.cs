@@ -100,40 +100,46 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.TaskServices
                 connectionResult.ConnectionInfo.TryGetConnection(Microsoft.SqlTools.ServiceLayer.Connection.ConnectionType.ObjectExplorer, out var sourceConnection),
                 Is.True);
             sourceConnection.Open();
-            Assert.That(sourceConnection.State, Is.EqualTo(System.Data.ConnectionState.Open));
-            DropDatabaseResponse response = null;
-            var requestContext = new Mock<RequestContext<DropDatabaseResponse>>();
-            requestContext.Setup(x => x.SendResult(It.IsAny<DropDatabaseResponse>()))
-                .Callback<DropDatabaseResponse>(r => response = r)
-                .Returns(Task.FromResult(new object()));
-
-            var requestParams = new DropDatabaseRequestParams
+            try
             {
-                ConnectionUri = connectionResult.ConnectionInfo.OwnerUri,
-                Database = databaseName,
-                DropConnections = true,
-                DeleteBackupHistory = false,
-                GenerateScript = false,
-            };
+                Assert.That(sourceConnection.State, Is.EqualTo(System.Data.ConnectionState.Open));
+                DropDatabaseResponse response = null;
+                var requestContext = new Mock<RequestContext<DropDatabaseResponse>>();
+                requestContext.Setup(x => x.SendResult(It.IsAny<DropDatabaseResponse>()))
+                    .Callback<DropDatabaseResponse>(r => response = r)
+                    .Returns(Task.FromResult(new object()));
 
-            await ObjectManagementTestUtils.Service.HandleDropDatabaseRequest(requestParams, requestContext.Object);
+                var requestParams = new DropDatabaseRequestParams
+                {
+                    ConnectionUri = connectionResult.ConnectionInfo.OwnerUri,
+                    Database = databaseName,
+                    DropConnections = true,
+                    DeleteBackupHistory = false,
+                    GenerateScript = false,
+                };
 
-            Assert.That(response, Is.Not.Null);
-            Assert.That(response.TaskId, Is.Not.Null.And.Not.Empty);
-            Assert.That(response.Script, Is.Null.Or.Empty);
+                await ObjectManagementTestUtils.Service.HandleDropDatabaseRequest(requestParams, requestContext.Object);
 
-            SqlTask sqlTask = await WaitForTaskAsync(task => task.TaskMetadata.OperationName == typeof(DropDatabaseOperation).Name && task.TaskMetadata.DatabaseName == databaseName);
+                Assert.That(response, Is.Not.Null);
+                Assert.That(response.TaskId, Is.Not.Null.And.Not.Empty);
+                Assert.That(response.Script, Is.Null.Or.Empty);
 
-            Assert.That(sqlTask.TaskStatus, Is.EqualTo(SqlTaskStatus.Succeeded));
-            Assert.That(sqlTask.TaskMetadata.Name, Is.EqualTo(global::Microsoft.SqlTools.ServiceLayer.SR.DropDatabaseTaskName));
-            Assert.That(sqlTask.PercentComplete, Is.EqualTo(-1));
-            Assert.That(sqlTask.ProgressMessage, Is.EqualTo($"Drop database '{databaseName}'."));
-            Assert.That(sqlTask.Messages.Any(m => !string.IsNullOrWhiteSpace(m.Description)), Is.True);
+                SqlTask sqlTask = await WaitForTaskAsync(task => task.TaskMetadata.OperationName == typeof(DropDatabaseOperation).Name && task.TaskMetadata.DatabaseName == databaseName);
 
-            Assert.That(DatabaseExists(connectionResult.ConnectionInfo, databaseName), Is.False);
-            Assert.That(sourceConnection.State, Is.EqualTo(System.Data.ConnectionState.Open));
-            sourceConnection.Close();
-            databasesToDrop.Remove(databaseName);
+                Assert.That(sqlTask.TaskStatus, Is.EqualTo(SqlTaskStatus.Succeeded));
+                Assert.That(sqlTask.TaskMetadata.Name, Is.EqualTo(global::Microsoft.SqlTools.ServiceLayer.SR.DropDatabaseTaskName));
+                Assert.That(sqlTask.PercentComplete, Is.EqualTo(-1));
+                Assert.That(sqlTask.ProgressMessage, Is.EqualTo($"Drop database '{databaseName}'."));
+                Assert.That(sqlTask.Messages.Any(m => !string.IsNullOrWhiteSpace(m.Description)), Is.True);
+
+                Assert.That(DatabaseExists(connectionResult.ConnectionInfo, databaseName), Is.False);
+                Assert.That(sourceConnection.State, Is.EqualTo(System.Data.ConnectionState.Open));
+                databasesToDrop.Remove(databaseName);
+            }
+            finally
+            {
+                sourceConnection.Close();
+            }
         }
 
         [Test]
