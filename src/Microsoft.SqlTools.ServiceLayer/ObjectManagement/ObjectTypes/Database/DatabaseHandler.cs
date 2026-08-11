@@ -666,7 +666,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             Validate.IsNotNullOrWhitespaceString(nameof(renameParams.NewName), renameParams.NewName);
 
             var sqlScript = string.Empty;
-            using (var dataContainer = CreateDatabaseDataContainer(renameParams.ConnectionUri, false, renameParams.Database))
+            ConnectionInfo connectionInfo = this.GetConnectionInfo(renameParams.ConnectionUri);
+            string connectionDatabaseName = GetDatabaseOperationConnectionDatabaseName(connectionInfo, renameParams.Database);
+            using (var dataContainer = CreateDatabaseDataContainer(
+                renameParams.ConnectionUri,
+                isNewDatabase: false,
+                databaseName: renameParams.Database,
+                connectionDatabaseName: connectionDatabaseName))
             {
                 var smoDatabase = dataContainer.SqlDialogSubject as Database;
                 if (smoDatabase != null)
@@ -751,7 +757,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
         public string Drop(DropDatabaseRequestParams dropParams)
         {
             var sqlScript = string.Empty;
-            using (var dataContainer = CreateDatabaseDataContainer(dropParams.ConnectionUri, false, dropParams.Database))
+            ConnectionInfo connectionInfo = this.GetConnectionInfo(dropParams.ConnectionUri);
+            string connectionDatabaseName = GetDatabaseOperationConnectionDatabaseName(connectionInfo, dropParams.Database);
+            using (var dataContainer = CreateDatabaseDataContainer(
+                dropParams.ConnectionUri,
+                isNewDatabase: false,
+                databaseName: dropParams.Database,
+                connectionDatabaseName: connectionDatabaseName))
             {
                 var smoDatabase = dataContainer.SqlDialogSubject as Database;
                 if (smoDatabase != null)
@@ -829,6 +841,22 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             return sqlScript;
         }
 
+        private static string GetDatabaseOperationConnectionDatabaseName(ConnectionInfo connectionInfo, string databaseName)
+        {
+            if (connectionInfo.EngineEdition == DatabaseEngineEdition.SqlDatabase ||
+                connectionInfo.EngineEdition == DatabaseEngineEdition.SqlDataWarehouse ||
+                connectionInfo.EngineEdition == DatabaseEngineEdition.SqlOnDemand)
+            {
+                return CommonConstants.MasterDatabaseName;
+            }
+
+            string connectionDatabaseName = connectionInfo.ConnectionDetails.DatabaseName;
+            return string.IsNullOrWhiteSpace(connectionDatabaseName) ||
+                string.Equals(connectionDatabaseName, databaseName, StringComparison.OrdinalIgnoreCase)
+                    ? CommonConstants.TempDbDatabaseName
+                    : connectionDatabaseName;
+        }
+
         /// <summary>
         /// Clears all query store data from the database
         /// </summary>
@@ -845,7 +873,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
             }
         }
 
-        private CDataContainer CreateDatabaseDataContainer(string connectionUri, bool isNewDatabase, string databaseName)
+        private CDataContainer CreateDatabaseDataContainer(
+            string connectionUri,
+            bool isNewDatabase,
+            string databaseName,
+            string? connectionDatabaseName = null)
         {
             ConnectionInfo connectionInfo = this.GetConnectionInfo(connectionUri);
             var originalDatabaseName = connectionInfo.ConnectionDetails.DatabaseName;
@@ -854,7 +886,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 string objectURN;
                 if (!isNewDatabase && !string.IsNullOrEmpty(databaseName))
                 {
-                    connectionInfo.ConnectionDetails.DatabaseName = databaseName;
+                    connectionInfo.ConnectionDetails.DatabaseName = connectionDatabaseName ?? databaseName;
                     objectURN = string.Format(System.Globalization.CultureInfo.InvariantCulture, "Server/Database[@Name='{0}']", Urn.EscapeString(databaseName));
                 }
                 else

@@ -6,6 +6,7 @@
 #nullable disable
 
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.TaskServices;
@@ -292,6 +293,63 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
             Thread.Sleep(500);
             operation.Stop();
             await taskToVerify;
+        }
+
+        [Test]
+        public async Task FailedTaskUsesInnermostExceptionMessage()
+        {
+            const string expectedError = "The database is currently in use.";
+            var operation = new NestedFailureOperation(expectedError);
+            var sqlTask = new SqlTask(
+                new TaskMetadata
+                {
+                    TaskExecutionMode = TaskExecutionMode.Execute,
+                    TaskOperation = operation,
+                },
+                TaskOperationHelper.ExecuteTaskAsync,
+                null);
+
+            await sqlTask.RunAsync();
+
+            Assert.That(sqlTask.TaskStatus, Is.EqualTo(SqlTaskStatus.Failed));
+            Assert.That(
+                sqlTask.Messages.Last(message => message.Status == SqlTaskStatus.Failed).Description,
+                Is.EqualTo(expectedError));
+        }
+
+        private sealed class NestedFailureOperation : ITaskOperation
+        {
+            private readonly string errorMessage;
+
+            public NestedFailureOperation(string errorMessage)
+            {
+                this.errorMessage = errorMessage;
+            }
+
+            public string ErrorMessage { get; private set; }
+
+            public SqlTask SqlTask { get; set; }
+
+            public void Execute(TaskExecutionMode mode)
+            {
+                try
+                {
+                    throw new InvalidOperationException(
+                        "Operation failed.",
+                        new InvalidOperationException(
+                            "An exception occurred while executing a batch.",
+                            new InvalidOperationException(errorMessage)));
+                }
+                catch (Exception ex)
+                {
+                    ErrorMessage = TaskOperationHelper.GetInnermostExceptionMessage(ex);
+                    throw;
+                }
+            }
+
+            public void Cancel()
+            {
+            }
         }
     }
 }
