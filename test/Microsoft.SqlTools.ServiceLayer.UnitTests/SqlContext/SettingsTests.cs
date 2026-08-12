@@ -28,6 +28,38 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlContext
             Assert.True(sqlToolsSettings.SqlTools.IntelliSense.EnableErrorChecking);
             Assert.True(sqlToolsSettings.SqlTools.IntelliSense.EnableSuggestions);
             Assert.True(sqlToolsSettings.SqlTools.IntelliSense.EnableQuickInfo);
+            Assert.AreEqual(2_000, sqlToolsSettings.CompletionTimeoutInMilliseconds);
+        }
+
+        /// <summary>
+        /// Validate that completion timeout settings are bounded before use by the language service.
+        /// </summary>
+        [TestCase(0, 500)]
+        [TestCase(500, 500)]
+        [TestCase(1_500, 1_500)]
+        [TestCase(30_000, 30_000)]
+        [TestCase(30_001, 30_000)]
+        public void ValidateCompletionTimeout(int configuredTimeout, int expectedTimeout)
+        {
+            var sqlToolsSettings = new SqlToolsSettings();
+            sqlToolsSettings.SqlTools.IntelliSense.CompletionTimeoutMilliseconds = configuredTimeout;
+
+            Assert.AreEqual(expectedTimeout, sqlToolsSettings.CompletionTimeoutInMilliseconds);
+        }
+
+        /// <summary>
+        /// Validate that a configuration update changes the completion timeout.
+        /// </summary>
+        [Test]
+        public void ValidateCompletionTimeoutUpdate()
+        {
+            var sqlToolsSettings = new SqlToolsSettings();
+            var updatedSettings = new SqlToolsSettings();
+            updatedSettings.SqlTools.IntelliSense.CompletionTimeoutMilliseconds = 10_000;
+
+            sqlToolsSettings.Update(updatedSettings);
+
+            Assert.AreEqual(10_000, sqlToolsSettings.CompletionTimeoutInMilliseconds);
         }
 
         /// <summary>

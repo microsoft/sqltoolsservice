@@ -6,6 +6,7 @@
 #nullable disable
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.ServiceLayer.TaskServices
@@ -49,15 +50,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
                     catch (Exception ex)
                     {
                         result.TaskStatus = SqlTaskStatus.Failed;
-                        result.ErrorMessage = ex.Message;
-                        if (ex.InnerException != null)
-                        {
-                            result.ErrorMessage += Environment.NewLine + ex.InnerException.Message;
-                        }
-                        if (taskOperation != null && taskOperation.ErrorMessage != null)
-                        {
-                            result.ErrorMessage += Environment.NewLine + taskOperation.ErrorMessage;
-                        }
+                        result.ErrorMessage = GetErrorMessage(ex, taskOperation.ErrorMessage);
                     }
                     return result;
                 });
@@ -69,6 +62,34 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
             }
 
             return Task.FromResult(taskResult);
+        }
+
+        internal static string GetInnermostExceptionMessage(Exception exception)
+        {
+            while (exception.InnerException != null)
+            {
+                exception = exception.InnerException;
+            }
+
+            return exception.Message;
+        }
+
+        private static string GetErrorMessage(Exception exception, string operationErrorMessage)
+        {
+            var messages = new List<string>();
+            if (!string.IsNullOrWhiteSpace(operationErrorMessage))
+            {
+                messages.Add(operationErrorMessage);
+            }
+
+            string innermostExceptionMessage = GetInnermostExceptionMessage(exception);
+            if (!string.IsNullOrWhiteSpace(innermostExceptionMessage) &&
+                !messages.Contains(innermostExceptionMessage))
+            {
+                messages.Add(innermostExceptionMessage);
+            }
+
+            return string.Join(Environment.NewLine, messages);
         }
 
         /// <summary>

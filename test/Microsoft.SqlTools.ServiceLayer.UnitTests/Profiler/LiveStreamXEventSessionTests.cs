@@ -564,11 +564,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Profiler
             // Act
             observable.Subscribe(observer);
             observable.Start();
-            Thread.Sleep(75); // Let 1-2 events through
+            WaitForCompletion(observer, expectedEvents: 1);
             observable.Close(); // This should cancel the operation
-
-            // Give it time to process the cancellation
-            Thread.Sleep(100);
 
             // Assert - should complete gracefully without error
             Assert.That(observer.Error, Is.Null, "Cancellation should not be reported as error");

@@ -12,6 +12,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
     /// </summary>
     public class IntelliSenseSettings
     {
+        public const int DefaultCompletionTimeoutInMilliseconds = 2_000;
+
+        public const int MinimumCompletionTimeoutInMilliseconds = 500;
+
+        public const int MaximumCompletionTimeoutInMilliseconds = 30_000;
+
         /// <summary>
         /// Initialize the IntelliSense settings defaults
         /// </summary>
@@ -21,6 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
             this.EnableSuggestions = true;
             this.EnableErrorChecking = true;
             this.EnableQuickInfo = true;
+            this.CompletionTimeoutMilliseconds = DefaultCompletionTimeoutInMilliseconds;
         }
 
         /// <summary>
@@ -46,6 +53,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         public bool? EnableQuickInfo { get; set; }
 
         /// <summary>
+        /// Gets or sets the maximum time, in milliseconds, to wait for a completion operation.
+        /// </summary>
+        public int? CompletionTimeoutMilliseconds { get; set; }
+
+        /// <summary>
         /// Update the Intellisense settings
         /// </summary>
         /// <param name="settings"></param>
@@ -57,6 +69,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
                 this.EnableSuggestions = settings.EnableSuggestions;
                 this.EnableErrorChecking = settings.EnableErrorChecking;
                 this.EnableQuickInfo = settings.EnableQuickInfo;
+                this.CompletionTimeoutMilliseconds = settings.CompletionTimeoutMilliseconds;
             }
         }
     }

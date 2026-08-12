@@ -35,6 +35,9 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// <summary>Gets the keyword casing used when generating completion suggestions.</summary>
         CasingOptions FormatKeywordCasing { get; }
 
+        /// <summary>Gets the maximum time, in milliseconds, to wait for a completion operation.</summary>
+        int CompletionTimeoutInMilliseconds { get; }
+
         /// <summary>
         /// Merges the values from <paramref name="newSettings"/> into this instance.
         /// </summary>

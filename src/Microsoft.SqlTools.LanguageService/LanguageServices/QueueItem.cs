@@ -5,6 +5,7 @@
 
 
 using System;
+using System.Diagnostics;
 using System.Threading;
 
 namespace Microsoft.SqlTools.LanguageService.LanguageServices
@@ -14,13 +15,27 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
     /// </summary>    
     public class QueueItem
     {
+        private static long nextId;
+
         /// <summary>
         /// QueueItem constructor
         /// </summary>
         public QueueItem()
         {
+            this.Id = Interlocked.Increment(ref nextId);
+            this.Lifetime = Stopwatch.StartNew();
             this.ItemProcessed = new ManualResetEvent(initialState: false);
         }
+
+        /// <summary>
+        /// Gets an identifier used to correlate this item in queue logs.
+        /// </summary>
+        internal long Id { get; }
+
+        /// <summary>
+        /// Gets elapsed time since the item was queued.
+        /// </summary>
+        internal Stopwatch Lifetime { get; }
 
         /// <summary>
         /// Gets or sets the queue item key
@@ -59,9 +74,26 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         public object? Result { get; set; }
 
         /// <summary>
-        /// Gets or sets the binding operation timeout in milliseconds
+        /// Gets or sets whether the binding operation started. A false value after
+        /// <see cref="ItemProcessed"/> is signaled means the item was not executed.
+        /// </summary>
+        internal bool WasExecuted { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether the item completed through a lock or operation timeout.
+        /// </summary>
+        internal bool TimedOut { get; set; }
+
+        /// <summary>
+        /// Gets or sets the slow-operation threshold in milliseconds. When
+        /// <see cref="HardTimeout"/> is not set, this is also the hard timeout.
         /// </summary>
         public int? BindingTimeout { get; set; }
+
+        /// <summary>
+        /// Gets or sets the maximum time the caller waits for the binding operation.
+        /// </summary>
+        public int? HardTimeout { get; set; }
 
         /// <summary>
         /// Gets or sets the timeout for how long to wait for the binding lock
