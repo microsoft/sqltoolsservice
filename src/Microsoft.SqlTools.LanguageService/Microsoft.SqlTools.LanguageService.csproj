@@ -55,8 +55,9 @@
     <InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.Test.Common" />
     <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
   </ItemGroup>
-  <!-- Includes the compiled output of the in-repo project references (Hosting, SqlCore and the
-       transitive ManagedBatchParser) directly in the package's lib/[tfm] folder. The DLLs are
+    <!-- Includes the compiled output and satellite resources of the in-repo project references
+      (Hosting, SqlCore and the transitive ManagedBatchParser) directly in the package's
+      lib/[tfm] folder. The DLLs are
        picked up from the build output (they are already copied there as project references) so
        this works with the pipeline's `dotnet pack` no-build packing. DLLs coming from external
        NuGet packages are not bundled here and surface as package dependencies instead. When a new
@@ -66,6 +67,10 @@
       <BuildOutputInPackage Include="$(OutputPath)Microsoft.SqlTools.Hosting.dll" />
       <BuildOutputInPackage Include="$(OutputPath)Microsoft.SqlTools.SqlCore.dll" />
       <BuildOutputInPackage Include="$(OutputPath)Microsoft.SqlTools.ManagedBatchParser.dll" />
+      <ProjectReferenceSatellite Include="$(OutputPath)**/Microsoft.SqlTools.Hosting.resources.dll;$(OutputPath)**/Microsoft.SqlTools.SqlCore.resources.dll;$(OutputPath)**/Microsoft.SqlTools.ManagedBatchParser.resources.dll" />
+      <BuildOutputInPackage Include="@(ProjectReferenceSatellite)">
+        <TargetPath>%(ProjectReferenceSatellite.RecursiveDir)%(ProjectReferenceSatellite.Filename)%(ProjectReferenceSatellite.Extension)</TargetPath>
+      </BuildOutputInPackage>
     </ItemGroup>
   </Target>
 </Project>
