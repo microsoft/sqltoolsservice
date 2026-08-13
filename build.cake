@@ -49,8 +49,6 @@ public class BuildPlan
     public string[] MainProjects { get; set; }
     // The set of projects that we want to call dotnet pack on directly
     public string[] PackageProjects { get; set; }
-    // The set of projects that we want to call dotnet pack on which require publishing being done first
-    public string[] DotnetToolProjects { get; set; }
     public Project[] Projects{ get; set; }
 }
 
@@ -313,20 +311,6 @@ Task("NugetPackNuspec")
             continue;
         }
         NugetPackNuspec(outputFolder, projectFolder, project.Name);
-    }
-});
-
-/// <summary>
-///  Packages dotnet tool projects specified in DotnetToolProjects.
-/// </summary>
-Task("DotnetPackServiceTools")
-    .Does(() =>
-{
-    foreach (var project in buildPlan.DotnetToolProjects)
-    {
-        var outputFolder = System.IO.Path.Combine(nugetPackageFolder);
-        var projectFolder = System.IO.Path.Combine(sourceFolder, project);
-        DotnetPackNoBuild(outputFolder, projectFolder, project);
     }
 });
 
