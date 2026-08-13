@@ -221,6 +221,7 @@ void SaveXlfTargetsAsResx(string xlfPath, string resxPath)
     }
 
     resxDocument.Save(resxPath);
+    NormalizeToCrlf(resxPath);
 }
 
 /// <summary>
@@ -276,13 +277,14 @@ void SaveLclTargetAsResx(string lclPath, string resxPath)
     }
 
     resxDocument.Save(resxPath);
+    NormalizeToCrlf(resxPath);
 }
 
 /// <summary>
 /// Converts every LocStudio .lcl localization file under a project's
 /// Localization directory to a culture-specific .resx file.
 /// </summary>
-int SaveLclTargetsAsResx(string localizationDir, HashSet<string> generatedCultures = null)
+int SaveAllLclTargetsAsResx(string localizationDir, HashSet<string> generatedCultures = null)
 {
     var lclRoot = System.IO.Path.Combine(localizationDir, "LCL");
     if (!System.IO.Directory.Exists(lclRoot))
@@ -306,7 +308,6 @@ int SaveLclTargetsAsResx(string localizationDir, HashSet<string> generatedCultur
         var canonicalCulture = CanonicalizeLocalizationFileName(language);
         var resxPath = System.IO.Path.Combine(localizationDir, $"sr.{canonicalCulture}.resx");
         SaveLclTargetAsResx(lclPath, resxPath);
-        NormalizeToCrlf(resxPath);
         generatedCultures?.Add(canonicalCulture);
         generatedCount++;
     }
