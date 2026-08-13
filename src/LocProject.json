@@ -34,6 +34,12 @@
           "OutputPath": "src\\Microsoft.SqlTools.Hosting\\Localization\\transXliff"
         },
         {
+          "SourceFile": "src\\Microsoft.SqlTools.LanguageService\\Localization\\sr.xlf",
+          "LclFile": "src\\Microsoft.SqlTools.LanguageService\\Localization\\LCL\\{Lang}\\sr.xlf.lcl",
+          "CopyOption": "LangIDOnName",
+          "OutputPath": "src\\Microsoft.SqlTools.LanguageService\\Localization\\transXliff"
+        },
+        {
           "SourceFile": "src\\Microsoft.SqlTools.Credentials\\Localization\\sr.xlf",
           "LclFile": "src\\Microsoft.SqlTools.Credentials\\Localization\\LCL\\{Lang}\\sr.xlf.lcl",
           "CopyOption": "LangIDOnName",
