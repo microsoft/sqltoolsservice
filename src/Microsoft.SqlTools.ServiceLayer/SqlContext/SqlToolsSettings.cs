@@ -205,6 +205,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         }
 
         /// <summary>
+        /// Gets a flag determining whether the large-script optimization is enabled. The SQL Tools Service parses
+        /// out-of-process, so inline completion parsing does not stall typing; this optimization is left disabled.
+        /// </summary>
+        public bool IsLargeScriptOptimizationEnabled => false;
+
+        /// <summary>
         /// Gets the keyword casing used when generating completion suggestions.
         /// </summary>
         public Microsoft.SqlTools.LanguageService.Formatter.CasingOptions FormatKeywordCasing
