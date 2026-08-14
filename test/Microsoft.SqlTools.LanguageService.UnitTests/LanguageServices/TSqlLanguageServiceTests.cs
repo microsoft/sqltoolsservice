@@ -20,7 +20,8 @@ namespace Microsoft.SqlTools.LanguageService.UnitTests.LanguageServices
     {
         private static TSqlLanguageService CreateLanguageService()
         {
-            ILanguageServiceSettings settings = Mock.Of<ILanguageServiceSettings>(s => s.IsLargeScriptOptimizationEnabled == true);
+            ILanguageServiceSettings settings = Mock.Of<ILanguageServiceSettings>(s =>
+                s.IsLargeScriptOptimizationEnabled == true && s.IsDiagnosticsEnabled == true);
             ILanguageWorkspaceService workspaceService = Mock.Of<ILanguageWorkspaceService>(w => w.CurrentSettings == settings);
             return new TSqlLanguageService
             {
@@ -46,7 +47,7 @@ namespace Microsoft.SqlTools.LanguageService.UnitTests.LanguageServices
             const string uri = "large-script.sql";
 
             // Exceed the large-script threshold so the completion fast path is taken.
-            string largeContents = new string('a', TSqlLanguageService.LargeScriptCompletionThresholdBytes + 1);
+            string largeContents = new string('a', TSqlLanguageService.LargeScriptCompletionThresholdChars + 1);
             ScriptFile scriptFile = new ScriptFile { ClientUri = uri, Contents = largeContents };
 
             // A ScriptParseInfo with a null ParseResult makes RequiresReparse return true, so the method reaches the

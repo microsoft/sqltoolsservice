@@ -90,7 +90,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         // Instead it returns the default list and relies on the debounced diagnostics parse (which resets on every
         // keystroke, so it only runs once typing stops) to refresh the cached tree; a request after typing stops is
         // then accurate. Smaller scripts parse inline and stay fully accurate.
-        internal const int LargeScriptCompletionThresholdBytes = 100_000;
+        internal const int LargeScriptCompletionThresholdChars = 100_000;
 
         internal const int HoverTimeout = 500;
 
@@ -2938,9 +2938,13 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 // and laggy typing. For large scripts, don't parse inline: return the default list now and let a
                 // debounced background parse refresh the cached result, so a request after a brief pause is
                 // accurate. Never proceed with a stale tree here — cursor positions are computed against the
-                // current text, so a mismatched tree would locate the wrong token.
+                // current text, so a mismatched tree would locate the wrong token. The fast path relies on the
+                // debounced diagnostics parse to refresh the cached tree, so only take it when diagnostics are
+                // enabled; otherwise nothing would ever refresh the tree and completion would stay stuck on the
+                // default list.
                 if (CurrentWorkspaceSettings.IsLargeScriptOptimizationEnabled
-                    && (scriptFile.Contents?.Length ?? 0) > LargeScriptCompletionThresholdBytes)
+                    && CurrentWorkspaceSettings.IsDiagnosticsEnabled
+                    && (scriptFile.Contents?.Length ?? 0) > LargeScriptCompletionThresholdChars)
                 {
                     ScriptDocumentInfo largeDocInfo = ScriptDocumentInfo.CreateDefaultDocumentInfo(textDocumentPosition, scriptFile);
                     CompletionItem[] largeDefaultItems = AutoCompleteHelper.GetDefaultCompletionItems(largeDocInfo, useLowerCaseSuggestions);
@@ -3289,7 +3293,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             // Large scripts take much longer to parse, so debounce them longer: only refresh after the user has
             // truly stopped typing, so resuming after a brief pause doesn't collide with an in-flight parse.
             int diagnosticParseDelay = CurrentWorkspaceSettings.IsLargeScriptOptimizationEnabled
-                && filesToAnalyze.Any(f => (f?.Contents?.Length ?? 0) > LargeScriptCompletionThresholdBytes)
+                && filesToAnalyze.Any(f => (f?.Contents?.Length ?? 0) > LargeScriptCompletionThresholdChars)
                 ? LargeScriptDiagnosticParseDelay
                 : DiagnosticParseDelay;
             Task.Factory.StartNew(
