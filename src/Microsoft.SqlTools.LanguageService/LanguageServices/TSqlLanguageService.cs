@@ -90,7 +90,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         // Instead it returns the default list and relies on the debounced diagnostics parse (which resets on every
         // keystroke, so it only runs once typing stops) to refresh the cached tree; a request after typing stops is
         // then accurate. Smaller scripts parse inline and stay fully accurate.
-        internal const int LargeScriptCompletionThresholdBytes = 250_000;
+        internal const int LargeScriptCompletionThresholdBytes = 100_000;
 
         internal const int HoverTimeout = 500;
 
