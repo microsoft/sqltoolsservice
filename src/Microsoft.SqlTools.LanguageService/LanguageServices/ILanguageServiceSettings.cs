@@ -32,6 +32,13 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// <summary>Gets a flag determining if Always Encrypted parameterization is enabled.</summary>
         bool IsAlwaysEncryptedParameterizationEnabled { get; }
 
+        /// <summary>
+        /// Gets a flag determining whether the large-script optimization is enabled. When enabled, completion does
+        /// not parse very large scripts inline (it returns the default list and relies on the debounced diagnostics
+        /// parse to refresh the tree), and diagnostics use a longer debounce for those scripts.
+        /// </summary>
+        bool IsLargeScriptOptimizationEnabled { get; }
+
         /// <summary>Gets the keyword casing used when generating completion suggestions.</summary>
         CasingOptions FormatKeywordCasing { get; }
 

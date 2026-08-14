@@ -80,6 +80,18 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
         internal const int DiagnosticParseDelay = 750;
 
+        // Diagnostics (and the tree refresh completion relies on for large scripts) use a longer debounce so the
+        // expensive parse only runs after the user truly stops typing, not during a brief pause in a typing session
+        // (which would make resuming feel sluggish when it collides with an in-flight parse).
+        internal const int LargeScriptDiagnosticParseDelay = 1000;
+
+        // Scripts larger than this (in characters) are treated as "large" for completion: parsing them on every
+        // keystroke allocates enough to cause GC stalls that make typing lag, so completion does not parse inline.
+        // Instead it returns the default list and relies on the debounced diagnostics parse (which resets on every
+        // keystroke, so it only runs once typing stops) to refresh the cached tree; a request after typing stops is
+        // then accurate. Smaller scripts parse inline and stay fully accurate.
+        internal const int LargeScriptCompletionThresholdBytes = 250_000;
+
         internal const int HoverTimeout = 500;
 
         internal const int OnConnectionWaitTimeout = 300 * OneSecond;
@@ -2922,6 +2934,19 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             // reparse and bind the SQL statement if needed
             if (RequiresReparse(scriptParseInfo, scriptFile))
             {
+                // Parsing a very large script allocates enough that doing it on every keystroke causes GC stalls
+                // and laggy typing. For large scripts, don't parse inline: return the default list now and let a
+                // debounced background parse refresh the cached result, so a request after a brief pause is
+                // accurate. Never proceed with a stale tree here — cursor positions are computed against the
+                // current text, so a mismatched tree would locate the wrong token.
+                if (CurrentWorkspaceSettings.IsLargeScriptOptimizationEnabled
+                    && (scriptFile.Contents?.Length ?? 0) > LargeScriptCompletionThresholdBytes)
+                {
+                    ScriptDocumentInfo largeDocInfo = ScriptDocumentInfo.CreateDefaultDocumentInfo(textDocumentPosition, scriptFile);
+                    CompletionItem[] largeDefaultItems = AutoCompleteHelper.GetDefaultCompletionItems(largeDocInfo, useLowerCaseSuggestions);
+                    return await ApplyCompletionExtensions(connInfo, largeDefaultItems, largeDocInfo);
+                }
+
                 ParseResult parseResult = await ParseAndBind(scriptFile, connInfo);
                 if (parseResult == null || RequiresReparse(scriptParseInfo, scriptFile))
                 {
@@ -3261,10 +3286,16 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             // We create this on a different TaskScheduler so that we
             // don't block the main message loop thread.
             existingRequestCancellation = new CancellationTokenSource();
+            // Large scripts take much longer to parse, so debounce them longer: only refresh after the user has
+            // truly stopped typing, so resuming after a brief pause doesn't collide with an in-flight parse.
+            int diagnosticParseDelay = CurrentWorkspaceSettings.IsLargeScriptOptimizationEnabled
+                && filesToAnalyze.Any(f => (f?.Contents?.Length ?? 0) > LargeScriptCompletionThresholdBytes)
+                ? LargeScriptDiagnosticParseDelay
+                : DiagnosticParseDelay;
             Task.Factory.StartNew(
                 () =>
                     this.DelayedDiagnosticsTask = DelayThenInvokeDiagnostics(
-                        TSqlLanguageService.DiagnosticParseDelay,
+                        diagnosticParseDelay,
                         filesToAnalyze,
                         eventContext,
                         existingRequestCancellation.Token),
