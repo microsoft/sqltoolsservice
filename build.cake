@@ -754,7 +754,7 @@ Task("SRGen")
             // Generate translated resources from LCL first, then use translated
             // XLIFF only for cultures that don't have an LCL file.
             var generatedCultures = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            SaveLclTargetsAsResx(localizationDir, generatedCultures);
+            SaveAllLclTargetsAsResx(localizationDir, generatedCultures);
 
             var xlfDocNames = System.IO.Directory.GetFiles(inputXliff, "*.xlf", SearchOption.AllDirectories).ToList();
             foreach(var docName in xlfDocNames)
@@ -795,7 +795,7 @@ Task("LclToResx")
 
     foreach (var lclDirectory in lclDirectories)
     {
-        generatedCount += SaveLclTargetsAsResx(System.IO.Path.GetDirectoryName(lclDirectory));
+        generatedCount += SaveAllLclTargetsAsResx(System.IO.Path.GetDirectoryName(lclDirectory));
     }
 
     Information("Generated {0} culture-specific ResX files from LCL files", generatedCount);
