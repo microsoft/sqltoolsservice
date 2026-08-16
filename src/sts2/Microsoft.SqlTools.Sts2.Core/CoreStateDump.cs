@@ -50,6 +50,7 @@ namespace Microsoft.SqlTools.Sts2.Core
                 {
                     ["phase"] = query.Phase,
                     ["connectionId"] = query.ConnectionId,
+                    ["commandKind"] = query.CommandKind,
                     ["pagesSent"] = query.PagesSent,
                     ["pagesAcked"] = query.PagesAcked,
                     ["creditOutstanding"] = query.CreditOutstanding,

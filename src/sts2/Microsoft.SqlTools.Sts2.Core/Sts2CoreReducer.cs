@@ -466,6 +466,7 @@ namespace Microsoft.SqlTools.Sts2.Core
             int pageRows = EffectiveLoweredOption(envelope.Payload, "pageRows", Sts2Defaults.PageRows);
             int pageBytes = EffectiveLoweredOption(envelope.Payload, "pageBytes", Sts2Defaults.PageBytes);
             int queryTimeoutMs = EffectiveQueryTimeoutMs(envelope.Payload);
+            string commandKind = EffectiveCommandKind(envelope.Payload);
             // QO-5: compact rows are opt-in per query; the runner emits the
             // compact payload shape and the rows case routes on its presence.
             bool compactRows = OptionIsTrue(envelope.Payload, "compactRows");
@@ -475,7 +476,7 @@ namespace Microsoft.SqlTools.Sts2.Core
             bool vectorBinary = OptionIsLiteral(envelope.Payload, "vectorEncoding", "binary-v1");
             bool spatialWkb = OptionIsLiteral(envelope.Payload, "spatialEncoding", "wkb-v1");
             string startArgs = string.Create(CultureInfo.InvariantCulture, $$"""
-                {"queryId":{{JsonSerializer.Serialize(queryId)}},"connectionId":{{JsonSerializer.Serialize(connectionId)}},"handleId":{{JsonSerializer.Serialize(connection.HandleId)}},"sql":{{sqlRaw}},"credit":{{Sts2Defaults.WindowPages}},"maxCellBytes":{{maxCellBytes}},"pageRows":{{pageRows}},"pageBytes":{{pageBytes}},"queryTimeoutMs":{{queryTimeoutMs}},"compactRows":{{(compactRows ? "true" : "false")}},"vectorBinary":{{(vectorBinary ? "true" : "false")}},"spatialWkb":{{(spatialWkb ? "true" : "false")}}}
+                {"queryId":{{JsonSerializer.Serialize(queryId)}},"connectionId":{{JsonSerializer.Serialize(connectionId)}},"handleId":{{JsonSerializer.Serialize(connection.HandleId)}},"sql":{{sqlRaw}},"credit":{{Sts2Defaults.WindowPages}},"maxCellBytes":{{maxCellBytes}},"pageRows":{{pageRows}},"pageBytes":{{pageBytes}},"queryTimeoutMs":{{queryTimeoutMs}},"commandKind":{{JsonSerializer.Serialize(commandKind)}},"compactRows":{{(compactRows ? "true" : "false")}},"vectorBinary":{{(vectorBinary ? "true" : "false")}},"spatialWkb":{{(spatialWkb ? "true" : "false")}}}
                 """);
 
             CoreState next = state with
@@ -486,6 +487,7 @@ namespace Microsoft.SqlTools.Sts2.Core
                     QueryId = queryId,
                     ConnectionId = connectionId,
                     Phase = QueryPhase.Running,
+                    CommandKind = commandKind,
                     PagesSent = 0,
                     PagesAcked = 0,
                     CreditOutstanding = Sts2Defaults.WindowPages,
@@ -567,6 +569,33 @@ namespace Microsoft.SqlTools.Sts2.Core
                 return requested;
             }
             return 0;
+        }
+
+        /// <summary>
+        /// Returns an allowlisted, privacy-safe workload classification for aggregate
+        /// diagnostics. Arbitrary client strings never enter state or the journal.
+        /// </summary>
+        private static string EffectiveCommandKind(JsonElement? payload)
+        {
+            if (payload is { ValueKind: JsonValueKind.Object } p
+                && p.TryGetProperty("options", out JsonElement options)
+                && options.ValueKind == JsonValueKind.Object
+                && options.TryGetProperty("commandKind", out JsonElement value)
+                && value.ValueKind == JsonValueKind.String)
+            {
+                return value.GetString() switch
+                {
+                    "user" => "user",
+                    "metadata" => "metadata",
+                    "dashboard" => "dashboard",
+                    "plan" => "plan",
+                    "parse" => "parse",
+                    "replay" => "replay",
+                    "centralUpload" => "centralUpload",
+                    _ => "other",
+                };
+            }
+            return "other";
         }
 
         private static CoreDecision DecideQueryAck(CoreState state, CoreEnvelope envelope)
@@ -837,7 +866,7 @@ namespace Microsoft.SqlTools.Sts2.Core
                         && stats.ValueKind == JsonValueKind.Object)
                     {
                         string statsData = string.Create(CultureInfo.InvariantCulture, $$"""
-                            {"queryId":{{JsonSerializer.Serialize(queryId)}},"connectionId":{{JsonSerializer.Serialize(query.ConnectionId)}},"status":{{JsonSerializer.Serialize(status)}},"pagesSent":{{query.PagesSent}},"stats":{{stats.GetRawText()}}}
+                            {"queryId":{{JsonSerializer.Serialize(queryId)}},"connectionId":{{JsonSerializer.Serialize(query.ConnectionId)}},"commandKind":{{JsonSerializer.Serialize(query.CommandKind)}},"status":{{JsonSerializer.Serialize(status)}},"pagesSent":{{query.PagesSent}},"stats":{{stats.GetRawText()}}}
                             """);
                         outputs.Add(new DiagnosticOutput("sts2.query.stats", Json(statsData)));
                     }

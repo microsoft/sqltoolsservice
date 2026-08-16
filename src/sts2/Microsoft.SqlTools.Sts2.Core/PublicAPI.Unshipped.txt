@@ -132,6 +132,8 @@ Microsoft.SqlTools.Sts2.Core.QueryInfo
 Microsoft.SqlTools.Sts2.Core.QueryInfo.<Clone>$() -> Microsoft.SqlTools.Sts2.Core.QueryInfo!
 Microsoft.SqlTools.Sts2.Core.QueryInfo.CompleteSent.get -> bool
 Microsoft.SqlTools.Sts2.Core.QueryInfo.CompleteSent.init -> void
+Microsoft.SqlTools.Sts2.Core.QueryInfo.CommandKind.get -> string!
+Microsoft.SqlTools.Sts2.Core.QueryInfo.CommandKind.init -> void
 Microsoft.SqlTools.Sts2.Core.QueryInfo.ConnectionId.get -> string!
 Microsoft.SqlTools.Sts2.Core.QueryInfo.ConnectionId.init -> void
 Microsoft.SqlTools.Sts2.Core.QueryInfo.CreditOutstanding.get -> int

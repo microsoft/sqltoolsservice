@@ -87,7 +87,7 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
         {
             string connectionId = await session.OpenConnectionAsync();
             OutboundRpcMessage execute = await session.RequestAsync("v2/query.execute",
-                $$"""{"connectionId":"{{connectionId}}","sql":"select 1"}""");
+                $$$"""{"connectionId":"{{{connectionId}}}","sql":"select 1","options":{"commandKind":"dashboard"}}""");
             string queryId = execute.Body!.Value.GetProperty("queryId").GetString()!;
             await session.WaitForNotificationsAsync("v2/query.complete", 1);
             // Queue a request behind the terminal event so its replay-ignored runtime
@@ -101,6 +101,7 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
             Sts2Envelope diag = Assert.Single(statsDiags);
             JsonElement data = diag.Payload!.Value;
             Assert.Equal(queryId, data.GetProperty("queryId").GetString());
+            Assert.Equal("dashboard", data.GetProperty("commandKind").GetString());
             Assert.Equal("succeeded", data.GetProperty("status").GetString());
             JsonElement stats = data.GetProperty("stats");
             Assert.True(stats.GetProperty("pages").GetInt64() >= 1);

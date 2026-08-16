@@ -122,6 +122,28 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Core
         }
 
         [Fact]
+        public void QueryExecuteAllowlistsCommandKindForDiagnostics()
+        {
+            static (string EffectKind, string StateKind) StartKind(string payload)
+            {
+                CoreDecision decision = Sts2CoreReducer.Decide(OpenConnectionState(),
+                    Request(3, "v2/query.execute", "r-q", payload));
+                EffectRequestOutput start = Assert.IsType<EffectRequestOutput>(decision.Outputs[1]);
+                return (start.Args.GetProperty("commandKind").GetString()!,
+                    decision.NewState.Queries["q-3"].CommandKind);
+            }
+
+            Assert.Equal(("other", "other"),
+                StartKind("""{"connectionId":"c-1","sql":"select 1"}"""));
+            Assert.Equal(("dashboard", "dashboard"),
+                StartKind("""{"connectionId":"c-1","sql":"select 1","options":{"commandKind":"dashboard"}}"""));
+            Assert.Equal(("centralUpload", "centralUpload"),
+                StartKind("""{"connectionId":"c-1","sql":"select 1","options":{"commandKind":"centralUpload"}}"""));
+            Assert.Equal(("other", "other"),
+                StartKind("""{"connectionId":"c-1","sql":"select 1","options":{"commandKind":"attacker-controlled"}}"""));
+        }
+
+        [Fact]
         public void InitializeAdvertisesPageAndTimeoutCapabilities() // QO-3
         {
             CoreDecision decision = Sts2CoreReducer.Decide(CoreState.Initial,

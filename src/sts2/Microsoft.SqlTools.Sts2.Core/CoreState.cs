@@ -82,6 +82,12 @@ namespace Microsoft.SqlTools.Sts2.Core
         /// <summary>One of <see cref="QueryPhase"/>.</summary>
         public required string Phase { get; init; }
 
+        /// <summary>
+        /// Privacy-safe, allowlisted client workload classification used for diagnostics.
+        /// Unknown or absent values normalize to <c>other</c>.
+        /// </summary>
+        public required string CommandKind { get; init; }
+
         /// <summary>Rows pages sent to the client so far.</summary>
         public required int PagesSent { get; init; }
 
