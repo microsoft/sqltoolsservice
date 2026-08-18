@@ -40,7 +40,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         }
 
         [Test]
-        public void PositionOfNextDelimeterAtCrLfReturnsEndOfLine()
+        public void PositionOfNextDelimiterAtCrLfReturnsEndOfLine()
         {
             const string firstLine = "SELECT * FROM sy";
             string sql = $"{firstLine}\r\nSELECT * FROM sys.databases";
