@@ -94,6 +94,7 @@ namespace Microsoft.SqlTools.Utility
         {
             return ch == ' ' 
                 || ch == '\t'
+                || ch == '\r'
                 || ch == '\n'
                 || ch == '.'
                 || ch == '+'

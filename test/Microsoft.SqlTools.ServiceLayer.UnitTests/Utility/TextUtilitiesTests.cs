@@ -38,5 +38,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             Assert.AreEqual(10, prevNewLine);
             Assert.AreEqual(25, cursorPosition);
         }
+
+        [Test]
+        public void PositionOfNextDelimeterAtCrLfReturnsEndOfLine()
+        {
+            const string firstLine = "SELECT * FROM sy";
+            string sql = $"{firstLine}\r\nSELECT * FROM sys.databases";
+
+            int delimiterPosition = TextUtilities.PositionOfNextDelimeter(sql, 0, firstLine.Length);
+
+            Assert.AreEqual(firstLine.Length, delimiterPosition);
+        }
     }
 }
