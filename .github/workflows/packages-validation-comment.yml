@@ -12,7 +12,7 @@ jobs:
     permissions:
       pull-requests: write
     steps:
-      - uses: mshick/add-pr-comment@v3
+      - uses: mshick/add-pr-comment@ec328af66588ab8f77cdeb2c264f14aba45bbf59 # v3.12.0
         with:
           message: |
             As part of updating the dependencies in Packages.props we require that any PRs opened also verify that
