@@ -3363,19 +3363,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                     // Start task asynchronously without blocking main thread - this is by design.
                     // Explanation: STS message queues are single-threaded queues, which should be unblocked as soon as possible.
                     // All Long-running tasks should be performed in a non-blocking background task, and results should be sent when ready.
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                    GetSemanticMarkers(scriptFile).ContinueWith(async t =>
-                    {
-                        if (t.IsFaulted)
-                        {
-                            Logger.Error($"Error analyzing script file {scriptFile.FilePath}: {t.Exception}");
-                            return;
-                        }
-                        var semanticMarkers = t.GetAwaiter().GetResult();
-                        Logger.Verbose($"Analysis complete for script file: {scriptFile.FilePath}");
-                        await DiagnosticsHelper.PublishScriptDiagnostics(scriptFile, semanticMarkers, eventContext);
-                    }, CancellationToken.None);
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                    _ = PublishSemanticMarkersAsync(scriptFile, GetSemanticMarkers(scriptFile), eventContext);
                 }
                 catch (Exception e)
                 {
@@ -3384,6 +3372,34 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                     Logger.Error($"Error while starting to analyze script file {scriptFile.FilePath}: {e}");
                 }
 
+            }
+        }
+
+        internal async Task PublishSemanticMarkersAsync(
+            ScriptFile scriptFile,
+            Task<ScriptFileMarker[]> semanticMarkersTask,
+            EventContext eventContext)
+        {
+            try
+            {
+                ScriptFileMarker[] semanticMarkers = await semanticMarkersTask;
+                Logger.Verbose($"Analysis complete for script file: {scriptFile.FilePath}");
+
+                // Serialize the final flavor check and publish with flavor changes so completed analysis cannot
+                // publish stale diagnostics after the document transitions to SQLCMD mode.
+                await RunSerializedByUriAsync(
+                    scriptFile.ClientUri,
+                    async () =>
+                    {
+                        if (!ShouldSkipNonMssqlFile(scriptFile.ClientUri))
+                        {
+                            await DiagnosticsHelper.PublishScriptDiagnostics(scriptFile, semanticMarkers, eventContext);
+                        }
+                    });
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Error analyzing script file {scriptFile.FilePath}: {ex}");
             }
         }
 
