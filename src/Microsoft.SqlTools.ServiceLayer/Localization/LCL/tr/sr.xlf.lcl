@@ -5666,7 +5666,7 @@
         <Str Cat="Text">
           <Val><![CDATA[/*]D;]A;Missing Index Details from {0}]D;]A;The Query Processor estimates that implementing the following index could improve the query cost by {1}%.]D;]A;*/]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[/*]D;]A;{0}]D; öğesinden Eksik Dizin Ayrıntıları]A;Sorgu İşlemcisi, aşağıdaki dizini uygulamanın sorgu maliyetini %{1} düşüreceğini tahmin ediyor.]D;]A;*/]]></Val>
+            <Val><![CDATA[/*]D;]A;{0} öğesinden Eksik Dizin Ayrıntıları]D;]A;Sorgu İşlemcisi, aşağıdaki dizini uygulamanın sorgu maliyetini %{1} düşüreceğini tahmin ediyor.]D;]A;*/]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
