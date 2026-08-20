@@ -29,6 +29,11 @@ namespace Microsoft.SqlTools.LanguageService.Connection.Contracts
         /// The specific language flavor that is being set
         /// </summary>
         public string Flavor { get; set; }
+
+        /// <summary>
+        /// The batch separator configured for the affected resource.
+        /// </summary>
+        public string BatchSeparator { get; set; }
     }
 
     /// <summary>

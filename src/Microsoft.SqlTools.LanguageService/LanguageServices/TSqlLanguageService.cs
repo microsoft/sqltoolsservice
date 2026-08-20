@@ -131,6 +131,8 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
         private ConcurrentDictionary<string, bool> nonMssqlUriMap = new();
 
+        private readonly ConcurrentDictionary<string, string> batchSeparatorByUri = new(StringComparer.OrdinalIgnoreCase);
+
         private Lazy<ConcurrentDictionary<string, ScriptParseInfo>> scriptParseInfoMap
             = new Lazy<ConcurrentDictionary<string, ScriptParseInfo>>(
                 () => new ConcurrentDictionary<string, ScriptParseInfo>(StringComparer.OrdinalIgnoreCase));
@@ -529,7 +531,9 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// <returns></returns>
         internal async Task HandleSyntaxParseRequest(SyntaxParseParams param, RequestContext<SyntaxParseResult> requestContext)
         {
-            ParseResult result = Parser.Parse(param.Query);
+            ParseResult result = Parser.Parse(
+                param.Query,
+                GetParseOptionsForDocument(param.OwnerUri, this.DefaultParseOptions));
             SyntaxParseResult syntaxResult = new SyntaxParseResult();
             if (result != null && !result.Errors.Any())
             {
@@ -947,6 +951,8 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         {
             try
             {
+                batchSeparatorByUri.TryRemove(NormalizeUri(uri), out _);
+
                 // This clears the uri of the connection from the tokenUpdateUris map, which is used to track
                 // open editors that have requested a refreshed Microsoft Entra token.
                 ConnectionServiceInstance.TokenUpdateUris.TryRemove(uri, out var result);
@@ -1208,6 +1214,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             LanguageFlavorChangeParams changeParams,
             EventContext eventContext)
         {
+            bool batchSeparatorChanged = UpdateBatchSeparator(changeParams.Uri, changeParams.BatchSeparator);
             bool shouldBlock = false;
             if (SQL_LANG.Equals(changeParams.Language, StringComparison.OrdinalIgnoreCase))
             {
@@ -1227,12 +1234,46 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             }
             else
             {
-                bool value;
-                this.nonMssqlUriMap.TryRemove(changeParams.Uri, out value);
-                // should rebuild intellisense when re-considering as sql
-                RebuildIntelliSenseParams param = new RebuildIntelliSenseParams { OwnerUri = changeParams.Uri };
-                await DoHandleRebuildIntellisenseNotification(param, eventContext);
+                bool wasBlocked = this.nonMssqlUriMap.TryRemove(changeParams.Uri, out _);
+                if (batchSeparatorChanged && !wasBlocked)
+                {
+                    ScriptFile scriptFile = CurrentWorkspace.GetFile(changeParams.Uri);
+                    if (scriptFile != null && CurrentWorkspaceSettings.IsDiagnosticsEnabled)
+                    {
+                        await RunScriptDiagnostics(new[] { scriptFile }, eventContext);
+                    }
+                }
+                else
+                {
+                    // should rebuild intellisense when re-considering as sql
+                    RebuildIntelliSenseParams param = new RebuildIntelliSenseParams { OwnerUri = changeParams.Uri };
+                    await DoHandleRebuildIntellisenseNotification(param, eventContext);
+                }
             }
+        }
+
+        private bool UpdateBatchSeparator(string uri, string batchSeparator)
+        {
+            if (string.IsNullOrEmpty(batchSeparator))
+            {
+                return false;
+            }
+
+            string normalizedUri = NormalizeUri(uri);
+            if (batchSeparatorByUri.TryGetValue(normalizedUri, out string currentBatchSeparator)
+                && string.Equals(currentBatchSeparator, batchSeparator, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            batchSeparatorByUri[normalizedUri] = batchSeparator;
+            ScriptParseInfo parseInfo = GetScriptParseInfo(normalizedUri, createIfNotExists: false);
+            if (parseInfo != null)
+            {
+                parseInfo.ParseResult = null;
+            }
+
+            return true;
         }
 
         private async Task RunSerializedByUriAsync(string uri, Func<Task> operation)
@@ -1297,7 +1338,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                             if (TryIncrementalParse(
                                 scriptFile.Contents,
                                 parseInfo.ParseResult,
-                                this.DefaultParseOptions,
+                                GetParseOptionsForDocument(scriptFile.ClientUri, this.DefaultParseOptions),
                                 out ParseResult syntaxOnlyParseResult))
                             {
                                 parseInfo.ParseResult = syntaxOnlyParseResult;
@@ -1320,7 +1361,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                                         if (!TryIncrementalParse(
                                             scriptFile.Contents,
                                             parseInfo.ParseResult,
-                                            bindingContext.ParseOptions,
+                                            GetParseOptionsForDocument(scriptFile.ClientUri, bindingContext.ParseOptions),
                                             out ParseResult parseResult))
                                         {
                                             parseInfo.ParseResult = null;
@@ -3461,6 +3502,24 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 }
             }
         }
+
+        private ParseOptions GetParseOptionsForDocument(string uri, ParseOptions baseParseOptions)
+        {
+            if (string.IsNullOrEmpty(uri)
+                || !batchSeparatorByUri.TryGetValue(NormalizeUri(uri), out string batchSeparator)
+                || string.Equals(batchSeparator, baseParseOptions.BatchSeparator, StringComparison.OrdinalIgnoreCase))
+            {
+                return baseParseOptions;
+            }
+
+            return new ParseOptions(
+                batchSeparator,
+                baseParseOptions.IsQuotedIdentifierSet,
+                baseParseOptions.CompatibilityLevel,
+                baseParseOptions.TransactSqlVersion);
+        }
+
+        private static string NormalizeUri(string uri) => Uri.UnescapeDataString(uri);
 
         internal bool RemoveScriptParseInfo(string uri)
         {

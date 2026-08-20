@@ -10,6 +10,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.SqlParser.Common;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
+using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.LanguageService.Connection.Contracts;
 using Microsoft.SqlTools.LanguageService.LanguageServices;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Completion;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;
@@ -17,6 +19,7 @@ using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Microsoft.SqlTools.LanguageService.Workspace;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
+using Moq;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
@@ -186,6 +189,56 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             Assert.AreEqual(3, fileMarkers[1].ScriptRegion.StartLineNumber);
             Assert.AreEqual(10, fileMarkers[1].ScriptRegion.EndColumnNumber);
             Assert.AreEqual(3, fileMarkers[1].ScriptRegion.EndLineNumber);
+        }
+
+        [Test]
+        public async Task ParseAndBindBatchSeparatorChangeInvalidatesParseAndUsesNewSeparator()
+        {
+            const string customBatchSeparator = "RUN";
+            const string sql = "SELECT 1;\r\nRUN\r\nSELECT 2;";
+            var service = new TestLanguageService
+            {
+                WorkspaceServiceInstance = WorkspaceService<SqlToolsSettings>.Instance
+            };
+            var scriptFile = new ScriptFile(TestObjects.ScriptUri, TestObjects.ScriptUri, sql);
+            var defaultParseOptions = new ParseOptions(
+                batchSeparator: TSqlLanguageService.DefaultBatchSeperator,
+                isQuotedIdentifierSet: true,
+                compatibilityLevel: DatabaseCompatibilityLevel.Current,
+                transactSqlVersion: TransactSqlVersion.Current);
+            var parseInfo = new ScriptParseInfo
+            {
+                ParseResult = Parser.IncrementalParse(sql, null, defaultParseOptions)
+            };
+            service.AddOrUpdateScriptParseInfo(scriptFile.ClientUri, parseInfo);
+            ParseOptions observedParseOptions = default!;
+            ParseResult observedPreviousParseResult = default!;
+            service.IncrementalParseOverride = (sqlText, previousParseResult, parseOptions) =>
+            {
+                observedPreviousParseResult = previousParseResult;
+                observedParseOptions = parseOptions;
+                return Parser.IncrementalParse(sqlText, previousParseResult, parseOptions);
+            };
+
+            Mock<EventContext> eventContext = new();
+            await service.HandleDidChangeLanguageFlavorNotification(
+                new LanguageFlavorChangeParams
+                {
+                    Uri = scriptFile.ClientUri,
+                    Language = TSqlLanguageService.SQL_CMD_LANG,
+                    Flavor = "MSSQL",
+                    BatchSeparator = customBatchSeparator
+                },
+                eventContext.Object);
+            var result = await service.ParseAndBind(scriptFile, TestObjects.GetTestConnectionInfo());
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.Not.Null);
+                Assert.That(observedPreviousParseResult, Is.Null, "Changing the separator must force a full document parse.");
+                Assert.That(observedParseOptions.BatchSeparator, Is.EqualTo(customBatchSeparator));
+                Assert.That(result.Errors, Is.Empty);
+            });
         }
 
         /// <summary>
