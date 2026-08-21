@@ -80,6 +80,20 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
         }
 
         [Fact]
+        public void ProviderClrUdtMetadataRoutesUserTypesToBinary()
+        {
+            var columns = new List<ColumnInfo> { Column("dbo.MyClrType"), Column("vector", 20) };
+            SqlLargeValueReader.CellRead[] kinds = SqlLargeValueReader.ClassifyColumns(
+                columns,
+                vectorBinary: true);
+
+            SqlLargeValueReader.ApplyProviderUdtMetadata(kinds, new[] { true, true });
+
+            Assert.Equal(SqlLargeValueReader.CellRead.Binary, kinds[0]);
+            Assert.Equal(SqlLargeValueReader.CellRead.Vector, kinds[1]);
+        }
+
+        [Fact]
         public void ClassifyColumnsRoutesOnlyExactSpatialTypesToWkbWhenNegotiated() // D-0020
         {
             var columns = new List<ColumnInfo>
@@ -337,6 +351,34 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
                 SqlClientConnectionString.Build(Request(
                     new SecretMaterial { Kind = "integrated" },
                     new Dictionary<string, string> { ["encrypt"] = "sometimes" })));
+            Assert.Equal("Sts2.InvalidRequest", ex.Code);
+        }
+
+        [Theory]
+        [InlineData("true", true)]
+        [InlineData(" TRUE ", true)]
+        [InlineData("false", false)]
+        public void TrustServerCertificateAcceptsOnlyExplicitBooleans(string optionValue, bool expected)
+        {
+            (string connectionString, _) = SqlClientConnectionString.Build(Request(
+                new SecretMaterial { Kind = "integrated" },
+                new Dictionary<string, string> { ["trustServerCertificate"] = optionValue }));
+
+            var builder = new Microsoft.Data.SqlClient.SqlConnectionStringBuilder(connectionString);
+            Assert.Equal(expected, builder.TrustServerCertificate);
+        }
+
+        [Theory]
+        [InlineData("1")]
+        [InlineData("maybe")]
+        [InlineData("")]
+        public void InvalidTrustServerCertificateThrowsStableDriverException(string optionValue)
+        {
+            DbDriverException ex = Assert.Throws<DbDriverException>(() =>
+                SqlClientConnectionString.Build(Request(
+                    new SecretMaterial { Kind = "integrated" },
+                    new Dictionary<string, string> { ["trustServerCertificate"] = optionValue })));
+
             Assert.Equal("Sts2.InvalidRequest", ex.Code);
         }
 

@@ -70,7 +70,14 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             }
             if (request.Options.TryGetValue("trustServerCertificate", out string? trust))
             {
-                builder.TrustServerCertificate = string.Equals(trust, "true", StringComparison.OrdinalIgnoreCase);
+                builder.TrustServerCertificate = trust.Trim().ToLowerInvariant() switch
+                {
+                    "true" => true,
+                    "false" => false,
+                    _ => throw new DbDriverException(
+                        Sts2ErrorCodes.InvalidRequest,
+                        "Unsupported trustServerCertificate option."),
+                };
             }
         }
 
