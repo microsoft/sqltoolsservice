@@ -24,11 +24,24 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
             Auth = new SecretMaterial { Kind = "integrated" },
         };
 
-        private static async Task<List<ExecEvent>> ExecuteAsync(IDbSession session, string sql, int pageRows = 1000)
+        private static async Task<List<ExecEvent>> ExecuteAsync(
+            IDbSession session,
+            string sql,
+            int pageRows = 1000,
+            int pageBytes = 0,
+            int queryTimeoutMs = 0)
         {
             var events = new List<ExecEvent>();
             await foreach (ExecEvent execEvent in session.ExecuteAsync(
-                new QueryExecuteRequest { QueryId = "q-1", Sql = sql, PageRows = pageRows }, CancellationToken.None))
+                new QueryExecuteRequest
+                {
+                    QueryId = "q-1",
+                    Sql = sql,
+                    PageRows = pageRows,
+                    PageBytes = pageBytes,
+                    QueryTimeoutMs = queryTimeoutMs,
+                },
+                CancellationToken.None))
             {
                 events.Add(execEvent);
             }
@@ -92,6 +105,44 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
         }
 
         [Fact]
+        public async Task PagingSplitsRowsByPageBytes()
+        {
+            var driver = new SqliteDriver();
+            await using IDbSession session = await driver.OpenAsync(Request(":memory:"), CancellationToken.None);
+            string wide = new('\u00e9', 100);
+            await ExecuteAsync(session, "create table texts(v text)");
+            await ExecuteAsync(
+                session,
+                "insert into texts values ('" + wide + "'),('" + wide + "'),('" + wide + "'),('" + wide + "')");
+
+            List<ExecEvent> events = await ExecuteAsync(
+                session,
+                "select v from texts",
+                pageRows: 1000,
+                pageBytes: 800);
+            List<RowsPage> pages = events.OfType<RowsPage>().ToList();
+
+            Assert.Equal(4, pages.Count);
+            Assert.All(pages, page => Assert.Single(page.Cells));
+            Assert.Equal([0L, 1L, 2L, 3L], pages.Select(page => page.RowOffset));
+        }
+
+        [Fact]
+        public async Task QueryTimeoutInterruptsLongRunningCommand()
+        {
+            var driver = new SqliteDriver();
+            await using IDbSession session = await driver.OpenAsync(Request(":memory:"), CancellationToken.None);
+            const string ExpensiveSql = """
+                with recursive a(x) as (select 1 union all select x + 1 from a where x < 1000)
+                select sum(a.x * b.x * c.x) from a cross join a b cross join a c
+                """;
+
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(async () =>
+                await Task.Run(() => ExecuteAsync(session, ExpensiveSql, queryTimeoutMs: 100))
+                    .WaitAsync(TimeSpan.FromSeconds(5)));
+        }
+
+        [Fact]
         public async Task SyntaxErrorMapsToStableCode()
         {
             var driver = new SqliteDriver();
@@ -139,10 +190,32 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
             var driver = new SqliteDriver();
             await using IDbSession session = await driver.OpenAsync(Request(":memory:"), CancellationToken.None);
             await ExecuteAsync(session, "create table t(n integer)");
-            await ExecuteAsync(session, "with recursive c(n) as (select 1 union all select n+1 from c where n < 5) insert into t select n from c");
+            await ExecuteAsync(session, "insert into t values (1),(2),(3),(4),(5)");
 
-            // Cancel a (started but unconsumed) query — the per-query CTS must not poison later queries.
+            var started = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            async Task ConsumeLongQueryAsync()
+            {
+                await foreach (ExecEvent execEvent in session.ExecuteAsync(
+                    new QueryExecuteRequest
+                    {
+                        QueryId = "q-cancelled",
+                        Sql = "with recursive a(x) as (select 1 union all select x + 1 from a where x < 1000) select sum(a.x * b.x * c.x) from a cross join a b cross join a c",
+                    },
+                    CancellationToken.None))
+                {
+                    if (execEvent is ExecStarted)
+                    {
+                        started.TrySetResult();
+                    }
+                }
+            }
+
+            Task activeQuery = Task.Run(ConsumeLongQueryAsync);
+            await started.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            await Task.Delay(100); // let the provider enter sqlite3_step
             await session.CancelAsync("q-cancelled", CancellationToken.None);
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(async () =>
+                await activeQuery.WaitAsync(TimeSpan.FromSeconds(5)));
 
             // A subsequent query must run to completion, not be insta-cancelled by a sticky CTS.
             List<ExecEvent> events = await ExecuteAsync(session, "select n from t order by n");

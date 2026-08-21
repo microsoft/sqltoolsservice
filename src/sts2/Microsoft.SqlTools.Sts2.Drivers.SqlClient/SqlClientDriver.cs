@@ -102,26 +102,22 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             await using SqlCommand command = connection.CreateCommand();
             command.CommandText =
                 "select cast(serverproperty('ProductVersion') as nvarchar(128)), cast(serverproperty('Edition') as nvarchar(128)), cast(serverproperty('EngineEdition') as int)";
-            try
+            await using SqlDataReader reader = await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
+            if (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
             {
-                await using SqlDataReader reader = await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
-                if (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+                return new ServerInfo
                 {
-                    return new ServerInfo
-                    {
-                        Product = "Microsoft SQL Server",
-                        Version = reader.IsDBNull(0) ? connection.ServerVersion : reader.GetString(0),
-                        EngineEdition = reader.IsDBNull(1) ? null : reader.GetString(1),
-                        EngineEditionId = reader.IsDBNull(2) ? null : reader.GetInt32(2),
-                        Dialect = "tsql",
-                    };
-                }
-            }
-            catch (SqlException)
-            {
-                // Fall through to a minimal descriptor; server metadata is best-effort.
+                    Product = "Microsoft SQL Server",
+                    Version = reader.IsDBNull(0) ? connection.ServerVersion : reader.GetString(0),
+                    EngineEdition = reader.IsDBNull(1) ? null : reader.GetString(1),
+                    EngineEditionId = reader.IsDBNull(2) ? null : reader.GetInt32(2),
+                    Dialect = "tsql",
+                };
             }
 
+            // A provider that returns no metadata still has an open, usable
+            // connection. Provider/transport exceptions above are deliberately
+            // allowed to fail OpenAsync and release the connection.
             return new ServerInfo
             {
                 Product = "Microsoft SQL Server",

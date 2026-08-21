@@ -24,8 +24,8 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                 InitialCatalog = request.Database ?? string.Empty,
                 ApplicationName = request.ApplicationName ?? "sts2",
                 ConnectTimeout = request.ConnectTimeoutMs > 0
-                    ? Math.Max(1, request.ConnectTimeoutMs / 1000)
-                    : Math.Max(1, Sts2Defaults.ConnectTimeoutMs / 1000),
+                    ? ToProviderSeconds(request.ConnectTimeoutMs)
+                    : ToProviderSeconds(Sts2Defaults.ConnectTimeoutMs),
             };
 
             ApplyOptions(builder, request);
@@ -58,12 +58,14 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
         {
             if (request.Options.TryGetValue("encrypt", out string? encrypt))
             {
-                builder.Encrypt = encrypt switch
+                builder.Encrypt = encrypt.Trim().ToLowerInvariant() switch
                 {
                     "strict" => SqlConnectionEncryptOption.Strict,
                     "true" or "mandatory" => SqlConnectionEncryptOption.Mandatory,
                     "false" or "optional" => SqlConnectionEncryptOption.Optional,
-                    _ => builder.Encrypt,
+                    _ => throw new DbDriverException(
+                        Sts2ErrorCodes.InvalidRequest,
+                        "Unsupported encrypt option."),
                 };
             }
             if (request.Options.TryGetValue("trustServerCertificate", out string? trust))
@@ -71,5 +73,8 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                 builder.TrustServerCertificate = string.Equals(trust, "true", StringComparison.OrdinalIgnoreCase);
             }
         }
+
+        internal static int ToProviderSeconds(int milliseconds) =>
+            checked((int)(((long)Math.Max(1, milliseconds) + 999) / 1000));
     }
 }

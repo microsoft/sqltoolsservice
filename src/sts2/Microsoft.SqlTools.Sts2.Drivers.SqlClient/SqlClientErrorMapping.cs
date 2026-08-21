@@ -24,18 +24,52 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                     case 4060:  // cannot open database (often auth/permission)
                         return Sts2ErrorCodes.ConnectionFailedAuth;
                     case -2:    // timeout
+                        return Sts2ErrorCodes.ConnectionFailedTimeout;
                     case 53:    // network path
                     case 40:    // could not open a connection
-                        return Sts2ErrorCodes.ConnectionFailedTimeout;
+                        return Sts2ErrorCodes.ConnectionFailedNetwork;
                 }
             }
-            return ex.Number switch
-            {
-                18456 or 18452 or 4060 => Sts2ErrorCodes.ConnectionFailedAuth,
-                -2 => Sts2ErrorCodes.ConnectionFailedTimeout,
-                _ => Sts2ErrorCodes.ConnectionFailedNetwork,
-            };
+            return ClassifyOpenNumber(ex.Number);
         }
+
+        internal static string ClassifyOpenNumber(int number) => number switch
+        {
+            18456 or 18452 or 4060 => Sts2ErrorCodes.ConnectionFailedAuth,
+            -2 => Sts2ErrorCodes.ConnectionFailedTimeout,
+            _ => Sts2ErrorCodes.ConnectionFailedNetwork,
+        };
+
+        /// <summary>Classifies provider failures raised while executing or streaming a query.</summary>
+        internal static string ClassifyQuery(SqlException ex)
+        {
+            foreach (SqlError error in ex.Errors)
+            {
+                if (IsTransportNumber(error.Number))
+                {
+                    return Sts2ErrorCodes.QueryFailedTransport;
+                }
+            }
+            return ClassifyQueryNumber(ex.Number);
+        }
+
+        internal static string ClassifyQueryNumber(int number) => IsTransportNumber(number)
+            ? Sts2ErrorCodes.QueryFailedTransport
+            : Sts2ErrorCodes.QueryFailedServer;
+
+        private static bool IsTransportNumber(int number) => number is
+            -2 or    // command timeout
+            20 or    // instance does not support encryption / connection setup
+            40 or    // could not open a connection
+            53 or    // network path not found
+            64 or    // network name unavailable
+            121 or   // semaphore timeout
+            233 or   // no process on the other end of the pipe
+            258 or   // wait timed out
+            10053 or // connection aborted
+            10054 or // connection reset
+            10060 or // connection timed out
+            11001;   // host not known
 
         /// <summary>Builds the server-error detail from the first SqlError, if any.</summary>
         public static ServerErrorDetail? ServerDetail(SqlException ex)

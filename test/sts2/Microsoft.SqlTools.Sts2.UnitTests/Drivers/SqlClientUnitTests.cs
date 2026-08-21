@@ -132,6 +132,53 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
             Assert.InRange(SqlRowsPageBuilder.EstimateCellBytes(spatial), 1400, 1500);
         }
 
+        [Theory]
+        [InlineData(1, 1)]
+        [InlineData(999, 1)]
+        [InlineData(1000, 1)]
+        [InlineData(1001, 2)]
+        [InlineData(1500, 2)]
+        [InlineData(2000, 2)]
+        [InlineData(int.MaxValue, 2147484)]
+        public void MillisecondTimeoutsRoundUpToProviderSeconds(int milliseconds, int expectedSeconds)
+        {
+            Assert.Equal(expectedSeconds, SqlClientConnectionString.ToProviderSeconds(milliseconds));
+        }
+
+        [Theory]
+        [InlineData(18456, "Sts2.ConnectionFailed.Auth")]
+        [InlineData(-2, "Sts2.ConnectionFailed.Timeout")]
+        [InlineData(40, "Sts2.ConnectionFailed.Network")]
+        [InlineData(53, "Sts2.ConnectionFailed.Network")]
+        public void OpenErrorsKeepStableClassification(int number, string expected)
+        {
+            Assert.Equal(expected, SqlClientErrorMapping.ClassifyOpenNumber(number));
+        }
+
+        [Theory]
+        [InlineData(-2, "Sts2.QueryFailed.Transport")]
+        [InlineData(53, "Sts2.QueryFailed.Transport")]
+        [InlineData(10054, "Sts2.QueryFailed.Transport")]
+        [InlineData(102, "Sts2.QueryFailed.Server")]
+        [InlineData(2627, "Sts2.QueryFailed.Server")]
+        public void QueryErrorsDistinguishTransportFromServer(int number, string expected)
+        {
+            Assert.Equal(expected, SqlClientErrorMapping.ClassifyQueryNumber(number));
+        }
+
+        [Theory]
+        [InlineData(0, 100, "conversionFailed")]
+        [InlineData(4, 100, "conversionFailed")]
+        [InlineData(5, 4, "maxCellBytes")]
+        [InlineData(5, 5, null)]
+        public void SpatialWkbLengthReportsHonestUnavailableReason(
+            int wkbLength,
+            int maxCellBytes,
+            string? expected)
+        {
+            Assert.Equal(expected, SqlClientSpatialValueReader.WkbUnavailableReason(wkbLength, maxCellBytes));
+        }
+
         [Fact]
         public void ProvenOversizedStreamsRetainOnlyTheWirePrefix()
         {
@@ -233,14 +280,27 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
 
         [Theory]
         [InlineData("strict", "Strict")]
+        [InlineData("Strict", "Strict")]
         [InlineData("true", "True")]    // Mandatory serializes as True for back-compat
+        [InlineData("TRUE", "True")]
         [InlineData("false", "False")]  // Optional serializes as False
+        [InlineData("Optional", "False")]
         public void EncryptOptionMapsToBuilderEnum(string optionValue, string expected)
         {
             (string connectionString, _) = SqlClientConnectionString.Build(Request(
                 new SecretMaterial { Kind = "integrated" },
                 new Dictionary<string, string> { ["encrypt"] = optionValue }));
             Assert.Contains("Encrypt=" + expected, connectionString);
+        }
+
+        [Fact]
+        public void UnsupportedEncryptOptionThrowsStableDriverException()
+        {
+            DbDriverException ex = Assert.Throws<DbDriverException>(() =>
+                SqlClientConnectionString.Build(Request(
+                    new SecretMaterial { Kind = "integrated" },
+                    new Dictionary<string, string> { ["encrypt"] = "sometimes" })));
+            Assert.Equal("Sts2.InvalidRequest", ex.Code);
         }
 
         [Fact]

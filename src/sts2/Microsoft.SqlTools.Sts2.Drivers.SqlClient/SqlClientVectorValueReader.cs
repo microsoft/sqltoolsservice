@@ -71,7 +71,8 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                         Reason = "cellLimit",
                     };
                 }
-                byte[] bytes = new byte[byteLength];
+                int bufferLength = checked((int)byteLength);
+                byte[] bytes = new byte[bufferLength];
                 for (int i = 0; i < components.Length; i++)
                 {
                     BinaryPrimitives.WriteInt32LittleEndian(

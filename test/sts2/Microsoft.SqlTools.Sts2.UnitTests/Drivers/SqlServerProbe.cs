@@ -6,6 +6,7 @@
 using System;
 using System.Threading;
 using Microsoft.Data.SqlClient;
+using Xunit;
 
 namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
 {
@@ -49,22 +50,15 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
         }
     }
 
-    /// <summary>
-    /// Minimal "skip, don't fail" fact: when SQL Server is unavailable the test method
-    /// returns early after recording the reason via the output helper. Keeps the engine
-    /// suite green locally (skipped) while CI exercises it. (A full Xunit.SkippableFact
-    /// dependency is avoided to keep the dependency matrix lean.)
-    /// </summary>
-    internal static class EngineGate
+    /// <summary>Discovery-time skip for optional real-engine tests.</summary>
+    internal sealed class EngineFactAttribute : FactAttribute
     {
-        internal static bool ShouldRun(Xunit.Abstractions.ITestOutputHelper output)
+        public EngineFactAttribute()
         {
-            if (SqlServerProbe.Available)
+            if (!SqlServerProbe.Available)
             {
-                return true;
+                Skip = SqlServerProbe.SkipReason;
             }
-            output.WriteLine("ENGINE TEST SKIPPED — " + SqlServerProbe.SkipReason);
-            return false;
         }
     }
 }
