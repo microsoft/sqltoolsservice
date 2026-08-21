@@ -89,22 +89,41 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             // conservative wrapper overhead in addition to exact base64 size.
             byte[] b => EstimateBase64Bytes(b.Length) + 32,
             bool => 5,
-            Guid => 38,
-            DateTime or DateTimeOffset => 36,
-            TimeSpan => 20,
-            decimal or double or float or long or int or short or byte => 20,
+            Guid => 64,
+            DateTime or DateTimeOffset => 80,
+            TimeSpan => 64,
+            decimal => 80,
+            double or float => 40,
+            long => 20,
+            int or short or byte => 12,
             char[] c => EstimateJsonStringBytes(c),
             // base64 of the component bytes + the fixed tag fields
-            Abstractions.DriverVectorValue v => EstimateBase64Bytes(v.ComponentBytes.Length) + 128,
+            Abstractions.DriverVectorValue v => EstimateBase64Bytes(v.ComponentBytes.Length)
+                + EstimateJsonStringBytes(v.BaseType) + EstimateJsonStringBytes(v.Encoding) + 128,
+            Abstractions.DriverVectorUnavailableValue v => EstimateVectorUnavailableBytes(v),
             // base64 WKB + typed spatial tag fields (D-0020)
-            Abstractions.DriverSpatialValue s => EstimateBase64Bytes(s.Wkb.Length) + 128,
-            Abstractions.DriverSpatialUnavailableValue => 192,
+            Abstractions.DriverSpatialValue s => EstimateBase64Bytes(s.Wkb.Length)
+                + EstimateJsonStringBytes(s.Kind) + 128,
+            Abstractions.DriverSpatialUnavailableValue s => EstimateSpatialUnavailableBytes(s),
             // retained prefix (text verbatim, binary as base64) + wrapper facts
             Abstractions.DriverTruncatedValue t => t.Kind == "binary"
                 ? EstimateBase64Bytes(t.PrefixBytes?.Length ?? 0) + 128
                 : EstimateJsonStringBytes(t.PrefixText ?? string.Empty) + 126,
             _ => 24,
         };
+
+        private static long EstimateVectorUnavailableBytes(Abstractions.DriverVectorUnavailableValue value) =>
+            128
+            + EstimateJsonStringBytes(value.Reason)
+            + (value.BaseType is null ? 0 : EstimateJsonStringBytes(value.BaseType))
+            + (value.Dimensions is null ? 0 : 20);
+
+        private static long EstimateSpatialUnavailableBytes(Abstractions.DriverSpatialUnavailableValue value) =>
+            160
+            + EstimateJsonStringBytes(value.Kind)
+            + EstimateJsonStringBytes(value.Reason)
+            + (value.Srid is null ? 0 : 20)
+            + (value.SourceBytes is null ? 0 : 20);
 
         private static long EstimateBase64Bytes(int byteLength) =>
             ((long)byteLength + 2) / 3 * 4;

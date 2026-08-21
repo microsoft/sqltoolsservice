@@ -116,8 +116,8 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             // value is oversized, so retain only the protocol prefix from the
             // first read instead of growing a near/full-value StringBuilder.
             long fieldChars = reader.GetChars(ordinal, 0, null, 0, 0);
-            bool knownOversized = maxCellBytes > 0 && fieldChars > maxCellBytes;
-            int retainedCharLimit = knownOversized
+            bool oversized = maxCellBytes > 0 && fieldChars > maxCellBytes;
+            int retainedCharLimit = oversized
                 ? RetainedUnitsForKnownLength(fieldChars, maxCellBytes)
                 : int.MaxValue;
             var prefix = new StringBuilder(InitialCapacity(fieldChars, retainedCharLimit));
@@ -145,11 +145,14 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                     int keep = (int)Math.Min(read, (long)retainedCharLimit - prefix.Length);
                     prefix.Append(chars, 0, keep);
                 }
-                if (!knownOversized && maxCellBytes > 0 && totalBytes > maxCellBytes)
+                if (!oversized && maxCellBytes > 0 && totalBytes > maxCellBytes)
                 {
                     // The length hint could not prove truncation (for example,
-                    // multibyte text). Retain the crossing chunk, then stop.
+                    // multibyte text). Discard the fit-candidate immediately and
+                    // retain only the bounded, UTF-8-safe wire prefix.
+                    TrimTextPrefix(prefix, maxCellBytes);
                     retainedCharLimit = prefix.Length;
+                    oversized = true;
                 }
                 if (read < chars.Length)
                 {
@@ -166,6 +169,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             {
                 return prefix.ToString(); // fits: ordinary string, encoder path unchanged
             }
+            TrimTextPrefix(prefix, maxCellBytes);
             return new DriverTruncatedValue
             {
                 Kind = "string",
@@ -238,6 +242,38 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             maxCellBytes > 0 && fieldUnits > maxCellBytes
                 ? Math.Min(maxCellBytes, Sts2Defaults.TruncatedPrefixBytes)
                 : (int)Math.Min(Math.Max(0, fieldUnits), int.MaxValue);
+
+        /// <summary>Largest complete-code-point UTF-16 prefix within a UTF-8 byte budget.</summary>
+        internal static int Utf8PrefixCharLength(string value, int maxBytes)
+        {
+            int chars = 0;
+            int bytes = 0;
+            foreach (Rune rune in value.EnumerateRunes())
+            {
+                if (rune.Utf8SequenceLength > maxBytes - bytes)
+                {
+                    break;
+                }
+                bytes += rune.Utf8SequenceLength;
+                chars += rune.Utf16SequenceLength;
+            }
+            return chars;
+        }
+
+        private static void TrimTextPrefix(StringBuilder prefix, int maxCellBytes)
+        {
+            int byteLimit = Math.Min(maxCellBytes, Sts2Defaults.TruncatedPrefixBytes);
+            string candidate = prefix.ToString();
+            int retainedChars = Utf8PrefixCharLength(candidate, byteLimit);
+            if (retainedChars >= prefix.Length)
+            {
+                return;
+            }
+
+            prefix.Clear();
+            prefix.Capacity = Math.Max(16, retainedChars);
+            prefix.Append(candidate, 0, retainedChars);
+        }
 
         private static int InitialCapacity(long fieldUnits, int retainedUnitLimit) =>
             (int)Math.Min(Math.Min(Math.Max(0, fieldUnits), retainedUnitLimit), int.MaxValue);

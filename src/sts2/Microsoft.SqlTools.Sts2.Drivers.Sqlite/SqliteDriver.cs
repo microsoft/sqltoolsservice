@@ -30,43 +30,61 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
         {
             ArgumentNullException.ThrowIfNull(request);
 
-            var builder = new SqliteConnectionStringBuilder
-            {
-                DataSource = string.IsNullOrEmpty(request.Server) ? ":memory:" : request.Server,
-            };
-            if (request.Options.TryGetValue("mode", out string? mode) && Enum.TryParse(mode, ignoreCase: true, out SqliteOpenMode openMode))
-            {
-                builder.Mode = openMode;
-            }
-            if (request.Options.TryGetValue("cache", out string? cache) && Enum.TryParse(cache, ignoreCase: true, out SqliteCacheMode cacheMode))
-            {
-                builder.Cache = cacheMode;
-            }
-
-            var connection = new SqliteConnection(builder.ToString());
+            SqliteConnection? connection = null;
             try
             {
+                var builder = new SqliteConnectionStringBuilder
+                {
+                    DataSource = string.IsNullOrEmpty(request.Server) ? ":memory:" : request.Server,
+                };
+                if (request.Options.TryGetValue("mode", out string? mode) && Enum.TryParse(mode, ignoreCase: true, out SqliteOpenMode openMode))
+                {
+                    builder.Mode = openMode;
+                }
+                if (request.Options.TryGetValue("cache", out string? cache) && Enum.TryParse(cache, ignoreCase: true, out SqliteCacheMode cacheMode))
+                {
+                    builder.Cache = cacheMode;
+                }
+
+                connection = new SqliteConnection(builder.ToString());
                 await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+
+                var server = new ServerInfo
+                {
+                    Product = "SQLite",
+                    Version = connection.ServerVersion,
+                    EngineEdition = "Embedded",
+                    Dialect = "sqlite",
+                };
+                return new SqliteSession(connection, server);
             }
             catch (OperationCanceledException)
             {
-                await connection.DisposeAsync().ConfigureAwait(false);
+                if (connection is not null)
+                {
+                    await connection.DisposeAsync().ConfigureAwait(false);
+                }
                 throw;
             }
             catch (SqliteException ex)
             {
-                await connection.DisposeAsync().ConfigureAwait(false);
+                if (connection is not null)
+                {
+                    await connection.DisposeAsync().ConfigureAwait(false);
+                }
                 throw new DbDriverException(ClassifyOpen(ex), "Failed to open Sqlite database: " + ex.Message,
                     new ServerErrorDetail { Number = ex.SqliteErrorCode, Severity = 16, State = 1 });
             }
-
-            return new SqliteSession(connection, new ServerInfo
+            catch (Exception)
             {
-                Product = "SQLite",
-                Version = connection.ServerVersion,
-                EngineEdition = "Embedded",
-                Dialect = "sqlite",
-            });
+                if (connection is not null)
+                {
+                    await connection.DisposeAsync().ConfigureAwait(false);
+                }
+                throw new DbDriverException(
+                    Sts2ErrorCodes.ConnectionFailedNetwork,
+                    "Failed to open Sqlite database.");
+            }
         }
 
         private static string ClassifyOpen(SqliteException ex) => ex.SqliteErrorCode switch

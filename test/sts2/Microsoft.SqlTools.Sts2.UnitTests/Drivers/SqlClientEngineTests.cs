@@ -27,11 +27,16 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
         private static ConnectionOpenRequest OpenRequest()
         {
             var builder = new SqlConnectionStringBuilder(SqlServerProbe.ConnectionString);
-            var options = new Dictionary<string, string>();
-            if (builder.Encrypt == SqlConnectionEncryptOption.Strict)
+            var options = new Dictionary<string, string>
             {
-                options["encrypt"] = "strict";
-            }
+                ["encrypt"] = builder.Encrypt == SqlConnectionEncryptOption.Strict
+                    ? "strict"
+                    : builder.Encrypt == SqlConnectionEncryptOption.Mandatory
+                        ? "true"
+                        : builder.Encrypt == SqlConnectionEncryptOption.Optional
+                            ? "false"
+                            : throw new InvalidOperationException("Unsupported SQL Client encryption option."),
+            };
             if (builder.TrustServerCertificate)
             {
                 options["trustServerCertificate"] = "true";
