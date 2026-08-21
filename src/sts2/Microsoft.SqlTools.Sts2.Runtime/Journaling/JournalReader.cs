@@ -65,9 +65,21 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Journaling
                 .Order(StringComparer.Ordinal)
                 .ToArray();
 
-            var runs = segments
-                .Select(s => RunIdOf(Path.GetFileName(s)))
-                .Where(r => r is not null)
+            var identifiedSegments = segments
+                .Select(s => new { Path = s, RunId = RunIdOf(Path.GetFileName(s)) })
+                .ToArray();
+            string[] malformed = identifiedSegments
+                .Where(s => s.RunId is null)
+                .Select(s => Path.GetFileName(s.Path)!)
+                .ToArray();
+            if (malformed.Length > 0)
+            {
+                throw new InvalidDataException(
+                    $"Journal directory '{directory}' contains malformed segment file name(s): {string.Join(", ", malformed)}.");
+            }
+
+            string[] runs = identifiedSegments
+                .Select(s => s.RunId!)
                 .Distinct(StringComparer.Ordinal)
                 .ToArray();
             if (runs.Length > 1)

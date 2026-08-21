@@ -107,5 +107,18 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
             string line = EnvelopeJsonCodec.SerializeLine(Sample()).Replace("sts2.envelope/1", "sts2.envelope/9");
             Assert.Throws<System.IO.InvalidDataException>(() => EnvelopeJsonCodec.DeserializeLine(line));
         }
+
+        [Theory]
+        [InlineData("sessionId", "c-7")]
+        [InlineData("corr", "r-91")]
+        public void DeserializeRejectsNonStringOptionalIdentifiers(string field, string value)
+        {
+            string line = EnvelopeJsonCodec.SerializeLine(Sample()).Replace(
+                $"\"{field}\":\"{value}\"",
+                $"\"{field}\":42",
+                StringComparison.Ordinal);
+
+            Assert.Throws<System.IO.InvalidDataException>(() => EnvelopeJsonCodec.DeserializeLine(line));
+        }
     }
 }
