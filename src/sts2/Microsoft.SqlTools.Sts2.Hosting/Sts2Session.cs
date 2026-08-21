@@ -378,6 +378,15 @@ namespace Microsoft.SqlTools.Sts2.Hosting
             var tokens = new List<string>();
             try
             {
+                // Close the publication race with EnterFatal: fatalReason is set
+                // before that method snapshots pendingRequests. If this request
+                // arrived after the snapshot, this second read observes the fatal
+                // state and the finally below removes its just-published entry.
+                if (Volatile.Read(ref fatalReason) is string publishedReason)
+                {
+                    throw UnavailableException(publishedReason);
+                }
+
                 JsonElement? redacted = parameters is { } p
                     ? ToElement(SecretRedactor.Redact(JsonNode.Parse(p.GetRawText()), secrets, tokens))
                     : null;
@@ -408,6 +417,33 @@ namespace Microsoft.SqlTools.Sts2.Hosting
                 {
                     secrets.RemoveAll(tokens);
                 }
+            }
+        }
+
+        private async Task PostNotificationAsync(string method, JsonElement? parameters)
+        {
+            if (Volatile.Read(ref fatalReason) is not null)
+            {
+                return;
+            }
+
+            Task post = coordinator.PostRpcNotificationAsync(method, parameters).AsTask();
+            // A faulted channel write is itself a component failure; observing it
+            // also prevents an abandoned post from becoming unobserved if fatal
+            // containment wins the race below.
+            ObserveComponent(post, "coordinator notification");
+            if (post.IsCompleted)
+            {
+                await post.ConfigureAwait(false);
+                return;
+            }
+
+            // If the bounded queue is full when the pump dies, do not leave the
+            // StreamJsonRpc notification handler awaiting that write forever.
+            Task completed = await Task.WhenAny(post, sessionEnded.Task).ConfigureAwait(false);
+            if (ReferenceEquals(completed, post))
+            {
+                await post.ConfigureAwait(false);
             }
         }
 
@@ -454,7 +490,7 @@ namespace Microsoft.SqlTools.Sts2.Hosting
 
             [JsonRpcMethod("v2/query.ack", UseSingleObjectParameterDeserialization = true)]
             public Task QueryAckAsync(JsonElement? args = null) =>
-                session.coordinator.PostRpcNotificationAsync("v2/query.ack", args).AsTask();
+                session.PostNotificationAsync("v2/query.ack", args);
 
             [JsonRpcMethod("v2/diagnostics.ping", UseSingleObjectParameterDeserialization = true)]
             public Task<JsonElement?> PingAsync(JsonElement? args = null) => session.InvokeAsync("v2/diagnostics.ping", args);
