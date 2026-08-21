@@ -89,6 +89,18 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
         }
 
         [Fact]
+        public async Task ReadAllRejectsMalformedSegmentFileNames()
+        {
+            await using (JournalWriter writer = CreateWriter())
+            {
+                await writer.AppendAsync(Envelope(1), flush: true);
+            }
+            File.WriteAllText(Path.Combine(directory, "journal-other-invalid.jsonl"), "{}");
+
+            Assert.Throws<InvalidDataException>(() => JournalReader.ReadAll(directory).ToList());
+        }
+
+        [Fact]
         public async Task FlushHintMakesLinesVisibleBeforeDispose()
         {
             await using JournalWriter writer = CreateWriter();

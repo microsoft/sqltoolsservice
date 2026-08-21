@@ -124,10 +124,18 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Envelopes
                 ? value.GetString()!
                 : throw new InvalidDataException($"Envelope line is missing required string field '{name}'.");
 
-        private static string? GetOptionalString(JsonElement root, string name) =>
-            root.TryGetProperty(name, out JsonElement value) && value.ValueKind == JsonValueKind.String
-                ? value.GetString()
-                : null;
+        private static string? GetOptionalString(JsonElement root, string name)
+        {
+            if (!root.TryGetProperty(name, out JsonElement value) || value.ValueKind == JsonValueKind.Null)
+            {
+                return null;
+            }
+            if (value.ValueKind == JsonValueKind.String)
+            {
+                return value.GetString();
+            }
+            throw new InvalidDataException($"Envelope field '{name}' must be a string or null.");
+        }
 
         private static JsonElement? CloneOptionalElement(JsonElement root, string name) =>
             root.TryGetProperty(name, out JsonElement value) && value.ValueKind != JsonValueKind.Null
