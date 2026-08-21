@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.LanguageService.Connection.Contracts
     public class LanguageFlavorChangeParams
     {
         /// <summary>
-        /// A URI identifying the affected resource         
+        /// A URI identifying the affected resource
         /// </summary>
         public string Uri { get; set; }
 
@@ -29,6 +29,12 @@ namespace Microsoft.SqlTools.LanguageService.Connection.Contracts
         /// The specific language flavor that is being set
         /// </summary>
         public string Flavor { get; set; }
+
+        /// <summary>
+        /// The optional batch separator configured for the affected resource. Defaults to <c>GO</c>
+        /// when not specified.
+        /// </summary>
+        public string BatchSeparator { get; set; }
     }
 
     /// <summary>

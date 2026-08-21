@@ -17,6 +17,48 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
     public class DiagnosticsTests : LanguageServiceTestBase<Diagnostic>
     {
         [Test]
+        public async Task BatchSeparatorChangeUpdatesSemanticDiagnostics()
+        {
+            const string sql = "SELECT 1;\r\nRUN\r\nCREATE OR ALTER PROCEDURE dbo.BatchSeparatorTest AS SELECT 2;";
+            InitializeTestObjects();
+            scriptFile.SetupGet(file => file.Contents).Returns(sql);
+            scriptParseInfo.BindingContextKind = BindingContextKindEnum.None;
+            scriptParseInfo.ConnectionKey = null;
+            workspaceService
+                .Setup(service => service.Workspace.GetFile(testScriptUri))
+                .Returns((ScriptFile)null!);
+            Mock<EventContext> eventContext = new();
+
+            await langService.HandleDidChangeLanguageFlavorNotification(
+                new LanguageFlavorChangeParams
+                {
+                    Uri = testScriptUri,
+                    Language = TSqlLanguageService.SQL_LANG,
+                    Flavor = "MSSQL",
+                    BatchSeparator = "RUN"
+                },
+                eventContext.Object);
+            ScriptFileMarker[] customSeparatorMarkers = await langService.GetSemanticMarkers(scriptFile.Object);
+
+            await langService.HandleDidChangeLanguageFlavorNotification(
+                new LanguageFlavorChangeParams
+                {
+                    Uri = testScriptUri,
+                    Language = TSqlLanguageService.SQL_LANG,
+                    Flavor = "MSSQL",
+                    BatchSeparator = "GO"
+                },
+                eventContext.Object);
+            ScriptFileMarker[] defaultSeparatorMarkers = await langService.GetSemanticMarkers(scriptFile.Object);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(customSeparatorMarkers, Is.Empty, "RUN should create a batch boundary for diagnostics.");
+                Assert.That(defaultSeparatorMarkers, Is.Not.Empty, "RUN should be parsed as SQL when GO is configured.");
+            });
+        }
+
+        [Test]
         public async Task PublishSemanticMarkersAsyncLanguageChangesToSqlCmdDoesNotPublishStaleDiagnostics()
         {
             InitializeTestObjects();
