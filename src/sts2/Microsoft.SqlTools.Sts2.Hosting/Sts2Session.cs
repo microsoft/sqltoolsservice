@@ -366,11 +366,11 @@ namespace Microsoft.SqlTools.Sts2.Hosting
             // a driver ever resolves them (Busy/invalid/duplicate-openId), which previously
             // leaked credential material for the process lifetime (R004).
             var tokens = new List<string>();
-            JsonElement? redacted = parameters is { } p
-                ? ToElement(SecretRedactor.Redact(JsonNode.Parse(p.GetRawText()), secrets, tokens))
-                : null;
             try
             {
+                JsonElement? redacted = parameters is { } p
+                    ? ToElement(SecretRedactor.Redact(JsonNode.Parse(p.GetRawText()), secrets, tokens))
+                    : null;
                 await coordinator.PostRpcRequestAsync(method, corr, redacted).ConfigureAwait(false);
 
                 OutboundRpcMessage outcome = await tcs.Task.ConfigureAwait(false);
@@ -387,6 +387,11 @@ namespace Microsoft.SqlTools.Sts2.Hosting
             }
             finally
             {
+                // HandleOutbound normally removes the entry. This also covers a
+                // closed/faulted coordinator rejecting PostRpcRequestAsync before
+                // an outbound result can be produced.
+                pendingRequests.TryRemove(corr, out _);
+
                 // Idempotent: on a successful open the effect runner already removed these
                 // when the open attempt completed; here we catch the rejected/fatal paths.
                 if (tokens.Count > 0)
@@ -402,7 +407,8 @@ namespace Microsoft.SqlTools.Sts2.Hosting
             {
                 return null;
             }
-            return JsonDocument.Parse(node.ToJsonString()).RootElement;
+            using JsonDocument document = JsonDocument.Parse(node.ToJsonString());
+            return document.RootElement.Clone();
         }
 
         /// <summary>The thin RPC surface; every method funnels into the coordinator.</summary>

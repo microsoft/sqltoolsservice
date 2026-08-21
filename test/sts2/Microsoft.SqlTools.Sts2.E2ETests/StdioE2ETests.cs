@@ -19,16 +19,18 @@ namespace Microsoft.SqlTools.Sts2.E2ETests
     {
         private readonly string logDirectory = Path.Combine(
             Path.GetTempPath(), "sts2-e2e-" + Guid.NewGuid().ToString("N"));
+        private readonly CancellationTokenSource testTimeout = new(TimeSpan.FromSeconds(60));
 
-        private static CancellationToken TestTimeout => new CancellationTokenSource(TimeSpan.FromSeconds(60)).Token;
+        private CancellationToken TestTimeout => testTimeout.Token;
 
         public void Dispose()
         {
+            testTimeout.Dispose();
             try
             {
                 Directory.Delete(logDirectory, recursive: true);
             }
-            catch (IOException)
+            catch (Exception)
             {
                 // Best effort; temp cleanup.
             }
@@ -37,7 +39,7 @@ namespace Microsoft.SqlTools.Sts2.E2ETests
         [Fact]
         public async Task DisabledMode_V1VersionWorks_AndNoSts2ArtifactsAreCreated()
         {
-            await using var client = ServiceProcessClient.Start(enableSts2: false, logDirectory);
+            await using var client = ServiceProcessClient.Start(enableSts2: false, logDirectory: logDirectory);
 
             JsonElement response = await client.RequestAsync("version", new { }, TestTimeout);
             Assert.True(response.TryGetProperty("result", out JsonElement result), "version request failed: " + response.GetRawText());
@@ -52,7 +54,7 @@ namespace Microsoft.SqlTools.Sts2.E2ETests
         [Fact]
         public async Task EnabledMode_PingAndV1VersionShareOneSession()
         {
-            await using var client = ServiceProcessClient.Start(enableSts2: true, logDirectory);
+            await using var client = ServiceProcessClient.Start(enableSts2: true, logDirectory: logDirectory);
 
             // v2 and v1 requests interleaved on the same stdio stream (SPEC §1.1).
             JsonElement ping = await client.RequestAsync("v2/diagnostics.ping", new { echo = "m0-e2e" }, TestTimeout);
@@ -73,7 +75,7 @@ namespace Microsoft.SqlTools.Sts2.E2ETests
         [Fact]
         public async Task EnabledMode_InitializeWorksAndJournalIsWritten()
         {
-            await using var client = ServiceProcessClient.Start(enableSts2: true, logDirectory);
+            await using var client = ServiceProcessClient.Start(enableSts2: true, logDirectory: logDirectory);
 
             JsonElement initialize = await client.RequestAsync("v2/initialize", new { clientName = "e2e" }, TestTimeout);
             Assert.True(initialize.TryGetProperty("result", out JsonElement result), "initialize failed: " + initialize.GetRawText());
@@ -97,7 +99,7 @@ namespace Microsoft.SqlTools.Sts2.E2ETests
         [Fact]
         public async Task EnabledMode_SqliteQueryStreamsOverRealStdio()
         {
-            await using var client = ServiceProcessClient.Start(enableSts2: true, logDirectory);
+            await using var client = ServiceProcessClient.Start(enableSts2: true, logDirectory: logDirectory);
             await client.RequestAsync("v2/initialize", new { clientName = "e2e" }, TestTimeout);
 
             JsonElement open = await client.RequestAsync("v2/connection.open",
@@ -150,7 +152,7 @@ namespace Microsoft.SqlTools.Sts2.E2ETests
         [Fact]
         public async Task EnabledMode_ShutdownTerminatesProcess()
         {
-            await using var client = ServiceProcessClient.Start(enableSts2: true, logDirectory);
+            await using var client = ServiceProcessClient.Start(enableSts2: true, logDirectory: logDirectory);
 
             // Prove the session is alive before shutting down.
             JsonElement ping = await client.RequestAsync("v2/diagnostics.ping", new { }, TestTimeout);

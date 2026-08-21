@@ -27,6 +27,7 @@ namespace Microsoft.SqlTools.Sts2.E2ETests
         private readonly Stream stdout;
         private readonly CancellationTokenSource readLoopCts = new();
         private readonly Task readLoop;
+        private readonly Task stderrLoop;
         private readonly ConcurrentDictionary<string, TaskCompletionSource<JsonElement>> pendingRequests = new(StringComparer.Ordinal);
         private int nextId;
 
@@ -36,6 +37,7 @@ namespace Microsoft.SqlTools.Sts2.E2ETests
             stdin = process.StandardInput.BaseStream;
             stdout = process.StandardOutput.BaseStream;
             readLoop = Task.Run(() => ReadLoopAsync(readLoopCts.Token));
+            stderrLoop = process.StandardError.BaseStream.CopyToAsync(Stream.Null, readLoopCts.Token);
         }
 
         /// <summary>Queue of notifications received from the service, by method name.</summary>
@@ -53,13 +55,33 @@ namespace Microsoft.SqlTools.Sts2.E2ETests
                 throw new InvalidOperationException("Could not locate repo root above " + AppContext.BaseDirectory);
             }
 
-            foreach (string configuration in new[] { "Debug", "Release" })
+            DirectoryInfo testOutputDirectory = new(AppContext.BaseDirectory);
+            string currentTfm = testOutputDirectory.Name;
+            string currentConfiguration = testOutputDirectory.Parent?.Name ?? "Debug";
+            string alternateConfiguration = currentConfiguration.Equals("Release", StringComparison.OrdinalIgnoreCase)
+                ? "Debug"
+                : "Release";
+            foreach (string configuration in new[] { currentConfiguration, alternateConfiguration })
             {
+                string configurationDirectory = Path.Combine(
+                    dir, "src", "Microsoft.SqlTools.ServiceLayer", "bin", configuration);
                 string candidate = Path.Combine(
-                    dir, "src", "Microsoft.SqlTools.ServiceLayer", "bin", configuration, "net10.0", "MicrosoftSqlToolsServiceLayer.dll");
+                    configurationDirectory, currentTfm, "MicrosoftSqlToolsServiceLayer.dll");
                 if (File.Exists(candidate))
                 {
                     return candidate;
+                }
+                if (!Directory.Exists(configurationDirectory))
+                {
+                    continue;
+                }
+                foreach (string frameworkDirectory in Directory.EnumerateDirectories(configurationDirectory))
+                {
+                    candidate = Path.Combine(frameworkDirectory, "MicrosoftSqlToolsServiceLayer.dll");
+                    if (File.Exists(candidate))
+                    {
+                        return candidate;
+                    }
                 }
             }
             throw new InvalidOperationException(
@@ -99,11 +121,15 @@ namespace Microsoft.SqlTools.Sts2.E2ETests
 
             string paramsJson = parameters is null ? "null" : JsonSerializer.Serialize(parameters);
             string json = "{\"jsonrpc\":\"2.0\",\"id\":\"" + id + "\",\"method\":\"" + method + "\",\"params\":" + paramsJson + "}";
-            await WriteFrameAsync(json, ct);
-
-            await using (ct.Register(() => tcs.TrySetCanceled(ct)))
+            try
             {
+                await WriteFrameAsync(json, ct);
+                using CancellationTokenRegistration registration = ct.Register(() => tcs.TrySetCanceled(ct));
                 return await tcs.Task;
+            }
+            finally
+            {
+                pendingRequests.TryRemove(id, out _);
             }
         }
 
@@ -154,7 +180,8 @@ namespace Microsoft.SqlTools.Sts2.E2ETests
                 while (!ct.IsCancellationRequested)
                 {
                     string payload = await ReadFrameAsync(ct);
-                    JsonElement root = JsonDocument.Parse(payload).RootElement;
+                    using JsonDocument document = JsonDocument.Parse(payload);
+                    JsonElement root = document.RootElement.Clone();
                     if (root.TryGetProperty("method", out JsonElement methodElement))
                     {
                         root.TryGetProperty("params", out JsonElement paramsElement);
@@ -245,6 +272,13 @@ namespace Microsoft.SqlTools.Sts2.E2ETests
                 await readLoop;
             }
             catch (OperationCanceledException)
+            {
+            }
+            try
+            {
+                await stderrLoop;
+            }
+            catch (Exception ex) when (ex is IOException or OperationCanceledException or ObjectDisposedException)
             {
             }
             process.Dispose();

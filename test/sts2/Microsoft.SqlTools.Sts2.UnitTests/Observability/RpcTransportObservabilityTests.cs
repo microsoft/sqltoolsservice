@@ -29,7 +29,7 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Observability
             var formatter = new MeasuredSystemTextJsonFormatter(inner, stats);
             using var output = new MemoryStream();
             using var input = new MemoryStream();
-            var handler = new MeasuredHeaderDelimitedMessageHandler(output, input, formatter, stats);
+            using var handler = new MeasuredHeaderDelimitedMessageHandler(output, input, formatter, stats);
             string privateValue = "private-canary-" + new string('x', 100_000);
 
             await handler.WriteAsync(
