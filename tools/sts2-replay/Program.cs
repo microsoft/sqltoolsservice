@@ -16,8 +16,7 @@ namespace Microsoft.SqlTools.Sts2.Replay
 {
     /// <summary>
     /// sts2-replay (SPEC §13.1): consumes journals without starting the product host.
-    /// Commands: run, verify, until, diff, explain. (export-check arrives with the
-    /// export bundle in M6.)
+    /// Commands: run, verify, until, diff, explain, export-check.
     /// </summary>
     internal static class Program
     {
@@ -29,14 +28,14 @@ namespace Microsoft.SqlTools.Sts2.Replay
                 {
                     ["run", string path] => Run(path),
                     ["verify", string path] => Verify(path),
-                    ["until", string path, "--seq", string seq] => Until(path, long.Parse(seq, CultureInfo.InvariantCulture)),
+                    ["until", string path, "--seq", string seq] => Until(path, ParseSeq(seq)),
                     ["diff", string path] => Diff(path),
-                    ["explain", string path, "--seq", string seq] => Explain(path, long.Parse(seq, CultureInfo.InvariantCulture)),
+                    ["explain", string path, "--seq", string seq] => Explain(path, ParseSeq(seq)),
                     ["export-check", string bundle] => ExportCheck(bundle),
                     _ => Usage(),
                 };
             }
-            catch (Exception ex) when (ex is IOException or InvalidDataException or FormatException)
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidDataException or FormatException)
             {
                 Console.Error.WriteLine("sts2-replay: " + ex.Message);
                 return 2;
@@ -53,6 +52,15 @@ namespace Microsoft.SqlTools.Sts2.Replay
             Console.Error.WriteLine("  sts2-replay explain <journal-dir> --seq N  print the causal tree around an envelope");
             Console.Error.WriteLine("  sts2-replay export-check <bundle.zip>     validate manifest hashes, privacy report, replayability");
             return 2;
+        }
+
+        private static long ParseSeq(string value)
+        {
+            if (!long.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out long seq))
+            {
+                throw new FormatException($"Invalid sequence '{value}'; expected a signed 64-bit integer.");
+            }
+            return seq;
         }
 
         private static int Run(string path)
@@ -153,9 +161,16 @@ namespace Microsoft.SqlTools.Sts2.Replay
                 return 2;
             }
 
-            var causeBySeq = journal.ToDictionary(e => e.Seq, e => e.Cause);
+            var bySeq = new Dictionary<long, Sts2Envelope>();
+            foreach (Sts2Envelope envelope in journal)
+            {
+                if (!bySeq.TryAdd(envelope.Seq, envelope))
+                {
+                    throw new InvalidDataException($"Journal contains duplicate seq {envelope.Seq}.");
+                }
+            }
+            IReadOnlyDictionary<long, long?> causeBySeq = bySeq.ToDictionary(entry => entry.Key, entry => entry.Value.Cause);
             IReadOnlyList<long> chain = JournalReplayer.CauseChainOf(causeBySeq, seq);
-            var bySeq = journal.ToDictionary(e => e.Seq);
 
             Console.WriteLine("causal chain (newest first):");
             foreach (long s in chain)

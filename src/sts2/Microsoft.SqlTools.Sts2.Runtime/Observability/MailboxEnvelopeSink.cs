@@ -33,12 +33,14 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Observability
         {
             this.inner = inner ?? throw new ArgumentNullException(nameof(inner));
             ArgumentOutOfRangeException.ThrowIfLessThan(capacity, 1);
-            mailbox = Channel.CreateBounded<(Sts2Envelope, bool)>(new BoundedChannelOptions(capacity)
-            {
-                FullMode = BoundedChannelFullMode.Wait,
-                SingleWriter = true,
-                SingleReader = false, // the writer also reads to evict the oldest on overflow
-            });
+            mailbox = Channel.CreateBounded<(Sts2Envelope, bool)>(
+                new BoundedChannelOptions(capacity)
+                {
+                    FullMode = BoundedChannelFullMode.DropOldest,
+                    SingleWriter = true,
+                    SingleReader = true,
+                },
+                _ => Interlocked.Increment(ref dropped));
             worker = Task.Run(DrainAsync);
         }
 
@@ -51,14 +53,9 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Observability
         /// <inheritdoc/>
         public ValueTask OnEnvelopeAsync(Sts2Envelope envelope, bool flush)
         {
-            // Non-blocking: the pump never awaits the inner sink. On overflow, drop the oldest
-            // to keep the freshest (a live observer wants recency) and count the drop.
-            if (!mailbox.Writer.TryWrite((envelope, flush)))
-            {
-                mailbox.Reader.TryRead(out _);
-                Interlocked.Increment(ref dropped);
-                mailbox.Writer.TryWrite((envelope, flush));
-            }
+            // Non-blocking: DropOldest admits the newest item atomically and invokes the
+            // callback only when an item is actually evicted.
+            mailbox.Writer.TryWrite((envelope, flush));
             return ValueTask.CompletedTask;
         }
 

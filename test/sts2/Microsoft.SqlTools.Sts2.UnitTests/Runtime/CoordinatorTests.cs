@@ -86,10 +86,11 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
         {
             await using (var session = new Sts2TestSession(directory))
             {
-                OutboundRpcMessage error = await session.RequestAsync("v2/nope.bogus", null);
+                OutboundRpcMessage error = await session.RequestAsync("v2/nope.bogus", Sts2TestSession.OpenPayload("unused"));
                 Assert.Equal("rpc.out.error", error.Kind);
                 Assert.Equal("Sts2.InvalidRequest", error.Body!.Value.GetProperty("data").GetProperty("code").GetString());
                 Assert.Equal(System.Text.Json.JsonValueKind.Number, error.Body!.Value.GetProperty("code").ValueKind); // I12
+                Assert.Equal(0, session.Secrets.Count); // terminal cleanup covers requests Core rejects before an effect runs (R004)
             }
             Assert.Contains(JournalReader.ReadAll(directory), e => e.Kind == "rpc.out.error");
         }

@@ -22,19 +22,20 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Observability
         private long dropped;
         private int disposed;
 
-        internal EnvelopeSubscription(int capacity, Action unsubscribe)
+        internal EnvelopeSubscription(int capacity, Action unsubscribe, Action onDropped)
         {
-            // FullMode.Wait + manual eviction gives drop-OLDEST semantics with an exact
-            // drop count (DropOldest mode evicts silently and cannot be counted). The pump
-            // is the only writer, so once we evict one item the subsequent write has room.
-            // SingleReader is FALSE: the producer also reads (Reader.TryRead) to evict the
-            // oldest, so two distinct readers can touch the channel (R034).
-            channel = Channel.CreateBounded<Sts2Envelope>(new BoundedChannelOptions(capacity)
-            {
-                FullMode = BoundedChannelFullMode.Wait,
-                SingleWriter = true,
-                SingleReader = false,
-            });
+            channel = Channel.CreateBounded<Sts2Envelope>(
+                new BoundedChannelOptions(capacity)
+                {
+                    FullMode = BoundedChannelFullMode.DropOldest,
+                    SingleWriter = true,
+                    SingleReader = true,
+                },
+                _ =>
+                {
+                    Interlocked.Increment(ref dropped);
+                    onDropped();
+                });
             this.unsubscribe = unsubscribe;
         }
 
@@ -45,22 +46,13 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Observability
         public long Dropped => Interlocked.Read(ref dropped);
 
         /// <summary>Pushes one envelope, evicting the oldest if the buffer is full. Never blocks.</summary>
-        internal bool TryPush(Sts2Envelope envelope)
+        internal void TryPush(Sts2Envelope envelope)
         {
             if (Volatile.Read(ref disposed) != 0)
             {
-                return true; // unsubscribed; not a slow-consumer drop
+                return; // unsubscribed; not a slow-consumer drop
             }
-            ChannelWriter<Sts2Envelope> writer = channel.Writer;
-            if (writer.TryWrite(envelope))
-            {
-                return true;
-            }
-            // Full: evict the oldest then admit the newest (single-writer guarantees room).
-            channel.Reader.TryRead(out _);
-            Interlocked.Increment(ref dropped);
-            writer.TryWrite(envelope);
-            return false;
+            channel.Writer.TryWrite(envelope);
         }
 
         /// <inheritdoc/>
