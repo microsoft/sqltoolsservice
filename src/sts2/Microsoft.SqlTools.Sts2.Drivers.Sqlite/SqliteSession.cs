@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Runtime.CompilerServices;
 using System.Text.Encodings.Web;
 using System.Threading;
@@ -126,16 +127,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
         private static async IAsyncEnumerable<ExecEvent> PumpResultSetAsync(
             SqliteDataReader reader, int resultSetId, int pageRows, int pageBytes, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            var columns = new List<ColumnInfo>(reader.FieldCount);
-            for (int i = 0; i < reader.FieldCount; i++)
-            {
-                columns.Add(new ColumnInfo
-                {
-                    Name = reader.GetName(i),
-                    EngineType = reader.GetDataTypeName(i),
-                    Nullable = true,
-                });
-            }
+            IReadOnlyList<ColumnInfo> columns = ReadColumns(reader, cancellationToken);
             yield return new ResultSetStarted(resultSetId, columns);
 
             int pageSeq = 0;
@@ -179,6 +171,33 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
                 yield return new RowsPage(resultSetId, pageSeq, rowOffset, page);
             }
             yield return new ResultSetCompleted(resultSetId, rowCount);
+        }
+
+        private static IReadOnlyList<ColumnInfo> ReadColumns(
+            SqliteDataReader reader,
+            CancellationToken cancellationToken)
+        {
+            try
+            {
+                System.Collections.ObjectModel.ReadOnlyCollection<DbColumn> schema = reader.GetColumnSchema();
+                var columns = new List<ColumnInfo>(reader.FieldCount);
+                for (int i = 0; i < reader.FieldCount; i++)
+                {
+                    DbColumn column = schema[i];
+                    columns.Add(new ColumnInfo
+                    {
+                        Name = column.ColumnName ?? reader.GetName(i),
+                        EngineType = column.DataTypeName ?? reader.GetDataTypeName(i),
+                        Nullable = column.AllowDBNull,
+                    });
+                }
+                return columns;
+            }
+            catch (SqliteException ex)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                throw Classify(ex);
+            }
         }
 
         private static long EstimateRowBytes(IReadOnlyList<object?> cells)

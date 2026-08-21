@@ -165,11 +165,13 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
         private static async IAsyncEnumerable<ExecEvent> PumpResultSetAsync(
             SqlDataReader reader, int resultSetId, int pageRows, int pageBytes, int maxCellBytes, bool vectorBinary, bool spatialWkb, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            var columns = await ReadColumnsAsync(reader, spatialWkb, cancellationToken).ConfigureAwait(false);
+            ColumnReadPlan columnPlan = await ReadColumnsAsync(reader, spatialWkb, cancellationToken).ConfigureAwait(false);
+            IReadOnlyList<ColumnInfo> columns = columnPlan.Columns;
             // QO-4: MAX-typed columns stream under SequentialAccess — bounded
             // prefix + streaming digest/byte count, never full materialization.
             // D-0018/D-0019: vector and CLR UDT columns route to dedicated reads.
             SqlLargeValueReader.CellRead[] readKinds = SqlLargeValueReader.ClassifyColumns(columns, vectorBinary, spatialWkb);
+            SqlLargeValueReader.ApplyProviderUdtMetadata(readKinds, columnPlan.ProviderClrUdts);
             yield return new ResultSetStarted(resultSetId, columns);
 
             int pageSeq = 0;
@@ -204,7 +206,11 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             yield return new ResultSetCompleted(resultSetId, rowCount);
         }
 
-        private static async Task<IReadOnlyList<ColumnInfo>> ReadColumnsAsync(
+        private sealed record ColumnReadPlan(
+            IReadOnlyList<ColumnInfo> Columns,
+            IReadOnlyList<bool> ProviderClrUdts);
+
+        private static async Task<ColumnReadPlan> ReadColumnsAsync(
             SqlDataReader reader,
             bool spatialWkb,
             CancellationToken cancellationToken)
@@ -212,12 +218,14 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             try
             {
                 var columns = new List<ColumnInfo>(reader.FieldCount);
+                var providerClrUdts = new List<bool>(reader.FieldCount);
                 System.Collections.ObjectModel.ReadOnlyCollection<System.Data.Common.DbColumn> schema =
                     await reader.GetColumnSchemaAsync().ConfigureAwait(false);
                 for (int i = 0; i < reader.FieldCount; i++)
                 {
                     var column = schema[i];
                     string engineType = column.DataTypeName ?? reader.GetDataTypeName(i);
+                    providerClrUdts.Add(!string.IsNullOrEmpty(column.UdtAssemblyQualifiedName));
                     string? spatialKind = spatialWkb ? SqlLargeValueReader.SpatialKind(engineType) : null;
                     columns.Add(new ColumnInfo
                     {
@@ -232,7 +240,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                         SpatialEncoding = spatialKind is null ? null : "wkb-v1",
                     });
                 }
-                return columns;
+                return new ColumnReadPlan(columns, providerClrUdts);
             }
             catch (SqlException ex)
             {

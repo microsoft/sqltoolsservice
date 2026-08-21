@@ -89,6 +89,20 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
         }
 
         [Fact]
+        public async Task ResultMetadataUsesProviderNullability()
+        {
+            var driver = new SqliteDriver();
+            await using IDbSession session = await driver.OpenAsync(Request(":memory:"), CancellationToken.None);
+            await ExecuteAsync(session, "create table metadata(required text not null, optional text)");
+
+            ResultSetStarted resultSet = Assert.Single(
+                (await ExecuteAsync(session, "select required, optional from metadata")).OfType<ResultSetStarted>());
+
+            Assert.False(resultSet.Columns[0].Nullable);
+            Assert.True(resultSet.Columns[1].Nullable);
+        }
+
+        [Fact]
         public async Task PagingSplitsRowsByPageRows()
         {
             var driver = new SqliteDriver();

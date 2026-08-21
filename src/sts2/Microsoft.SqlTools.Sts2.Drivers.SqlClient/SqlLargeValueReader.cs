@@ -83,6 +83,29 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
         }
 
         /// <summary>
+        /// Applies provider schema facts that cannot be inferred safely from a type
+        /// name. Any CLR UDT not already assigned a specialized negotiated reader is
+        /// transported through its binary serialization so the provider never loads
+        /// an arbitrary UDT assembly or leaks its CLR object across the driver port.
+        /// </summary>
+        internal static void ApplyProviderUdtMetadata(
+            CellRead[] kinds,
+            IReadOnlyList<bool> providerClrUdts)
+        {
+            if (kinds.Length != providerClrUdts.Count)
+            {
+                throw new ArgumentException("Column and provider metadata counts must match.", nameof(providerClrUdts));
+            }
+            for (int i = 0; i < kinds.Length; i++)
+            {
+                if (providerClrUdts[i] && kinds[i] == CellRead.Value)
+                {
+                    kinds[i] = CellRead.Binary;
+                }
+            }
+        }
+
+        /// <summary>
         /// System CLR UDTs surface db-qualified three-part type names
         /// ("master.sys.geometry"); bare names accepted defensively (legacy
         /// precedent: DbColumnWrapper matches ".sys.hierarchyid" by suffix).
