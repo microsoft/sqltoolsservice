@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlTypes;
 using Microsoft.SqlTools.Sts2.Abstractions;
 using Microsoft.SqlTools.Sts2.Drivers.SqlClient;
 using Xunit;
@@ -47,6 +48,21 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
             SqlLargeValueReader.CellRead[] negotiated = SqlLargeValueReader.ClassifyColumns(columns, vectorBinary: true);
             Assert.Equal(SqlLargeValueReader.CellRead.Vector, negotiated[0]);
             Assert.Equal(SqlLargeValueReader.CellRead.Value, negotiated[1]);
+        }
+
+        [Fact]
+        public void VectorConversionsHonorNegotiationContract()
+        {
+            var providerVector = new SqlVector<float>(new float[] { 1.5f, -2.5f, 3.25f });
+
+            string text = Assert.IsType<string>(SqlClientVectorValueReader.ConvertText(providerVector));
+            Assert.Equal(
+                new float[] { 1.5f, -2.5f, 3.25f },
+                System.Text.Json.JsonSerializer.Deserialize<float[]>(text));
+
+            DriverVectorUnavailableValue unavailable = Assert.IsType<DriverVectorUnavailableValue>(
+                SqlClientVectorValueReader.ConvertTyped("[1.5,-2.5,3.25]", maxCellBytes: 1024));
+            Assert.Equal("unsupportedBaseType", unavailable.Reason);
         }
 
         [Fact]
@@ -268,7 +284,7 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
         }
 
         [Fact]
-        public async Task ServerInfoFailureDisposesConnectionBeforeOwnershipTransfer()
+        public async Task UnexpectedServerInfoFailureIsStableAndDisposesConnection()
         {
             bool disposed = false;
             var driver = new SqlClientDriver(
@@ -280,12 +296,14 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
                     return connection.DisposeAsync();
                 });
 
-            await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            DbDriverException ex = await Assert.ThrowsAsync<DbDriverException>(() =>
                 driver.OpenAsync(
                     Request(new SecretMaterial { Kind = "integrated" }),
                     CancellationToken.None).AsTask());
 
             Assert.True(disposed);
+            Assert.Equal("Sts2.ConnectionFailed.Network", ex.Code);
+            Assert.Null(ex.InnerException);
         }
 
         [Fact]

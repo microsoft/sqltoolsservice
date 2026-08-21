@@ -249,6 +249,9 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
             // Let ExecuteReaderAsync enter the server WAITFOR before exercising the same two
             // cancellation signals used by DriverEffectRunner.
             await Task.Delay(250);
+            await session.CancelAsync("q-from-an-older-query", CancellationToken.None);
+            await Task.Delay(100);
+            Assert.False(consume.IsCompleted);
             cancellation.Cancel();
             await session.CancelAsync("q-cancel", CancellationToken.None);
 

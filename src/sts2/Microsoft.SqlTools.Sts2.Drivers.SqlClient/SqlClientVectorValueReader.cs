@@ -5,6 +5,7 @@
 
 using System;
 using System.Buffers.Binary;
+using System.Text.Json;
 using Microsoft.Data.SqlClient;
 using Microsoft.Data.SqlTypes;
 using Microsoft.SqlTools.Sts2.Abstractions;
@@ -16,21 +17,27 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
     /// <see cref="SqlVector{T}"/> into the provider-neutral
     /// <see cref="DriverVectorValue"/> — explicit little-endian IEEE 754
     /// component bytes, deterministic across platforms (never
-    /// MemoryMarshal without an endianness contract). Anything that is not a
-    /// float32 vector degrades honestly: a string passes through as the JSON
-    /// text representation; other provider values become
-    /// <see cref="DriverVectorUnavailableValue"/> sentinels — never a partial
+    /// MemoryMarshal without an endianness contract). The default path converts
+    /// provider vectors to invariant JSON-array text. Anything that cannot meet
+    /// the negotiated typed contract becomes a
+    /// <see cref="DriverVectorUnavailableValue"/> sentinel — never a partial
     /// vector, never a provider CLR type past the driver boundary.
     /// </summary>
     internal static class SqlClientVectorValueReader
     {
         /// <summary>Reads one non-null vector cell under SequentialAccess.</summary>
         internal static object Read(SqlDataReader reader, int ordinal, int maxCellBytes)
+            => ConvertTyped(ReadProviderValue(reader, ordinal), maxCellBytes);
+
+        /// <summary>Reads the default, non-negotiated JSON-text representation.</summary>
+        internal static object ReadText(SqlDataReader reader, int ordinal)
+            => ConvertText(ReadProviderValue(reader, ordinal));
+
+        private static object ReadProviderValue(SqlDataReader reader, int ordinal)
         {
-            object value;
             try
             {
-                value = reader.GetValue(ordinal);
+                return reader.GetValue(ordinal);
             }
             catch (InvalidOperationException)
             {
@@ -40,7 +47,10 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             {
                 return new DriverVectorUnavailableValue { Reason = "decodeFailed" };
             }
+        }
 
+        internal static object ConvertTyped(object value, int maxCellBytes)
+        {
             if (value is SqlVector<float> vector)
             {
                 if (vector.IsNull)
@@ -88,13 +98,40 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                 };
             }
 
-            // Not a float32 vector (for example a preview float16 base type whose
-            // provider representation differs): the JSON text representation is an
-            // honest fallback when the provider hands one over; anything else is a
-            // typed sentinel — v1 does not pretend to transport it.
+            // Once vectorBinary is negotiated, returning a plain string would
+            // violate the complete-or-unavailable typed contract.
+            return value is DriverVectorUnavailableValue unavailable
+                ? unavailable
+                : new DriverVectorUnavailableValue { Reason = "unsupportedBaseType" };
+        }
+
+        internal static object ConvertText(object value)
+        {
+            if (value is SqlVector<float> vector)
+            {
+                if (vector.IsNull)
+                {
+                    return DBNull.Value;
+                }
+                if (vector.Memory.Length != vector.Length)
+                {
+                    return new DriverVectorUnavailableValue
+                    {
+                        Dimensions = vector.Length,
+                        BaseType = "float32",
+                        Reason = "providerValueMismatch",
+                    };
+                }
+
+                // System.Text.Json uses invariant, round-trippable float output,
+                // producing the JSON array promised by the default vector contract.
+                return JsonSerializer.Serialize(vector.Memory.ToArray());
+            }
+
             return value switch
             {
                 string text => text,
+                DriverVectorUnavailableValue unavailable => unavailable,
                 _ => new DriverVectorUnavailableValue { Reason = "unsupportedBaseType" },
             };
         }

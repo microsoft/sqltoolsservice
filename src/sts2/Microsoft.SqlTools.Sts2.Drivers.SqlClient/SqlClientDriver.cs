@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.Sts2.Abstractions;
+using Microsoft.SqlTools.Sts2.Contracts;
 
 namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
 {
@@ -74,13 +75,23 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                     "Connection failed: " + ex.Message,
                     SqlClientErrorMapping.ServerDetail(ex));
             }
-            catch
+            catch (OperationCanceledException)
             {
                 // Ownership transfers to SqlClientSession only after server-info read.
-                // Every failure before that point, including cancellation and probe
-                // failures, must release the physical connection here.
+                // Cancellation keeps its standard identity after releasing the
+                // physical connection.
                 await DisposeFailedConnectionAsync(connection).ConfigureAwait(false);
                 throw;
+            }
+            catch (Exception)
+            {
+                // Keep provider/BCL implementation details behind the driver port.
+                // Runtime can now report a stable connection failure instead of
+                // converting an unexpected open/probe exception to Sts2.Internal.
+                await DisposeFailedConnectionAsync(connection).ConfigureAwait(false);
+                throw new DbDriverException(
+                    Sts2ErrorCodes.ConnectionFailedNetwork,
+                    "Connection failed.");
             }
         }
 

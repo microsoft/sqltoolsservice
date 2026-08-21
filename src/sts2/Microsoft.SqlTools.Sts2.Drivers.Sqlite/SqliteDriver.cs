@@ -30,6 +30,9 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
         {
             ArgumentNullException.ThrowIfNull(request);
 
+            SqliteOpenMode? requestedMode = ParseOption<SqliteOpenMode>(request, "mode");
+            SqliteCacheMode? requestedCache = ParseOption<SqliteCacheMode>(request, "cache");
+
             SqliteConnection? connection = null;
             try
             {
@@ -37,11 +40,11 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
                 {
                     DataSource = string.IsNullOrEmpty(request.Server) ? ":memory:" : request.Server,
                 };
-                if (request.Options.TryGetValue("mode", out string? mode) && Enum.TryParse(mode, ignoreCase: true, out SqliteOpenMode openMode))
+                if (requestedMode is SqliteOpenMode openMode)
                 {
                     builder.Mode = openMode;
                 }
-                if (request.Options.TryGetValue("cache", out string? cache) && Enum.TryParse(cache, ignoreCase: true, out SqliteCacheMode cacheMode))
+                if (requestedCache is SqliteCacheMode cacheMode)
                 {
                     builder.Cache = cacheMode;
                 }
@@ -92,5 +95,23 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
             14 => Sts2ErrorCodes.ConnectionFailedNetwork, // SQLITE_CANTOPEN
             _ => Sts2ErrorCodes.ConnectionFailedNetwork,
         };
+
+        private static TEnum? ParseOption<TEnum>(ConnectionOpenRequest request, string name)
+            where TEnum : struct, Enum
+        {
+            if (!request.Options.TryGetValue(name, out string? value))
+            {
+                return null;
+            }
+            if (Enum.TryParse(value, ignoreCase: true, out TEnum parsed)
+                && Enum.IsDefined(parsed))
+            {
+                return parsed;
+            }
+
+            throw new DbDriverException(
+                Sts2ErrorCodes.InvalidRequest,
+                $"Invalid Sqlite '{name}' option.");
+        }
     }
 }

@@ -204,6 +204,23 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
             Assert.Null(ex.InnerException);
         }
 
+        [Theory]
+        [InlineData("mode")]
+        [InlineData("cache")]
+        public async Task InvalidConnectionOptionIsRejected(string option)
+        {
+            ConnectionOpenRequest request = Request(":memory:") with
+            {
+                Options = new Dictionary<string, string> { [option] = "not-a-real-value" },
+            };
+
+            DbDriverException ex = await Assert.ThrowsAsync<DbDriverException>(
+                () => new SqliteDriver().OpenAsync(request, CancellationToken.None).AsTask());
+
+            Assert.Equal("Sts2.InvalidRequest", ex.Code);
+            Assert.Null(ex.InnerException);
+        }
+
         [Fact]
         public async Task FileBackedRoundTripsAcrossSessions()
         {
@@ -263,6 +280,9 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
             Task activeQuery = Task.Run(ConsumeLongQueryAsync);
             await started.Task.WaitAsync(TimeSpan.FromSeconds(5));
             await Task.Delay(100); // let the provider enter sqlite3_step
+            await session.CancelAsync("q-from-an-older-query", CancellationToken.None);
+            await Task.Delay(100);
+            Assert.False(activeQuery.IsCompleted);
             await session.CancelAsync("q-cancelled", CancellationToken.None);
             await Assert.ThrowsAnyAsync<OperationCanceledException>(async () =>
                 await activeQuery.WaitAsync(TimeSpan.FromSeconds(5)));
@@ -281,6 +301,9 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
             FieldInfo currentQueryCancel = session.GetType().GetField(
                 "currentQueryCancel",
                 BindingFlags.Instance | BindingFlags.NonPublic)!;
+            FieldInfo currentQueryId = session.GetType().GetField(
+                "currentQueryId",
+                BindingFlags.Instance | BindingFlags.NonPublic)!;
             IAsyncEnumerator<ExecEvent> enumerator = session.ExecuteAsync(
                 new QueryExecuteRequest { QueryId = "q-disposed", Sql = "select 1" },
                 CancellationToken.None).GetAsyncEnumerator();
@@ -288,9 +311,11 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
             Assert.True(await enumerator.MoveNextAsync());
             Assert.IsType<ExecStarted>(enumerator.Current);
             Assert.NotNull(currentQueryCancel.GetValue(session));
+            Assert.Equal("q-disposed", currentQueryId.GetValue(session));
             await enumerator.DisposeAsync();
 
             Assert.Null(currentQueryCancel.GetValue(session));
+            Assert.Null(currentQueryId.GetValue(session));
             List<ExecEvent> events = await ExecuteAsync(session, "select 2");
             Assert.IsType<ExecCompleted>(events[^1]);
         }
