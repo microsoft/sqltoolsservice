@@ -4,5 +4,6 @@
   </PropertyGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Microsoft.SqlTools.Sts2.Bootstrap" />
+    <InternalsVisibleTo Include="Microsoft.SqlTools.Sts2.UnitTests" />
   </ItemGroup>
 </Project>

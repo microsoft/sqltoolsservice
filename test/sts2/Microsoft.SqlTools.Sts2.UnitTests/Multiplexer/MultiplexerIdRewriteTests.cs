@@ -145,6 +145,21 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Multiplexer
         }
 
         [Fact]
+        public void ConsumingResponsePrunesAllExpiredEntries()
+        {
+            var clock = new ManualTimeProvider();
+            var table = new OutboundRequestIdTable(clock, TimeSpan.FromMinutes(5));
+            table.Register(ChannelKind.Legacy, "1");
+            table.Register(ChannelKind.Sts2, "2");
+            Assert.Equal(2, table.Count);
+
+            clock.Advance(TimeSpan.FromMinutes(6));
+
+            Assert.False(table.TryConsume("unknown-public-id", out _, out _));
+            Assert.Equal(0, table.Count);
+        }
+
+        [Fact]
         public async Task Sts2EntriesAreDroppedWhenChannelDies()
         {
             await using var h = new MuxHarness();
