@@ -217,6 +217,7 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
             DbDriverException ex = await Assert.ThrowsAsync<DbDriverException>(() => ExecuteAsync(session, "selct broken"));
             Assert.Equal("Sts2.QueryFailed.Server", ex.Code);
             Assert.NotNull(ex.Server);
+            Assert.Null(ex.InnerException);
         }
 
         [EngineFact]

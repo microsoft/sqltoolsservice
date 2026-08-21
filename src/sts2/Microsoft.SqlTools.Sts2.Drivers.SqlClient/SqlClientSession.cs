@@ -294,8 +294,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             return new DbDriverException(
                 SqlClientErrorMapping.ClassifyQuery(ex),
                 ex.Message,
-                SqlClientErrorMapping.ServerDetail(ex),
-                ex);
+                SqlClientErrorMapping.ServerDetail(ex));
         }
 
         private static void CancelCommand(SqlCommand command)

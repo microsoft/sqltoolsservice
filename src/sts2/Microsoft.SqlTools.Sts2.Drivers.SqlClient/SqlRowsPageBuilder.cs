@@ -85,7 +85,9 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
         {
             null => 4,
             string s => EstimateJsonStringBytes(s),
-            byte[] b => ((long)b.Length * 4 + 2) / 3 + 2,
+            // Runtime wire shape is {"$t":"binary","v":"..."}; include
+            // conservative wrapper overhead in addition to exact base64 size.
+            byte[] b => EstimateBase64Bytes(b.Length) + 32,
             bool => 5,
             Guid => 38,
             DateTime or DateTimeOffset => 36,
@@ -93,16 +95,19 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             decimal or double or float or long or int or short or byte => 20,
             char[] c => EstimateJsonStringBytes(c),
             // base64 of the component bytes + the fixed tag fields
-            Abstractions.DriverVectorValue v => ((long)v.ComponentBytes.Length * 4 + 2) / 3 + 128,
+            Abstractions.DriverVectorValue v => EstimateBase64Bytes(v.ComponentBytes.Length) + 128,
             // base64 WKB + typed spatial tag fields (D-0020)
-            Abstractions.DriverSpatialValue s => ((long)s.Wkb.Length * 4 + 2) / 3 + 128,
+            Abstractions.DriverSpatialValue s => EstimateBase64Bytes(s.Wkb.Length) + 128,
             Abstractions.DriverSpatialUnavailableValue => 192,
             // retained prefix (text verbatim, binary as base64) + wrapper facts
             Abstractions.DriverTruncatedValue t => t.Kind == "binary"
-                ? ((long)(t.PrefixBytes?.Length ?? 0) * 4 + 2) / 3 + 128
+                ? EstimateBase64Bytes(t.PrefixBytes?.Length ?? 0) + 128
                 : EstimateJsonStringBytes(t.PrefixText ?? string.Empty) + 126,
             _ => 24,
         };
+
+        private static long EstimateBase64Bytes(int byteLength) =>
+            ((long)byteLength + 2) / 3 * 4;
 
         private static long EstimateJsonStringBytes(ReadOnlySpan<char> value)
         {

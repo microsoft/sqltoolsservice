@@ -57,7 +57,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
             {
                 await connection.DisposeAsync().ConfigureAwait(false);
                 throw new DbDriverException(ClassifyOpen(ex), "Failed to open Sqlite database: " + ex.Message,
-                    new ServerErrorDetail { Number = ex.SqliteErrorCode, Severity = 16, State = 1 }, ex);
+                    new ServerErrorDetail { Number = ex.SqliteErrorCode, Severity = 16, State = 1 });
             }
 
             return new SqliteSession(connection, new ServerInfo
