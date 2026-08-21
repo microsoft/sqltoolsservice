@@ -274,11 +274,15 @@ namespace Microsoft.SqlTools.Sts2.Hosting
         private void ObserveComponent(Task completion, string name)
         {
             _ = completion.ContinueWith(
-                t => EnterFatal(name + " faulted: " + (t.Exception?.GetBaseException().Message ?? "unknown")),
+                t => EnterFatal(RedactedFailureReason(name, t.Exception)),
                 CancellationToken.None,
                 TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously,
                 TaskScheduler.Default);
         }
+
+        /// <summary>Stable client-visible component failure text with no exception message data.</summary>
+        internal static string RedactedFailureReason(string component, Exception? exception) =>
+            component + " faulted: " + (exception?.GetBaseException().GetType().Name ?? "unknown");
 
         /// <summary>
         /// Enters fatal containment exactly once: records the reason, fails every pending
