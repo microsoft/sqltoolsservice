@@ -16,9 +16,13 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Multiplexer
     /// SPEC §6.3 / I13: server-initiated request ids are rewritten to globally unique
     /// public ids; responses are restored to the exact original id representation.
     /// </summary>
-    public class MultiplexerIdRewriteTests
+    public class MultiplexerIdRewriteTests : IDisposable
     {
-        private static CancellationToken TestTimeout => new CancellationTokenSource(TimeSpan.FromSeconds(10)).Token;
+        private readonly CancellationTokenSource testTimeoutSource = new(TimeSpan.FromSeconds(10));
+
+        private CancellationToken TestTimeout => testTimeoutSource.Token;
+
+        public void Dispose() => testTimeoutSource.Dispose();
 
         private static (string PublicId, JsonElement Root) ParseRequest(string frameJson)
         {

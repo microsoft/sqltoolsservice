@@ -14,9 +14,13 @@ using Xunit;
 namespace Microsoft.SqlTools.Sts2.UnitTests.Multiplexer
 {
     /// <summary>SPEC §6.5: STS2 death must not take legacy traffic down with it.</summary>
-    public class MultiplexerContainmentTests
+    public class MultiplexerContainmentTests : IDisposable
     {
-        private static CancellationToken TestTimeout => new CancellationTokenSource(TimeSpan.FromSeconds(10)).Token;
+        private readonly CancellationTokenSource testTimeoutSource = new(TimeSpan.FromSeconds(10));
+
+        private CancellationToken TestTimeout => testTimeoutSource.Token;
+
+        public void Dispose() => testTimeoutSource.Dispose();
 
         [Fact]
         public async Task MarkSts2DeadEmitsFatalNotificationOnce()
@@ -72,6 +76,9 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Multiplexer
             h.Mux.MarkSts2Dead("dead");
             await h.StdoutFrameAsync(TestTimeout); // drain v2/fatal
 
+            await Assert.ThrowsAnyAsync<InvalidOperationException>(
+                () => h.Sts2SendsAsync("""{"jsonrpc":"2.0","method":"v2/after-death"}""", TestTimeout));
+
             await h.ClientSendsAsync("""{"jsonrpc":"2.0","id":10,"method":"connection/connect"}""", TestTimeout);
             Assert.Contains("connection/connect", await h.LegacyReceivesAsync(TestTimeout));
 
@@ -96,6 +103,24 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Multiplexer
                     && diagnostic.Message.Contains(expectedStatus, StringComparison.Ordinal));
 
             await h.LegacySendsAsync("""{"jsonrpc":"2.0","id":11,"result":"still alive"}""", TestTimeout);
+            Assert.Contains("still alive", await h.StdoutFrameAsync(TestTimeout));
+        }
+
+        [Fact]
+        public async Task UnmaterializableOutboundFrameFailsSts2Cleanly()
+        {
+            await using var h = new MuxHarness(new MultiplexerOptions { MaxFrameBytes = int.MaxValue });
+            const string header = "Content-Length: 2147483647\r\n\r\n";
+
+            await h.Mux.Sts2Output.WriteAsync(Encoding.ASCII.GetBytes(header), TestTimeout);
+            await h.Mux.Sts2Output.FlushAsync(TestTimeout);
+
+            JsonElement fatal = JsonDocument.Parse(await h.StdoutFrameAsync(TestTimeout)).RootElement;
+            Assert.Equal("v2/fatal", fatal.GetProperty("method").GetString());
+            Assert.Contains("FrameTooLarge", fatal.GetProperty("params").GetProperty("summary").GetString());
+            Assert.DoesNotContain("2147483647", fatal.GetProperty("params").GetProperty("summary").GetString());
+
+            await h.LegacySendsAsync("""{"jsonrpc":"2.0","id":12,"result":"still alive"}""", TestTimeout);
             Assert.Contains("still alive", await h.StdoutFrameAsync(TestTimeout));
         }
     }

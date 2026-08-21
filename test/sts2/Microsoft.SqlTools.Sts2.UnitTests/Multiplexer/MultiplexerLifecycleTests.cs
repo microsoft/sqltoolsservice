@@ -16,9 +16,13 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Multiplexer
     /// SPEC §6.2 / I14: shutdown and exit are lifecycle-mirrored to STS2, never
     /// raw-broadcast, and exit waits (bounded) for the STS2 journal flush.
     /// </summary>
-    public class MultiplexerLifecycleTests
+    public class MultiplexerLifecycleTests : IDisposable
     {
-        private static CancellationToken TestTimeout => new CancellationTokenSource(TimeSpan.FromSeconds(10)).Token;
+        private readonly CancellationTokenSource testTimeoutSource = new(TimeSpan.FromSeconds(10));
+
+        private CancellationToken TestTimeout => testTimeoutSource.Token;
+
+        public void Dispose() => testTimeoutSource.Dispose();
 
         [Fact]
         public async Task ShutdownRoutesRawToLegacyAndMirrorsToSink()
@@ -128,6 +132,39 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Multiplexer
             h.ClientClosesStdin();
             await Assert.ThrowsAsync<System.IO.EndOfStreamException>(() => h.LegacyReceivesAsync(TestTimeout));
             await Assert.ThrowsAsync<System.IO.EndOfStreamException>(() => h.Sts2ReceivesAsync(TestTimeout));
+        }
+
+        [Fact]
+        public async Task DisposalDuringLifecycleFlushIsNotReportedAsTimeout()
+        {
+            var sink = new TestLifecycleSink { CompleteFlushImmediately = false };
+            var h = new MuxHarness(
+                new MultiplexerOptions { ExitFlushMilliseconds = 30_000 },
+                lifecycleSink: sink);
+
+            await h.ClientSendsAsync("""{"jsonrpc":"2.0","method":"exit"}""", TestTimeout);
+            Assert.True(SpinWait.SpinUntil(() => Volatile.Read(ref sink.ExitCalls) == 1, 1_000));
+
+            await h.DisposeAsync();
+
+            Assert.DoesNotContain(h.Diagnostics, d => d.Code == MultiplexerDiagnosticCodes.LifecycleSinkError);
+        }
+
+        [Fact]
+        public async Task LifecycleFailureDiagnosticDoesNotExposeExceptionMessage()
+        {
+            const string privateMessage = "private SQL text: select secret";
+            var sink = new TestLifecycleSink { Failure = new InvalidOperationException(privateMessage) };
+            await using var h = new MuxHarness(lifecycleSink: sink);
+
+            await h.ClientSendsAsync("""{"jsonrpc":"2.0","id":1,"method":"shutdown"}""", TestTimeout);
+            Assert.Contains("shutdown", await h.LegacyReceivesAsync(TestTimeout));
+
+            MultiplexerDiagnostic diagnostic = Assert.Single(
+                h.Diagnostics,
+                d => d.Code == MultiplexerDiagnosticCodes.LifecycleSinkError);
+            Assert.Contains(nameof(InvalidOperationException), diagnostic.Message, StringComparison.Ordinal);
+            Assert.DoesNotContain(privateMessage, diagnostic.Message, StringComparison.Ordinal);
         }
     }
 }

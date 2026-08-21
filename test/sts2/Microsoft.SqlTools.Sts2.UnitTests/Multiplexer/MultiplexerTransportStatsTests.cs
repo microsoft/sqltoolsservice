@@ -13,9 +13,13 @@ using Xunit;
 
 namespace Microsoft.SqlTools.Sts2.UnitTests.Multiplexer
 {
-    public class MultiplexerTransportStatsTests
+    public class MultiplexerTransportStatsTests : IDisposable
     {
-        private static CancellationToken TestTimeout => new CancellationTokenSource(System.TimeSpan.FromSeconds(10)).Token;
+        private readonly CancellationTokenSource testTimeoutSource = new(TimeSpan.FromSeconds(10));
+
+        private CancellationToken TestTimeout => testTimeoutSource.Token;
+
+        public void Dispose() => testTimeoutSource.Dispose();
 
         [Fact]
         public async Task DisposalEmitsContentFreeAggregateTransportStats()
