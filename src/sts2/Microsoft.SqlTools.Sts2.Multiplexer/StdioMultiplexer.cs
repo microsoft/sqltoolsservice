@@ -601,16 +601,41 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
         }
 
         /// <summary>
-        /// Returns the payload with its top-level id replaced. Full deserialization is
-        /// acceptable here: this runs only for server-initiated requests and their
-        /// responses, never on the routing hot path.
+        /// Returns the payload with its top-level id replaced. This runs only for
+        /// server-initiated requests and their responses, never on the routing hot path.
+        /// A restored id is written as raw JSON so its exact original token spelling
+        /// survives (SPEC §6.3), including string escapes and numeric notation.
         /// </summary>
         private static byte[] ReplaceId(ReadOnlySpan<byte> payload, string newId, bool asRawJson)
         {
-            var readerForNode = new Utf8JsonReader(payload);
-            JsonNode node = JsonNode.Parse(ref readerForNode)!;
-            node["id"] = asRawJson ? JsonNode.Parse(newId) : JsonValue.Create(newId);
-            return JsonSerializer.SerializeToUtf8Bytes(node);
+            var reader = new Utf8JsonReader(payload);
+            using JsonDocument document = JsonDocument.ParseValue(ref reader);
+            var buffer = new ArrayBufferWriter<byte>(payload.Length + 32);
+            using (var writer = new Utf8JsonWriter(buffer))
+            {
+                writer.WriteStartObject();
+                foreach (JsonProperty property in document.RootElement.EnumerateObject())
+                {
+                    writer.WritePropertyName(property.Name);
+                    if (property.NameEquals("id"))
+                    {
+                        if (asRawJson)
+                        {
+                            writer.WriteRawValue(newId, skipInputValidation: false);
+                        }
+                        else
+                        {
+                            writer.WriteStringValue(newId);
+                        }
+                    }
+                    else
+                    {
+                        property.Value.WriteTo(writer);
+                    }
+                }
+                writer.WriteEndObject();
+            }
+            return buffer.WrittenSpan.ToArray();
         }
 
         private async Task SynthesizeUnavailableErrorAsync(string idRawJson, CancellationToken ct)

@@ -106,6 +106,26 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Multiplexer
             Assert.Equal("req-abc", restored.GetProperty("id").GetString());
         }
 
+        [Theory]
+        [InlineData("1e0")]
+        [InlineData("1.0")]
+        [InlineData("\"\\u0061\"")]
+        public async Task OriginalIdTokenSpellingIsRestoredExactly(string originalIdJson)
+        {
+            await using var h = new MuxHarness();
+            await h.LegacySendsAsync(
+                "{\"jsonrpc\":\"2.0\",\"id\":" + originalIdJson + ",\"method\":\"client/registerCapability\"}",
+                TestTimeout);
+            (string publicId, _) = ParseRequest(await h.StdoutFrameAsync(TestTimeout));
+
+            await h.ClientSendsAsync(
+                "{\"jsonrpc\":\"2.0\",\"id\":\"" + publicId + "\",\"result\":null}",
+                TestTimeout);
+            string restored = await h.LegacyReceivesAsync(TestTimeout);
+
+            Assert.Contains("\"id\":" + originalIdJson + ",", restored, StringComparison.Ordinal);
+        }
+
         [Fact]
         public async Task DuplicateResponseGoesToLegacyWithDiagnostic()
         {
