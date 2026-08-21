@@ -26,7 +26,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             {
                 sourceBytes = reader.GetBytes(ordinal, 0, null, 0, 0);
             }
-            catch
+            catch (Exception ex) when (IsExpectedConversionFailure(ex))
             {
                 return Unavailable(kind, "unsupportedNativeValue");
             }
@@ -74,17 +74,34 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                     return Unavailable(kind, "unsupportedNativeValue", sourceBytes: sourceBytes);
                 }
 
-                if (wkb.Length < 5 || (maxCellBytes > 0 && wkb.Length > maxCellBytes))
+                string? unavailableReason = WkbUnavailableReason(wkb.Length, maxCellBytes);
+                if (unavailableReason is not null)
                 {
-                    return Unavailable(kind, "maxCellBytes", srid, sourceBytes);
+                    return Unavailable(kind, unavailableReason, srid, sourceBytes);
                 }
                 return new DriverSpatialValue { Kind = kind, Srid = srid, Wkb = wkb };
             }
-            catch
+            catch (Exception ex) when (IsExpectedConversionFailure(ex))
             {
                 return Unavailable(kind, "conversionFailed", sourceBytes: sourceBytes);
             }
         }
+
+        private static bool IsExpectedConversionFailure(Exception ex) => ex is
+            ArgumentException or
+            FormatException or
+            InvalidCastException or
+            InvalidOperationException or
+            NotSupportedException or
+            OverflowException or
+            SqlTypeException;
+
+        internal static string? WkbUnavailableReason(int wkbLength, int maxCellBytes) =>
+            wkbLength < 5
+                ? "conversionFailed"
+                : maxCellBytes > 0 && wkbLength > maxCellBytes
+                    ? "maxCellBytes"
+                    : null;
 
         private static DriverSpatialUnavailableValue Unavailable(
             string kind,

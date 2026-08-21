@@ -38,23 +38,15 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
 
             yield return new ExecStarted(request.QueryId);
 
-            SqlCommand command = connection.CreateCommand();
+            await using SqlCommand command = connection.CreateCommand();
             command.CommandText = request.Sql;
             if (request.QueryTimeoutMs > 0)
             {
-                command.CommandTimeout = Math.Max(1, request.QueryTimeoutMs / 1000);
+                command.CommandTimeout = SqlClientConnectionString.ToProviderSeconds(request.QueryTimeoutMs);
             }
             // Publish the command atomically for the provider-level CancelAsync path. A cancel
             // can arrive after the query pump is registered but before ExecuteReaderAsync starts.
             Volatile.Write(ref activeCommand, command);
-            // Also bind the pump token directly to the command. Register invokes immediately
-            // when the token was already canceled, which closes the registration/publication
-            // race that otherwise lets a just-starting WAITFOR run to completion.
-            using CancellationTokenRegistration cancelRegistration = cancellationToken.Register(
-                static state => CancelCommand((SqlCommand)state!),
-                command);
-            cancellationToken.ThrowIfCancellationRequested();
-
             // Info-class engine messages (PRINT, RAISERROR severity <= 10, DBCC output)
             // are raised on InfoMessage while the reader pumps the TDS stream (SPEC §10.2:
             // map info messages to ServerMessage). Text passes through verbatim. Queue and
@@ -69,15 +61,22 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                         error.LineNumber > 0 ? error.LineNumber : null));
                 }
             };
-            connection.InfoMessage += onInfoMessage;
-
             // Clear activeCommand in finally so a faulted reader/row read never leaves it
             // pointing at a disposed command (R035). The finally runs when the enumerator is
             // disposed — on completion, break, or exception. The InfoMessage unsubscribe
             // rides the same finally (SPEC §10.2: event handlers unsubscribed).
             try
             {
-                await using (command.ConfigureAwait(false))
+                // Bind the pump token directly to the command. Register invokes immediately
+                // when the token was already canceled. Command ownership and activeCommand
+                // cleanup already surround this path, including that immediate callback.
+                using CancellationTokenRegistration cancelRegistration = cancellationToken.Register(
+                    static state => CancelCommand((SqlCommand)state!),
+                    command);
+                cancellationToken.ThrowIfCancellationRequested();
+
+                connection.InfoMessage += onInfoMessage;
+                try
                 {
                     SqlDataReader reader = await OpenReaderAsync(command, cancellationToken).ConfigureAwait(false);
                     await using (reader.ConfigureAwait(false))
@@ -119,10 +118,13 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                             connection.Database);
                     }
                 }
+                finally
+                {
+                    connection.InfoMessage -= onInfoMessage;
+                }
             }
             finally
             {
-                connection.InfoMessage -= onInfoMessage;
                 Volatile.Write(ref activeCommand, null);
             }
         }
@@ -138,8 +140,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             }
             catch (SqlException ex)
             {
-                cancellationToken.ThrowIfCancellationRequested();
-                throw new DbDriverException(Sts2ErrorCodes.QueryFailedServer, ex.Message, SqlClientErrorMapping.ServerDetail(ex), ex);
+                throw ClassifyQueryFailure(ex, cancellationToken);
             }
         }
 
@@ -151,8 +152,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             }
             catch (SqlException ex)
             {
-                cancellationToken.ThrowIfCancellationRequested();
-                throw new DbDriverException(Sts2ErrorCodes.QueryFailedServer, ex.Message, SqlClientErrorMapping.ServerDetail(ex), ex);
+                throw ClassifyQueryFailure(ex, cancellationToken);
             }
         }
 
@@ -160,7 +160,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
         private static async IAsyncEnumerable<ExecEvent> PumpResultSetAsync(
             SqlDataReader reader, int resultSetId, int pageRows, int pageBytes, int maxCellBytes, bool vectorBinary, bool spatialWkb, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            var columns = await ReadColumnsAsync(reader, spatialWkb).ConfigureAwait(false);
+            var columns = await ReadColumnsAsync(reader, spatialWkb, cancellationToken).ConfigureAwait(false);
             // QO-4: MAX-typed columns stream under SequentialAccess — bounded
             // prefix + streaming digest/byte count, never full materialization.
             // D-0018/D-0019: vector and CLR UDT columns route to dedicated reads.
@@ -175,6 +175,74 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             var builder = new SqlRowsPageBuilder(pageRows, pageBytes);
 
             while (await ReadRowAsync(reader, cancellationToken).ConfigureAwait(false))
+            {
+                object?[] cells = ReadCells(
+                    reader,
+                    readKinds,
+                    columns,
+                    maxCellBytes,
+                    cancellationToken);
+                rowCount++;
+                foreach (IReadOnlyList<IReadOnlyList<object?>> page in builder.Add(cells))
+                {
+                    yield return new RowsPage(resultSetId, pageSeq, rowOffset, page);
+                    rowOffset += page.Count;
+                    pageSeq++;
+                }
+            }
+
+            IReadOnlyList<IReadOnlyList<object?>>? tail = builder.Flush();
+            if (tail is not null)
+            {
+                yield return new RowsPage(resultSetId, pageSeq, rowOffset, tail);
+            }
+            yield return new ResultSetCompleted(resultSetId, rowCount);
+        }
+
+        private static async Task<IReadOnlyList<ColumnInfo>> ReadColumnsAsync(
+            SqlDataReader reader,
+            bool spatialWkb,
+            CancellationToken cancellationToken)
+        {
+            try
+            {
+                var columns = new List<ColumnInfo>(reader.FieldCount);
+                System.Collections.ObjectModel.ReadOnlyCollection<System.Data.Common.DbColumn> schema =
+                    await reader.GetColumnSchemaAsync().ConfigureAwait(false);
+                for (int i = 0; i < reader.FieldCount; i++)
+                {
+                    var column = schema[i];
+                    string engineType = column.DataTypeName ?? reader.GetDataTypeName(i);
+                    string? spatialKind = spatialWkb ? SqlLargeValueReader.SpatialKind(engineType) : null;
+                    columns.Add(new ColumnInfo
+                    {
+                        Name = column.ColumnName ?? reader.GetName(i),
+                        EngineType = engineType,
+                        Nullable = column.AllowDBNull,
+                        Precision = column.NumericPrecision,
+                        Scale = column.NumericScale,
+                        Length = column.ColumnSize,
+                        Collation = null,
+                        SpatialKind = spatialKind,
+                        SpatialEncoding = spatialKind is null ? null : "wkb-v1",
+                    });
+                }
+                return columns;
+            }
+            catch (SqlException ex)
+            {
+                throw ClassifyQueryFailure(ex, cancellationToken);
+            }
+        }
+
+        private static object?[] ReadCells(
+            SqlDataReader reader,
+            IReadOnlyList<SqlLargeValueReader.CellRead> readKinds,
+            IReadOnlyList<ColumnInfo> columns,
+            int maxCellBytes,
+            CancellationToken cancellationToken)
+        {
+            try
             {
                 var cells = new object?[reader.FieldCount];
                 for (int i = 0; i < reader.FieldCount; i++)
@@ -198,47 +266,12 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                             _ => reader.GetValue(i),
                         };
                 }
-                rowCount++;
-                foreach (IReadOnlyList<IReadOnlyList<object?>> page in builder.Add(cells))
-                {
-                    yield return new RowsPage(resultSetId, pageSeq, rowOffset, page);
-                    rowOffset += page.Count;
-                    pageSeq++;
-                }
+                return cells;
             }
-
-            IReadOnlyList<IReadOnlyList<object?>>? tail = builder.Flush();
-            if (tail is not null)
+            catch (SqlException ex)
             {
-                yield return new RowsPage(resultSetId, pageSeq, rowOffset, tail);
+                throw ClassifyQueryFailure(ex, cancellationToken);
             }
-            yield return new ResultSetCompleted(resultSetId, rowCount);
-        }
-
-        private static async Task<IReadOnlyList<ColumnInfo>> ReadColumnsAsync(SqlDataReader reader, bool spatialWkb)
-        {
-            var columns = new List<ColumnInfo>(reader.FieldCount);
-            System.Collections.ObjectModel.ReadOnlyCollection<System.Data.Common.DbColumn> schema =
-                await reader.GetColumnSchemaAsync().ConfigureAwait(false);
-            for (int i = 0; i < reader.FieldCount; i++)
-            {
-                var column = schema[i];
-                string engineType = column.DataTypeName ?? reader.GetDataTypeName(i);
-                string? spatialKind = spatialWkb ? SqlLargeValueReader.SpatialKind(engineType) : null;
-                columns.Add(new ColumnInfo
-                {
-                    Name = column.ColumnName,
-                    EngineType = engineType,
-                    Nullable = column.AllowDBNull,
-                    Precision = column.NumericPrecision,
-                    Scale = column.NumericScale,
-                    Length = column.ColumnSize,
-                    Collation = null,
-                    SpatialKind = spatialKind,
-                    SpatialEncoding = spatialKind is null ? null : "wkb-v1",
-                });
-            }
-            return columns;
         }
 
         private static async Task<bool> ReadRowAsync(SqlDataReader reader, CancellationToken cancellationToken)
@@ -249,9 +282,20 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             }
             catch (SqlException ex)
             {
-                cancellationToken.ThrowIfCancellationRequested();
-                throw new DbDriverException(Sts2ErrorCodes.QueryFailedServer, ex.Message, SqlClientErrorMapping.ServerDetail(ex), ex);
+                throw ClassifyQueryFailure(ex, cancellationToken);
             }
+        }
+
+        private static DbDriverException ClassifyQueryFailure(
+            SqlException ex,
+            CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            return new DbDriverException(
+                SqlClientErrorMapping.ClassifyQuery(ex),
+                ex.Message,
+                SqlClientErrorMapping.ServerDetail(ex),
+                ex);
         }
 
         private static void CancelCommand(SqlCommand command)

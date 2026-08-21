@@ -6,11 +6,13 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
 using Microsoft.SqlTools.Sts2.Abstractions;
 using Microsoft.SqlTools.Sts2.Contracts;
+using SQLitePCL;
 
 namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
 {
@@ -34,6 +36,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
         {
             ArgumentNullException.ThrowIfNull(request);
             int pageRows = request.PageRows > 0 ? request.PageRows : Sts2Defaults.PageRows;
+            int pageBytes = request.PageBytes > 0 ? request.PageBytes : Sts2Defaults.PageBytes;
 
             // A FRESH per-query cancellation source: cancelling one query must never stick to
             // the next (the old session-wide CTS made every query after a cancel insta-cancel — R016).
@@ -42,7 +45,10 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
             {
                 currentQueryCancel = queryCancel;
             }
-            using CancellationTokenSource linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, queryCancel.Token);
+            using CancellationTokenSource linked = CreateQueryCancellationSource(
+                cancellationToken,
+                queryCancel.Token,
+                request.QueryTimeoutMs);
 
             yield return new ExecStarted(request.QueryId);
 
@@ -50,6 +56,10 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
             {
                 await using SqliteCommand command = connection.CreateCommand();
                 command.CommandText = request.Sql;
+                using CancellationTokenRegistration cancelRegistration = linked.Token.Register(
+                    static state => InterruptConnection((SqliteConnection)state!),
+                    connection);
+                linked.Token.ThrowIfCancellationRequested();
 
                 SqliteDataReader reader;
                 try
@@ -58,6 +68,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
                 }
                 catch (SqliteException ex)
                 {
+                    linked.Token.ThrowIfCancellationRequested();
                     throw Classify(ex);
                 }
 
@@ -70,7 +81,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
                     {
                         if (reader.FieldCount > 0)
                         {
-                            await foreach (ExecEvent execEvent in PumpResultSetAsync(reader, resultSetId, pageRows, linked.Token).ConfigureAwait(false))
+                            await foreach (ExecEvent execEvent in PumpResultSetAsync(reader, resultSetId, pageRows, pageBytes, linked.Token).ConfigureAwait(false))
                             {
                                 yield return execEvent;
                             }
@@ -107,7 +118,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
         /// the iterator can yield each page outside any try/catch (which C# forbids combining).
         /// </summary>
         private static async IAsyncEnumerable<ExecEvent> PumpResultSetAsync(
-            SqliteDataReader reader, int resultSetId, int pageRows, [EnumeratorCancellation] CancellationToken cancellationToken)
+            SqliteDataReader reader, int resultSetId, int pageRows, int pageBytes, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             var columns = new List<ColumnInfo>(reader.FieldCount);
             for (int i = 0; i < reader.FieldCount; i++)
@@ -125,6 +136,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
             long rowOffset = 0;
             long rowCount = 0;
             var page = new List<IReadOnlyList<object?>>(pageRows);
+            long approximatePageBytes = 0;
 
             while (true)
             {
@@ -133,15 +145,26 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
                 {
                     break;
                 }
-                page.Add(cells);
-                rowCount++;
-
-                if (page.Count >= pageRows)
+                long rowBytes = EstimateRowBytes(cells);
+                if (page.Count > 0 && approximatePageBytes + rowBytes > pageBytes)
                 {
                     yield return new RowsPage(resultSetId, pageSeq, rowOffset, page);
                     rowOffset += page.Count;
                     pageSeq++;
                     page = new List<IReadOnlyList<object?>>(pageRows);
+                    approximatePageBytes = 0;
+                }
+                page.Add(cells);
+                approximatePageBytes += rowBytes;
+                rowCount++;
+
+                if (page.Count >= pageRows || approximatePageBytes >= pageBytes)
+                {
+                    yield return new RowsPage(resultSetId, pageSeq, rowOffset, page);
+                    rowOffset += page.Count;
+                    pageSeq++;
+                    page = new List<IReadOnlyList<object?>>(pageRows);
+                    approximatePageBytes = 0;
                 }
             }
 
@@ -150,6 +173,33 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
                 yield return new RowsPage(resultSetId, pageSeq, rowOffset, page);
             }
             yield return new ResultSetCompleted(resultSetId, rowCount);
+        }
+
+        private static long EstimateRowBytes(IReadOnlyList<object?> cells)
+        {
+            long total = 2;
+            foreach (object? cell in cells)
+            {
+                total += 1 + (cell switch
+                {
+                    null => 4,
+                    string value => EstimateJsonStringBytes(value),
+                    byte[] value => ((long)value.Length * 4 + 2) / 3 + 2,
+                    long or double => 24,
+                    _ => 24,
+                });
+            }
+            return total;
+        }
+
+        private static long EstimateJsonStringBytes(ReadOnlySpan<char> value)
+        {
+            long total = 2;
+            foreach (char c in value)
+            {
+                total += c < 128 && !JavaScriptEncoder.Default.WillEncode(c) ? 1 : 6;
+            }
+            return total;
         }
 
         /// <summary>Reads one row's cells, or null at end of result set. Classifies Sqlite faults.</summary>
@@ -170,6 +220,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
             }
             catch (SqliteException ex)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 throw Classify(ex);
             }
         }
@@ -182,6 +233,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
             }
             catch (SqliteException ex)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 throw Classify(ex);
             }
         }
@@ -209,6 +261,36 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
                 Type t when t == typeof(byte[]) => reader.GetValue(ordinal),
                 _ => reader.GetValue(ordinal),
             };
+        }
+
+        private static void InterruptConnection(SqliteConnection connection)
+        {
+            try
+            {
+                // Microsoft.Data.Sqlite.SqliteCommand.Cancel is documented as a no-op.
+                // sqlite3_interrupt is the provider-supported, thread-safe way to abort
+                // a native query from the timeout/cancel callback.
+                raw.sqlite3_interrupt(connection.Handle);
+            }
+            catch (InvalidOperationException)
+            {
+                // Connection already closed/disposed.
+            }
+        }
+
+        private static CancellationTokenSource CreateQueryCancellationSource(
+            CancellationToken pumpCancellation,
+            CancellationToken explicitQueryCancellation,
+            int queryTimeoutMs)
+        {
+            CancellationTokenSource linked = CancellationTokenSource.CreateLinkedTokenSource(
+                pumpCancellation,
+                explicitQueryCancellation);
+            if (queryTimeoutMs > 0)
+            {
+                linked.CancelAfter(queryTimeoutMs);
+            }
+            return linked;
         }
 
         public ValueTask CancelAsync(string queryId, CancellationToken cancellationToken)

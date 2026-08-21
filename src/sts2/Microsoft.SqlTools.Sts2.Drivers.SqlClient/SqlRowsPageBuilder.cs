@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text.Encodings.Web;
 
 namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
 {
@@ -74,8 +75,8 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
 
         /// <summary>
         /// Cheap per-cell wire-size approximation — no allocation, no encoding
-        /// pass. Strings count UTF-16 char length (exact for ASCII, low for
-        /// multibyte); binary counts base64 expansion. Typed vector cells and
+        /// pass. Strings count their UTF-8 bytes plus JSON escaping; binary
+        /// counts base64 expansion. Typed vector cells and
         /// driver-truncated values estimate their real encoded size (D-0019) —
         /// the generic 24-byte fallback would under-count a 1,536-dimension
         /// vector (~8.3 KB encoded) by ~340x and defeat the page byte bound.
@@ -83,14 +84,14 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
         public static long EstimateCellBytes(object? cell) => cell switch
         {
             null => 4,
-            string s => s.Length + 2,
+            string s => EstimateJsonStringBytes(s),
             byte[] b => ((long)b.Length * 4 + 2) / 3 + 2,
             bool => 5,
             Guid => 38,
             DateTime or DateTimeOffset => 36,
             TimeSpan => 20,
             decimal or double or float or long or int or short or byte => 20,
-            char[] c => c.Length + 2,
+            char[] c => EstimateJsonStringBytes(c),
             // base64 of the component bytes + the fixed tag fields
             Abstractions.DriverVectorValue v => ((long)v.ComponentBytes.Length * 4 + 2) / 3 + 128,
             // base64 WKB + typed spatial tag fields (D-0020)
@@ -99,8 +100,21 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             // retained prefix (text verbatim, binary as base64) + wrapper facts
             Abstractions.DriverTruncatedValue t => t.Kind == "binary"
                 ? ((long)(t.PrefixBytes?.Length ?? 0) * 4 + 2) / 3 + 128
-                : (t.PrefixText?.Length ?? 0) + 128,
+                : EstimateJsonStringBytes(t.PrefixText ?? string.Empty) + 126,
             _ => 24,
         };
+
+        private static long EstimateJsonStringBytes(ReadOnlySpan<char> value)
+        {
+            long total = 2; // JSON quotes
+            foreach (char c in value)
+            {
+                // Match System.Text.Json's default encoder. Allowed Basic Latin
+                // is one byte; every other UTF-16 code unit is safely bounded by
+                // one six-byte \\uXXXX escape (astral scalars use two units).
+                total += c < 128 && !JavaScriptEncoder.Default.WillEncode(c) ? 1 : 6;
+            }
+            return total;
+        }
     }
 }

@@ -5,6 +5,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using Microsoft.SqlTools.Sts2.Drivers.SqlClient;
 using Xunit;
 
@@ -106,6 +107,21 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
             Assert.True(SqlRowsPageBuilder.EstimateCellBytes(System.Guid.NewGuid()) >= 36);
             Assert.True(SqlRowsPageBuilder.EstimateCellBytes(123.45m) > 0);
             Assert.True(SqlRowsPageBuilder.EstimateCellBytes(new object()) > 0);
+        }
+
+        [Theory]
+        [InlineData("plain ASCII")]
+        [InlineData("caf\u00e9")]
+        [InlineData("emoji \ud83d\ude00")]
+        [InlineData("quote \" slash \\")]
+        [InlineData("control\u0001")]
+        [InlineData("<script>&")]
+        public void StringEstimateBoundsDefaultJsonEncoding(string value)
+        {
+            int encodedBytes = JsonSerializer.SerializeToUtf8Bytes(value).Length;
+            Assert.True(
+                SqlRowsPageBuilder.EstimateCellBytes(value) >= encodedBytes,
+                $"estimate was below the {encodedBytes}-byte JSON encoding");
         }
     }
 }

@@ -12,7 +12,6 @@ using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.Sts2.Abstractions;
 using Microsoft.SqlTools.Sts2.Drivers.SqlClient;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
 {
@@ -25,13 +24,6 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
     [Trait("Category", "Engine")]
     public sealed class SqlClientEngineTests
     {
-        private readonly ITestOutputHelper output;
-
-        public SqlClientEngineTests(ITestOutputHelper output)
-        {
-            this.output = output;
-        }
-
         private static ConnectionOpenRequest OpenRequest()
         {
             var builder = new SqlConnectionStringBuilder(SqlServerProbe.ConnectionString);
@@ -78,26 +70,18 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
             return events;
         }
 
-        [Fact]
+        [EngineFact]
         public async Task OpensAndReportsTsqlServerInfo()
         {
-            if (!EngineGate.ShouldRun(output))
-            {
-                return;
-            }
             var driver = new SqlClientDriver();
             await using IDbSession session = await driver.OpenAsync(OpenRequest(), CancellationToken.None);
             Assert.Equal("Microsoft SQL Server", session.Server.Product);
             Assert.Equal("tsql", session.Server.Dialect);
         }
 
-        [Fact]
+        [EngineFact]
         public async Task TypeEncodingMatrixOverRealEngine()
         {
-            if (!EngineGate.ShouldRun(output))
-            {
-                return;
-            }
             var driver = new SqlClientDriver();
             await using IDbSession session = await driver.OpenAsync(OpenRequest(), CancellationToken.None);
 
@@ -120,13 +104,9 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
             Assert.Null(row[5]);
         }
 
-        [Fact]
+        [EngineFact]
         public async Task VectorReadsAsJsonTextByDefaultAndTypedWhenNegotiated() // D-0018/D-0019
         {
-            if (!EngineGate.ShouldRun(output))
-            {
-                return;
-            }
             var driver = new SqlClientDriver();
             await using IDbSession session = await driver.OpenAsync(OpenRequest(), CancellationToken.None);
             const string Sql = "select cast('[1.5,-2.5,3.25]' as vector(3)) as v";
@@ -166,13 +146,9 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
             Assert.Null(Assert.Single(nullEvents.OfType<RowsPage>()).Cells[0][0]);
         }
 
-        [Fact]
+        [EngineFact]
         public async Task ClrUdtColumnsTransportAsBinaryInsteadOfFailingTheQuery() // D-0018
         {
-            if (!EngineGate.ShouldRun(output))
-            {
-                return;
-            }
             var driver = new SqlClientDriver();
             await using IDbSession session = await driver.OpenAsync(OpenRequest(), CancellationToken.None);
 
@@ -197,13 +173,9 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
             Assert.IsType<byte[]>(row[2]); // hierarchyid root serializes (possibly empty)
         }
 
-        [Fact]
+        [EngineFact]
         public async Task SpatialWkbOptInPreservesKindSridAndZm() // D-0020
         {
-            if (!EngineGate.ShouldRun(output))
-            {
-                return;
-            }
             var driver = new SqlClientDriver();
             await using IDbSession session = await driver.OpenAsync(OpenRequest(), CancellationToken.None);
 
@@ -237,13 +209,9 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
             Assert.Null(row[2]);
         }
 
-        [Fact]
+        [EngineFact]
         public async Task SyntaxErrorMapsToStableServerCode()
         {
-            if (!EngineGate.ShouldRun(output))
-            {
-                return;
-            }
             var driver = new SqlClientDriver();
             await using IDbSession session = await driver.OpenAsync(OpenRequest(), CancellationToken.None);
             DbDriverException ex = await Assert.ThrowsAsync<DbDriverException>(() => ExecuteAsync(session, "selct broken"));
@@ -251,13 +219,9 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
             Assert.NotNull(ex.Server);
         }
 
-        [Fact]
+        [EngineFact]
         public async Task CancelInterruptsInFlightCommand()
         {
-            if (!EngineGate.ShouldRun(output))
-            {
-                return;
-            }
             var driver = new SqlClientDriver();
             await using IDbSession session = await driver.OpenAsync(OpenRequest(), CancellationToken.None);
             using var cancellation = new CancellationTokenSource();

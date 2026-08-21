@@ -2,7 +2,7 @@
 
 **Role:** Portable real-I/O driver adapter over Microsoft.Data.Sqlite.
 
-**Allowed dependencies:** Abstractions, Contracts, Microsoft.Data.Sqlite
+**Allowed dependencies:** Abstractions, Contracts, Microsoft.Data.Sqlite, SQLitePCLRaw.lib.e_sqlite3
 
 **Forbidden:** Core, Runtime, Hosting, legacy namespaces
 
