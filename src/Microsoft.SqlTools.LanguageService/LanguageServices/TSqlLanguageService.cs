@@ -1252,14 +1252,20 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             }
         }
 
-        private bool UpdateBatchSeparator(string uri, string batchSeparator)
+        private bool UpdateBatchSeparator(string uri, string? batchSeparator)
         {
+            string normalizedUri = NormalizeUri(uri);
             if (string.IsNullOrEmpty(batchSeparator))
             {
-                return false;
+                if (!batchSeparatorByUri.TryRemove(normalizedUri, out _))
+                {
+                    return false;
+                }
+
+                InvalidateParseResult(normalizedUri);
+                return true;
             }
 
-            string normalizedUri = NormalizeUri(uri);
             if (batchSeparatorByUri.TryGetValue(normalizedUri, out string currentBatchSeparator)
                 && string.Equals(currentBatchSeparator, batchSeparator, StringComparison.OrdinalIgnoreCase))
             {
@@ -1267,13 +1273,17 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             }
 
             batchSeparatorByUri[normalizedUri] = batchSeparator;
-            ScriptParseInfo parseInfo = GetScriptParseInfo(normalizedUri, createIfNotExists: false);
+            InvalidateParseResult(normalizedUri);
+            return true;
+        }
+
+        private void InvalidateParseResult(string uri)
+        {
+            ScriptParseInfo parseInfo = GetScriptParseInfo(uri, createIfNotExists: false);
             if (parseInfo != null)
             {
                 parseInfo.ParseResult = null;
             }
-
-            return true;
         }
 
         private async Task RunSerializedByUriAsync(string uri, Func<Task> operation)
@@ -1330,7 +1340,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                     {
                         // Files with a binding context of LiveConnection or Project use the binding queue.
                         // BindingContextKind.None means there is no binding context available.
-                        // A ConnectionKey is still required because binding operations are queued through it. 
+                        // A ConnectionKey is still required because binding operations are queued through it.
                         bool hasBindingContext = (parseInfo.IsConnected || parseInfo.IsProject) && parseInfo.ConnectionKey != null;
 
                         if (!hasBindingContext)
@@ -1429,7 +1439,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 return parseInfo.ParseResult;
             });
         }
-        
+
         /// <summary>
         /// Runs parse on a separate thread to avoid blocking and crashing the main thread if the parser
         /// hangs or crashes.
@@ -1942,8 +1952,8 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             out string tokenTextOut)
         {
             qualifiedNameOut = null;
-            providerOut      = null;
-            tokenTextOut     = null;
+            providerOut = null;
+            tokenTextOut = null;
 
             if (ShouldSkipIntellisense(fileUri))
                 return null;
@@ -2004,7 +2014,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
             // Step 3: collect candidate files via DacFx dependency graph
             var candidateFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            
+
             string defFile;
             try
             {
@@ -2015,7 +2025,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 Logger.Error($"FindProjectSymbolLocations: GetDefiningFilePath failed: {ex}");
                 return Array.Empty<Location>();
             }
-            
+
             // Only add files if we can successfully get ALL references.
             // If getting references fails, the model is corrupted - return empty instead of partial results.
             if (defFile != null)
@@ -2024,7 +2034,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 {
                     foreach (string path in provider.GetReferencingFilePaths(qualifiedName))
                         candidateFiles.Add(path);
-                    
+
                     // Only add defining file after successfully getting all references
                     candidateFiles.Add(defFile);
                 }
@@ -2043,8 +2053,8 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             }
 
             qualifiedNameOut = qualifiedName;
-            providerOut      = provider;
-            tokenTextOut     = tokenText;
+            providerOut = provider;
+            tokenTextOut = tokenText;
             return results.ToArray();
         }
 
@@ -2216,13 +2226,13 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             // during the location scan — no extra model round-trip needed — then build the full
             // .refactorlog document so the client only has to write the returned content.
             string refactorElementName = null, refactorElementType = null;
-            string refactorParentName  = null, refactorParentType  = null;
+            string refactorParentName = null, refactorParentType = null;
             if (provider != null && qualifiedName != null)
             {
                 provider.TryGetRefactorInfo(
                     qualifiedName, tokenText,
                     out refactorElementName, out refactorElementType,
-                    out refactorParentName,  out refactorParentType);
+                    out refactorParentName, out refactorParentType);
             }
 
             // Only objects with a resolved element type (table, column, etc.) need a refactorlog entry.
@@ -2240,11 +2250,11 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
             await requestContext.SendResult(new SqlSymbolRenameResponse
             {
-                Changes            = changes,
+                Changes = changes,
                 RefactorLogContent = refactorLogContent,
-                NewName            = renameParams.NewName,
-                Message            = nameCollisionWarning,
-                IsWarning          = nameCollisionWarning != null
+                NewName = renameParams.NewName,
+                Message = nameCollisionWarning,
+                IsWarning = nameCollisionWarning != null
             });
         }
 
@@ -2361,13 +2371,13 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
             await requestContext.SendResult(new SqlMoveToSchemaResponse
             {
-                Changes            = changes,
+                Changes = changes,
                 RefactorLogContent = refactorLogContent,
-                TargetSchema       = moveParams.TargetSchema,
-                DefinitionFileUri  = definingFile != null ? LocalPathToFileUri(definingFile) : null,
-                ElementType        = elementType,
-                Message            = moveCollisionWarning,
-                IsWarning          = moveCollisionWarning != null
+                TargetSchema = moveParams.TargetSchema,
+                DefinitionFileUri = definingFile != null ? LocalPathToFileUri(definingFile) : null,
+                ElementType = elementType,
+                Message = moveCollisionWarning,
+                IsWarning = moveCollisionWarning != null
             });
         }
 
@@ -2584,7 +2594,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             ScriptParseInfo scriptParseInfo)
         {
             // Convert from LSP 0-based to parser 1-based
-            int parserLine   = textDocumentPosition.Position.Line + 1;
+            int parserLine = textDocumentPosition.Position.Line + 1;
             int parserColumn = textDocumentPosition.Position.Character + 1;
 
             QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
@@ -2592,7 +2602,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 bindingTimeout: TSqlLanguageService.PeekDefinitionTimeout,
                 bindOperation: (bindingContext, cancelToken) =>
                 {
-                    if (bindingContext is ConnectedBindingContext cbc && 
+                    if (bindingContext is ConnectedBindingContext cbc &&
                         cbc.MetadataProvider is TSqlModelMetadataProvider lazyProvider)
                     {
                         // Step 1: Identify the identifier token at the cursor
@@ -3115,7 +3125,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         #region Diagnostic Provider methods
 
         /// <summary>
-        /// Checks for non T-SQL syntax within the Parse Result, and 
+        /// Checks for non T-SQL syntax within the Parse Result, and
         /// sends notification if non T-SQL syntax is detected
         /// Public for testing purposes
         /// </summary>

@@ -116,7 +116,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             // sql statement with no errors
             const string sqlWithErrors = "SELECT * FROM sys.objects";
 
-            // get the test service 
+            // get the test service
             TSqlLanguageService service = TestObjects.GetTestLanguageService();
 
             // parse the sql statement
@@ -238,6 +238,25 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                 Assert.That(observedPreviousParseResult, Is.Null, "Changing the separator must force a full document parse.");
                 Assert.That(observedParseOptions.BatchSeparator, Is.EqualTo(customBatchSeparator));
                 Assert.That(result.Errors, Is.Empty);
+            });
+
+            observedParseOptions = default!;
+            observedPreviousParseResult = default!;
+            await service.HandleDidChangeLanguageFlavorNotification(
+                new LanguageFlavorChangeParams
+                {
+                    Uri = scriptFile.ClientUri,
+                    Language = TSqlLanguageService.SQL_CMD_LANG,
+                    Flavor = "MSSQL"
+                },
+                eventContext.Object);
+            result = await service.ParseAndBind(scriptFile, TestObjects.GetTestConnectionInfo());
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.Not.Null);
+                Assert.That(observedPreviousParseResult, Is.Null, "Omitting the separator must invalidate a custom-separator parse.");
+                Assert.That(observedParseOptions.BatchSeparator, Is.EqualTo(TSqlLanguageService.DefaultBatchSeperator));
             });
         }
 
