@@ -5,8 +5,10 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
 using Microsoft.SqlTools.Sts2.Drivers.SqlClient;
+using Microsoft.SqlTools.Sts2.Runtime.Effects;
 using Xunit;
 
 namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
@@ -107,6 +109,23 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
             Assert.True(SqlRowsPageBuilder.EstimateCellBytes(System.Guid.NewGuid()) >= 36);
             Assert.True(SqlRowsPageBuilder.EstimateCellBytes(123.45m) > 0);
             Assert.True(SqlRowsPageBuilder.EstimateCellBytes(new object()) > 0);
+        }
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(3)]
+        [InlineData(300)]
+        public void BinaryEstimateIncludesTypedWrapper(int byteLength)
+        {
+            byte[] value = new byte[byteLength];
+            int encodedBytes = Encoding.UTF8.GetByteCount(
+                WireValueEncoder.Encode(value)!.ToJsonString());
+
+            Assert.True(
+                SqlRowsPageBuilder.EstimateCellBytes(value) >= encodedBytes,
+                $"estimate was below the {encodedBytes}-byte typed binary encoding");
         }
 
         [Theory]

@@ -72,8 +72,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                 throw new DbDriverException(
                     SqlClientErrorMapping.ClassifyOpen(ex),
                     "Connection failed: " + ex.Message,
-                    SqlClientErrorMapping.ServerDetail(ex),
-                    ex);
+                    SqlClientErrorMapping.ServerDetail(ex));
             }
             catch
             {

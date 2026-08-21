@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Sts2.Abstractions;
@@ -128,6 +129,26 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
         }
 
         [Fact]
+        public async Task BlobPagingIncludesTypedBinaryWrapperBytes()
+        {
+            var driver = new SqliteDriver();
+            await using IDbSession session = await driver.OpenAsync(Request(":memory:"), CancellationToken.None);
+            await ExecuteAsync(session, "create table blobs(v blob)");
+            await ExecuteAsync(
+                session,
+                "insert into blobs values (zeroblob(300)),(zeroblob(300)),(zeroblob(300))");
+
+            List<RowsPage> pages = (await ExecuteAsync(
+                session,
+                "select v from blobs",
+                pageRows: 1000,
+                pageBytes: 830)).OfType<RowsPage>().ToList();
+
+            Assert.Equal(3, pages.Count);
+            Assert.All(pages, page => Assert.Single(page.Cells));
+        }
+
+        [Fact]
         public async Task QueryTimeoutInterruptsLongRunningCommand()
         {
             var driver = new SqliteDriver();
@@ -152,6 +173,23 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
                 () => ExecuteAsync(session, "selct broken sql"));
             Assert.Equal("Sts2.QueryFailed.Server", ex.Code);
             Assert.NotNull(ex.Server);
+            Assert.Null(ex.InnerException);
+        }
+
+        [Fact]
+        public async Task OpenFailureDoesNotExposeProviderException()
+        {
+            string database = Path.Combine(
+                Path.GetTempPath(),
+                "sts2-missing-" + Guid.NewGuid().ToString("N"),
+                "database.sqlite");
+            var driver = new SqliteDriver();
+
+            DbDriverException ex = await Assert.ThrowsAsync<DbDriverException>(
+                () => driver.OpenAsync(Request(database), CancellationToken.None).AsTask());
+
+            Assert.NotNull(ex.Server);
+            Assert.Null(ex.InnerException);
         }
 
         [Fact]
@@ -220,6 +258,28 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
             // A subsequent query must run to completion, not be insta-cancelled by a sticky CTS.
             List<ExecEvent> events = await ExecuteAsync(session, "select n from t order by n");
             Assert.Equal(5, events.OfType<RowsPage>().Sum(p => p.Cells.Count));
+            Assert.IsType<ExecCompleted>(events[^1]);
+        }
+
+        [Fact]
+        public async Task DisposingAfterExecStartedClearsPublishedQueryState()
+        {
+            var driver = new SqliteDriver();
+            await using IDbSession session = await driver.OpenAsync(Request(":memory:"), CancellationToken.None);
+            FieldInfo currentQueryCancel = session.GetType().GetField(
+                "currentQueryCancel",
+                BindingFlags.Instance | BindingFlags.NonPublic)!;
+            IAsyncEnumerator<ExecEvent> enumerator = session.ExecuteAsync(
+                new QueryExecuteRequest { QueryId = "q-disposed", Sql = "select 1" },
+                CancellationToken.None).GetAsyncEnumerator();
+
+            Assert.True(await enumerator.MoveNextAsync());
+            Assert.IsType<ExecStarted>(enumerator.Current);
+            Assert.NotNull(currentQueryCancel.GetValue(session));
+            await enumerator.DisposeAsync();
+
+            Assert.Null(currentQueryCancel.GetValue(session));
+            List<ExecEvent> events = await ExecuteAsync(session, "select 2");
             Assert.IsType<ExecCompleted>(events[^1]);
         }
 

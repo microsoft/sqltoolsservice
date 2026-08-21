@@ -179,6 +179,23 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
             Assert.Equal(expected, SqlClientSpatialValueReader.WkbUnavailableReason(wkbLength, maxCellBytes));
         }
 
+        [Theory]
+        [InlineData(22, 0, true)]
+        [InlineData(22, 100, true)]
+        [InlineData(25, 100, true)]
+        [InlineData(26, 100, false)]
+        [InlineData(100, 400, true)]
+        [InlineData(101, 400, false)]
+        public void SpatialWkbConversionIsPreflightedBeforeAllocation(
+            long sourceBytes,
+            int maxCellBytes,
+            bool expected)
+        {
+            Assert.Equal(
+                expected,
+                SqlClientSpatialValueReader.WkbAllocationFitsLimit(sourceBytes, maxCellBytes));
+        }
+
         [Fact]
         public void ProvenOversizedStreamsRetainOnlyTheWirePrefix()
         {

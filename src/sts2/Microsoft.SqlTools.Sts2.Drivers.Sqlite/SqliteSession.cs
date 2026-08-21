@@ -41,19 +41,22 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
             // A FRESH per-query cancellation source: cancelling one query must never stick to
             // the next (the old session-wide CTS made every query after a cancel insta-cancel — R016).
             var queryCancel = new CancellationTokenSource();
-            lock (cancelGate)
-            {
-                currentQueryCancel = queryCancel;
-            }
-            using CancellationTokenSource linked = CreateQueryCancellationSource(
-                cancellationToken,
-                queryCancel.Token,
-                request.QueryTimeoutMs);
-
-            yield return new ExecStarted(request.QueryId);
-
             try
             {
+                // Install query state inside the owning try/finally. If the consumer
+                // disposes the iterator after ExecStarted, the finally still clears
+                // and disposes the published cancellation source.
+                lock (cancelGate)
+                {
+                    currentQueryCancel = queryCancel;
+                }
+                using CancellationTokenSource linked = CreateQueryCancellationSource(
+                    cancellationToken,
+                    queryCancel.Token,
+                    request.QueryTimeoutMs);
+
+                yield return new ExecStarted(request.QueryId);
+
                 await using SqliteCommand command = connection.CreateCommand();
                 command.CommandText = request.Sql;
                 using CancellationTokenRegistration cancelRegistration = linked.Token.Register(
@@ -184,13 +187,18 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
                 {
                     null => 4,
                     string value => EstimateJsonStringBytes(value),
-                    byte[] value => ((long)value.Length * 4 + 2) / 3 + 2,
+                    // The runtime emits {"$t":"binary","v":"..."}, not a
+                    // bare base64 JSON string. Include conservative wrapper space.
+                    byte[] value => EstimateBinaryCellBytes(value.Length),
                     long or double => 24,
                     _ => 24,
                 });
             }
             return total;
         }
+
+        private static long EstimateBinaryCellBytes(int byteLength) =>
+            (((long)byteLength + 2) / 3 * 4) + 32;
 
         private static long EstimateJsonStringBytes(ReadOnlySpan<char> value)
         {
@@ -240,7 +248,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
 
         private static DbDriverException Classify(SqliteException ex) =>
             new(Sts2ErrorCodes.QueryFailedServer, ex.Message,
-                new ServerErrorDetail { Number = ex.SqliteErrorCode, Severity = 16, State = 1 }, ex);
+                new ServerErrorDetail { Number = ex.SqliteErrorCode, Severity = 16, State = 1 });
 
         /// <summary>
         /// Returns one cell as a plain CLR value (long, double, string, byte[], or null).

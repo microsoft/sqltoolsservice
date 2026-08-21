@@ -19,6 +19,13 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
     /// </summary>
     internal static class SqlClientSpatialValueReader
     {
+        // SQL Server's native spatial form stores coordinate/shape records compactly.
+        // Extended WKB can add nested headers and duplicate curve endpoints, but four
+        // output bytes per native byte is a conservative upper bound. Refusing values
+        // that cannot satisfy this preflight prevents AsBinaryZM from materializing an
+        // output beyond maxCellBytes.
+        private const int MaxWkbExpansionFactor = 4;
+
         internal static object Read(SqlDataReader reader, int ordinal, string kind, int maxCellBytes)
         {
             long sourceBytes;
@@ -39,6 +46,10 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             {
                 return Unavailable(kind, "maxCellBytes", sourceBytes: sourceBytes);
             }
+            if (!WkbAllocationFitsLimit(sourceBytes, maxCellBytes))
+            {
+                return Unavailable(kind, "maxCellBytes", sourceBytes: sourceBytes);
+            }
 
             try
             {
@@ -56,28 +67,40 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                 }
 
                 int srid;
-                byte[] wkb;
+                SqlBytes serializedWkb;
                 if (kind == "geometry")
                 {
                     SqlGeometry value = SqlGeometry.Deserialize(new SqlBytes(native));
                     srid = value.STSrid.Value;
-                    wkb = value.AsBinaryZM().Value;
+                    serializedWkb = value.AsBinaryZM();
                 }
                 else if (kind == "geography")
                 {
                     SqlGeography value = SqlGeography.Deserialize(new SqlBytes(native));
                     srid = value.STSrid.Value;
-                    wkb = value.AsBinaryZM().Value;
+                    serializedWkb = value.AsBinaryZM();
                 }
                 else
                 {
                     return Unavailable(kind, "unsupportedNativeValue", sourceBytes: sourceBytes);
                 }
 
-                string? unavailableReason = WkbUnavailableReason(wkb.Length, maxCellBytes);
+                long wkbLength = serializedWkb.IsNull ? 0 : serializedWkb.Length;
+                string? unavailableReason = WkbUnavailableReason(wkbLength, maxCellBytes);
                 if (unavailableReason is not null)
                 {
                     return Unavailable(kind, unavailableReason, srid, sourceBytes);
+                }
+                if (wkbLength > int.MaxValue)
+                {
+                    return Unavailable(kind, "conversionFailed", srid, sourceBytes);
+                }
+
+                var wkb = new byte[checked((int)wkbLength)];
+                long copied = serializedWkb.Read(0, wkb, 0, wkb.Length);
+                if (copied != wkbLength)
+                {
+                    return Unavailable(kind, "conversionFailed", srid, sourceBytes);
                 }
                 return new DriverSpatialValue { Kind = kind, Srid = srid, Wkb = wkb };
             }
@@ -96,7 +119,11 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             OverflowException or
             SqlTypeException;
 
-        internal static string? WkbUnavailableReason(int wkbLength, int maxCellBytes) =>
+        internal static bool WkbAllocationFitsLimit(long sourceBytes, int maxCellBytes) =>
+            maxCellBytes <= 0 ||
+            sourceBytes > 0 && sourceBytes <= maxCellBytes / MaxWkbExpansionFactor;
+
+        internal static string? WkbUnavailableReason(long wkbLength, int maxCellBytes) =>
             wkbLength < 5
                 ? "conversionFailed"
                 : maxCellBytes > 0 && wkbLength > maxCellBytes
