@@ -85,7 +85,14 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Journaling
             segmentBytes += line.Length;
 
             DateTimeOffset now = options.TimeProvider.GetUtcNow();
-            if (flush || (now - lastFlush).TotalMilliseconds >= options.FlushIntervalMs)
+            if (flush)
+            {
+                // Checkpoints are write-ahead durability barriers, not merely
+                // visibility barriers: force the OS buffers to stable storage.
+                segmentStream.Flush(flushToDisk: true);
+                lastFlush = now;
+            }
+            else if ((now - lastFlush).TotalMilliseconds >= options.FlushIntervalMs)
             {
                 await segmentStream.FlushAsync().ConfigureAwait(false);
                 lastFlush = now;
@@ -104,13 +111,14 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Journaling
         ValueTask IEnvelopeSink.OnEnvelopeAsync(Sts2Envelope envelope, bool flush) => AppendAsync(envelope, flush);
 
         /// <summary>Flushes the active segment to disk.</summary>
-        public async ValueTask FlushAsync()
+        public ValueTask FlushAsync()
         {
             if (segmentStream is not null)
             {
-                await segmentStream.FlushAsync().ConfigureAwait(false);
+                segmentStream.Flush(flushToDisk: true);
                 lastFlush = options.TimeProvider.GetUtcNow();
             }
+            return ValueTask.CompletedTask;
         }
 
         /// <summary>Closes the active segment, finalizes hashes, and writes the manifest.</summary>
@@ -133,7 +141,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Journaling
 
         private async ValueTask CloseCurrentSegmentAsync()
         {
-            await segmentStream!.FlushAsync().ConfigureAwait(false);
+            segmentStream!.Flush(flushToDisk: true);
             await segmentStream.DisposeAsync().ConfigureAwait(false);
 
             string sha256 = "sha256:" + Convert.ToHexStringLower(segmentHash!.GetHashAndReset());
