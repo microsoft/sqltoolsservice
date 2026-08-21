@@ -176,15 +176,26 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Multiplexer
         /// <summary>When false the sink hangs until <see cref="CompleteFlush"/> is called.</summary>
         public bool CompleteFlushImmediately { get; init; } = true;
 
+        /// <summary>Optional failure returned by lifecycle callbacks.</summary>
+        public Exception? Failure { get; init; }
+
         public Task OnShutdownAsync()
         {
             Interlocked.Increment(ref ShutdownCalls);
+            if (Failure is not null)
+            {
+                return Task.FromException(Failure);
+            }
             return CompleteFlushImmediately ? Task.CompletedTask : flushed.Task;
         }
 
         public Task OnExitAsync()
         {
             Interlocked.Increment(ref ExitCalls);
+            if (Failure is not null)
+            {
+                return Task.FromException(Failure);
+            }
             return CompleteFlushImmediately ? Task.CompletedTask : flushed.Task;
         }
 

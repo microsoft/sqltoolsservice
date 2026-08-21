@@ -25,6 +25,11 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
     /// </summary>
     public sealed class StdioMultiplexer : IAsyncDisposable
     {
+        private sealed class ChannelFrameException(string reason) : Exception
+        {
+            public string Reason { get; } = reason;
+        }
+
         private const int JsonRpcInternalErrorCode = -32603;
         private const int InitialReusableFrameBufferBytes = 64 * 1024;
         private const int MaxReusableFrameBufferBytes = 1024 * 1024;
@@ -122,6 +127,7 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
             Diagnostic(MultiplexerDiagnosticCodes.Sts2Dead, "STS2 channel marked dead: " + reason);
             idTable.DropChannel(ChannelKind.Sts2);
             sts2Inbound.Writer.Complete();
+            sts2Outbound.Writer.Complete();
 
             var fatal = new JsonObject
             {
@@ -140,9 +146,9 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
                 {
                     await WriteStdoutAsync(ChannelKind.Sts2, frame, cts.Token).ConfigureAwait(false);
                 }
-                catch (Exception ex) when (ex is OperationCanceledException or IOException or ObjectDisposedException)
+                catch
                 {
-                    // Transport already gone; nothing to notify.
+                    // Best effort only: containment must not create an unobserved fault.
                 }
             });
         }
@@ -185,10 +191,13 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
             }
             catch (Exception ex)
             {
-                Diagnostic(MultiplexerDiagnosticCodes.PumpFailure, pumpName + " pump failed: " + ex.Message);
+                string failure = ex is ChannelFrameException frameFailure
+                    ? frameFailure.Reason
+                    : ex.GetType().Name;
+                Diagnostic(MultiplexerDiagnosticCodes.PumpFailure, pumpName + " pump failed (" + failure + ").");
                 if (pumpName == "sts2-outbound")
                 {
-                    MarkSts2Dead("sts2 outbound pump failed: " + ex.Message);
+                    MarkSts2Dead("sts2 outbound pump failed (" + failure + ").");
                     return;
                 }
                 throw;
@@ -213,7 +222,7 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
                     {
                         if (degraded)
                         {
-                            await WriteToChannelAsync(legacyInbound.Writer, buffer.ToArray(), ct).ConfigureAwait(false);
+                            await WriteToChannelAsync(ChannelKind.Legacy, buffer.ToArray(), ct).ConfigureAwait(false);
                             buffer = buffer.Slice(buffer.End);
                             break;
                         }
@@ -221,7 +230,7 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
                         if (passthroughRemaining > 0)
                         {
                             long take = Math.Min(passthroughRemaining, buffer.Length);
-                            await WriteToChannelAsync(legacyInbound.Writer, buffer.Slice(0, take).ToArray(), ct).ConfigureAwait(false);
+                            await WriteToChannelAsync(ChannelKind.Legacy, buffer.Slice(0, take).ToArray(), ct).ConfigureAwait(false);
                             buffer = buffer.Slice(take);
                             passthroughRemaining -= take;
                             continue;
@@ -242,11 +251,18 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
                         {
                             Diagnostic(MultiplexerDiagnosticCodes.OversizedFrame,
                                 $"Frame of {contentLength} bytes exceeds maxFrameBytes={options.MaxFrameBytes}; forwarding raw to legacy.");
-                            passthroughRemaining = headerLength + contentLength;
+                            passthroughRemaining = SaturatingFrameLength(headerLength, contentLength);
                             continue;
                         }
 
-                        long frameLength = headerLength + contentLength;
+                        long frameLength = SaturatingFrameLength(headerLength, contentLength);
+                        if (frameLength > int.MaxValue)
+                        {
+                            Diagnostic(MultiplexerDiagnosticCodes.OversizedFrame,
+                                "Frame exceeds the maximum materializable size; forwarding raw to legacy.");
+                            passthroughRemaining = frameLength;
+                            continue;
+                        }
                         if (buffer.Length < frameLength)
                         {
                             break;
@@ -266,6 +282,7 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
             }
             finally
             {
+                await reader.CompleteAsync().ConfigureAwait(false);
                 legacyInbound.Writer.Complete();
                 if (Interlocked.CompareExchange(ref sts2Dead, 0, 0) == 0)
                 {
@@ -281,7 +298,7 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
             if (info.ParseFailed)
             {
                 Diagnostic(MultiplexerDiagnosticCodes.MalformedPayload, "Unparseable JSON payload forwarded raw to legacy.");
-                await WriteToChannelAsync(legacyInbound.Writer, frameBytes, ct).ConfigureAwait(false);
+                await WriteToChannelAsync(ChannelKind.Legacy, frameBytes, ct).ConfigureAwait(false);
                 return;
             }
 
@@ -295,7 +312,7 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
                         // wait is bounded and happens BEFORE legacy can act: this repo's
                         // legacy host exits the process from its shutdown handler (RF-0011).
                         await WaitForLifecycleFlushAsync(static s => s.OnShutdownAsync(), "shutdown", ct).ConfigureAwait(false);
-                        await WriteToChannelAsync(legacyInbound.Writer, frameBytes, ct).ConfigureAwait(false);
+                        await WriteToChannelAsync(ChannelKind.Legacy, frameBytes, ct).ConfigureAwait(false);
                         return;
 
                     case "exit":
@@ -303,7 +320,7 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
                         // terminate the process; otherwise the journal tail is lost.
                         await WaitForLifecycleFlushAsync(static s => s.OnExitAsync(), "exit", ct).ConfigureAwait(false);
                         idTable.Clear();
-                        await WriteToChannelAsync(legacyInbound.Writer, frameBytes, ct).ConfigureAwait(false);
+                        await WriteToChannelAsync(ChannelKind.Legacy, frameBytes, ct).ConfigureAwait(false);
                         return;
 
                     default:
@@ -313,7 +330,7 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
                         }
                         else
                         {
-                            await WriteToChannelAsync(legacyInbound.Writer, frameBytes, ct).ConfigureAwait(false);
+                            await WriteToChannelAsync(ChannelKind.Legacy, frameBytes, ct).ConfigureAwait(false);
                         }
                         return;
                 }
@@ -325,19 +342,18 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
                 && idTable.TryConsume(publicId, out ChannelKind channel, out string originalIdRawJson))
             {
                 byte[] restored = ReplaceId(frameBytes.AsSpan(headerLength), originalIdRawJson, asRawJson: true);
-                PipeWriter target = channel == ChannelKind.Sts2 ? sts2Inbound.Writer : legacyInbound.Writer;
                 if (channel == ChannelKind.Sts2 && sts2Dead == 1)
                 {
                     Diagnostic(MultiplexerDiagnosticCodes.Sts2Dead, "Dropped response to dead STS2 channel.");
                     return;
                 }
-                await WriteToChannelAsync(target, JsonRpcFraming.BuildFrame(restored), ct).ConfigureAwait(false);
+                await WriteToChannelAsync(channel, JsonRpcFraming.BuildFrame(restored), ct).ConfigureAwait(false);
                 return;
             }
 
             Diagnostic(MultiplexerDiagnosticCodes.UnknownResponseId,
                 "Response with unknown id " + (info.IdRawJson ?? "<none>") + " routed to legacy.");
-            await WriteToChannelAsync(legacyInbound.Writer, frameBytes, ct).ConfigureAwait(false);
+            await WriteToChannelAsync(ChannelKind.Legacy, frameBytes, ct).ConfigureAwait(false);
         }
 
         private async Task DeliverToSts2Async(byte[] frameBytes, int headerLength, JsonRpcMessageInfo info, CancellationToken ct)
@@ -354,7 +370,7 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
                 }
                 return;
             }
-            await WriteToChannelAsync(sts2Inbound.Writer, frameBytes, ct).ConfigureAwait(false);
+            await WriteToChannelAsync(ChannelKind.Sts2, frameBytes, ct).ConfigureAwait(false);
         }
 
         private async Task WaitForLifecycleFlushAsync(Func<ISts2LifecycleSink, Task> flushSelector, string signal, CancellationToken ct)
@@ -369,6 +385,7 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
                 Task flush = flushSelector(lifecycleSink);
                 Task timeout = Task.Delay(TimeSpan.FromMilliseconds(options.ExitFlushMilliseconds), ct);
                 Task winner = await Task.WhenAny(flush, timeout).ConfigureAwait(false);
+                ct.ThrowIfCancellationRequested();
                 if (winner == timeout)
                 {
                     Diagnostic(MultiplexerDiagnosticCodes.LifecycleSinkError,
@@ -385,7 +402,8 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
             }
             catch (Exception ex)
             {
-                Diagnostic(MultiplexerDiagnosticCodes.LifecycleSinkError, "Lifecycle sink threw on " + signal + ": " + ex.Message);
+                Diagnostic(MultiplexerDiagnosticCodes.LifecycleSinkError,
+                    "Lifecycle sink threw on " + signal + " (" + ex.GetType().Name + ").");
             }
             finally
             {
@@ -401,107 +419,122 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
         {
             MultiplexerTransportStats.ChannelStats stats = transportStats.For(channel);
             byte[]? reusableFrameBuffer = null;
-            while (true)
+            try
             {
-                ReadResult result = await reader.ReadAsync(ct).ConfigureAwait(false);
-                ReadOnlySequence<byte> buffer = result.Buffer;
-                stats.RecordRead(buffer.Length);
-
-                while (buffer.Length > 0)
+                while (true)
                 {
-                    long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
-                    long parseStarted = Stopwatch.GetTimestamp();
-                    FrameHeaderStatus status = JsonRpcFraming.TryParseHeader(buffer, options.MaxFrameBytes, out int headerLength, out long contentLength);
-                    stats.RecordHeaderParse(
-                        Stopwatch.GetTimestamp() - parseStarted,
-                        GC.GetAllocatedBytesForCurrentThread() - allocatedBefore,
-                        status is FrameHeaderStatus.NeedMoreData);
-                    if (status is FrameHeaderStatus.NeedMoreData)
-                    {
-                        break;
-                    }
-                    if (status is FrameHeaderStatus.MalformedHeader or FrameHeaderStatus.OversizedFrame)
-                    {
-                        // Our own services must frame correctly; treat as fatal for the channel.
-                        throw new InvalidDataException($"The {channel} service wrote an invalid {status} frame header.");
-                    }
+                    ReadResult result = await reader.ReadAsync(ct).ConfigureAwait(false);
+                    ReadOnlySequence<byte> buffer = result.Buffer;
+                    stats.RecordRead(buffer.Length);
 
-                    long frameLength = headerLength + contentLength;
-                    if (status is FrameHeaderStatus.HeaderParsed && buffer.Length < frameLength)
+                    while (buffer.Length > 0)
                     {
-                        break;
-                    }
-
-                    ReadOnlySequence<byte> frame = buffer.Slice(0, frameLength);
-                    int segments = CountSegments(frame);
-                    stats.RecordFrame(frameLength, segments);
-                    Interlocked.Increment(ref transportStatsRevision);
-                    int frameByteLength = checked((int)frameLength);
-                    if (frame.IsSingleSegment)
-                    {
-                        stats.RecordDirect(frameLength);
-                        await ProcessOutboundFrameAsync(channel, frame.First, headerLength, ct).ConfigureAwait(false);
-                    }
-                    else
-                    {
-                        allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
-                        long copyStarted = Stopwatch.GetTimestamp();
-                        bool useReusableBuffer = frameByteLength <= MaxReusableFrameBufferBytes;
-                        byte[] contiguousBuffer;
-                        if (useReusableBuffer)
+                        long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
+                        long parseStarted = Stopwatch.GetTimestamp();
+                        FrameHeaderStatus status = JsonRpcFraming.TryParseHeader(buffer, options.MaxFrameBytes, out int headerLength, out long contentLength);
+                        stats.RecordHeaderParse(
+                            Stopwatch.GetTimestamp() - parseStarted,
+                            GC.GetAllocatedBytesForCurrentThread() - allocatedBefore,
+                            status is FrameHeaderStatus.NeedMoreData);
+                        if (status is FrameHeaderStatus.NeedMoreData)
                         {
-                            if (reusableFrameBuffer is null || reusableFrameBuffer.Length < frameByteLength)
-                            {
-                                reusableFrameBuffer = GC.AllocateUninitializedArray<byte>(
-                                    GetReusableFrameBufferCapacity(frameByteLength));
-                                stats.RecordReusableBufferAllocation(reusableFrameBuffer.Length);
-                            }
+                            break;
+                        }
+                        if (status is FrameHeaderStatus.MalformedHeader or FrameHeaderStatus.OversizedFrame)
+                        {
+                            // Our own services must frame correctly; treat as fatal for the channel.
+                            throw new ChannelFrameException(status.ToString());
+                        }
 
-                            contiguousBuffer = reusableFrameBuffer;
-                            stats.RecordReusable(frameLength);
+                        long frameLength = SaturatingFrameLength(headerLength, contentLength);
+                        if (frameLength > int.MaxValue)
+                        {
+                            throw new ChannelFrameException("FrameTooLarge");
+                        }
+                        if (buffer.Length < frameLength)
+                        {
+                            break;
+                        }
+
+                        ReadOnlySequence<byte> frame = buffer.Slice(0, frameLength);
+                        int segments = CountSegments(frame);
+                        stats.RecordFrame(frameLength, segments);
+                        Interlocked.Increment(ref transportStatsRevision);
+                        int frameByteLength = (int)frameLength;
+                        if (frame.IsSingleSegment)
+                        {
+                            stats.RecordDirect(frameLength);
+                            await ProcessOutboundFrameAsync(channel, frame.First, headerLength, ct).ConfigureAwait(false);
                         }
                         else
                         {
-                            contiguousBuffer = ArrayPool<byte>.Shared.Rent(frameByteLength);
-                            stats.RecordPooled(frameLength);
-                        }
-
-                        frame.CopyTo(contiguousBuffer.AsSpan(0, frameByteLength));
-                        stats.RecordMaterialization(
-                            frameLength,
-                            Stopwatch.GetTimestamp() - copyStarted,
-                            GC.GetAllocatedBytesForCurrentThread() - allocatedBefore);
-                        try
-                        {
-                            await ProcessOutboundFrameAsync(
-                                channel,
-                                contiguousBuffer.AsMemory(0, frameByteLength),
-                                headerLength,
-                                ct).ConfigureAwait(false);
-                        }
-                        finally
-                        {
-                            // Row pages can contain sensitive database values. Remove every
-                            // used payload before retaining or pooling its transport buffer.
-                            long clearStarted = Stopwatch.GetTimestamp();
-                            CryptographicOperations.ZeroMemory(contiguousBuffer.AsSpan(0, frameByteLength));
-                            long clearTicks = Stopwatch.GetTimestamp() - clearStarted;
-                            stats.RecordBufferClear(frameLength, clearTicks);
-                            if (!useReusableBuffer)
+                            allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
+                            long copyStarted = Stopwatch.GetTimestamp();
+                            bool useReusableBuffer = frameByteLength <= MaxReusableFrameBufferBytes;
+                            byte[] contiguousBuffer;
+                            if (useReusableBuffer)
                             {
-                                stats.RecordPooledClear(frameLength, clearTicks);
-                                ArrayPool<byte>.Shared.Return(contiguousBuffer);
+                                if (reusableFrameBuffer is null || reusableFrameBuffer.Length < frameByteLength)
+                                {
+                                    reusableFrameBuffer = GC.AllocateUninitializedArray<byte>(
+                                        GetReusableFrameBufferCapacity(frameByteLength));
+                                    stats.RecordReusableBufferAllocation(reusableFrameBuffer.Length);
+                                }
+
+                                contiguousBuffer = reusableFrameBuffer;
+                                stats.RecordReusable(frameLength);
+                            }
+                            else
+                            {
+                                contiguousBuffer = ArrayPool<byte>.Shared.Rent(frameByteLength);
+                                stats.RecordPooled(frameLength);
+                            }
+
+                            frame.CopyTo(contiguousBuffer.AsSpan(0, frameByteLength));
+                            stats.RecordMaterialization(
+                                frameLength,
+                                Stopwatch.GetTimestamp() - copyStarted,
+                                GC.GetAllocatedBytesForCurrentThread() - allocatedBefore);
+                            try
+                            {
+                                await ProcessOutboundFrameAsync(
+                                    channel,
+                                    contiguousBuffer.AsMemory(0, frameByteLength),
+                                    headerLength,
+                                    ct).ConfigureAwait(false);
+                            }
+                            finally
+                            {
+                                // Row pages can contain sensitive database values. Remove every
+                                // used payload before retaining or pooling its transport buffer.
+                                long clearStarted = Stopwatch.GetTimestamp();
+                                CryptographicOperations.ZeroMemory(contiguousBuffer.AsSpan(0, frameByteLength));
+                                long clearTicks = Stopwatch.GetTimestamp() - clearStarted;
+                                stats.RecordBufferClear(frameLength, clearTicks);
+                                if (!useReusableBuffer)
+                                {
+                                    stats.RecordPooledClear(frameLength, clearTicks);
+                                    ArrayPool<byte>.Shared.Return(contiguousBuffer);
+                                }
                             }
                         }
+                        buffer = buffer.Slice(frameLength);
                     }
-                    buffer = buffer.Slice(frameLength);
-                }
 
-                reader.AdvanceTo(buffer.Start, buffer.End);
-                if (result.IsCompleted)
-                {
-                    break;
+                    reader.AdvanceTo(buffer.Start, buffer.End);
+                    if (result.IsCompleted)
+                    {
+                        break;
+                    }
                 }
+            }
+            finally
+            {
+                if (reusableFrameBuffer is not null)
+                {
+                    CryptographicOperations.ZeroMemory(reusableFrameBuffer);
+                }
+                await reader.CompleteAsync().ConfigureAwait(false);
             }
         }
 
@@ -637,6 +670,9 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
             return count;
         }
 
+        private static long SaturatingFrameLength(int headerLength, long contentLength) =>
+            contentLength > long.MaxValue - headerLength ? long.MaxValue : headerLength + contentLength;
+
         private void EmitTransportStats()
         {
             long revision = Volatile.Read(ref transportStatsRevision);
@@ -655,8 +691,9 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
             }
         }
 
-        private async Task WriteToChannelAsync(PipeWriter writer, byte[] bytes, CancellationToken ct)
+        private async Task WriteToChannelAsync(ChannelKind channel, byte[] bytes, CancellationToken ct)
         {
+            PipeWriter writer = channel == ChannelKind.Sts2 ? sts2Inbound.Writer : legacyInbound.Writer;
             try
             {
                 await writer.WriteAsync(bytes, ct).ConfigureAwait(false);
@@ -664,7 +701,10 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
             catch (InvalidOperationException)
             {
                 // Channel writer already completed (dead/disposed); drop with a diagnostic.
-                Diagnostic(MultiplexerDiagnosticCodes.Sts2Dead, "Dropped frame for completed channel.");
+                string code = channel == ChannelKind.Sts2
+                    ? MultiplexerDiagnosticCodes.Sts2Dead
+                    : MultiplexerDiagnosticCodes.PumpFailure;
+                Diagnostic(code, "Dropped frame for completed " + channel + " channel.");
             }
         }
 

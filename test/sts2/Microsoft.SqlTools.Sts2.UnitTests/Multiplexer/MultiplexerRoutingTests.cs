@@ -13,9 +13,13 @@ using Xunit;
 
 namespace Microsoft.SqlTools.Sts2.UnitTests.Multiplexer
 {
-    public class MultiplexerRoutingTests
+    public class MultiplexerRoutingTests : IDisposable
     {
-        private static CancellationToken TestTimeout => new CancellationTokenSource(TimeSpan.FromSeconds(10)).Token;
+        private readonly CancellationTokenSource testTimeoutSource = new(TimeSpan.FromSeconds(10));
+
+        private CancellationToken TestTimeout => testTimeoutSource.Token;
+
+        public void Dispose() => testTimeoutSource.Dispose();
 
         [Fact]
         public async Task V2MethodsRouteToSts2()
@@ -112,6 +116,19 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Multiplexer
             await h.ClientSendsAsync(big, TestTimeout);
             Assert.Equal(big, await h.LegacyReceivesAsync(TestTimeout));
             Assert.Contains(h.Diagnostics, d => d.Code == MultiplexerDiagnosticCodes.OversizedFrame);
+        }
+
+        [Fact]
+        public async Task OversizedLengthAdditionCannotOverflowPassthroughTracking()
+        {
+            await using var h = new MuxHarness(new MultiplexerOptions { MaxFrameBytes = 256 });
+            byte[] header = Encoding.ASCII.GetBytes("Content-Length: 9223372036854775807\r\n\r\n");
+
+            await h.ClientSendsRawAsync(header, TestTimeout);
+
+            Assert.Equal(header, await Frames.ReadExactlyAsync(h.Mux.LegacyInput, header.Length, TestTimeout));
+            Assert.Contains(h.Diagnostics, d => d.Code == MultiplexerDiagnosticCodes.OversizedFrame);
+            Assert.DoesNotContain(h.Diagnostics, d => d.Code == MultiplexerDiagnosticCodes.PumpFailure);
         }
 
         [Fact]
