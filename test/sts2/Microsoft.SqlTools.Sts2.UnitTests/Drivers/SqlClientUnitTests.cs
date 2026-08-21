@@ -206,6 +206,8 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
                     Contracts.Sts2Defaults.MaxCellBytes));
             Assert.Equal(4096, SqlLargeValueReader.RetainedUnitsForKnownLength(1_000_000, 4096));
             Assert.Equal(123, SqlLargeValueReader.RetainedUnitsForKnownLength(123, 4096));
+            Assert.Equal(2048, SqlLargeValueReader.Utf8PrefixCharLength(new string('\u00e9', 4096), 4096));
+            Assert.Equal(2, SqlLargeValueReader.Utf8PrefixCharLength("\U0001F600x", 4));
         }
 
         [Fact]

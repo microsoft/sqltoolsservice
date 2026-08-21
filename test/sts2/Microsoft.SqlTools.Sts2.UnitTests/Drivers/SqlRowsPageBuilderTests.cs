@@ -3,10 +3,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using Microsoft.SqlTools.Sts2.Abstractions;
 using Microsoft.SqlTools.Sts2.Drivers.SqlClient;
 using Microsoft.SqlTools.Sts2.Runtime.Effects;
 using Xunit;
@@ -141,6 +143,63 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
             Assert.True(
                 SqlRowsPageBuilder.EstimateCellBytes(value) >= encodedBytes,
                 $"estimate was below the {encodedBytes}-byte JSON encoding");
+        }
+
+        [Fact]
+        public void TypedWrapperEstimatesBoundWireEncoding()
+        {
+            object[] values =
+            [
+                decimal.MinValue,
+                DateTime.MaxValue,
+                DateTimeOffset.MaxValue,
+                TimeSpan.MaxValue,
+                Guid.Empty,
+                double.NaN,
+                new DriverVectorUnavailableValue
+                {
+                    Dimensions = 1536,
+                    BaseType = "float16",
+                    Reason = "unsupportedBaseType",
+                },
+                new DriverSpatialUnavailableValue
+                {
+                    Kind = "geometry",
+                    Reason = "maxCellBytes",
+                    Srid = 4326,
+                    SourceBytes = long.MaxValue,
+                },
+            ];
+
+            foreach (object value in values)
+            {
+                int encodedBytes = Encoding.UTF8.GetByteCount(
+                    WireValueEncoder.Encode(value)!.ToJsonString());
+                Assert.True(
+                    SqlRowsPageBuilder.EstimateCellBytes(value) >= encodedBytes,
+                    $"{value.GetType().Name} estimate was below its {encodedBytes}-byte wire encoding");
+            }
+        }
+
+        [Fact]
+        public void VectorUnavailableSentinelsSplitAtTheWireByteBound()
+        {
+            var sentinel = new DriverVectorUnavailableValue
+            {
+                Dimensions = 1536,
+                BaseType = "float16",
+                Reason = "cellLimit",
+            };
+            int encodedBytes = Encoding.UTF8.GetByteCount(
+                WireValueEncoder.Encode(sentinel)!.ToJsonString());
+            var builder = new SqlRowsPageBuilder(pageRows: 100, pageBytes: encodedBytes * 2 - 1);
+
+            List<IReadOnlyList<IReadOnlyList<object?>>> pages = Drain(
+                builder,
+                new[] { Row(sentinel), Row(sentinel), Row(sentinel) });
+
+            Assert.Equal(3, pages.Count);
+            Assert.All(pages, page => Assert.Single(page));
         }
     }
 }

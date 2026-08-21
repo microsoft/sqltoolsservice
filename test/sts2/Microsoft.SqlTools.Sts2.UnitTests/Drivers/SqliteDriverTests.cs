@@ -193,6 +193,18 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
         }
 
         [Fact]
+        public async Task UnexpectedOpenFailureUsesStableDriverException()
+        {
+            var driver = new SqliteDriver();
+
+            DbDriverException ex = await Assert.ThrowsAsync<DbDriverException>(
+                () => driver.OpenAsync(Request("\0"), CancellationToken.None).AsTask());
+
+            Assert.Equal("Sts2.ConnectionFailed.Network", ex.Code);
+            Assert.Null(ex.InnerException);
+        }
+
+        [Fact]
         public async Task FileBackedRoundTripsAcrossSessions()
         {
             string path = Path.Combine(Path.GetTempPath(), "sts2-sqlite-" + Guid.NewGuid().ToString("N") + ".db");
