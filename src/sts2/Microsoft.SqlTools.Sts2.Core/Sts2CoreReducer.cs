@@ -26,6 +26,11 @@ namespace Microsoft.SqlTools.Sts2.Core
             ArgumentNullException.ThrowIfNull(state);
             ArgumentNullException.ThrowIfNull(envelope);
 
+            if (envelope.Seq < state.LastSeq)
+            {
+                return Unexpected(state, envelope, "out-of-order envelope sequence");
+            }
+
             CoreState advanced = state with { LastSeq = envelope.Seq };
             return envelope.Kind switch
             {
@@ -771,6 +776,11 @@ namespace Microsoft.SqlTools.Sts2.Core
 
                 case "rows":
                 {
+                    if (query.CreditOutstanding <= 0)
+                    {
+                        return Unexpected(state, envelope, "rows event without query credit");
+                    }
+
                     QueryInfo updated = query with
                     {
                         PagesSent = query.PagesSent + 1,

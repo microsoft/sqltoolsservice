@@ -365,6 +365,20 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Core
 
         // ---- review hardening regressions ----
 
+        [Fact]
+        public void OutOfOrderEnvelopeDoesNotRegressLastSequence()
+        {
+            CoreState state = Sts2CoreReducer.Decide(CoreState.Initial,
+                Request(10, "v2/diagnostics.ping", "r-first")).NewState;
+
+            CoreDecision decision = Sts2CoreReducer.Decide(state,
+                Request(9, "v2/diagnostics.ping", "r-stale"));
+
+            DiagnosticOutput diagnostic = Assert.IsType<DiagnosticOutput>(Assert.Single(decision.Outputs));
+            Assert.Equal("core.unexpectedInput", diagnostic.Name);
+            Assert.Equal(10, decision.NewState.LastSeq);
+        }
+
         private static CoreState QueryWithFourPagesSent()
         {
             CoreState state = Sts2CoreReducer.Decide(OpenConnectionState(),
@@ -375,6 +389,22 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Core
                     $$"""{"queryId":"q-3","eventType":"rows","pageSeq":{{page}},"rows":[[1]]}""")).NewState;
             }
             return state;
+        }
+
+        [Fact]
+        public void RowsWithoutCreditAreRejectedAndPreserveWindow()
+        {
+            CoreState state = QueryWithFourPagesSent();
+
+            CoreDecision decision = Sts2CoreReducer.Decide(state,
+                EffectResponse(8, "driver.queryEvent", "evt-q-3",
+                    """{"queryId":"q-3","eventType":"rows","pageSeq":4,"rows":[[1]]}"""));
+
+            DiagnosticOutput diagnostic = Assert.IsType<DiagnosticOutput>(Assert.Single(decision.Outputs));
+            Assert.Equal("core.unexpectedInput", diagnostic.Name);
+            Assert.Equal(4, decision.NewState.Queries["q-3"].PagesSent);
+            Assert.Equal(0, decision.NewState.Queries["q-3"].CreditOutstanding);
+            Assert.Equal(8, decision.NewState.LastSeq);
         }
 
         [Fact]
