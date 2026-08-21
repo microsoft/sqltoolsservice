@@ -27,6 +27,7 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
     /// </summary>
     internal sealed class Sts2TestSession : IAsyncDisposable
     {
+        private readonly ConcurrentDictionary<string, IReadOnlyList<string>> secretTokensByCorr = new(StringComparer.Ordinal);
         private int corrCounter;
 
         public Sts2TestSession(string directory, string runId = "test-session", string rowCapture = "full", string sqlCapture = "text",
@@ -104,6 +105,7 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
             {
                 if (Emitted.FirstOrDefault(m => m.Corr == corr) is { } match)
                 {
+                    ReleaseSecrets(corr);
                     return match;
                 }
                 await Task.Delay(10);
@@ -142,6 +144,10 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
         {
             await Coordinator.DisposeAsync();
             await EffectRunner.DisposeLeakedSessionsAsync();
+            foreach (string corr in secretTokensByCorr.Keys)
+            {
+                ReleaseSecrets(corr);
+            }
         }
 
         private string NextCorr() => "r-" + Interlocked.Increment(ref corrCounter).ToString(CultureInfo.InvariantCulture);
@@ -149,12 +155,33 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
         private async Task PostRequestAsync(string method, string corr, string? payloadJson)
         {
             JsonElement? payload = null;
+            var createdTokens = new List<string>();
             if (payloadJson is not null)
             {
                 var node = System.Text.Json.Nodes.JsonNode.Parse(payloadJson);
-                payload = JsonDocument.Parse(SecretRedactor.Redact(node, Secrets)!.ToJsonString()).RootElement;
+                payload = JsonDocument.Parse(SecretRedactor.Redact(node, Secrets, createdTokens)!.ToJsonString()).RootElement;
             }
-            await Coordinator.PostRpcRequestAsync(method, corr, payload);
+            if (createdTokens.Count > 0)
+            {
+                secretTokensByCorr[corr] = createdTokens;
+            }
+            try
+            {
+                await Coordinator.PostRpcRequestAsync(method, corr, payload);
+            }
+            catch
+            {
+                ReleaseSecrets(corr);
+                throw;
+            }
+        }
+
+        private void ReleaseSecrets(string corr)
+        {
+            if (secretTokensByCorr.TryRemove(corr, out IReadOnlyList<string>? tokens))
+            {
+                Secrets.RemoveAll(tokens);
+            }
         }
     }
 }

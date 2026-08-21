@@ -47,7 +47,10 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Observability
         public EnvelopeSubscription Subscribe()
         {
             long id = Interlocked.Increment(ref nextId);
-            var subscription = new EnvelopeSubscription(capacity, () => subscribers.TryRemove(id, out _));
+            var subscription = new EnvelopeSubscription(
+                capacity,
+                () => subscribers.TryRemove(id, out _),
+                () => Interlocked.Increment(ref totalDropped));
             subscribers[id] = subscription;
             return subscription;
         }
@@ -57,10 +60,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Observability
         {
             foreach (KeyValuePair<long, EnvelopeSubscription> entry in subscribers)
             {
-                if (!entry.Value.TryPush(envelope))
-                {
-                    Interlocked.Increment(ref totalDropped);
-                }
+                entry.Value.TryPush(envelope);
             }
             return ValueTask.CompletedTask;
         }
