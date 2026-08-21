@@ -51,7 +51,7 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Scenarios
                     if (winner != run)
                     {
                         failures.Add($"iter {i}: wedged (>60s; journals under {root})");
-                        continue;
+                        break;
                     }
                     SimulatorResult result = await run;
                     if (result.Violations.Count > 0)
