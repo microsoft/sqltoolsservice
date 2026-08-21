@@ -348,7 +348,13 @@ namespace Microsoft.SqlTools.Sts2.Hosting
                 {
                     parameters = body;
                 }
-                _ = rpc.NotifyWithParameterObjectAsync(message.Type, parameters);
+                // StreamJsonRpc can fail asynchronously after accepting the send.
+                // Observe that task through the same fatal-containment path as
+                // the RPC connection and coordinator so clients are not left
+                // waiting forever for a terminal notification that never framed.
+                ObserveComponent(
+                    rpc.NotifyWithParameterObjectAsync(message.Type, parameters),
+                    "rpc notification");
             }
         }
 
