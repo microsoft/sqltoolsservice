@@ -3529,7 +3529,18 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 baseParseOptions.TransactSqlVersion);
         }
 
-        private static string NormalizeUri(string uri) => Uri.UnescapeDataString(uri);
+        private static string NormalizeUri(string uri)
+        {
+            try
+            {
+                return Uri.UnescapeDataString(uri);
+            }
+            catch (ArgumentException)
+            {
+                // Fall back if the client sends a malformed percent-encoded URI.
+                return uri;
+            }
+        }
 
         internal bool RemoveScriptParseInfo(string uri)
         {
