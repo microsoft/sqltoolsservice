@@ -39,9 +39,10 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
         /// <summary>Registers an outbound request and returns its globally unique public id.</summary>
         internal string Register(ChannelKind channel, string originalIdRawJson)
         {
-            PruneExpired();
+            DateTimeOffset now = clock.GetUtcNow();
+            PruneExpired(now);
             string publicId = "sts2mux-" + Interlocked.Increment(ref counter).ToString(CultureInfo.InvariantCulture);
-            entries[publicId] = new Entry(channel, originalIdRawJson, clock.GetUtcNow());
+            entries[publicId] = new Entry(channel, originalIdRawJson, now);
             return publicId;
         }
 
@@ -50,11 +51,13 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
         {
             channel = default;
             originalIdRawJson = string.Empty;
+            DateTimeOffset now = clock.GetUtcNow();
+            PruneExpired(now);
             if (!entries.TryRemove(publicId, out Entry? entry))
             {
                 return false;
             }
-            if (clock.GetUtcNow() - entry.CreatedAt > ttl)
+            if (now - entry.CreatedAt > ttl)
             {
                 return false; // expired entries behave like unknown ids
             }
@@ -76,9 +79,10 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
 
         internal void Clear() => entries.Clear();
 
-        private void PruneExpired()
+        internal int Count => entries.Count;
+
+        private void PruneExpired(DateTimeOffset now)
         {
-            DateTimeOffset now = clock.GetUtcNow();
             foreach ((string key, Entry entry) in entries)
             {
                 if (now - entry.CreatedAt > ttl)

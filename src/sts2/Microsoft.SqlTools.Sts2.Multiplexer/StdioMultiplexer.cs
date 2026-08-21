@@ -124,7 +124,7 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
                 return;
             }
 
-            Diagnostic(MultiplexerDiagnosticCodes.Sts2Dead, "STS2 channel marked dead: " + reason);
+            Diagnostic(MultiplexerDiagnosticCodes.Sts2Dead, "STS2 channel marked dead.");
             idTable.DropChannel(ChannelKind.Sts2);
             sts2Inbound.Writer.Complete();
             sts2Outbound.Writer.Complete();
@@ -174,6 +174,7 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
             }
             finally
             {
+                idTable.Clear();
                 EmitTransportStats();
                 cts.Dispose();
             }
@@ -352,7 +353,7 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
             }
 
             Diagnostic(MultiplexerDiagnosticCodes.UnknownResponseId,
-                "Response with unknown id " + (info.IdRawJson ?? "<none>") + " routed to legacy.");
+                "Response with unknown id routed to legacy.");
             await WriteToChannelAsync(ChannelKind.Legacy, frameBytes, ct).ConfigureAwait(false);
         }
 
@@ -366,7 +367,7 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
                 }
                 else
                 {
-                    Diagnostic(MultiplexerDiagnosticCodes.Sts2Dead, "Dropped v2 notification " + info.Method + " for dead STS2 channel.");
+                    Diagnostic(MultiplexerDiagnosticCodes.Sts2Dead, "Dropped v2 notification for dead STS2 channel.");
                 }
                 return;
             }
@@ -629,7 +630,7 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
                     },
                 },
             };
-            Diagnostic(MultiplexerDiagnosticCodes.Sts2Dead, "Synthesized Sts2.Unavailable error for request id " + idRawJson + ".");
+            Diagnostic(MultiplexerDiagnosticCodes.Sts2Dead, "Synthesized Sts2.Unavailable error for request.");
             await WriteStdoutAsync(ChannelKind.Sts2, JsonRpcFraming.BuildFrame(JsonSerializer.SerializeToUtf8Bytes(error)), ct).ConfigureAwait(false);
         }
 

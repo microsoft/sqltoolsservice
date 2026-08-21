@@ -70,6 +70,39 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Multiplexer
         }
 
         [Fact]
+        public async Task DiagnosticsExcludeCallerControlledContent()
+        {
+            const string reasonCanary = "secret-reason-select-star";
+            const string methodCanary = "v2/secret-method-select-star";
+            const string requestIdCanary = "secret-request-id-select-star";
+            const string responseIdCanary = "secret-response-id-select-star";
+
+            await using var h = new MuxHarness();
+            h.Mux.MarkSts2Dead(reasonCanary);
+            await h.StdoutFrameAsync(TestTimeout); // drain v2/fatal
+
+            await h.ClientSendsAsync(
+                $$"""{"jsonrpc":"2.0","method":"{{methodCanary}}","params":null}""",
+                TestTimeout);
+            await h.ClientSendsAsync(
+                $$"""{"jsonrpc":"2.0","id":"{{requestIdCanary}}","method":"v2/query.execute","params":null}""",
+                TestTimeout);
+            await h.StdoutFrameAsync(TestTimeout); // drain synthesized unavailable response
+
+            string unknownResponse = $$"""{"jsonrpc":"2.0","id":"{{responseIdCanary}}","result":null}""";
+            await h.ClientSendsAsync(unknownResponse, TestTimeout);
+            Assert.Equal(unknownResponse, await h.LegacyReceivesAsync(TestTimeout));
+
+            Assert.All(h.Diagnostics, diagnostic =>
+            {
+                Assert.DoesNotContain(reasonCanary, diagnostic.Message, StringComparison.Ordinal);
+                Assert.DoesNotContain(methodCanary, diagnostic.Message, StringComparison.Ordinal);
+                Assert.DoesNotContain(requestIdCanary, diagnostic.Message, StringComparison.Ordinal);
+                Assert.DoesNotContain(responseIdCanary, diagnostic.Message, StringComparison.Ordinal);
+            });
+        }
+
+        [Fact]
         public async Task LegacyTrafficSurvivesSts2DeathBothDirections()
         {
             await using var h = new MuxHarness();
