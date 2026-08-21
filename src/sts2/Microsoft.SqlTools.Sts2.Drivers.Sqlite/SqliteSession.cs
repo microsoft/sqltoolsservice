@@ -43,6 +43,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
             // A FRESH per-query cancellation source: cancelling one query must never stick to
             // the next (the old session-wide CTS made every query after a cancel insta-cancel — R016).
             var queryCancel = new CancellationTokenSource();
+            ExecCompleted completion;
             try
             {
                 // Install query state inside the owning try/finally. If the consumer
@@ -102,7 +103,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
                     }
                     while (hasResultSet);
 
-                    yield return new ExecCompleted([reader.RecordsAffected >= 0 ? reader.RecordsAffected : totalRowsAffected]);
+                    completion = new ExecCompleted([reader.RecordsAffected >= 0 ? reader.RecordsAffected : totalRowsAffected]);
                 }
             }
             finally
@@ -117,6 +118,10 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
                 }
                 queryCancel.Dispose();
             }
+
+            // The terminal event is the connection-reuse boundary. Emit it only
+            // after the provider reader/command and per-query state are gone.
+            yield return completion;
         }
 
         /// <summary>
@@ -212,7 +217,10 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
                     // The runtime emits {"$t":"binary","v":"..."}, not a
                     // bare base64 JSON string. Include conservative wrapper space.
                     byte[] value => EstimateBinaryCellBytes(value.Length),
-                    long or double => 24,
+                    long => 24,
+                    // Non-finite doubles use the runtime's typed wrapper
+                    // {"$t":"double","v":"-Infinity"}, not a JSON number.
+                    double value => double.IsFinite(value) ? 24 : 40,
                     _ => 24,
                 });
             }

@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
@@ -223,6 +224,27 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
             Assert.Equal("Sts2.QueryFailed.Server", ex.Code);
             Assert.NotNull(ex.Server);
             Assert.Null(ex.InnerException);
+        }
+
+        [EngineFact]
+        public async Task CompletionIsPublishedAfterProviderCleanup()
+        {
+            var driver = new SqlClientDriver();
+            await using IDbSession session = await driver.OpenAsync(OpenRequest(), CancellationToken.None);
+            FieldInfo activeQuery = session.GetType().GetField(
+                "activeQuery",
+                BindingFlags.Instance | BindingFlags.NonPublic)!;
+            await using IAsyncEnumerator<ExecEvent> enumerator = session.ExecuteAsync(
+                new QueryExecuteRequest { QueryId = "q-first", Sql = "select 1" },
+                CancellationToken.None).GetAsyncEnumerator();
+
+            while (await enumerator.MoveNextAsync() && enumerator.Current is not ExecCompleted)
+            {
+            }
+
+            Assert.IsType<ExecCompleted>(enumerator.Current);
+            Assert.Null(activeQuery.GetValue(session));
+            Assert.IsType<ExecCompleted>((await ExecuteAsync(session, "select 2"))[^1]);
         }
 
         [EngineFact]

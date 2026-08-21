@@ -40,98 +40,106 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
 
             yield return new ExecStarted(request.QueryId);
 
-            await using SqlCommand command = connection.CreateCommand();
-            command.CommandText = request.Sql;
-            if (request.QueryTimeoutMs > 0)
+            ExecCompleted completion;
+            await using (SqlCommand command = connection.CreateCommand())
             {
-                command.CommandTimeout = SqlClientConnectionString.ToProviderSeconds(request.QueryTimeoutMs);
-            }
-            // Publish the command atomically for the provider-level CancelAsync path. A cancel
-            // can arrive after the query pump is registered but before ExecuteReaderAsync starts.
-            var publishedQuery = new ActiveQuery(request.QueryId, command);
-            Volatile.Write(ref activeQuery, publishedQuery);
-            // Info-class engine messages (PRINT, RAISERROR severity <= 10, DBCC output)
-            // are raised on InfoMessage while the reader pumps the TDS stream (SPEC §10.2:
-            // map info messages to ServerMessage). Text passes through verbatim. Queue and
-            // drain at pump boundaries so messages hold stream order relative to result sets.
-            var pendingMessages = new ConcurrentQueue<ServerMessage>();
-            SqlInfoMessageEventHandler onInfoMessage = (_, args) =>
-            {
-                foreach (SqlError error in args.Errors)
+                command.CommandText = request.Sql;
+                if (request.QueryTimeoutMs > 0)
                 {
-                    pendingMessages.Enqueue(new ServerMessage(
-                        "info", error.Number, error.Class, error.Message,
-                        error.LineNumber > 0 ? error.LineNumber : null));
+                    command.CommandTimeout = SqlClientConnectionString.ToProviderSeconds(request.QueryTimeoutMs);
                 }
-            };
-            // Clear activeQuery in finally so a faulted reader/row read never leaves it
-            // pointing at a disposed command (R035). The finally runs when the enumerator is
-            // disposed — on completion, break, or exception. The InfoMessage unsubscribe
-            // rides the same finally (SPEC §10.2: event handlers unsubscribed).
-            try
-            {
-                // Bind the pump token directly to the command. Register invokes immediately
-                // when the token was already canceled. Command ownership and activeCommand
-                // cleanup already surround this path, including that immediate callback.
-                using CancellationTokenRegistration cancelRegistration = cancellationToken.Register(
-                    static state => CancelCommand((SqlCommand)state!),
-                    command);
-                cancellationToken.ThrowIfCancellationRequested();
-
-                connection.InfoMessage += onInfoMessage;
+                // Publish the command atomically for the provider-level CancelAsync path. A cancel
+                // can arrive after the query pump is registered but before ExecuteReaderAsync starts.
+                var publishedQuery = new ActiveQuery(request.QueryId, command);
+                Volatile.Write(ref activeQuery, publishedQuery);
+                // Info-class engine messages (PRINT, RAISERROR severity <= 10, DBCC output)
+                // are raised on InfoMessage while the reader pumps the TDS stream (SPEC §10.2:
+                // map info messages to ServerMessage). Text passes through verbatim. Queue and
+                // drain at pump boundaries so messages hold stream order relative to result sets.
+                var pendingMessages = new ConcurrentQueue<ServerMessage>();
+                SqlInfoMessageEventHandler onInfoMessage = (_, args) =>
+                {
+                    foreach (SqlError error in args.Errors)
+                    {
+                        pendingMessages.Enqueue(new ServerMessage(
+                            "info", error.Number, error.Class, error.Message,
+                            error.LineNumber > 0 ? error.LineNumber : null));
+                    }
+                };
+                // Clear activeQuery in finally so a faulted reader/row read never leaves it
+                // pointing at a disposed command (R035). The finally runs when the enumerator is
+                // disposed — on completion, break, or exception. The InfoMessage unsubscribe
+                // rides the same finally (SPEC §10.2: event handlers unsubscribed).
                 try
                 {
-                    SqlDataReader reader = await OpenReaderAsync(command, cancellationToken).ConfigureAwait(false);
-                    await using (reader.ConfigureAwait(false))
+                    // Bind the pump token directly to the command. Register invokes immediately
+                    // when the token was already canceled. Command ownership and activeCommand
+                    // cleanup already surround this path, including that immediate callback.
+                    using CancellationTokenRegistration cancelRegistration = cancellationToken.Register(
+                        static state => CancelCommand((SqlCommand)state!),
+                        command);
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    connection.InfoMessage += onInfoMessage;
+                    try
                     {
-                        int resultSetId = 0;
-                        long totalAffected = 0;
-                        bool more;
-                        do
+                        SqlDataReader reader = await OpenReaderAsync(command, cancellationToken).ConfigureAwait(false);
+                        await using (reader.ConfigureAwait(false))
                         {
+                            int resultSetId = 0;
+                            long totalAffected = 0;
+                            bool more;
+                            do
+                            {
+                                while (pendingMessages.TryDequeue(out ServerMessage? pending))
+                                {
+                                    yield return pending;
+                                }
+                                if (reader.FieldCount > 0)
+                                {
+                                    await foreach (ExecEvent execEvent in PumpResultSetAsync(reader, resultSetId, pageRows, pageBytes, maxCellBytes, request.VectorBinary, request.SpatialWkb, cancellationToken).ConfigureAwait(false))
+                                    {
+                                        yield return execEvent;
+                                    }
+                                    resultSetId++;
+                                }
+                                else if (reader.RecordsAffected > 0)
+                                {
+                                    totalAffected += reader.RecordsAffected;
+                                }
+                                more = await NextResultAsync(reader, cancellationToken).ConfigureAwait(false);
+                            }
+                            while (more);
+
                             while (pendingMessages.TryDequeue(out ServerMessage? pending))
                             {
                                 yield return pending;
                             }
-                            if (reader.FieldCount > 0)
-                            {
-                                await foreach (ExecEvent execEvent in PumpResultSetAsync(reader, resultSetId, pageRows, pageBytes, maxCellBytes, request.VectorBinary, request.SpatialWkb, cancellationToken).ConfigureAwait(false))
-                                {
-                                    yield return execEvent;
-                                }
-                                resultSetId++;
-                            }
-                            else if (reader.RecordsAffected > 0)
-                            {
-                                totalAffected += reader.RecordsAffected;
-                            }
-                            more = await NextResultAsync(reader, cancellationToken).ConfigureAwait(false);
+                            // connection.Database tracks ENVCHANGE, so a USE inside
+                            // the batch is reflected here — the client's database
+                            // source of truth on completion.
+                            completion = new ExecCompleted(
+                                [reader.RecordsAffected >= 0 ? reader.RecordsAffected : totalAffected],
+                                connection.Database);
                         }
-                        while (more);
-
-                        while (pendingMessages.TryDequeue(out ServerMessage? pending))
-                        {
-                            yield return pending;
-                        }
-                        // connection.Database tracks ENVCHANGE, so a USE inside
-                        // the batch is reflected here — the client's database
-                        // source of truth on completion.
-                        yield return new ExecCompleted(
-                            [reader.RecordsAffected >= 0 ? reader.RecordsAffected : totalAffected],
-                            connection.Database);
+                    }
+                    finally
+                    {
+                        connection.InfoMessage -= onInfoMessage;
                     }
                 }
                 finally
                 {
-                    connection.InfoMessage -= onInfoMessage;
+                    // Do not let a late cleanup from an old enumerator clear a newer
+                    // query that has already published its command.
+                    Interlocked.CompareExchange(ref activeQuery, null, publishedQuery);
                 }
             }
-            finally
-            {
-                // Do not let a late cleanup from an old enumerator clear a newer
-                // query that has already published its command.
-                Interlocked.CompareExchange(ref activeQuery, null, publishedQuery);
-            }
+
+            // Publish the terminal event only after the provider reader and command
+            // are disposed and the connection is no longer marked active. Core may
+            // allow the next query to start as soon as it observes this event.
+            yield return completion;
         }
 
         private static async Task<SqlDataReader> OpenReaderAsync(SqlCommand command, CancellationToken cancellationToken)

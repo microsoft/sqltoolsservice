@@ -163,6 +163,23 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
         }
 
         [Fact]
+        public async Task NonFiniteDoublePagingIncludesTypedWrapperBytes()
+        {
+            var driver = new SqliteDriver();
+            await using IDbSession session = await driver.OpenAsync(Request(":memory:"), CancellationToken.None);
+
+            List<RowsPage> pages = (await ExecuteAsync(
+                session,
+                "select 1e999 union all select 1e999 union all select 1e999",
+                pageRows: 1000,
+                pageBytes: 70)).OfType<RowsPage>().ToList();
+
+            Assert.Equal(3, pages.Count);
+            Assert.All(pages, page => Assert.Single(page.Cells));
+            Assert.All(pages, page => Assert.True(double.IsPositiveInfinity(Assert.IsType<double>(page.Cells[0][0]))));
+        }
+
+        [Fact]
         public async Task QueryTimeoutInterruptsLongRunningCommand()
         {
             var driver = new SqliteDriver();
@@ -332,6 +349,27 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
             Assert.Null(currentQueryId.GetValue(session));
             List<ExecEvent> events = await ExecuteAsync(session, "select 2");
             Assert.IsType<ExecCompleted>(events[^1]);
+        }
+
+        [Fact]
+        public async Task CompletionIsPublishedAfterProviderCleanup()
+        {
+            var driver = new SqliteDriver();
+            await using IDbSession session = await driver.OpenAsync(Request(":memory:"), CancellationToken.None);
+            FieldInfo currentQueryCancel = session.GetType().GetField(
+                "currentQueryCancel",
+                BindingFlags.Instance | BindingFlags.NonPublic)!;
+            await using IAsyncEnumerator<ExecEvent> enumerator = session.ExecuteAsync(
+                new QueryExecuteRequest { QueryId = "q-first", Sql = "select 1" },
+                CancellationToken.None).GetAsyncEnumerator();
+
+            while (await enumerator.MoveNextAsync() && enumerator.Current is not ExecCompleted)
+            {
+            }
+
+            Assert.IsType<ExecCompleted>(enumerator.Current);
+            Assert.Null(currentQueryCancel.GetValue(session));
+            Assert.IsType<ExecCompleted>((await ExecuteAsync(session, "select 2"))[^1]);
         }
 
         [Fact]
