@@ -101,7 +101,7 @@ namespace Microsoft.SqlTools.Sts2.Bootstrap
             // Crash containment (SPEC §6.5): if the STS2 host dies, mark the channel dead
             // so v2 requests get synthesized errors while legacy traffic continues.
             _ = session.Completion.ContinueWith(
-                t => multiplexer.MarkSts2Dead("STS2 host terminated: " + (t.Exception?.GetBaseException().Message ?? "connection closed")),
+                t => multiplexer.MarkSts2Dead(Sts2Session.RedactedFailureReason("STS2 host", t.Exception)),
                 TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously);
 
             multiplexer.Start(new SessionLifecycleSink(session, diagnosticsLog));

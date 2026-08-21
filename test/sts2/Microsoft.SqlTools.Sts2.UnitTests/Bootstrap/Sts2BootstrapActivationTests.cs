@@ -4,6 +4,7 @@
 //
 
 using System;
+using Microsoft.SqlTools.Sts2.Hosting;
 using Xunit;
 using Sts2BootstrapClass = Microsoft.SqlTools.Sts2.Bootstrap.Sts2Bootstrap;
 
@@ -68,6 +69,19 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Bootstrap
             Assert.False(handle.IsEnabled);
             Assert.Null(handle.LegacyInputStream);
             Assert.Null(handle.LegacyOutputStream);
+        }
+
+        [Fact]
+        public void FatalReasonExposesTypeButNotExceptionMessage()
+        {
+            const string canary = "secret-connection-string-and-sql";
+
+            string reason = Sts2Session.RedactedFailureReason(
+                "coordinator",
+                new InvalidOperationException(canary));
+
+            Assert.Contains(nameof(InvalidOperationException), reason, StringComparison.Ordinal);
+            Assert.DoesNotContain(canary, reason, StringComparison.Ordinal);
         }
     }
 }
