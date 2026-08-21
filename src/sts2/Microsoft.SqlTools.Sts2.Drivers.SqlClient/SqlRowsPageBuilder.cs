@@ -105,10 +105,9 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             Abstractions.DriverSpatialValue s => EstimateBase64Bytes(s.Wkb.Length)
                 + EstimateJsonStringBytes(s.Kind) + 128,
             Abstractions.DriverSpatialUnavailableValue s => EstimateSpatialUnavailableBytes(s),
-            // retained prefix (text verbatim, binary as base64) + wrapper facts
-            Abstractions.DriverTruncatedValue t => t.Kind == "binary"
-                ? EstimateBase64Bytes(t.PrefixBytes?.Length ?? 0) + 128
-                : EstimateJsonStringBytes(t.PrefixText ?? string.Empty) + 126,
+            // retained prefix (text verbatim, binary as base64) + every wrapper
+            // fact, including the byte count and sha256 digest.
+            Abstractions.DriverTruncatedValue t => EstimateTruncatedBytes(t),
             _ => 24,
         };
 
@@ -124,6 +123,15 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             + EstimateJsonStringBytes(value.Reason)
             + (value.Srid is null ? 0 : 20)
             + (value.SourceBytes is null ? 0 : 20);
+
+        private static long EstimateTruncatedBytes(Abstractions.DriverTruncatedValue value) =>
+            160 // object/property punctuation and conservative growth room
+            + (value.Kind == "binary"
+                ? EstimateBase64Bytes(value.PrefixBytes?.Length ?? 0) + 2
+                : EstimateJsonStringBytes(value.PrefixText ?? string.Empty))
+            + EstimateJsonStringBytes(value.Kind)
+            + EstimateJsonStringBytes(value.DigestHex) + 7 // "sha256:" prefix
+            + 20; // signed Int64 decimal byte count
 
         private static long EstimateBase64Bytes(int byteLength) =>
             ((long)byteLength + 2) / 3 * 4;

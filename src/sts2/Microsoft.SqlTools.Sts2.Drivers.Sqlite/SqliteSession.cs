@@ -22,6 +22,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
         private readonly SqliteConnection connection;
         private readonly Lock cancelGate = new();
         private CancellationTokenSource? currentQueryCancel;
+        private string? currentQueryId;
         private int disposed;
 
         internal SqliteSession(SqliteConnection connection, ServerInfo server)
@@ -49,6 +50,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
                 lock (cancelGate)
                 {
                     currentQueryCancel = queryCancel;
+                    currentQueryId = request.QueryId;
                 }
                 using CancellationTokenSource linked = CreateQueryCancellationSource(
                     cancellationToken,
@@ -109,6 +111,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
                     if (currentQueryCancel == queryCancel)
                     {
                         currentQueryCancel = null;
+                        currentQueryId = null;
                     }
                 }
                 queryCancel.Dispose();
@@ -303,10 +306,14 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
 
         public ValueTask CancelAsync(string queryId, CancellationToken cancellationToken)
         {
-            // Cooperative cancellation of the CURRENT query only; honored between pages and reads.
+            // A delayed cancellation for an old query must not interrupt the
+            // current query on this reusable session.
             lock (cancelGate)
             {
-                currentQueryCancel?.Cancel();
+                if (string.Equals(currentQueryId, queryId, StringComparison.Ordinal))
+                {
+                    currentQueryCancel?.Cancel();
+                }
             }
             return ValueTask.CompletedTask;
         }

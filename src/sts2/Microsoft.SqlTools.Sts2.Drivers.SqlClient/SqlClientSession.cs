@@ -19,7 +19,9 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
     internal sealed class SqlClientSession : IDbSession
     {
         private readonly SqlConnection connection;
-        private SqlCommand? activeCommand;
+        private ActiveQuery? activeQuery;
+
+        private sealed record ActiveQuery(string QueryId, SqlCommand Command);
 
         internal SqlClientSession(SqlConnection connection, ServerInfo server)
         {
@@ -46,7 +48,8 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             }
             // Publish the command atomically for the provider-level CancelAsync path. A cancel
             // can arrive after the query pump is registered but before ExecuteReaderAsync starts.
-            Volatile.Write(ref activeCommand, command);
+            var publishedQuery = new ActiveQuery(request.QueryId, command);
+            Volatile.Write(ref activeQuery, publishedQuery);
             // Info-class engine messages (PRINT, RAISERROR severity <= 10, DBCC output)
             // are raised on InfoMessage while the reader pumps the TDS stream (SPEC §10.2:
             // map info messages to ServerMessage). Text passes through verbatim. Queue and
@@ -61,7 +64,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                         error.LineNumber > 0 ? error.LineNumber : null));
                 }
             };
-            // Clear activeCommand in finally so a faulted reader/row read never leaves it
+            // Clear activeQuery in finally so a faulted reader/row read never leaves it
             // pointing at a disposed command (R035). The finally runs when the enumerator is
             // disposed — on completion, break, or exception. The InfoMessage unsubscribe
             // rides the same finally (SPEC §10.2: event handlers unsubscribed).
@@ -125,7 +128,9 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             }
             finally
             {
-                Volatile.Write(ref activeCommand, null);
+                // Do not let a late cleanup from an old enumerator clear a newer
+                // query that has already published its command.
+                Interlocked.CompareExchange(ref activeQuery, null, publishedQuery);
             }
         }
 
@@ -252,7 +257,9 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                         : readKinds[i] switch
                         {
                             SqlLargeValueReader.CellRead.Text =>
-                                SqlLargeValueReader.ReadText(reader, i, maxCellBytes),
+                                columns[i].EngineType.Equals("vector", StringComparison.OrdinalIgnoreCase)
+                                    ? SqlClientVectorValueReader.ReadText(reader, i)
+                                    : SqlLargeValueReader.ReadText(reader, i, maxCellBytes),
                             SqlLargeValueReader.CellRead.Binary =>
                                 SqlLargeValueReader.ReadBinary(reader, i, maxCellBytes),
                             SqlLargeValueReader.CellRead.Vector =>
@@ -311,21 +318,23 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
 
         public ValueTask CancelAsync(string queryId, CancellationToken cancellationToken)
         {
-            // Real TDS cancel; the streaming loop also observes the CancellationToken.
-            SqlCommand? command = Volatile.Read(ref activeCommand);
-            if (command is not null)
+            // A delayed cancel for a completed query must not cancel the next
+            // command on the same session. The streaming loop also observes its
+            // own cancellation token.
+            ActiveQuery? query = Volatile.Read(ref activeQuery);
+            if (query is not null && string.Equals(query.QueryId, queryId, StringComparison.Ordinal))
             {
-                CancelCommand(command);
+                CancelCommand(query.Command);
             }
             return ValueTask.CompletedTask;
         }
 
         public async ValueTask DisposeAsync()
         {
-            SqlCommand? command = Volatile.Read(ref activeCommand);
-            if (command is not null)
+            ActiveQuery? query = Volatile.Read(ref activeQuery);
+            if (query is not null)
             {
-                CancelCommand(command);
+                CancelCommand(query.Command);
             }
             await connection.DisposeAsync().ConfigureAwait(false);
         }

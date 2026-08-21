@@ -169,6 +169,20 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
                     Srid = 4326,
                     SourceBytes = long.MaxValue,
                 },
+                new DriverTruncatedValue
+                {
+                    Kind = "string",
+                    PrefixText = new string('x', 4096),
+                    TotalBytes = long.MaxValue,
+                    DigestHex = new string('f', 64),
+                },
+                new DriverTruncatedValue
+                {
+                    Kind = "binary",
+                    PrefixBytes = new byte[4096],
+                    TotalBytes = long.MaxValue,
+                    DigestHex = new string('f', 64),
+                },
             ];
 
             foreach (object value in values)
