@@ -13,14 +13,20 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Bootstrap
     [Collection("environment")] // env-var mutation must not run concurrently with itself
     public class Sts2BootstrapActivationTests : IDisposable
     {
+        private readonly string? originalEnableEnvironmentValue;
+
         public Sts2BootstrapActivationTests()
         {
+            originalEnableEnvironmentValue = Environment.GetEnvironmentVariable(
+                Sts2BootstrapClass.EnableEnvironmentVariable);
             Environment.SetEnvironmentVariable(Sts2BootstrapClass.EnableEnvironmentVariable, null);
         }
 
         public void Dispose()
         {
-            Environment.SetEnvironmentVariable(Sts2BootstrapClass.EnableEnvironmentVariable, null);
+            Environment.SetEnvironmentVariable(
+                Sts2BootstrapClass.EnableEnvironmentVariable,
+                originalEnableEnvironmentValue);
         }
 
         [Fact]
