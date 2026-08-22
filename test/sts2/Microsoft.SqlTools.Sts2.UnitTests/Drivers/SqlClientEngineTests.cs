@@ -227,6 +227,28 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
         }
 
         [EngineFact]
+        public async Task InfoMessageConsumedInsideResultSetPrecedesResultSetCompletion()
+        {
+            var driver = new SqlClientDriver();
+            await using IDbSession session = await driver.OpenAsync(OpenRequest(), CancellationToken.None);
+
+            List<ExecEvent> events = await ExecuteAsync(session, """
+                set ansi_warnings on;
+                select sum(value) as total
+                from (values (cast(1 as int)), (null), (2)) as source(value);
+                """);
+
+            int messageIndex = events.FindIndex(execEvent =>
+                execEvent is ServerMessage { Number: 8153 });
+            int completionIndex = events.FindIndex(execEvent =>
+                execEvent is ResultSetCompleted { ResultSetId: 0 });
+
+            Assert.True(messageIndex >= 0, "Expected SQL Server warning 8153.");
+            Assert.True(completionIndex > messageIndex,
+                "An informational token consumed while reading a result set must be published before resultSetDone.");
+        }
+
+        [EngineFact]
         public async Task CompletionIsPublishedAfterProviderCleanup()
         {
             var driver = new SqlClientDriver();
