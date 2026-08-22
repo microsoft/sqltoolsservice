@@ -346,7 +346,11 @@ namespace Microsoft.SqlTools.Sts2.Hosting
         /// </summary>
         private void EnterFatal(string reason)
         {
-            if (Interlocked.CompareExchange(ref fatalReason, reason, null) is not null || Volatile.Read(ref shuttingDown) != 0)
+            // Dispose publishes shuttingDown before it tears components down. Check that
+            // state before publishing a reason so their late fault continuations cannot
+            // turn an intentional shutdown into an apparent fatal session.
+            if (Volatile.Read(ref shuttingDown) != 0
+                || Interlocked.CompareExchange(ref fatalReason, reason, null) is not null)
             {
                 return;
             }

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Pipelines;
 using System.Linq;
+using System.Reflection;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,6 +24,53 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Bootstrap
 {
     public sealed class Sts2SessionStartupTests
     {
+        [Fact]
+        public async Task LateComponentFaultAfterCleanDisposeDoesNotSetFatalReason()
+        {
+            string directory = Path.Combine(
+                Path.GetTempPath(),
+                "sts2-clean-dispose-" + Guid.NewGuid().ToString("N"));
+            var input = new Pipe();
+            var output = new Pipe();
+            Sts2Session session = Sts2Session.Start(
+                new Sts2SessionOptions
+                {
+                    Input = Stream.Null,
+                    Output = Stream.Null,
+                    RunId = "clean-dispose",
+                    JournalDirectory = directory,
+                    ServiceVersion = "startup-test",
+                    Drivers = new Dictionary<string, IDbDriver> { ["fake"] = new FakeDriver() },
+                },
+                output.Writer,
+                input.Reader);
+
+            try
+            {
+                await session.DisposeAsync();
+
+                MethodInfo enterFatal = typeof(Sts2Session).GetMethod(
+                    "EnterFatal",
+                    BindingFlags.Instance | BindingFlags.NonPublic)!;
+                enterFatal.Invoke(session, ["late component fault"]);
+
+                Assert.Null(session.FatalReason);
+                Assert.True(session.Completion.IsCompletedSuccessfully);
+            }
+            finally
+            {
+                await input.Writer.CompleteAsync();
+                await output.Reader.CompleteAsync();
+                try
+                {
+                    Directory.Delete(directory, recursive: true);
+                }
+                catch (IOException)
+                {
+                }
+            }
+        }
+
         [Fact]
         public async Task BufferedRpcCannotOvertakeCommittedPrivacyPolicy()
         {
