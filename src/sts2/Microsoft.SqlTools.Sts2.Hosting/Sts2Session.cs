@@ -46,7 +46,7 @@ namespace Microsoft.SqlTools.Sts2.Hosting
         /// <summary>Service version reported by initialize/ping.</summary>
         public required string ServiceVersion { get; init; }
 
-        /// <summary>Registered drivers; empty until the real adapters land (M4/M5).</summary>
+        /// <summary>Registered database drivers, keyed by protocol driver name.</summary>
         public IReadOnlyDictionary<string, IDbDriver> Drivers { get; init; } = new Dictionary<string, IDbDriver>();
 
         /// <summary>Directory export bundles are written to; defaults to the journal directory.</summary>
