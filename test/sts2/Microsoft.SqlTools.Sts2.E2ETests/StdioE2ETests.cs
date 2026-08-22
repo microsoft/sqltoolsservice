@@ -4,7 +4,9 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,6 +25,12 @@ namespace Microsoft.SqlTools.Sts2.E2ETests
 
         private CancellationToken TestTimeout => testTimeout.Token;
 
+        private sealed record QueryTranscript(
+            string QueryId,
+            IReadOnlyList<JsonElement> ResultSets,
+            IReadOnlyList<JsonElement> Pages,
+            JsonElement Completion);
+
         public void Dispose()
         {
             testTimeout.Dispose();
@@ -34,6 +42,18 @@ namespace Microsoft.SqlTools.Sts2.E2ETests
             {
                 // Best effort; temp cleanup.
             }
+        }
+
+        [Fact]
+        public void SpawnedSubjectMatchesCurrentTestBuild()
+        {
+            string serviceDll = ServiceProcessClient.LocateServiceDll();
+            var testOutput = new DirectoryInfo(AppContext.BaseDirectory);
+            var serviceOutput = new DirectoryInfo(Path.GetDirectoryName(serviceDll)!);
+
+            Assert.Equal(testOutput.Name, serviceOutput.Name);
+            Assert.Equal(testOutput.Parent!.Name, serviceOutput.Parent!.Name);
+            Assert.True(File.Exists(serviceDll));
         }
 
         [Fact]
@@ -97,7 +117,7 @@ namespace Microsoft.SqlTools.Sts2.E2ETests
         }
 
         [Fact]
-        public async Task EnabledMode_SqliteQueryStreamsOverRealStdio()
+        public async Task EnabledMode_SqliteQueryExercisesPagedLifecycleOverRealStdio()
         {
             await using var client = ServiceProcessClient.Start(enableSts2: true, logDirectory: logDirectory);
             await client.RequestAsync("v2/initialize", new { clientName = "e2e" }, TestTimeout);
@@ -111,42 +131,110 @@ namespace Microsoft.SqlTools.Sts2.E2ETests
             // before the next executes.
             await ExecuteToCompletionAsync(client, connectionId, "create table t(n integer)", TestTimeout);
             await ExecuteToCompletionAsync(client, connectionId, "insert into t values (10),(20)", TestTimeout);
-            JsonElement completeParams = await ExecuteToCompletionAsync(client, connectionId, "select n from t order by n", TestTimeout);
-            Assert.Equal("succeeded", completeParams.GetProperty("status").GetString());
+            QueryTranscript selected = await ExecuteToCompletionAsync(
+                client,
+                connectionId,
+                "select n from t order by n",
+                TestTimeout);
+            Assert.Equal("succeeded", selected.Completion.GetProperty("status").GetString());
+            Assert.Single(selected.ResultSets);
+            Assert.Equal("n", selected.ResultSets[0].GetProperty("columns")[0].GetProperty("name").GetString());
+            Assert.Equal(
+                [10L, 20L],
+                selected.Pages.SelectMany(page => page.GetProperty("rows").EnumerateArray())
+                    .Select(row => row[0].GetInt64()));
+
+            // More result sets than the four-page credit window. Wire pageSeq restarts at
+            // zero for each set; the helper's cumulative per-query ack ordinal must keep the
+            // stream moving through all six pages.
+            QueryTranscript manySets = await ExecuteToCompletionAsync(
+                client,
+                connectionId,
+                "select 0 as n; select 1 as n; select 2 as n; " +
+                "select 3 as n; select 4 as n; select 5 as n;",
+                TestTimeout);
+            Assert.Equal("succeeded", manySets.Completion.GetProperty("status").GetString());
+            Assert.Equal(6, manySets.ResultSets.Count);
+            Assert.Equal(6, manySets.Pages.Count);
+            Assert.All(manySets.Pages, page => Assert.Equal(0, page.GetProperty("pageSeq").GetInt32()));
+            Assert.Equal(
+                Enumerable.Range(0, 6),
+                manySets.Pages.Select(page => page.GetProperty("rows")[0][0].GetInt32()));
+
+            JsonElement afterDispose = (await client.RequestAsync(
+                "v2/diagnostics.state",
+                new { },
+                TestTimeout)).GetProperty("result");
+            Assert.Empty(afterDispose.GetProperty("queries").EnumerateObject());
+            Assert.Equal(
+                JsonValueKind.Null,
+                afterDispose.GetProperty("connections").GetProperty(connectionId).GetProperty("activeQueryId").ValueKind);
+            Assert.Equal(0, afterDispose.GetProperty("runtime").GetProperty("activeQueryPumps").GetInt32());
+
+            JsonElement close = await client.RequestAsync(
+                "v2/connection.close",
+                new { connectionId },
+                TestTimeout);
+            Assert.True(close.TryGetProperty("result", out _), "close failed: " + close.GetRawText());
+
+            JsonElement afterClose = (await client.RequestAsync(
+                "v2/diagnostics.state",
+                new { },
+                TestTimeout)).GetProperty("result");
+            Assert.Empty(afterClose.GetProperty("connections").EnumerateObject());
+            Assert.Equal(0, afterClose.GetProperty("runtime").GetProperty("openLeases").GetInt32());
         }
 
-        private static async Task<JsonElement> ExecuteToCompletionAsync(
+        private static async Task<QueryTranscript> ExecuteToCompletionAsync(
             ServiceProcessClient client, string connectionId, string sql, System.Threading.CancellationToken ct)
         {
-            JsonElement execute = await client.RequestAsync("v2/query.execute", new { connectionId, sql }, ct);
+            JsonElement execute = await client.RequestAsync(
+                "v2/query.execute",
+                new { connectionId, sql, options = new { pageRows = 1 } },
+                ct);
             Assert.True(execute.TryGetProperty("result", out JsonElement result), "execute rejected: " + execute.GetRawText());
             string queryId = result.GetProperty("queryId").GetString()!;
-            while (!ct.IsCancellationRequested)
+            var resultSets = new List<JsonElement>();
+            var pages = new List<JsonElement>();
+            int receivedPageOrdinal = -1;
+            try
             {
-                (string _, JsonElement completeParams) = await WaitForNotificationAsync(client, "v2/query.complete", ct);
-                if (completeParams.GetProperty("queryId").GetString() == queryId)
+                while (!ct.IsCancellationRequested)
                 {
-                    return completeParams;
-                }
-            }
-            throw new TimeoutException("query " + queryId + " did not complete");
-        }
-
-        private static async Task<(string Method, JsonElement Params)> WaitForNotificationAsync(
-            ServiceProcessClient client, string method, System.Threading.CancellationToken ct)
-        {
-            while (!ct.IsCancellationRequested)
-            {
-                while (client.Notifications.TryDequeue(out (string Method, JsonElement Params) notification))
-                {
-                    if (notification.Method == method)
+                    (string method, JsonElement parameters) =
+                        await client.ReadQueryNotificationAsync(queryId, ct);
+                    switch (method)
                     {
-                        return notification;
+                        case "v2/query.resultSet":
+                            resultSets.Add(parameters);
+                            break;
+
+                        case "v2/query.rows":
+                            pages.Add(parameters);
+                            receivedPageOrdinal++;
+                            await client.NotifyAsync(
+                                "v2/query.ack",
+                                new { queryId, throughPageSeq = receivedPageOrdinal },
+                                ct);
+                            break;
+
+                        case "v2/query.complete":
+                            JsonElement dispose = await client.RequestAsync(
+                                "v2/query.dispose",
+                                new { queryId },
+                                ct);
+                            Assert.True(
+                                dispose.TryGetProperty("result", out _),
+                                "dispose failed: " + dispose.GetRawText());
+                            return new QueryTranscript(queryId, resultSets, pages, parameters);
                     }
                 }
-                await Task.Delay(20, ct);
+                throw new TimeoutException("query " + queryId + " did not complete");
             }
-            throw new TimeoutException("notification " + method + " not received");
+            finally
+            {
+                client.ReleaseQueryNotifications(queryId);
+            }
         }
 
         [Fact]

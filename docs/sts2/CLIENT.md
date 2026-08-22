@@ -17,7 +17,10 @@ table and `docs/sts2/TRACE-SCHEMA.md` for the envelope/trace format.
    `v2/query.resultSet`, `v2/query.rows`, `v2/query.message`, then exactly one
    `v2/query.complete`.
 4. Backpressure: the server streams up to `windowPages` unacked pages; the client sends
-   `v2/query.ack` (per-page `pageSeq` or high-water `throughPageSeq`) to open the window.
+   `v2/query.ack` to open the window. A per-page acknowledgement identifies the wire page
+   with both `resultSetId` and `pageSeq`. A high-water `throughPageSeq` is instead the
+   cumulative zero-based page ordinal across the entire query (wire `pageSeq` restarts for
+   each result set).
 5. `v2/query.cancel` and `v2/query.dispose` are idempotent. `v2/diagnostics.{ping,health,
    state,exportLog}` are always available.
 
@@ -44,13 +47,23 @@ const conn = createMessageConnection(
 // a single completion promise across queries (that races: a fast first query resolves the
 // promise meant for a later one). Track per-query state in a registry instead.
 type Completion = { queryId: string; status: string; rowsAffected: number | null; error?: unknown };
-const pending = new Map<string, { resolve: (c: Completion) => void; rows: unknown[][] }>();
+const pending = new Map<string, {
+  resolve: (c: Completion) => void;
+  rows: unknown[][];
+  receivedPageOrdinal: number;
+}>();
 
 conn.onNotification("v2/query.resultSet", (p: any) => { /* p.queryId, p.columns */ });
 conn.onNotification("v2/query.rows", (p: any) => {
-  pending.get(p.queryId)?.rows.push(...p.rows);
+  const query = pending.get(p.queryId);
+  if (!query) return;
+  query.rows.push(...p.rows);
   // Acknowledge to keep the backpressure window open (high-water form).
-  conn.sendNotification("v2/query.ack", { queryId: p.queryId, throughPageSeq: p.pageSeq });
+  query.receivedPageOrdinal++;
+  conn.sendNotification("v2/query.ack", {
+    queryId: p.queryId,
+    throughPageSeq: query.receivedPageOrdinal,
+  });
 });
 conn.onNotification("v2/query.message", (p: any) => { /* server messages as DATA, not errors */ });
 conn.onNotification("v2/query.complete", (p: Completion) => pending.get(p.queryId)?.resolve(p));
@@ -63,7 +76,11 @@ conn.listen();
 async function execute(connectionId: string, sql: string) {
   const { queryId } = await conn.sendRequest<{ queryId: string }>("v2/query.execute", { connectionId, sql });
   const rows: unknown[][] = [];
-  const completion = await new Promise<Completion>((resolve) => pending.set(queryId, { resolve, rows }));
+  const completion = await new Promise<Completion>((resolve) => pending.set(queryId, {
+    resolve,
+    rows,
+    receivedPageOrdinal: -1,
+  }));
   pending.delete(queryId);
   await conn.sendRequest("v2/query.dispose", { queryId });
   return { rows, completion };

@@ -37,7 +37,10 @@ namespace Microsoft.SqlTools.Sts2.Hosting
         /// <summary>Run id stamped on every envelope and journal file.</summary>
         public required string RunId { get; init; }
 
-        /// <summary>Directory for journal segments and manifest (<c>&lt;log-dir&gt;/sts2</c>).</summary>
+        /// <summary>
+        /// Per-run directory that directly contains this session's journal segments and
+        /// manifest (<c>&lt;log-dir&gt;/sts2/&lt;runId&gt;</c> in the product composition).
+        /// </summary>
         public required string JournalDirectory { get; init; }
 
         /// <summary>Service version reported by initialize/ping.</summary>
@@ -142,6 +145,7 @@ namespace Microsoft.SqlTools.Sts2.Hosting
             PipeReader? inputReader)
         {
             ArgumentNullException.ThrowIfNull(options);
+            bool directPipeEndpoint = outputWriter is not null;
 
             var secrets = new SecretSideTable();
             var exportTemplate = new Runtime.Export.ExportBundleRequest
@@ -153,7 +157,13 @@ namespace Microsoft.SqlTools.Sts2.Hosting
             var effectRunner = new DriverEffectRunner(options.Drivers, secrets, exportTemplate);
             var journal = new JournalWriter(options.RunId,
                 new JournalOptions { Directory = options.JournalDirectory },
-                new JournalRunInfo { ServiceVersion = options.ServiceVersion, CommandLine = options.CommandLine });
+                new JournalRunInfo
+                {
+                    ServiceVersion = options.ServiceVersion,
+                    CommandLine = options.CommandLine,
+                    EffectiveConfiguration = EffectiveConfiguration(directPipeEndpoint),
+                    DriverPackageVersions = DriverPackageVersions(options.Drivers.Values),
+                });
 
             // The coordinator owns the metrics sink; here we add a live tail for the
             // diagnostic viewer plus any caller-supplied observers (SPEC §12). Third-party
@@ -179,7 +189,6 @@ namespace Microsoft.SqlTools.Sts2.Hosting
             Action<string>? rpcTransportSnapshotListener = rpcTransportDiagnostics is null
                 ? null
                 : rpcTransportDiagnostics.WriteSnapshot;
-            bool directPipeEndpoint = outputWriter is not null;
             var rpcTransportStats = new RpcTransportStats(rpcTransportSnapshotListener, directPipeEndpoint);
             var formatter = new MeasuredSystemTextJsonFormatter(innerFormatter, rpcTransportStats);
             MeasuredHeaderDelimitedMessageHandler handler = directPipeEndpoint
@@ -204,7 +213,6 @@ namespace Microsoft.SqlTools.Sts2.Hosting
                 rpcTransportStats,
                 rpcTransportDiagnostics);
             rpc.AddLocalRpcTarget(new GatewayTarget(session), null);
-            rpc.StartListening();
 
             // Session config is a journaled root envelope so replay starts identically.
             var drivers = new JsonArray(options.Drivers.Values
@@ -231,8 +239,55 @@ namespace Microsoft.SqlTools.Sts2.Hosting
                 },
                 ["drivers"] = drivers,
             };
-            coordinator.PostControlAsync("session.start", ToElement(sessionStart)).AsTask().GetAwaiter().GetResult();
-            return session;
+            try
+            {
+                // Commit the product privacy policy before exposing RPC intake. StreamJsonRpc
+                // can consume already-buffered/pipelined frames as soon as StartListening is
+                // called; enqueuing session.start was not enough to prevent those frames from
+                // being captured under CoreState.Initial's permissive defaults.
+                coordinator.PostControlBarrierAsync("session.start", ToElement(sessionStart)).GetAwaiter().GetResult();
+                rpc.StartListening();
+                return session;
+            }
+            catch
+            {
+                try
+                {
+                    session.DisposeAsync().AsTask().GetAwaiter().GetResult();
+                }
+                catch
+                {
+                    // Preserve the startup failure; cleanup is best effort at this boundary.
+                }
+                throw;
+            }
+        }
+
+        private static IReadOnlyDictionary<string, string> EffectiveConfiguration(bool directPipeEndpoint) =>
+            new SortedDictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["capture.maxRow"] = "digest",
+                ["capture.maxSql"] = "digest",
+                ["capture.row"] = "digest",
+                ["capture.sql"] = "digest",
+                ["limits.maxCellBytes"] = Sts2Defaults.MaxCellBytes.ToString(CultureInfo.InvariantCulture),
+                ["limits.maxConnections"] = Sts2Defaults.MaxConnections.ToString(CultureInfo.InvariantCulture),
+                ["limits.maxFrameBytes"] = Sts2Defaults.MaxFrameBytes.ToString(CultureInfo.InvariantCulture),
+                ["limits.pageBytes"] = Sts2Defaults.PageBytes.ToString(CultureInfo.InvariantCulture),
+                ["limits.pageRows"] = Sts2Defaults.PageRows.ToString(CultureInfo.InvariantCulture),
+                ["limits.windowPages"] = Sts2Defaults.WindowPages.ToString(CultureInfo.InvariantCulture),
+                ["specVersion"] = Sts2WireConstants.SpecVersion,
+                ["transport.endpoint"] = directPipeEndpoint ? "pipe" : "stream",
+            };
+
+        private static IReadOnlyDictionary<string, string> DriverPackageVersions(IEnumerable<IDbDriver> drivers)
+        {
+            var versions = new SortedDictionary<string, string>(StringComparer.Ordinal);
+            foreach (IDbDriver driver in drivers.OrderBy(driver => driver.Name, StringComparer.Ordinal))
+            {
+                versions[driver.Name] = driver.GetType().Assembly.GetName().Version?.ToString() ?? "unknown";
+            }
+            return versions;
         }
 
         /// <summary>

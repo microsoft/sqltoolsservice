@@ -12,6 +12,7 @@ using System.IO;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.Sts2.E2ETests
@@ -29,6 +30,7 @@ namespace Microsoft.SqlTools.Sts2.E2ETests
         private readonly Task readLoop;
         private readonly Task stderrLoop;
         private readonly ConcurrentDictionary<string, TaskCompletionSource<JsonElement>> pendingRequests = new(StringComparer.Ordinal);
+        private readonly ConcurrentDictionary<string, Channel<(string Method, JsonElement Params)>> queryNotifications = new(StringComparer.Ordinal);
         private int nextId;
 
         private ServiceProcessClient(Process process)
@@ -58,34 +60,21 @@ namespace Microsoft.SqlTools.Sts2.E2ETests
             DirectoryInfo testOutputDirectory = new(AppContext.BaseDirectory);
             string currentTfm = testOutputDirectory.Name;
             string currentConfiguration = testOutputDirectory.Parent?.Name ?? "Debug";
-            string alternateConfiguration = currentConfiguration.Equals("Release", StringComparison.OrdinalIgnoreCase)
-                ? "Debug"
-                : "Release";
-            foreach (string configuration in new[] { currentConfiguration, alternateConfiguration })
+            string candidate = Path.Combine(
+                dir,
+                "src",
+                "Microsoft.SqlTools.ServiceLayer",
+                "bin",
+                currentConfiguration,
+                currentTfm,
+                "MicrosoftSqlToolsServiceLayer.dll");
+            if (File.Exists(candidate))
             {
-                string configurationDirectory = Path.Combine(
-                    dir, "src", "Microsoft.SqlTools.ServiceLayer", "bin", configuration);
-                string candidate = Path.Combine(
-                    configurationDirectory, currentTfm, "MicrosoftSqlToolsServiceLayer.dll");
-                if (File.Exists(candidate))
-                {
-                    return candidate;
-                }
-                if (!Directory.Exists(configurationDirectory))
-                {
-                    continue;
-                }
-                foreach (string frameworkDirectory in Directory.EnumerateDirectories(configurationDirectory))
-                {
-                    candidate = Path.Combine(frameworkDirectory, "MicrosoftSqlToolsServiceLayer.dll");
-                    if (File.Exists(candidate))
-                    {
-                        return candidate;
-                    }
-                }
+                return candidate;
             }
             throw new InvalidOperationException(
-                "MicrosoftSqlToolsServiceLayer.dll not found. Build src/Microsoft.SqlTools.ServiceLayer first (verify.sh does this).");
+                "The exact E2E subject was not built: " + candidate +
+                ". The E2E project reference must build ServiceLayer for the current configuration and TFM.");
         }
 
         public static ServiceProcessClient Start(bool enableSts2, string logDirectory)
@@ -149,6 +138,25 @@ namespace Microsoft.SqlTools.Sts2.E2ETests
             return WriteFrameAsync("{\"jsonrpc\":\"2.0\",\"method\":\"" + method + "\",\"params\":" + paramsJson + "}", ct);
         }
 
+        public async ValueTask<(string Method, JsonElement Params)> ReadQueryNotificationAsync(
+            string queryId,
+            CancellationToken ct)
+        {
+            Channel<(string Method, JsonElement Params)> channel = queryNotifications.GetOrAdd(
+                queryId,
+                static _ => Channel.CreateUnbounded<(string Method, JsonElement Params)>(
+                    new UnboundedChannelOptions { SingleReader = true, SingleWriter = true }));
+            return await channel.Reader.ReadAsync(ct);
+        }
+
+        public void ReleaseQueryNotifications(string queryId)
+        {
+            if (queryNotifications.TryRemove(queryId, out Channel<(string Method, JsonElement Params)>? channel))
+            {
+                channel.Writer.TryComplete();
+            }
+        }
+
         public async Task<bool> WaitForExitAsync(TimeSpan timeout)
         {
             using var cts = new CancellationTokenSource(timeout);
@@ -185,7 +193,19 @@ namespace Microsoft.SqlTools.Sts2.E2ETests
                     if (root.TryGetProperty("method", out JsonElement methodElement))
                     {
                         root.TryGetProperty("params", out JsonElement paramsElement);
-                        Notifications.Enqueue((methodElement.GetString()!, paramsElement));
+                        string method = methodElement.GetString()!;
+                        Notifications.Enqueue((method, paramsElement));
+                        if (paramsElement.ValueKind == JsonValueKind.Object
+                            && paramsElement.TryGetProperty("queryId", out JsonElement queryIdElement)
+                            && queryIdElement.ValueKind == JsonValueKind.String)
+                        {
+                            string queryId = queryIdElement.GetString()!;
+                            queryNotifications.GetOrAdd(
+                                queryId,
+                                static _ => Channel.CreateUnbounded<(string Method, JsonElement Params)>(
+                                    new UnboundedChannelOptions { SingleReader = true, SingleWriter = true }))
+                                .Writer.TryWrite((method, paramsElement));
+                        }
                         continue;
                     }
                     if (root.TryGetProperty("id", out JsonElement idElement)
@@ -201,6 +221,10 @@ namespace Microsoft.SqlTools.Sts2.E2ETests
                 foreach (TaskCompletionSource<JsonElement> tcs in pendingRequests.Values)
                 {
                     tcs.TrySetException(new EndOfStreamException("Service process stdout closed.", ex));
+                }
+                foreach (Channel<(string Method, JsonElement Params)> channel in queryNotifications.Values)
+                {
+                    channel.Writer.TryComplete(ex);
                 }
             }
         }
