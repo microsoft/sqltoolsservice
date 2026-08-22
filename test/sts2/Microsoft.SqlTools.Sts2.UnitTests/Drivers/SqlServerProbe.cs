@@ -67,8 +67,17 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
             }
             catch (Exception ex) when (ex is SqlException or OperationCanceledException or InvalidOperationException)
             {
-                return (false, $"SQL Server not reachable via {EnvVar}: {ex.Message}");
+                return (false, UnavailableReason(ex));
             }
+        }
+
+        internal static string UnavailableReason(Exception exception)
+        {
+            ArgumentNullException.ThrowIfNull(exception);
+            // Probe output is printed for skips and required-CI failures. Provider
+            // messages may echo server/user/connection details, so retain only the
+            // exception classification needed to distinguish timeout/config failures.
+            return $"SQL Server not reachable via {EnvVar} ({exception.GetType().Name}).";
         }
     }
 
