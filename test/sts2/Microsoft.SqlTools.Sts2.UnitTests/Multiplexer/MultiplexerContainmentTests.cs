@@ -56,6 +56,25 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Multiplexer
             Assert.Equal(JsonValueKind.Number, err.GetProperty("code").ValueKind); // numeric JSON-RPC code (I12)
         }
 
+        [Theory]
+        [InlineData("1e0")]
+        [InlineData("1.0")]
+        [InlineData("\"escaped\\u002Did\"")]
+        public async Task SynthesizedUnavailablePreservesExactRequestId(string idRawJson)
+        {
+            await using var h = new MuxHarness();
+            h.Mux.MarkSts2Dead("dead");
+            await h.StdoutFrameAsync(TestTimeout); // drain v2/fatal
+
+            await h.ClientSendsAsync(
+                "{\"jsonrpc\":\"2.0\",\"id\":" + idRawJson +
+                ",\"method\":\"v2/query.execute\",\"params\":{}}",
+                TestTimeout);
+            string unavailable = await h.StdoutFrameAsync(TestTimeout);
+
+            Assert.Contains("\"id\":" + idRawJson + ",\"error\"", unavailable, StringComparison.Ordinal);
+        }
+
         [Fact]
         public async Task V2NotificationsAfterDeathAreDroppedWithDiagnostic()
         {
