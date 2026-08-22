@@ -151,6 +151,8 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
             object[] values =
             [
                 decimal.MinValue,
+                long.MinValue,
+                long.MaxValue,
                 DateTime.MaxValue,
                 DateTimeOffset.MaxValue,
                 TimeSpan.MaxValue,
@@ -211,6 +213,21 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
             List<IReadOnlyList<IReadOnlyList<object?>>> pages = Drain(
                 builder,
                 new[] { Row(sentinel), Row(sentinel), Row(sentinel) });
+
+            Assert.Equal(3, pages.Count);
+            Assert.All(pages, page => Assert.Single(page));
+        }
+
+        [Fact]
+        public void UnsafeInt64WrappersSplitAtTheWireByteBound()
+        {
+            int encodedBytes = Encoding.UTF8.GetByteCount(
+                WireValueEncoder.Encode(long.MaxValue)!.ToJsonString());
+            var builder = new SqlRowsPageBuilder(pageRows: 100, pageBytes: encodedBytes * 2 - 1);
+
+            List<IReadOnlyList<IReadOnlyList<object?>>> pages = Drain(
+                builder,
+                new[] { Row(long.MaxValue), Row(long.MaxValue), Row(long.MaxValue) });
 
             Assert.Equal(3, pages.Count);
             Assert.All(pages, page => Assert.Single(page));

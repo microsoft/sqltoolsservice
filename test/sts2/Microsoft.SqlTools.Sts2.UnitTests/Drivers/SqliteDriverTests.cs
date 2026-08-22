@@ -175,6 +175,28 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
         }
 
         [Fact]
+        public async Task RowIdPrimaryKeyNullabilityDoesNotOverstateTextConstraint()
+        {
+            var driver = new SqliteDriver();
+            await using IDbSession session = await driver.OpenAsync(Request(":memory:"), CancellationToken.None);
+            await ExecuteAsync(session, "create table text_key(id text primary key, payload text)");
+            await ExecuteAsync(session, "insert into text_key values(null, 'accepted')");
+
+            List<ExecEvent> textEvents = await ExecuteAsync(
+                session,
+                "select id, payload from text_key");
+            ResultSetStarted textResult = Assert.Single(textEvents.OfType<ResultSetStarted>());
+            Assert.Null(textResult.Columns[0].Nullable);
+            Assert.True(textResult.Columns[1].Nullable);
+            Assert.Null(Assert.Single(Assert.Single(textEvents.OfType<RowsPage>()).Cells)[0]);
+
+            await ExecuteAsync(session, "create table integer_key(id integer primary key)");
+            ResultSetStarted integerResult = Assert.Single(
+                (await ExecuteAsync(session, "select id from integer_key")).OfType<ResultSetStarted>());
+            Assert.False(integerResult.Columns[0].Nullable);
+        }
+
+        [Fact]
         public async Task PagingSplitsRowsByPageRows()
         {
             var driver = new SqliteDriver();

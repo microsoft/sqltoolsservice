@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 using Microsoft.Data.SqlTypes;
 using Microsoft.SqlTools.Sts2.Abstractions;
 using Microsoft.SqlTools.Sts2.Drivers.SqlClient;
@@ -286,6 +287,29 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
             // The provider exception is contained by the worker rather than surfacing on
             // CancellationTokenSource.Cancel or becoming an unobserved task failure.
             await providerFinished.Task.WaitAsync(TimeSpan.FromSeconds(2));
+        }
+
+        [Fact]
+        public async Task CancelAfterExecStartedPreventsCommandFromStarting()
+        {
+            await using IDbSession session = new SqlClientSession(
+                new SqlConnection(),
+                new ServerInfo
+                {
+                    Product = "test",
+                    Version = "test",
+                    Dialect = "tsql",
+                });
+            await using IAsyncEnumerator<ExecEvent> events = session.ExecuteAsync(
+                new QueryExecuteRequest { QueryId = "q-before-provider", Sql = "select 1" },
+                CancellationToken.None).GetAsyncEnumerator();
+
+            Assert.True(await events.MoveNextAsync());
+            Assert.IsType<ExecStarted>(events.Current);
+            await session.CancelAsync("q-before-provider", CancellationToken.None);
+
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(async () =>
+                await events.MoveNextAsync());
         }
 
         [Fact]
