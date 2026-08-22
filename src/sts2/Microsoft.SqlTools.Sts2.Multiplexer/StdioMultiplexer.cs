@@ -56,6 +56,8 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
         private long transportStatsRevision;
         private long lastEmittedTransportStatsRevision = -1;
 
+        private bool IsSts2Dead => Volatile.Read(ref sts2Dead) != 0;
+
         /// <summary>Creates a multiplexer over the real stdio streams. Call <see cref="Start"/> to begin pumping.</summary>
         public StdioMultiplexer(Stream realInput, Stream realOutput, MultiplexerOptions? options = null)
         {
@@ -175,7 +177,7 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
             legacyInbound.Writer.Complete();
             legacyOutbound.Reader.Complete();
             sts2Outbound.Reader.Complete();
-            if (sts2Dead == 0)
+            if (!IsSts2Dead)
             {
                 sts2Inbound.Writer.Complete();
             }
@@ -300,7 +302,7 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
             {
                 await reader.CompleteAsync().ConfigureAwait(false);
                 legacyInbound.Writer.Complete();
-                if (Interlocked.CompareExchange(ref sts2Dead, 0, 0) == 0)
+                if (!IsSts2Dead)
                 {
                     sts2Inbound.Writer.Complete();
                 }
@@ -358,7 +360,7 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
                 && idTable.TryConsume(publicId, out ChannelKind channel, out string originalIdRawJson))
             {
                 byte[] restored = ReplaceId(frameBytes.AsSpan(headerLength), originalIdRawJson, asRawJson: true);
-                if (channel == ChannelKind.Sts2 && sts2Dead == 1)
+                if (channel == ChannelKind.Sts2 && IsSts2Dead)
                 {
                     Diagnostic(MultiplexerDiagnosticCodes.Sts2Dead, "Dropped response to dead STS2 channel.");
                     return;
@@ -374,7 +376,7 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
 
         private async Task DeliverToSts2Async(byte[] frameBytes, int headerLength, JsonRpcMessageInfo info, CancellationToken ct)
         {
-            if (sts2Dead == 1)
+            if (IsSts2Dead)
             {
                 if (info.HasId && !info.IdIsNull && info.IdRawJson is not null)
                 {
@@ -391,7 +393,7 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
 
         private async Task WaitForLifecycleFlushAsync(Func<ISts2LifecycleSink, Task> flushSelector, string signal, CancellationToken ct)
         {
-            if (lifecycleSink is null || sts2Dead == 1)
+            if (lifecycleSink is null || IsSts2Dead)
             {
                 EmitTransportStats();
                 return;
@@ -561,7 +563,7 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
 
         private async Task ProcessOutboundFrameAsync(ChannelKind channel, ReadOnlyMemory<byte> frameBytes, int headerLength, CancellationToken ct)
         {
-            if (channel == ChannelKind.Sts2 && Volatile.Read(ref sts2Dead) != 0)
+            if (channel == ChannelKind.Sts2 && IsSts2Dead)
             {
                 Diagnostic(MultiplexerDiagnosticCodes.Sts2Dead, "Dropped buffered frame from dead STS2 channel.");
                 return;
@@ -582,7 +584,7 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
             {
                 stats.RecordRewrite();
                 string publicId = idTable.Register(channel, info.IdRawJson);
-                if (channel == ChannelKind.Sts2 && Volatile.Read(ref sts2Dead) != 0)
+                if (channel == ChannelKind.Sts2 && IsSts2Dead)
                 {
                     // MarkSts2Dead may have dropped the channel immediately before this
                     // registration. A post-register check closes that race; the outbound
@@ -734,7 +736,7 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
                 // and Unavailable frames opt in explicitly.
                 if (channel == ChannelKind.Sts2
                     && !allowDeadSts2
-                    && Volatile.Read(ref sts2Dead) != 0)
+                    && IsSts2Dead)
                 {
                     Diagnostic(MultiplexerDiagnosticCodes.Sts2Dead, "Dropped queued frame from dead STS2 channel.");
                     return;
