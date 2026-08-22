@@ -48,6 +48,10 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
         private readonly ConcurrentDictionary<string, CancellationTokenSource> opensInFlight = new(StringComparer.Ordinal);
         private readonly ConcurrentDictionary<string, IDbSession> sessions = new(StringComparer.Ordinal);
         private readonly ConcurrentDictionary<string, QueryPump> queryPumps = new(StringComparer.Ordinal);
+        private readonly ConcurrentDictionary<string, QueryPump> ownedQueryPumps = new(StringComparer.Ordinal);
+        private readonly ConcurrentDictionary<long, Task> backgroundTasks = new();
+        private long backgroundTaskId;
+        private int disposing;
 
         /// <summary>Live pump state for one streaming query.</summary>
         private sealed class QueryPump
@@ -61,6 +65,8 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
 
             /// <summary>The streaming task; awaited on dispose so the reader fully unwinds (R009).</summary>
             public Task? PumpTask;
+
+            public int ResourcesDisposed;
 
             /// <summary>True after dispose: no further events may post (I3).</summary>
             public volatile bool Suppressed;
@@ -145,7 +151,9 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
         public int OpensInFlightCount => opensInFlight.Count;
 
         /// <summary>Query pumps still streaming.</summary>
-        public int ActiveQueryPumpCount => queryPumps.Count;
+        public int ActiveQueryPumpCount => ownedQueryPumps.Count;
+
+        internal int BackgroundTaskCount => backgroundTasks.Count;
 
         /// <inheritdoc/>
         int IEffectRunnerDiagnostics.OpenLeases => sessions.Count;
@@ -154,7 +162,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
         int IEffectRunnerDiagnostics.OpensInFlight => opensInFlight.Count;
 
         /// <inheritdoc/>
-        int IEffectRunnerDiagnostics.ActiveQueryPumps => queryPumps.Count;
+        int IEffectRunnerDiagnostics.ActiveQueryPumps => ownedQueryPumps.Count;
 
         /// <summary>
         /// Cancels any running query pumps and in-flight opens, disposes any sessions
@@ -165,20 +173,47 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
         /// </summary>
         public async ValueTask<int> DisposeLeakedSessionsAsync()
         {
-            foreach (string queryId in queryPumps.Keys.ToArray())
+            Interlocked.Exchange(ref disposing, 1);
+
+            KeyValuePair<string, QueryPump>[] pumps = ownedQueryPumps.ToArray();
+            foreach ((_, QueryPump pump) in pumps)
             {
-                if (queryPumps.TryRemove(queryId, out QueryPump? pump))
+                pump.Suppressed = true;
+                TryCancel(pump.Cancellation);
+            }
+            KeyValuePair<string, CancellationTokenSource>[] opens = opensInFlight.ToArray();
+            foreach ((_, CancellationTokenSource cts) in opens)
+            {
+                TryCancel(cts);
+            }
+
+            Task[] ownedTasks = backgroundTasks.Values.Distinct().ToArray();
+            if (ownedTasks.Length > 0)
+            {
+                try
                 {
-                    pump.Suppressed = true;
-                    pump.Cancellation.Cancel();
+                    await Task.WhenAll(ownedTasks)
+                        .WaitAsync(TimeSpan.FromMilliseconds(Sts2Defaults.CloseTimeoutMs))
+                        .ConfigureAwait(false);
+                }
+                catch (Exception)
+                {
+                    // Provider work is cancellation-cooperative by contract, but teardown is
+                    // still bounded. Faults are observed by Track; timed-out resources are
+                    // force-released below and no task is silently forgotten.
                 }
             }
-            foreach (string openId in opensInFlight.Keys.ToArray())
+
+            foreach ((string queryId, QueryPump pump) in pumps)
             {
-                if (opensInFlight.TryGetValue(openId, out CancellationTokenSource? cts))
-                {
-                    cts.Cancel();
-                }
+                queryPumps.TryRemove(queryId, out _);
+                ownedQueryPumps.TryRemove(queryId, out _);
+                DisposePumpResources(pump);
+            }
+            foreach ((string openId, CancellationTokenSource cts) in opens)
+            {
+                opensInFlight.TryRemove(openId, out _);
+                cts.Dispose();
             }
 
             int leaked = 0;
@@ -189,9 +224,11 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                     leaked++;
                     try
                     {
-                        await session.DisposeAsync().ConfigureAwait(false);
+                        await session.DisposeAsync().AsTask()
+                            .WaitAsync(TimeSpan.FromMilliseconds(Sts2Defaults.CloseTimeoutMs))
+                            .ConfigureAwait(false);
                     }
-                    catch (Exception ex) when (ex is DbDriverException or ObjectDisposedException)
+                    catch (Exception)
                     {
                     }
                 }
@@ -226,7 +263,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                     string openId = GetString(effect.Args, "openId") ?? "?";
                     var cancelSource = new CancellationTokenSource();
                     opensInFlight[openId] = cancelSource;
-                    _ = Task.Run(() => OpenAsync(effect, inbox, openId, cancelSource));
+                    Track(Task.Run(() => OpenAsync(effect, inbox, openId, cancelSource)));
                     break;
                 }
 
@@ -235,15 +272,15 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                     string? openId = GetString(effect.Args, "openId");
                     if (openId is not null && opensInFlight.TryGetValue(openId, out CancellationTokenSource? cts))
                     {
-                        cts.Cancel();
+                        TryCancel(cts);
                     }
                     // A missing entry means the open already resolved; the cancel is a no-op.
-                    _ = PostAsync(inbox, effect, """{"status":"ok"}""");
+                    Track(PostAsync(inbox, effect, """{"status":"ok"}"""));
                     break;
                 }
 
                 case "driver.close":
-                    _ = Task.Run(() => CloseAsync(effect, inbox));
+                    Track(Task.Run(() => CloseAsync(effect, inbox)));
                     break;
 
                 case "driver.queryStart":
@@ -256,10 +293,10 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                     int credit = effect.Args.TryGetProperty("credit", out JsonElement c) && c.ValueKind == JsonValueKind.Number ? c.GetInt32() : 0;
                     if (queryId is not null && credit > 0 && queryPumps.TryGetValue(queryId, out QueryPump? pump))
                     {
-                        pump.Credits.Release(credit);
+                        TryRelease(pump.Credits, credit);
                     }
                     // A missing pump means the query already terminated; the credit is moot.
-                    _ = PostAsync(inbox, effect, """{"status":"ok"}""");
+                    Track(PostAsync(inbox, effect, """{"status":"ok"}"""));
                     break;
                 }
 
@@ -272,8 +309,8 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                         // the enumerator regardless of the provider. Provider cancellation is a
                         // best-effort follow-up under a bounded token, so a driver whose
                         // CancelAsync hangs cannot wedge query.cancel (R015).
-                        pump.Cancellation.Cancel();
-                        _ = Task.Run(async () =>
+                        TryCancel(pump.Cancellation);
+                        Track(Task.Run(async () =>
                         {
                             try
                             {
@@ -283,9 +320,9 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                             catch (Exception ex) when (ex is DbDriverException or ObjectDisposedException or OperationCanceledException)
                             {
                             }
-                        });
+                        }));
                     }
-                    _ = PostAsync(inbox, effect, """{"status":"ok"}""");
+                    Track(PostAsync(inbox, effect, """{"status":"ok"}"""));
                     break;
                 }
 
@@ -295,11 +332,11 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                     if (queryId is not null && queryPumps.TryRemove(queryId, out QueryPump? pump))
                     {
                         pump.Suppressed = true; // I3: no further events after dispose
-                        pump.Cancellation.Cancel();
+                        TryCancel(pump.Cancellation);
                         // Await the streaming task BEFORE acking so the driver reader/command is
                         // fully unwound before Core frees the connection — a new query can never
                         // race the old reader on the same session (R009/D-0011).
-                        _ = Task.Run(async () =>
+                        Track(Task.Run(async () =>
                         {
                             try
                             {
@@ -313,23 +350,23 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                                 // The pump's own faults are already classified into events.
                             }
                             await PostDisposeAckAsync(inbox, effect, queryId).ConfigureAwait(false);
-                        });
+                        }));
                     }
                     else
                     {
                         // No live pump (the query already terminated): ack immediately.
-                        _ = PostDisposeAckAsync(inbox, effect, queryId ?? "?");
+                        Track(PostDisposeAckAsync(inbox, effect, queryId ?? "?"));
                     }
                     break;
                 }
 
                 case "diag.export":
-                    _ = Task.Run(() => ExportAsync(effect, inbox));
+                    Track(Task.Run(() => ExportAsync(effect, inbox)));
                     break;
 
                 default:
-                    _ = PostAsync(inbox, effect, string.Create(CultureInfo.InvariantCulture,
-                        $$"""{"status":"error","code":{{JsonSerializer.Serialize(Sts2ErrorCodes.Internal)}},"message":"Unknown effect name."}"""));
+                    Track(PostAsync(inbox, effect, string.Create(CultureInfo.InvariantCulture,
+                        $$"""{"status":"error","code":{{JsonSerializer.Serialize(Sts2ErrorCodes.Internal)}},"message":"Unknown effect name."}""")));
                     break;
             }
         }
@@ -366,6 +403,14 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                     IDbSession session = await driver.OpenAsync(request, linked.Token).ConfigureAwait(false);
                     string handleId = "h-" + openId;
                     sessions[handleId] = session;
+                    if (Volatile.Read(ref disposing) != 0)
+                    {
+                        if (sessions.TryRemove(handleId, out IDbSession? lateSession))
+                        {
+                            await DisposeSessionBestEffortAsync(lateSession).ConfigureAwait(false);
+                        }
+                        return;
+                    }
                     string serverInfo = string.Create(CultureInfo.InvariantCulture, $$"""
                         {"product":{{JsonSerializer.Serialize(session.Server.Product)}},"version":{{JsonSerializer.Serialize(session.Server.Version)}},"engineEdition":{{JsonSerializer.Serialize(session.Server.EngineEdition)}},"engineEditionId":{{JsonSerializer.Serialize(session.Server.EngineEditionId)}},"dialect":{{JsonSerializer.Serialize(session.Server.Dialect)}}}
                         """);
@@ -381,13 +426,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                         // freshly-opened session would be owned by no one — dispose it (R014).
                         if (sessions.TryRemove(handleId, out IDbSession? orphan))
                         {
-                            try
-                            {
-                                await orphan.DisposeAsync().ConfigureAwait(false);
-                            }
-                            catch (Exception ex) when (ex is DbDriverException or ObjectDisposedException)
-                            {
-                            }
+                            await DisposeSessionBestEffortAsync(orphan).ConfigureAwait(false);
                         }
                     }
                 }
@@ -451,8 +490,8 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
 
             if (handleId is null || !sessions.TryGetValue(handleId, out IDbSession? session))
             {
-                _ = PostQueryEventAsync(inbox, effect, queryId,
-                    $$"""{"eventType":"error","code":{{JsonSerializer.Serialize(Sts2ErrorCodes.NotFound)}},"message":"No session for handle."}""");
+                Track(PostQueryEventAsync(inbox, effect, queryId,
+                    $$"""{"eventType":"error","code":{{JsonSerializer.Serialize(Sts2ErrorCodes.NotFound)}},"message":"No session for handle."}"""));
                 return;
             }
 
@@ -467,15 +506,22 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
 
             var pump = new QueryPump { Session = session, Credits = new SemaphoreSlim(initialCredit) };
             queryPumps[queryId] = pump;
+            ownedQueryPumps[queryId] = pump;
             pump.PumpTask = Task.Run(() => StreamQueryPumpAsync(effect, inbox, queryId, sql, maxCellBytes, pageRows, pageBytes, queryTimeoutMs, compactRows, vectorBinary, spatialWkb, pump));
+            Track(pump.PumpTask);
         }
 
         private async Task StreamQueryPumpAsync(EffectWorkItem effect, ICoordinatorInbox inbox, string queryId, string sql, int maxCellBytes, int pageRows, int pageBytes, int queryTimeoutMs, bool compactRows, bool vectorBinary, bool spatialWkb, QueryPump pump)
         {
-            await PostQueryEventAsync(inbox, effect, queryId, """{"eventType":"started"}""").ConfigureAwait(false);
+            bool terminalObserved = false;
 
             try
             {
+                // Keep even the initial post inside the ownership boundary. A coordinator
+                // shutting down can reject it; the pump must still unregister and release
+                // its CTS/semaphore in finally.
+                await PostQueryEventAsync(inbox, effect, queryId, """{"eventType":"started"}""").ConfigureAwait(false);
+
                 // QO-3: page sizing and timeout come from the journaled effect args
                 // (Core-normalized, lower-only for page limits) — the hardcoded
                 // defaults are gone; older journals fall back via ArgsInt.
@@ -587,14 +633,21 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                             break;
 
                         case ExecCompleted completed:
+                            terminalObserved = true;
                             await PostQueryEventAsync(inbox, effect, queryId, string.Create(CultureInfo.InvariantCulture,
                                 $$"""{"eventType":"completed","rowsAffected":{{completed.RowsAffected.Sum()}},"database":{{JsonSerializer.Serialize(completed.Database)}},"stats":{"pages":{{pump.StatsPages}},"rows":{{pump.StatsRows}},"cellSlots":{{pump.StatsCellSlots}},"nullCells":{{pump.StatsNullCells}},"encodedBytes":{{pump.StatsEncodedBytes}},"eventPayloadBytes":{{pump.StatsEventPayloadBytes}},"maxEventPayloadBytes":{{pump.StatsMaxEventPayloadBytes}},"readMsTotal":{{FormatMs(pump.StatsReadMsTotal)}},"creditWaitMsTotal":{{FormatMs(pump.StatsCreditWaitMsTotal)}},"encodeMsTotal":{{FormatMs(pump.StatsEncodeMsTotal)}},"rowsSerializeMsTotal":{{FormatMs(pump.StatsRowsSerializeMsTotal)}},"utf8MeasureMsTotal":{{FormatMs(pump.StatsUtf8MeasureMsTotal)}},"nullBitmapMsTotal":{{FormatMs(pump.StatsNullBitmapMsTotal)}},"pageBodyBuildMsTotal":{{FormatMs(pump.StatsPageBodyBuildMsTotal)}},"eventBuildMsTotal":{{FormatMs(pump.StatsEventBuildMsTotal)}},"postBuildMsTotal":{{FormatMs(pump.StatsPostBuildMsTotal)}},"postMsTotal":{{FormatMs(pump.StatsPostMsTotal)}},"encodePrepAllocatedBytes":{{pump.StatsEncodePrepAllocatedBytes}},"eventBuildAllocatedBytes":{{pump.StatsEventBuildAllocatedBytes}},"postBuildAllocatedBytes":{{pump.StatsPostBuildAllocatedBytes}} } }""")).ConfigureAwait(false);
-                            break;
+                            return; // A terminal driver event is terminal even if a faulty provider yields more.
 
                         default:
                             break;
                     }
                     lastEventDoneTicks = Stopwatch.GetTimestamp();
+                }
+
+                if (!pump.Suppressed && !terminalObserved)
+                {
+                    await PostQueryEventAsync(inbox, effect, queryId, string.Create(CultureInfo.InvariantCulture,
+                        $$"""{"eventType":"error","code":{{JsonSerializer.Serialize(Sts2ErrorCodes.QueryFailedTransport)}},"message":"Driver stream ended without a completion event."}""")).ConfigureAwait(false);
                 }
             }
             catch (OperationCanceledException)
@@ -627,6 +680,8 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
             finally
             {
                 queryPumps.TryRemove(queryId, out _);
+                ownedQueryPumps.TryRemove(queryId, out _);
+                DisposePumpResources(pump);
             }
         }
 
@@ -1135,20 +1190,31 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
         {
             string connectionId = GetString(effect.Args, "connectionId") ?? "?";
             string? handleId = GetString(effect.Args, "handleId");
-            if (handleId is not null && sessions.TryRemove(handleId, out IDbSession? session))
+            string? cleanupError = null;
+            try
             {
-                try
+                if (handleId is not null && sessions.TryRemove(handleId, out IDbSession? session))
                 {
                     // Bounded close (sts2.runtime.closeTimeoutMs): never wedge shutdown on a driver.
                     await session.DisposeAsync().AsTask().WaitAsync(TimeSpan.FromMilliseconds(Sts2Defaults.CloseTimeoutMs)).ConfigureAwait(false);
                 }
-                catch (Exception ex) when (ex is TimeoutException or DbDriverException or ObjectDisposedException)
-                {
-                    // The handle is gone either way; the journal records the close.
-                }
             }
-            await PostAsync(inbox, effect, string.Create(CultureInfo.InvariantCulture,
-                $$"""{"status":"ok","connectionId":{{JsonSerializer.Serialize(connectionId)}}}""")).ConfigureAwait(false);
+            catch (Exception ex)
+            {
+                // Closing is a cleanup boundary: the handle is gone even if the provider
+                // throws. Record only the exception TYPE (never its potentially sensitive
+                // message) and still complete Core's close transition exactly once.
+                cleanupError = ex.GetType().Name;
+            }
+            finally
+            {
+                string cleanupPart = cleanupError is null
+                    ? string.Empty
+                    : string.Create(CultureInfo.InvariantCulture,
+                        $$""", "cleanupError":{{JsonSerializer.Serialize(cleanupError)}}""");
+                await PostAsync(inbox, effect, string.Create(CultureInfo.InvariantCulture,
+                    $$"""{"status":"ok","connectionId":{{JsonSerializer.Serialize(connectionId)}}{{cleanupPart}}}""")).ConfigureAwait(false);
+            }
         }
 
         private ConnectionOpenRequest BuildOpenRequest(JsonElement profile, List<string> resolvedTokens)
@@ -1377,6 +1443,68 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
         {
             JsonElement payload = JsonDocument.Parse(payloadJson).RootElement;
             return inbox.PostEffectResponseAsync(effect.EffectId, effect.EffectName, payload, effect.CauseSeq).AsTask();
+        }
+
+        private void Track(Task task)
+        {
+            long id = Interlocked.Increment(ref backgroundTaskId);
+            backgroundTasks[id] = task;
+            _ = task.ContinueWith(
+                completed =>
+                {
+                    backgroundTasks.TryRemove(id, out _);
+                    _ = completed.Exception; // observe any fire-and-forget failure
+                },
+                CancellationToken.None,
+                TaskContinuationOptions.ExecuteSynchronously,
+                TaskScheduler.Default);
+        }
+
+        private static void TryCancel(CancellationTokenSource source)
+        {
+            try
+            {
+                source.Cancel();
+            }
+            catch (Exception ex) when (ex is ObjectDisposedException or AggregateException)
+            {
+                // Provider cancellation callbacks are outside Runtime's trust boundary.
+            }
+        }
+
+        private static void TryRelease(SemaphoreSlim semaphore, int credit)
+        {
+            try
+            {
+                semaphore.Release(credit);
+            }
+            catch (ObjectDisposedException)
+            {
+                // The stream completed between the dictionary lookup and this release.
+            }
+        }
+
+        private static void DisposePumpResources(QueryPump pump)
+        {
+            if (Interlocked.Exchange(ref pump.ResourcesDisposed, 1) != 0)
+            {
+                return;
+            }
+            pump.Cancellation.Dispose();
+            pump.Credits.Dispose();
+        }
+
+        private static async Task DisposeSessionBestEffortAsync(IDbSession session)
+        {
+            try
+            {
+                await session.DisposeAsync().AsTask()
+                    .WaitAsync(TimeSpan.FromMilliseconds(Sts2Defaults.CloseTimeoutMs))
+                    .ConfigureAwait(false);
+            }
+            catch (Exception)
+            {
+            }
         }
 
         private static string? GetString(JsonElement element, string property) =>

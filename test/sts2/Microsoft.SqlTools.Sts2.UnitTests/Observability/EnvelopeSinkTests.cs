@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -169,10 +170,39 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Observability
             release.Release(int.MaxValue); // let the inner sink drain on dispose
         }
 
+        [Fact]
+        public async Task MailboxDisposalIsBoundedWhileInnerSinkRemainsWedged()
+        {
+            using var release = new System.Threading.SemaphoreSlim(0);
+            var entered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            var hanging = new SignalingBlockingEnvelopeSink(release, entered);
+            var mailbox = new MailboxEnvelopeSink(hanging, capacity: 4, disposeTimeout: TimeSpan.FromMilliseconds(50));
+
+            await mailbox.OnEnvelopeAsync(Envelope(1), flush: false);
+            await entered.Task.WaitAsync(TimeSpan.FromSeconds(2));
+            long started = Stopwatch.GetTimestamp();
+            await mailbox.DisposeAsync();
+            TimeSpan elapsed = Stopwatch.GetElapsedTime(started);
+
+            Assert.True(elapsed < TimeSpan.FromSeconds(1), $"mailbox disposal took {elapsed}");
+            release.Release(); // allow the abandoned worker to settle after the assertion
+        }
+
         private sealed class BlockingEnvelopeSink(System.Threading.SemaphoreSlim gate) : IEnvelopeSink
         {
             public async ValueTask OnEnvelopeAsync(Sts2Envelope envelope, bool flush) =>
                 await gate.WaitAsync().ConfigureAwait(false); // hang until released
+        }
+
+        private sealed class SignalingBlockingEnvelopeSink(
+            System.Threading.SemaphoreSlim gate,
+            TaskCompletionSource entered) : IEnvelopeSink
+        {
+            public async ValueTask OnEnvelopeAsync(Sts2Envelope envelope, bool flush)
+            {
+                entered.TrySetResult();
+                await gate.WaitAsync().ConfigureAwait(false);
+            }
         }
 
         private static Sts2Envelope Envelope(long seq) => new()

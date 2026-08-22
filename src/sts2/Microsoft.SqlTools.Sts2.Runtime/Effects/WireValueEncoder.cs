@@ -22,6 +22,9 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
     /// </summary>
     public static class WireValueEncoder
     {
+        private const long JavaScriptMaxSafeInteger = 9_007_199_254_740_991L;
+        private const long JavaScriptMinSafeInteger = -JavaScriptMaxSafeInteger;
+
         /// <summary>
         /// Encodes one cell, truncating oversized string/binary values at the effective
         /// bound <paramref name="maxCellBytes"/> (SPEC §7.7 maxCellBytes, R024/STS2-3) so a
@@ -199,8 +202,13 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                 case bool b:
                     writer.WriteBooleanValue(b);
                     return;
-                case long l:
+                case long l when l is >= JavaScriptMinSafeInteger and <= JavaScriptMaxSafeInteger:
                     writer.WriteNumberValue(l);
+                    return;
+                case long l:
+                    // JSON itself has arbitrary-precision number tokens, but the production
+                    // Node client parses them as IEEE-754 doubles. Preserve SQL bigint exactly.
+                    WriteWrapper(writer, "int64", l.ToString(CultureInfo.InvariantCulture));
                     return;
                 case int i:
                     writer.WriteNumberValue(i);

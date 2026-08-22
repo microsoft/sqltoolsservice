@@ -84,9 +84,11 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Replay
 
             CoreState state = CoreState.Initial;
             var outboundDigests = new List<string>();
-            var pendingOutputs = new Queue<(string Kind, string Type, string? Corr, string Digest)>();
+            var pendingOutputs = new Queue<(string Kind, string Type, string? Corr, string Digest, long CauseSeq)>();
             var causeBySeq = new Dictionary<long, long?>();
             long lastSeq = 0;
+            long expectedSeq = 1;
+            string? runId = null;
 
             foreach (Sts2Envelope envelope in envelopes)
             {
@@ -95,6 +97,46 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Replay
                     break;
                 }
                 lastSeq = envelope.Seq;
+
+                if (envelope.Schema != EnvelopeJsonCodec.SchemaId)
+                {
+                    return InvalidJournal(envelope, causeBySeq, outboundDigests, state, lastSeq,
+                        $"unknown schema {envelope.Schema}");
+                }
+                if (!EnvelopeKinds.IsValid(envelope.Kind))
+                {
+                    return InvalidJournal(envelope, causeBySeq, outboundDigests, state, lastSeq,
+                        $"unknown envelope kind {envelope.Kind}");
+                }
+                if (envelope.Seq != expectedSeq)
+                {
+                    return InvalidJournal(envelope, causeBySeq, outboundDigests, state, lastSeq,
+                        $"non-gapless sequence: expected {expectedSeq}, found {envelope.Seq}");
+                }
+                expectedSeq++;
+                runId ??= envelope.RunId;
+                if (string.IsNullOrEmpty(envelope.RunId) || envelope.RunId != runId)
+                {
+                    return InvalidJournal(envelope, causeBySeq, outboundDigests, state, lastSeq,
+                        $"mixed or empty run id: expected {runId}, found {envelope.RunId}");
+                }
+                if (envelope.Cause is long cause
+                    && (cause >= envelope.Seq || !causeBySeq.ContainsKey(cause)))
+                {
+                    return InvalidJournal(envelope, causeBySeq, outboundDigests, state, lastSeq,
+                        $"invalid cause {cause} for seq {envelope.Seq}");
+                }
+                if (RequiresCause(envelope.Kind) && envelope.Cause is null)
+                {
+                    return InvalidJournal(envelope, causeBySeq, outboundDigests, state, lastSeq,
+                        $"non-root {envelope.Kind} envelope at seq {envelope.Seq} has no cause");
+                }
+                string recordedPayloadDigest = CanonicalJson.DigestOf(envelope.Payload ?? NullElement);
+                if (recordedPayloadDigest != envelope.Digest)
+                {
+                    return InvalidJournal(envelope, causeBySeq, outboundDigests, state, lastSeq,
+                        $"payload digest mismatch: recorded {envelope.Digest}, computed {recordedPayloadDigest}");
+                }
                 causeBySeq[envelope.Seq] = envelope.Cause;
 
                 switch (envelope.Kind)
@@ -107,7 +149,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Replay
                     {
                         if (pendingOutputs.Count > 0)
                         {
-                            (string kind, string type, _, string digest) = pendingOutputs.Dequeue();
+                            (string kind, string type, _, string digest, _) = pendingOutputs.Dequeue();
                             return Diverged(envelope.Seq, causeBySeq, outboundDigests, state, lastSeq,
                                 recorded: $"next input {envelope.Kind}/{envelope.Type}",
                                 replayed: $"an additional output {kind}/{type} digest={digest} the journal does not record");
@@ -127,7 +169,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Replay
                         {
                             CoreOutputEncoder.EncodedOutput encoded = CoreOutputEncoder.Encode(output, envelope.Type);
                             pendingOutputs.Enqueue((encoded.Kind, encoded.Type, encoded.Corr,
-                                CanonicalJson.DigestOf(encoded.Payload ?? NullElement)));
+                                CanonicalJson.DigestOf(encoded.Payload ?? NullElement), envelope.Seq));
                         }
                         break;
                     }
@@ -145,12 +187,13 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Replay
                                 recorded: $"{envelope.Kind}/{envelope.Type} digest={envelope.Digest}",
                                 replayed: "no output at this causal position");
                         }
-                        (string kind, string type, string? corr, string digest) = pendingOutputs.Dequeue();
-                        if (kind != envelope.Kind || type != envelope.Type || corr != envelope.Corr || digest != envelope.Digest)
+                        (string kind, string type, string? corr, string digest, long causeSeq) = pendingOutputs.Dequeue();
+                        if (kind != envelope.Kind || type != envelope.Type || corr != envelope.Corr
+                            || digest != envelope.Digest || envelope.Cause != causeSeq)
                         {
                             return Diverged(envelope.Seq, causeBySeq, outboundDigests, state, lastSeq,
-                                recorded: $"{envelope.Kind}/{envelope.Type} corr={envelope.Corr} digest={envelope.Digest}",
-                                replayed: $"{kind}/{type} corr={corr} digest={digest}");
+                                recorded: $"{envelope.Kind}/{envelope.Type} corr={envelope.Corr} cause={envelope.Cause} digest={envelope.Digest}",
+                                replayed: $"{kind}/{type} corr={corr} cause={causeSeq} digest={digest}");
                         }
                         if (kind is EnvelopeKinds.RpcOutResult or EnvelopeKinds.RpcOutError or EnvelopeKinds.RpcOutNotify)
                         {
@@ -190,6 +233,32 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Replay
             }
             return chain;
         }
+
+        private static bool RequiresCause(string kind) => kind is
+            EnvelopeKinds.RpcOutResult or
+            EnvelopeKinds.RpcOutError or
+            EnvelopeKinds.RpcOutNotify or
+            EnvelopeKinds.EffectRequest or
+            EnvelopeKinds.EffectResponse or
+            EnvelopeKinds.ConfigChanged or
+            EnvelopeKinds.StateSnapshot or
+            EnvelopeKinds.Metric or
+            EnvelopeKinds.Diagnostic;
+
+        private static ReplayResult InvalidJournal(
+            Sts2Envelope envelope,
+            Dictionary<long, long?> causeBySeq,
+            List<string> outboundDigests,
+            CoreState state,
+            long lastSeq,
+            string problem) => Diverged(
+                envelope.Seq,
+                causeBySeq,
+                outboundDigests,
+                state,
+                lastSeq,
+                recorded: "invalid journal: " + problem,
+                replayed: "a structurally valid, self-authenticating envelope");
 
         private static ReplayResult Diverged(
             long seq,

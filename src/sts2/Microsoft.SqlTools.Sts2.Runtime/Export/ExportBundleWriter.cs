@@ -72,12 +72,23 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Export
                 File.Delete(bundlePath);
             }
 
+            // Snapshot inputs before opening the destination. Product export defaults the
+            // output directory to this same journal directory; enumerating after ZipFile.Open
+            // would discover the open bundle and try to copy it into itself.
+            StringComparison pathComparison = OperatingSystem.IsWindows()
+                ? StringComparison.OrdinalIgnoreCase
+                : StringComparison.Ordinal;
+            string[] sourceFiles = Directory.EnumerateFiles(request.JournalDirectory)
+                .Where(path => !string.Equals(Path.GetFullPath(path), Path.GetFullPath(bundlePath), pathComparison))
+                .Order(StringComparer.Ordinal)
+                .ToArray();
+
             var canaryHits = new List<string>();
             var segmentEntries = new JsonArray();
 
             using (var zip = ZipFile.Open(bundlePath, ZipArchiveMode.Create))
             {
-                foreach (string segment in Directory.EnumerateFiles(request.JournalDirectory).Order(StringComparer.Ordinal))
+                foreach (string segment in sourceFiles)
                 {
                     string fileName = Path.GetFileName(segment);
                     string entryName = "journals/" + fileName;

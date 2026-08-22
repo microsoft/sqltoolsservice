@@ -81,6 +81,29 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
         }
 
         [Fact]
+        public async Task ExportCanWriteIntoTheJournalDirectoryWithoutIncludingItself()
+        {
+            string journalDir = Path.Combine(root, "same-directory");
+            await using (var session = new Sts2TestSession(journalDir, "same-dir-run"))
+            {
+                await session.RequestAsync("v2/diagnostics.ping", """{"echo":"same-dir"}""");
+            }
+
+            ExportBundleResult result = ExportBundleWriter.Write(new ExportBundleRequest
+            {
+                RunId = "same-dir-run",
+                JournalDirectory = journalDir,
+                OutputDirectory = journalDir,
+            }, TimeProvider.System);
+
+            Assert.Empty(ExportBundleWriter.Check(result.BundlePath));
+            using ZipArchive zip = ZipFile.OpenRead(result.BundlePath);
+            Assert.DoesNotContain(zip.Entries, entry =>
+                entry.FullName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase));
+            Assert.Contains(zip.Entries, entry => entry.FullName.EndsWith(".jsonl", StringComparison.Ordinal));
+        }
+
+        [Fact]
         public async Task ExportLogFlowsThroughTheGatewayAndReturnsABundlePath()
         {
             string journalDir = Path.Combine(root, "gw-journal");

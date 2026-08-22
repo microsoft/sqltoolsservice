@@ -30,9 +30,10 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Redaction
         };
 
         /// <summary>
-        /// Returns a copy of <paramref name="payload"/> with secret string values replaced
-        /// by side-table tokens. Under any object named <c>auth</c>, every string field
-        /// except <c>kind</c> and <c>user</c> is a secret. When <paramref name="createdTokens"/>
+        /// Returns a copy of <paramref name="payload"/> with secret values replaced by
+        /// side-table tokens (valid strings) or an opaque invalid marker (every other JSON
+        /// type). Under any object named <c>auth</c>, every field except <c>kind</c> and
+        /// <c>user</c> is a secret. When <paramref name="createdTokens"/>
         /// is supplied, every token minted for this payload is added to it so the caller can
         /// release them if the request is rejected before a driver consumes them (R004).
         /// </summary>
@@ -51,15 +52,30 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Redaction
                     foreach ((string key, JsonNode? value) in obj)
                     {
                         bool valueIsAuthObject = string.Equals(key, "auth", StringComparison.OrdinalIgnoreCase);
-                        bool isSecret = value is JsonValue
-                            && value.GetValueKind() == JsonValueKind.String
-                            && (SecretKeys.Contains(key) || (underAuth && !AuthClearKeys.Contains(key)));
+                        bool isSecret = SecretKeys.Contains(key) || (underAuth && !AuthClearKeys.Contains(key));
 
-                        if (isSecret)
+                        if (valueIsAuthObject && value is not JsonObject)
                         {
-                            string token = sideTable.Tokenize(value!.GetValue<string>());
-                            createdTokens?.Add(token);
-                            redactedObject[key] = JsonValue.Create(token);
+                            // A malformed auth scalar/array is credential-shaped input too.
+                            // Validation happens after journaling, so fail closed here.
+                            redactedObject[key] = new JsonObject { ["$redactedSecret"] = true };
+                        }
+                        else if (isSecret)
+                        {
+                            if (value is JsonValue secretValue
+                                && secretValue.GetValueKind() == JsonValueKind.String)
+                            {
+                                string token = sideTable.Tokenize(secretValue.GetValue<string>());
+                                createdTokens?.Add(token);
+                                redactedObject[key] = JsonValue.Create(token);
+                            }
+                            else
+                            {
+                                // Redaction precedes validation. Preserve only enough shape
+                                // for the effect runner to reject the malformed credential;
+                                // never journal its scalar/object/array content.
+                                redactedObject[key] = new JsonObject { ["$redactedSecret"] = true };
+                            }
                         }
                         else
                         {

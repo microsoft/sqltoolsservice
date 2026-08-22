@@ -23,5 +23,6 @@
     <ProjectReference Include="..\..\..\src\sts2\Microsoft.SqlTools.Sts2.Abstractions\Microsoft.SqlTools.Sts2.Abstractions.csproj" />
     <ProjectReference Include="..\..\..\src\sts2\Microsoft.SqlTools.Sts2.Runtime\Microsoft.SqlTools.Sts2.Runtime.csproj" />
     <ProjectReference Include="..\..\..\src\sts2\Microsoft.SqlTools.Sts2.Testing\Microsoft.SqlTools.Sts2.Testing.csproj" />
+    <ProjectReference Include="..\..\..\tools\sts2-replay\sts2-replay.csproj" />
   </ItemGroup>
 </Project>

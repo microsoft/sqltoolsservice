@@ -3,9 +3,16 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Threading.Tasks;
+using Microsoft.SqlTools.Sts2.Runtime.Coordination;
+using Microsoft.SqlTools.Sts2.Runtime.Export;
 using Microsoft.SqlTools.Sts2.Runtime.Redaction;
 using Microsoft.SqlTools.Sts2.Testing;
 using Xunit;
@@ -105,6 +112,71 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
 
             Assert.Empty(SecretCanaries.FindIn(json));
             Assert.Equal(2, table.Count);
+        }
+
+        [Fact]
+        public async Task NonStringCredentialContentNeverReachesTheJournal()
+        {
+            string directory = Path.Combine(Path.GetTempPath(), "sts2-secret-shape-" + Guid.NewGuid().ToString("N"));
+            const string secretDigits = "987654321098765432";
+            try
+            {
+                await using (var session = new Sts2TestSession(directory, "secret-shape"))
+                {
+                    string payload = """{"openId":"bad-secret","profile":{"driver":"fake","server":"s","auth":{"kind":"sqlLogin","user":"sa","password":SECRET}}}"""
+                        .Replace("SECRET", secretDigits, StringComparison.Ordinal);
+                    OutboundRpcMessage response = await session.RequestAsync("v2/connection.open", payload);
+                    Assert.Equal("rpc.out.error", response.Kind);
+                    Assert.Equal("Sts2.InvalidRequest",
+                        response.Body!.Value.GetProperty("data").GetProperty("code").GetString());
+                }
+
+                string artifacts = string.Join("\n", Directory.EnumerateFiles(directory)
+                    .Select(File.ReadAllText));
+                Assert.DoesNotContain(secretDigits, artifacts, StringComparison.Ordinal);
+                Assert.Contains("$redactedSecret", artifacts, StringComparison.Ordinal);
+
+                ExportBundleResult export = ExportBundleWriter.Write(new ExportBundleRequest
+                {
+                    RunId = "secret-shape",
+                    JournalDirectory = directory,
+                    OutputDirectory = directory,
+                }, TimeProvider.System);
+                using ZipArchive bundle = ZipFile.OpenRead(export.BundlePath);
+                string exportedArtifacts = string.Join("\n", bundle.Entries.Select(entry =>
+                {
+                    using StreamReader reader = new(entry.Open());
+                    return reader.ReadToEnd();
+                }));
+                Assert.DoesNotContain(secretDigits, exportedArtifacts, StringComparison.Ordinal);
+                Assert.Contains("$redactedSecret", exportedArtifacts, StringComparison.Ordinal);
+            }
+            finally
+            {
+                try
+                {
+                    Directory.Delete(directory, recursive: true);
+                }
+                catch (IOException)
+                {
+                }
+            }
+        }
+
+        [Theory]
+        [InlineData("987654321098765432")]
+        [InlineData("[\"credential-shaped\"]")]
+        public void MalformedAuthValueIsRedactedAsAWhole(string authJson)
+        {
+            var table = new SecretSideTable();
+            JsonNode payload = JsonNode.Parse("""{"profile":{"auth":AUTH}}"""
+                .Replace("AUTH", authJson, StringComparison.Ordinal))!;
+
+            JsonNode redacted = SecretRedactor.Redact(payload, table)!;
+
+            Assert.True(redacted["profile"]!["auth"]!["$redactedSecret"]!.GetValue<bool>());
+            Assert.DoesNotContain(authJson, redacted.ToJsonString(), StringComparison.Ordinal);
+            Assert.Equal(0, table.Count);
         }
 
         [Fact]

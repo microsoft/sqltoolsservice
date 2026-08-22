@@ -49,6 +49,9 @@ namespace Microsoft.SqlTools.Sts2.Testing
         /// <summary>The most recent open request — lets tests assert auth material selection at the runtime edge.</summary>
         public ConnectionOpenRequest? LastOpenRequest { get; private set; }
 
+        /// <summary>Optional arbitrary provider failure raised by the next session cleanup.</summary>
+        public Exception? SessionDisposeException { get; set; }
+
         /// <summary>Server facts every successful open reports.</summary>
         public ServerInfo ServerInfo { get; init; } = new()
         {
@@ -115,7 +118,8 @@ namespace Microsoft.SqlTools.Sts2.Testing
         private sealed class FakeSession : IDbSession
         {
             private readonly FakeDriver owner;
-            private readonly CancellationTokenSource queryCancel = new();
+            private readonly Lock queryGate = new();
+            private CancellationTokenSource? activeQueryCancel;
             private int disposed;
 
             internal FakeSession(FakeDriver owner)
@@ -131,68 +135,92 @@ namespace Microsoft.SqlTools.Sts2.Testing
                 FakeQueryScript script = owner.queryScripts.TryDequeue(out FakeQueryScript? scripted)
                     ? scripted
                     : FakeQueryScript.Default;
+                var queryCancel = new CancellationTokenSource();
+                lock (queryGate)
+                {
+                    ObjectDisposedException.ThrowIf(disposed != 0, this);
+                    if (activeQueryCancel is not null)
+                    {
+                        throw new InvalidOperationException("FakeSession permits one active query.");
+                    }
+                    activeQueryCancel = queryCancel;
+                }
                 using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, queryCancel.Token);
 
-                yield return new ExecStarted(request.QueryId);
-                var pageSeqByResultSet = new Dictionary<int, int>();
-                var rowOffsetByResultSet = new Dictionary<int, long>();
-
-                foreach (FakeQueryStep step in script.Steps)
+                try
                 {
-                    if (step.DelayMs > 0)
-                    {
-                        await Task.Delay(step.DelayMs, linked.Token).ConfigureAwait(false);
-                    }
-                    linked.Token.ThrowIfCancellationRequested();
+                    yield return new ExecStarted(request.QueryId);
+                    var pageSeqByResultSet = new Dictionary<int, int>();
+                    var rowOffsetByResultSet = new Dictionary<int, long>();
 
-                    switch (step.Type)
+                    foreach (FakeQueryStep step in script.Steps)
                     {
-                        case "resultSet":
-                            yield return new ResultSetStarted(step.ResultSetId, FabricateColumns(step.Columns, step.EdgeValues));
-                            break;
-
-                        case "rows":
+                        if (step.DelayMs > 0)
                         {
-                            int pageSeq = pageSeqByResultSet.TryGetValue(step.ResultSetId, out int p) ? p : 0;
-                            long rowOffset = rowOffsetByResultSet.TryGetValue(step.ResultSetId, out long o) ? o : 0;
-                            yield return new RowsPage(step.ResultSetId, pageSeq, rowOffset, FabricateRows(step, rowOffset));
-                            pageSeqByResultSet[step.ResultSetId] = pageSeq + 1;
-                            rowOffsetByResultSet[step.ResultSetId] = rowOffset + step.Rows;
-                            break;
+                            await Task.Delay(step.DelayMs, linked.Token).ConfigureAwait(false);
                         }
+                        linked.Token.ThrowIfCancellationRequested();
 
-                        case "message":
-                            yield return new ServerMessage("info", step.Number, step.Severity, step.Text ?? "message", step.Line);
-                            break;
+                        switch (step.Type)
+                        {
+                            case "resultSet":
+                                yield return new ResultSetStarted(step.ResultSetId, FabricateColumns(step.Columns, step.EdgeValues));
+                                break;
 
-                        case "resultSetDone":
-                            yield return new ResultSetCompleted(step.ResultSetId, step.RowCount);
-                            break;
+                            case "rows":
+                            {
+                                int pageSeq = pageSeqByResultSet.TryGetValue(step.ResultSetId, out int p) ? p : 0;
+                                long rowOffset = rowOffsetByResultSet.TryGetValue(step.ResultSetId, out long o) ? o : 0;
+                                yield return new RowsPage(step.ResultSetId, pageSeq, rowOffset, FabricateRows(step, rowOffset));
+                                pageSeqByResultSet[step.ResultSetId] = pageSeq + 1;
+                                rowOffsetByResultSet[step.ResultSetId] = rowOffset + step.Rows;
+                                break;
+                            }
 
-                        case "completed":
-                            yield return new ExecCompleted([step.RowsAffected], step.Database);
-                            break;
+                            case "message":
+                                yield return new ServerMessage("info", step.Number, step.Severity, step.Text ?? "message", step.Line);
+                                break;
 
-                        case "error":
-                            throw new DbDriverException(
-                                step.ErrorCode ?? Sts2ErrorCodes.QueryFailedServer,
-                                step.Text ?? "Scripted server error.",
-                                new ServerErrorDetail { Number = step.Number, Severity = step.Severity, State = 1 });
+                            case "resultSetDone":
+                                yield return new ResultSetCompleted(step.ResultSetId, step.RowCount);
+                                break;
 
-                        case "sever":
-                            throw new DbDriverException(Sts2ErrorCodes.QueryFailedTransport, "Connection severed mid-stream.");
+                            case "completed":
+                                yield return new ExecCompleted([step.RowsAffected], step.Database);
+                                break;
 
-                        case "crash":
-                            // Unclassified driver exception: the runner must map it to Sts2.Internal.
-                            throw new InvalidOperationException("Scripted unclassified driver crash.");
+                            case "error":
+                                throw new DbDriverException(
+                                    step.ErrorCode ?? Sts2ErrorCodes.QueryFailedServer,
+                                    step.Text ?? "Scripted server error.",
+                                    new ServerErrorDetail { Number = step.Number, Severity = step.Severity, State = 1 });
 
-                        case "hang":
-                            await Task.Delay(Timeout.Infinite, linked.Token).ConfigureAwait(false);
-                            break;
+                            case "sever":
+                                throw new DbDriverException(Sts2ErrorCodes.QueryFailedTransport, "Connection severed mid-stream.");
 
-                        default:
-                            throw new DbDriverException(Sts2ErrorCodes.Internal, "Unknown scripted step: " + step.Type);
+                            case "crash":
+                                // Unclassified driver exception: the runner must map it to Sts2.Internal.
+                                throw new InvalidOperationException("Scripted unclassified driver crash.");
+
+                            case "hang":
+                                await Task.Delay(Timeout.Infinite, linked.Token).ConfigureAwait(false);
+                                break;
+
+                            default:
+                                throw new DbDriverException(Sts2ErrorCodes.Internal, "Unknown scripted step: " + step.Type);
+                        }
                     }
+                }
+                finally
+                {
+                    lock (queryGate)
+                    {
+                        if (ReferenceEquals(activeQueryCancel, queryCancel))
+                        {
+                            activeQueryCancel = null;
+                        }
+                    }
+                    queryCancel.Dispose();
                 }
             }
 
@@ -262,7 +290,10 @@ namespace Microsoft.SqlTools.Sts2.Testing
 
             public ValueTask CancelAsync(string queryId, CancellationToken cancellationToken)
             {
-                queryCancel.Cancel();
+                lock (queryGate)
+                {
+                    activeQueryCancel?.Cancel();
+                }
                 return ValueTask.CompletedTask;
             }
 
@@ -270,9 +301,15 @@ namespace Microsoft.SqlTools.Sts2.Testing
             {
                 if (Interlocked.Exchange(ref disposed, 1) == 0)
                 {
-                    queryCancel.Cancel();
-                    queryCancel.Dispose();
+                    lock (queryGate)
+                    {
+                        activeQueryCancel?.Cancel();
+                    }
                     owner.SessionClosed();
+                    if (owner.SessionDisposeException is { } disposeException)
+                    {
+                        return new ValueTask(Task.FromException(disposeException));
+                    }
                 }
                 return ValueTask.CompletedTask;
             }

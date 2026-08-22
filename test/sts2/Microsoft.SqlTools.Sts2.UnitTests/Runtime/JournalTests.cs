@@ -46,7 +46,21 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
 
         private JournalWriter CreateWriter(long segmentBytes = 64 * 1024 * 1024) =>
             new("run-test", new JournalOptions { Directory = directory, SegmentBytes = segmentBytes },
-                new JournalRunInfo { ServiceVersion = "99.0.0", CommandLine = ["--enable-sts2"] });
+                new JournalRunInfo
+                {
+                    ServiceVersion = "99.0.0",
+                    CommandLine = ["--enable-sts2"],
+                    EffectiveConfiguration = new Dictionary<string, string>
+                    {
+                        ["windowPages"] = "8",
+                        ["capture"] = "digest",
+                    },
+                    DriverPackageVersions = new Dictionary<string, string>
+                    {
+                        ["sqlclient"] = "6.1.0",
+                        ["fake"] = "1.2.3",
+                    },
+                });
 
         [Fact]
         public async Task AppendedEnvelopesRoundTripInOrder()
@@ -148,7 +162,21 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
             Assert.Equal("sts2.journal.manifest/1", manifest.Schema);
             Assert.Equal("run-test", manifest.RunId);
             Assert.Equal("99.0.0", manifest.ServiceVersion);
+            Assert.Equal("digest", manifest.EffectiveConfiguration["capture"]);
+            Assert.Equal("8", manifest.EffectiveConfiguration["windowPages"]);
+            Assert.Equal("1.2.3", manifest.DriverPackageVersions["fake"]);
+            Assert.Equal("6.1.0", manifest.DriverPackageVersions["sqlclient"]);
             Assert.True(manifest.Segments.Count > 1);
+
+            string manifestJson = File.ReadAllText(Path.Combine(directory, "journal-run-test.manifest.json"));
+            Assert.True(
+                manifestJson.IndexOf("\"capture\"", StringComparison.Ordinal)
+                    < manifestJson.IndexOf("\"windowPages\"", StringComparison.Ordinal),
+                "effective configuration should be serialized in stable key order");
+            Assert.True(
+                manifestJson.IndexOf("\"fake\"", StringComparison.Ordinal)
+                    < manifestJson.IndexOf("\"sqlclient\"", StringComparison.Ordinal),
+                "driver versions should be serialized in stable key order");
 
             string? previous = null;
             foreach (JournalSegment segment in manifest.Segments)
