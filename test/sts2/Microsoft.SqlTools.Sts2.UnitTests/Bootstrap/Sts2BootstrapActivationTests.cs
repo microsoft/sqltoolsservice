@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.IO;
 using Microsoft.SqlTools.Sts2.Hosting;
 using Xunit;
 using Sts2BootstrapClass = Microsoft.SqlTools.Sts2.Bootstrap.Sts2Bootstrap;
@@ -69,6 +70,14 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Bootstrap
             Assert.False(handle.IsEnabled);
             Assert.Null(handle.LegacyInputStream);
             Assert.Null(handle.LegacyOutputStream);
+        }
+
+        [Fact]
+        public void MalformedOptionalLogPathFallsBackToTempDirectory()
+        {
+            Assert.Equal(
+                Path.GetTempPath(),
+                Sts2BootstrapClass.ResolveLogDirectory("invalid\0log-path"));
         }
 
         [Fact]
