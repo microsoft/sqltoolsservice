@@ -10,8 +10,11 @@
       "src\\sts2\\Microsoft.SqlTools.Sts2.Multiplexer\\Microsoft.SqlTools.Sts2.Multiplexer.csproj",
       "src\\sts2\\Microsoft.SqlTools.Sts2.Drivers.SqlClient\\Microsoft.SqlTools.Sts2.Drivers.SqlClient.csproj",
       "src\\sts2\\Microsoft.SqlTools.Sts2.Drivers.Sqlite\\Microsoft.SqlTools.Sts2.Drivers.Sqlite.csproj",
+      "src\\sts2\\Microsoft.SqlTools.Sts2.Hosting\\Microsoft.SqlTools.Sts2.Hosting.csproj",
+      "src\\sts2\\Microsoft.SqlTools.Sts2.Bootstrap\\Microsoft.SqlTools.Sts2.Bootstrap.csproj",
       "tools\\sts2-replay\\sts2-replay.csproj",
-      "test\\sts2\\Microsoft.SqlTools.Sts2.UnitTests\\Microsoft.SqlTools.Sts2.UnitTests.csproj"
+      "test\\sts2\\Microsoft.SqlTools.Sts2.UnitTests\\Microsoft.SqlTools.Sts2.UnitTests.csproj",
+      "test\\sts2\\Microsoft.SqlTools.Sts2.E2ETests\\Microsoft.SqlTools.Sts2.E2ETests.csproj"
     ]
   }
 }

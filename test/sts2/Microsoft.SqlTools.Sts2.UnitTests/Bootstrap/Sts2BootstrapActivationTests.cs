@@ -1,0 +1,140 @@
+//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using Microsoft.SqlTools.Sts2.Hosting;
+using Xunit;
+using Sts2BootstrapClass = Microsoft.SqlTools.Sts2.Bootstrap.Sts2Bootstrap;
+
+namespace Microsoft.SqlTools.Sts2.UnitTests.Bootstrap
+{
+    /// <summary>SPEC §5.2: STS2 activates only via --enable-sts2 or STS_ENABLE_STS2=1.</summary>
+    [Collection("environment")] // env-var mutation must not run concurrently with itself
+    public class Sts2BootstrapActivationTests : IDisposable
+    {
+        private readonly string? originalEnableEnvironmentValue;
+
+        public Sts2BootstrapActivationTests()
+        {
+            originalEnableEnvironmentValue = Environment.GetEnvironmentVariable(
+                Sts2BootstrapClass.EnableEnvironmentVariable);
+            Environment.SetEnvironmentVariable(Sts2BootstrapClass.EnableEnvironmentVariable, null);
+        }
+
+        public void Dispose()
+        {
+            Environment.SetEnvironmentVariable(
+                Sts2BootstrapClass.EnableEnvironmentVariable,
+                originalEnableEnvironmentValue);
+        }
+
+        [Fact]
+        public void DisabledByDefault()
+        {
+            Assert.False(Sts2BootstrapClass.IsEnabled(["--log-file", "x.log", "--enable-logging"]));
+            Assert.False(Sts2BootstrapClass.IsEnabled([]));
+        }
+
+        [Theory]
+        [InlineData("--enable-sts2")]
+        [InlineData("--ENABLE-STS2")]
+        public void FlagEnables(string flag)
+        {
+            Assert.True(Sts2BootstrapClass.IsEnabled(["--log-file", "x.log", flag]));
+        }
+
+        [Fact]
+        public void EnvironmentVariableOneEnables()
+        {
+            Environment.SetEnvironmentVariable(Sts2BootstrapClass.EnableEnvironmentVariable, "1");
+            Assert.True(Sts2BootstrapClass.IsEnabled([]));
+        }
+
+        [Theory]
+        [InlineData("0")]
+        [InlineData("true")]
+        [InlineData("")]
+        public void OtherEnvironmentValuesDoNotEnable(string value)
+        {
+            Environment.SetEnvironmentVariable(Sts2BootstrapClass.EnableEnvironmentVariable, value);
+            Assert.False(Sts2BootstrapClass.IsEnabled([]));
+        }
+
+        [Fact]
+        public void DisabledHandleExposesNullStreams()
+        {
+            var handle = Sts2BootstrapClass.TryStart(["--log-file", "x.log"], logFilePath: null);
+            Assert.False(handle.IsEnabled);
+            Assert.Null(handle.LegacyInputStream);
+            Assert.Null(handle.LegacyOutputStream);
+        }
+
+        [Fact]
+        public void MalformedOptionalLogPathFallsBackToTempDirectory()
+        {
+            Assert.Equal(
+                Path.GetTempPath(),
+                Sts2BootstrapClass.ResolveLogDirectory("invalid\0log-path"));
+        }
+
+        [Fact]
+        public void FatalReasonExposesTypeButNotExceptionMessage()
+        {
+            const string canary = "secret-connection-string-and-sql";
+
+            string reason = Sts2Session.RedactedFailureReason(
+                "coordinator",
+                new InvalidOperationException(canary));
+
+            Assert.Contains(nameof(InvalidOperationException), reason, StringComparison.Ordinal);
+            Assert.DoesNotContain(canary, reason, StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public void CommandLineSanitizerRedactsValuesRegardlessOfTheirShape()
+        {
+            const string canary = "-secret-value";
+
+            IReadOnlyList<string> sanitized = Sts2BootstrapClass.SanitizeCommandLine(
+            [
+                "--enable-sts2",
+                "--log-file",
+                canary,
+                "--application-name=private-app",
+                "--parent-pid:-42",
+                "-123",
+                "positional-secret",
+                "--unknown-secret",
+                "--stdio",
+            ]);
+
+            Assert.Equal(
+            [
+                "--enable-sts2",
+                "--log-file",
+                "<redacted>",
+                "--application-name=<redacted>",
+                "--parent-pid:<redacted>",
+                "<redacted>",
+                "<redacted>",
+                "<redacted>",
+                "--stdio",
+            ],
+                sanitized);
+            Assert.DoesNotContain(canary, sanitized);
+        }
+
+        [Fact]
+        public void CommandLineSanitizerRedactsFlagShapedOptionValues()
+        {
+            IReadOnlyList<string> sanitized = Sts2BootstrapClass.SanitizeCommandLine(
+                ["--log-file", "--stdio", "--enable-sts2"]);
+
+            Assert.Equal(["--log-file", "<redacted>", "--enable-sts2"], sanitized);
+        }
+    }
+}

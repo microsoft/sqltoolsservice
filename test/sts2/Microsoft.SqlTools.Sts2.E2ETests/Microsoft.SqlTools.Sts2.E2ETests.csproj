@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>STS2 end-to-end tests that spawn the real service exe over stdio, enabled and disabled modes.</Description>
+    <TargetFramework>$(SqlToolsServiceDotNetVersion)</TargetFramework>
+    <RootNamespace>Microsoft.SqlTools.Sts2.E2ETests</RootNamespace>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- The spawned executable is the subject of these tests. Force the exact current
+         configuration/TFM to build without taking a compile-time assembly dependency. -->
+    <ProjectReference Include="..\..\..\src\Microsoft.SqlTools.ServiceLayer\Microsoft.SqlTools.ServiceLayer.csproj"
+                      ReferenceOutputAssembly="false" />
+  </ItemGroup>
+</Project>
