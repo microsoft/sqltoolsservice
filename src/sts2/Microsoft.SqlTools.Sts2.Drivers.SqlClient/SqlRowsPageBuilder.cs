@@ -20,6 +20,8 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
     /// </summary>
     public sealed class SqlRowsPageBuilder
     {
+        private const long JavaScriptMaxSafeInteger = 9_007_199_254_740_991L;
+
         private readonly int pageRows;
         private readonly long pageBytes;
         private List<IReadOnlyList<object?>> rows;
@@ -94,6 +96,9 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             TimeSpan => 64,
             decimal => 80,
             double or float => 40,
+            // Unsafe Int64 values use {"$t":"int64","v":"..."}; price the
+            // wrapper as well as the 20-digit decimal payload.
+            long value when value is > JavaScriptMaxSafeInteger or < -JavaScriptMaxSafeInteger => 64,
             long => 20,
             int or short or byte => 12,
             char[] c => EstimateJsonStringBytes(c),

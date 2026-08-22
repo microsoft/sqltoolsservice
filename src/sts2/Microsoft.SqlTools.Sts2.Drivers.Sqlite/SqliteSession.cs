@@ -240,12 +240,31 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
                 database,
                 table,
                 column,
-                out _,
+                out string? declaredType,
                 out _,
                 out int notNull,
                 out int primaryKey,
                 out _);
-            return result == raw.SQLITE_OK ? notNull == 0 && primaryKey == 0 : null;
+            if (result != raw.SQLITE_OK)
+            {
+                return null;
+            }
+            if (notNull != 0)
+            {
+                return false;
+            }
+            if (primaryKey == 0)
+            {
+                return true;
+            }
+
+            // In an ordinary rowid table, SQLite permits NULL in a non-INTEGER
+            // PRIMARY KEY unless another constraint forbids it. INTEGER PRIMARY KEY
+            // is the non-null rowid alias; other implicit PK cases are ambiguous from
+            // this metadata API, so report unknown rather than a false guarantee.
+            return string.Equals(declaredType, "INTEGER", StringComparison.OrdinalIgnoreCase)
+                ? false
+                : null;
         }
 
         private static string StorageClassName(int sqliteType) => sqliteType switch

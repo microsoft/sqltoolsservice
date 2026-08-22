@@ -21,7 +21,10 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
         private readonly SqlConnection connection;
         private ActiveQuery? activeQuery;
 
-        private sealed record ActiveQuery(string QueryId, SqlCommand Command);
+        private sealed record ActiveQuery(
+            string QueryId,
+            SqlCommand Command,
+            CancellationTokenSource ExplicitCancellation);
 
         internal SqlClientSession(SqlConnection connection, ServerInfo server)
         {
@@ -38,8 +41,6 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             int pageBytes = request.PageBytes > 0 ? request.PageBytes : Sts2Defaults.PageBytes;
             int maxCellBytes = request.MaxCellBytes > 0 ? request.MaxCellBytes : Sts2Defaults.MaxCellBytes;
 
-            yield return new ExecStarted(request.QueryId);
-
             ExecCompleted completion;
             await using (SqlCommand command = connection.CreateCommand())
             {
@@ -48,9 +49,15 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                 {
                     command.CommandTimeout = SqlClientConnectionString.ToProviderSeconds(request.QueryTimeoutMs);
                 }
-                // Publish the command atomically for the provider-level CancelAsync path. A cancel
-                // can arrive after the query pump is registered but before ExecuteReaderAsync starts.
-                var publishedQuery = new ActiveQuery(request.QueryId, command);
+                // Publish query-local cancellation before ExecStarted. An IDbSession caller is
+                // allowed to cancel as soon as it observes that event; publishing only on the
+                // following iterator move loses that cancellation and can start the command.
+                using var explicitCancellation = new CancellationTokenSource();
+                using CancellationTokenSource queryCancellation =
+                    CancellationTokenSource.CreateLinkedTokenSource(
+                        cancellationToken,
+                        explicitCancellation.Token);
+                var publishedQuery = new ActiveQuery(request.QueryId, command, explicitCancellation);
                 Volatile.Write(ref activeQuery, publishedQuery);
                 // Info-class engine messages (PRINT, RAISERROR severity <= 10, DBCC output)
                 // are raised on InfoMessage while the reader pumps the TDS stream (SPEC §10.2:
@@ -72,19 +79,21 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                 // rides the same finally (SPEC §10.2: event handlers unsubscribed).
                 try
                 {
+                    yield return new ExecStarted(request.QueryId);
+
                     // SqlCommand.Cancel is synchronous provider code and has blocked in provider
                     // edge cases. Never run it inline on CancellationTokenSource.Cancel(), which
                     // is also the coordinator's terminal-ack path. Registration still happens
                     // before the first provider await, and an already-canceled token queues the
                     // callback immediately.
                     using CancellationTokenRegistration cancelRegistration =
-                        RegisterProviderCancellation(cancellationToken, command.Cancel);
-                    cancellationToken.ThrowIfCancellationRequested();
+                        RegisterProviderCancellation(queryCancellation.Token, command.Cancel);
+                    queryCancellation.Token.ThrowIfCancellationRequested();
 
                     connection.InfoMessage += onInfoMessage;
                     try
                     {
-                        SqlDataReader reader = await OpenReaderAsync(command, cancellationToken).ConfigureAwait(false);
+                        SqlDataReader reader = await OpenReaderAsync(command, queryCancellation.Token).ConfigureAwait(false);
                         await using (reader.ConfigureAwait(false))
                         {
                             int resultSetId = 0;
@@ -98,7 +107,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                                 }
                                 if (reader.FieldCount > 0)
                                 {
-                                    await foreach (ExecEvent execEvent in PumpResultSetAsync(reader, resultSetId, pageRows, pageBytes, maxCellBytes, request.VectorBinary, request.SpatialWkb, cancellationToken).ConfigureAwait(false))
+                                    await foreach (ExecEvent execEvent in PumpResultSetAsync(reader, resultSetId, pageRows, pageBytes, maxCellBytes, request.VectorBinary, request.SpatialWkb, queryCancellation.Token).ConfigureAwait(false))
                                     {
                                         yield return execEvent;
                                     }
@@ -108,7 +117,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                                 {
                                     totalAffected += reader.RecordsAffected;
                                 }
-                                more = await NextResultAsync(reader, cancellationToken).ConfigureAwait(false);
+                                more = await NextResultAsync(reader, queryCancellation.Token).ConfigureAwait(false);
                             }
                             while (more);
 
@@ -377,7 +386,16 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             ActiveQuery? query = Volatile.Read(ref activeQuery);
             if (query is not null && string.Equals(query.QueryId, queryId, StringComparison.Ordinal))
             {
-                QueueProviderCancellation(query.Command.Cancel);
+                try
+                {
+                    // The linked execution token owns the stable canceled terminal; its provider
+                    // callback is queued off-thread by RegisterProviderCancellation.
+                    query.ExplicitCancellation.Cancel();
+                }
+                catch (ObjectDisposedException)
+                {
+                    // A completion/disposal race already made this cancellation obsolete.
+                }
             }
             return ValueTask.CompletedTask;
         }
