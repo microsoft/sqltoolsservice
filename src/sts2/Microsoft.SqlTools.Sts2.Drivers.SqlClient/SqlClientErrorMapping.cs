@@ -10,10 +10,10 @@ using Microsoft.SqlTools.Sts2.Contracts;
 namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
 {
     /// <summary>Maps SqlClient failures to stable Sts2.* codes (server-free, unit-testable).</summary>
-    public static class SqlClientErrorMapping
+    internal static class SqlClientErrorMapping
     {
         /// <summary>Classifies a connection-open failure.</summary>
-        public static string ClassifyOpen(SqlException ex)
+        internal static string ClassifyOpen(SqlException ex)
         {
             foreach (SqlError error in ex.Errors)
             {
@@ -72,7 +72,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             11001;   // host not known
 
         /// <summary>Builds the server-error detail from the first SqlError, if any.</summary>
-        public static ServerErrorDetail? ServerDetail(SqlException ex)
+        internal static ServerErrorDetail? ServerDetail(SqlException ex)
         {
             if (ex.Errors.Count == 0)
             {

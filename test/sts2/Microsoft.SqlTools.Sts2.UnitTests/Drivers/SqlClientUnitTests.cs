@@ -393,6 +393,12 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
         }
 
         [Fact]
+        public void ProviderExceptionMapperStaysInsideDriverBoundary()
+        {
+            Assert.False(typeof(SqlClientErrorMapping).IsPublic);
+        }
+
+        [Fact]
         public void SqlLoginBuildsUserAndPasswordWithoutLeakingIntoToken()
         {
             (string connectionString, string? token) = SqlClientConnectionString.Build(

@@ -408,19 +408,6 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                 SqlClientErrorMapping.ServerDetail(ex));
         }
 
-        private static void CancelCommand(SqlCommand command)
-        {
-            try
-            {
-                command.Cancel();
-            }
-            catch (Exception)
-            {
-                // Cancellation is best-effort provider cleanup. It must not replace the
-                // query's stable terminal cancellation with an arbitrary provider failure.
-            }
-        }
-
         /// <summary>
         /// Registers synchronous provider cancellation without ever invoking provider code on
         /// the thread that signals the token. Provider cancellation is best effort; blocking or
@@ -483,12 +470,34 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             {
                 return;
             }
+
+            // Return an incomplete ValueTask before any provider teardown runs. The runtime's
+            // close timeout starts only after DisposeAsync returns, so synchronous provider
+            // work before this boundary could otherwise bypass the bound entirely.
+            await Task.Yield();
             ActiveQuery? query = Volatile.Read(ref activeQuery);
-            if (query is not null)
+            try
             {
-                CancelCommand(query.Command);
+                if (query is not null)
+                {
+                    try
+                    {
+                        // The registered callback queues SqlCommand.Cancel on a worker; it never
+                        // invokes potentially-blocking provider code on this disposal continuation.
+                        query.ExplicitCancellation.Cancel();
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        // The iterator completed concurrently and already owns cleanup.
+                    }
+                }
             }
-            await connection.DisposeAsync().ConfigureAwait(false);
+            finally
+            {
+                // Cancellation is best effort. Always reach connection disposal even if token
+                // propagation or a provider callback behaves unexpectedly.
+                await connection.DisposeAsync().ConfigureAwait(false);
+            }
         }
     }
 }
