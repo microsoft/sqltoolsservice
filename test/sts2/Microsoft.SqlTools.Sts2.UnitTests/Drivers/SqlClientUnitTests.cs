@@ -345,6 +345,20 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
         }
 
         [Fact]
+        public void SecretBearingConnectionStringBuilderStaysInsideDriverBoundary()
+        {
+            Type builderType = typeof(SqlClientConnectionString);
+            System.Reflection.MethodInfo buildMethod = builderType.GetMethod(
+                nameof(SqlClientConnectionString.Build),
+                System.Reflection.BindingFlags.Static
+                    | System.Reflection.BindingFlags.Public
+                    | System.Reflection.BindingFlags.NonPublic)!;
+
+            Assert.False(builderType.IsPublic);
+            Assert.False(buildMethod.IsPublic);
+        }
+
+        [Fact]
         public void SqlLoginBuildsUserAndPasswordWithoutLeakingIntoToken()
         {
             (string connectionString, string? token) = SqlClientConnectionString.Build(

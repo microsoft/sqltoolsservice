@@ -10,11 +10,14 @@ using Microsoft.SqlTools.Sts2.Contracts;
 
 namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
 {
-    /// <summary>Builds SqlClient connection strings from sanitized profiles (server-free, unit-testable).</summary>
-    public static class SqlClientConnectionString
+    /// <summary>
+    /// Builds secret-bearing SqlClient provider state inside the driver boundary
+    /// (server-free and directly unit-testable through InternalsVisibleTo).
+    /// </summary>
+    internal static class SqlClientConnectionString
     {
         /// <summary>Builds the connection string and returns the optional access token to attach.</summary>
-        public static (string ConnectionString, string? AccessToken) Build(ConnectionOpenRequest request)
+        internal static (string ConnectionString, string? AccessToken) Build(ConnectionOpenRequest request)
         {
             ArgumentNullException.ThrowIfNull(request);
 
