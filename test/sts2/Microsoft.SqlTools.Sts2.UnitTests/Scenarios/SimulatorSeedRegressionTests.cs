@@ -50,6 +50,14 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Scenarios
                     Task winner = await Task.WhenAny(run, Task.Delay(TimeSpan.FromSeconds(60)));
                     if (winner != run)
                     {
+                        // The simulator has its own bounded 90s budget but no external
+                        // cancellation token. Observe any eventual fault after this test
+                        // fails fast so it cannot surface as an unobserved background error.
+                        _ = run.ContinueWith(
+                            static completed => _ = completed.Exception,
+                            default,
+                            TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously,
+                            TaskScheduler.Default);
                         failures.Add($"iter {i}: wedged (>60s; journals under {root})");
                         break;
                     }
