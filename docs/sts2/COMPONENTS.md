@@ -24,6 +24,20 @@ Pure deterministic reducer: state machine, command/event/effect DTOs.
 - Project references: Microsoft.SqlTools.Sts2.Contracts
 - Package references: none (BCL only)
 
+## Microsoft.SqlTools.Sts2.Drivers.SqlClient
+
+Production driver adapter over Microsoft.Data.SqlClient.
+
+- Project references: Microsoft.SqlTools.Sts2.Abstractions, Microsoft.SqlTools.Sts2.Contracts
+- Package references: Microsoft.Data.SqlClient, Microsoft.SqlServer.Types
+
+## Microsoft.SqlTools.Sts2.Drivers.Sqlite
+
+Portable real-I/O driver adapter over Microsoft.Data.Sqlite.
+
+- Project references: Microsoft.SqlTools.Sts2.Abstractions, Microsoft.SqlTools.Sts2.Contracts
+- Package references: Microsoft.Data.Sqlite, SQLitePCLRaw.lib.e_sqlite3
+
 ## Microsoft.SqlTools.Sts2.Multiplexer
 
 Stdio multiplexer: Content-Length framing, v2 routing, outbound server-request id rewriting, lifecycle mirroring, single stdout writer, crash containment.

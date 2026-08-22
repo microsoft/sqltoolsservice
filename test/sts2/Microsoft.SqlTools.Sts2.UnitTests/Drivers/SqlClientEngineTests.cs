@@ -1,0 +1,332 @@
+//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
+using Microsoft.SqlTools.Sts2.Abstractions;
+using Microsoft.SqlTools.Sts2.Drivers.SqlClient;
+using Xunit;
+
+namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
+{
+    /// <summary>
+    /// SPEC §14.5 dialect:tsql engine tests against a real SQL Server. These SKIP (not
+    /// fail) when no server is reachable (STS2_SQLSERVER_CONNSTRING unset/unreachable);
+    /// CI/nightly sets the variable and runs them. Tagged Category=Engine so the local
+    /// quick gate never selects them.
+    /// </summary>
+    [Trait("Category", "Engine")]
+    public sealed class SqlClientEngineTests
+    {
+        private static ConnectionOpenRequest OpenRequest()
+        {
+            var builder = new SqlConnectionStringBuilder(SqlServerProbe.ConnectionString);
+            var options = new Dictionary<string, string>
+            {
+                ["encrypt"] = builder.Encrypt == SqlConnectionEncryptOption.Strict
+                    ? "strict"
+                    : builder.Encrypt == SqlConnectionEncryptOption.Mandatory
+                        ? "true"
+                        : builder.Encrypt == SqlConnectionEncryptOption.Optional
+                            ? "false"
+                            : throw new InvalidOperationException("Unsupported SQL Client encryption option."),
+            };
+            if (builder.TrustServerCertificate)
+            {
+                options["trustServerCertificate"] = "true";
+            }
+            return new ConnectionOpenRequest
+            {
+                Server = builder.DataSource,
+                Database = string.IsNullOrEmpty(builder.InitialCatalog) ? "master" : builder.InitialCatalog,
+                Auth = builder.IntegratedSecurity
+                    ? new SecretMaterial { Kind = "integrated" }
+                    : new SecretMaterial { Kind = "sqlLogin", User = builder.UserID, Secret = builder.Password },
+                ConnectTimeoutMs = 15000,
+                Options = options,
+            };
+        }
+
+        private static async Task<List<ExecEvent>> ExecuteAsync(
+            IDbSession session,
+            string sql,
+            bool vectorBinary = false,
+            bool spatialWkb = false)
+        {
+            var events = new List<ExecEvent>();
+            await foreach (ExecEvent execEvent in session.ExecuteAsync(
+                new QueryExecuteRequest
+                {
+                    QueryId = "q-1",
+                    Sql = sql,
+                    PageRows = 1000,
+                    VectorBinary = vectorBinary,
+                    SpatialWkb = spatialWkb,
+                }, CancellationToken.None))
+            {
+                events.Add(execEvent);
+            }
+            return events;
+        }
+
+        [EngineFact]
+        public async Task OpensAndReportsTsqlServerInfo()
+        {
+            var driver = new SqlClientDriver();
+            await using IDbSession session = await driver.OpenAsync(OpenRequest(), CancellationToken.None);
+            Assert.Equal("Microsoft SQL Server", session.Server.Product);
+            Assert.Equal("tsql", session.Server.Dialect);
+        }
+
+        [EngineFact]
+        public async Task TypeEncodingMatrixOverRealEngine()
+        {
+            var driver = new SqlClientDriver();
+            await using IDbSession session = await driver.OpenAsync(OpenRequest(), CancellationToken.None);
+
+            List<ExecEvent> events = await ExecuteAsync(session, """
+                select
+                    cast(12.50 as decimal(10,2)) as dec,
+                    cast('2026-06-13T01:02:03.1234567+05:00' as datetimeoffset) as dto,
+                    cast('2026-06-13' as date) as d,
+                    cast(0x01020304 as varbinary(8)) as bin,
+                    cast('00000000-0000-0000-0000-000000000001' as uniqueidentifier) as g,
+                    cast(null as int) as nul
+                """);
+            RowsPage page = Assert.Single(events.OfType<RowsPage>());
+            IReadOnlyList<object?> row = page.Cells[0];
+            Assert.IsType<decimal>(row[0]);
+            Assert.IsType<DateTimeOffset>(row[1]);
+            Assert.IsType<DateTime>(row[2]);
+            Assert.IsType<byte[]>(row[3]);
+            Assert.IsType<Guid>(row[4]);
+            Assert.Null(row[5]);
+        }
+
+        [EngineFact]
+        public async Task VectorReadsAsJsonTextByDefaultAndTypedWhenNegotiated() // D-0018/D-0019
+        {
+            var driver = new SqlClientDriver();
+            await using IDbSession session = await driver.OpenAsync(OpenRequest(), CancellationToken.None);
+            const string Sql = "select cast('[1.5,-2.5,3.25]' as vector(3)) as v";
+
+            // Default (no opt-in): the JSON-array text, full precision, as an
+            // ordinary string cell — never a provider type name.
+            List<ExecEvent> textEvents = await ExecuteAsync(session, Sql);
+            RowsPage textPage = Assert.Single(textEvents.OfType<RowsPage>());
+            string text = Assert.IsType<string>(textPage.Cells[0][0]);
+            float[] parsed = System.Text.Json.JsonSerializer.Deserialize<float[]>(text)!;
+            Assert.Equal([1.5f, -2.5f, 3.25f], parsed);
+
+            // Vector column metadata: length = 8 + 4 * dimensions.
+            ResultSetStarted resultSet = Assert.Single(textEvents.OfType<ResultSetStarted>());
+            Assert.Equal("vector", resultSet.Columns[0].EngineType.ToLowerInvariant());
+            Assert.Equal(20, resultSet.Columns[0].Length);
+
+            // Negotiated: typed little-endian component bytes, exact.
+            List<ExecEvent> typedEvents = await ExecuteAsync(session, Sql, vectorBinary: true);
+            RowsPage typedPage = Assert.Single(typedEvents.OfType<RowsPage>());
+            DriverVectorValue vector = Assert.IsType<DriverVectorValue>(typedPage.Cells[0][0]);
+            Assert.Equal(3, vector.Dimensions);
+            Assert.Equal("float32", vector.BaseType);
+            Assert.Equal("f32le", vector.Encoding);
+            Assert.Equal(12, vector.ComponentBytes.Length);
+            float[] decoded = new float[3];
+            for (int i = 0; i < decoded.Length; i++)
+            {
+                decoded[i] = BitConverter.Int32BitsToSingle(
+                    System.Buffers.Binary.BinaryPrimitives.ReadInt32LittleEndian(
+                        vector.ComponentBytes.AsSpan(i * 4, 4)));
+            }
+            Assert.Equal([1.5f, -2.5f, 3.25f], decoded);
+
+            // NULL vector stays an ordinary null cell either way.
+            List<ExecEvent> nullEvents = await ExecuteAsync(session, "select cast(null as vector(3)) as v", vectorBinary: true);
+            Assert.Null(Assert.Single(nullEvents.OfType<RowsPage>()).Cells[0][0]);
+        }
+
+        [EngineFact]
+        public async Task ClrUdtColumnsTransportAsBinaryInsteadOfFailingTheQuery() // D-0018
+        {
+            var driver = new SqlClientDriver();
+            await using IDbSession session = await driver.OpenAsync(OpenRequest(), CancellationToken.None);
+
+            List<ExecEvent> events = await ExecuteAsync(session, """
+                select
+                    geometry::Point(1, 2, 0) as geom,
+                    geography::Point(47.6, -122.3, 4326) as geog,
+                    hierarchyid::GetRoot() as h
+                """);
+            RowsPage page = Assert.Single(events.OfType<RowsPage>());
+            IReadOnlyList<object?> row = page.Cells[0];
+
+            // geometry point: CLR serialization = SRID int32 LE + version 01 + ...
+            byte[] geom = Assert.IsType<byte[]>(row[0]);
+            Assert.Equal(22, geom.Length);
+            Assert.Equal(0, BitConverter.ToInt32(geom, 0)); // SRID 0
+            Assert.Equal(0x01, geom[4]);
+
+            byte[] geog = Assert.IsType<byte[]>(row[1]);
+            Assert.Equal(4326, BitConverter.ToInt32(geog, 0)); // SRID 4326
+
+            Assert.IsType<byte[]>(row[2]); // hierarchyid root serializes (possibly empty)
+        }
+
+        [EngineFact]
+        public async Task SpatialWkbOptInPreservesKindSridAndZm() // D-0020
+        {
+            var driver = new SqlClientDriver();
+            await using IDbSession session = await driver.OpenAsync(OpenRequest(), CancellationToken.None);
+
+            const string Sql = """
+                select
+                    geometry::STGeomFromText('POINT (1 2 3 4)', 0) as geom,
+                    geography::STGeomFromText('POINT (-122.3 47.6 8 9)', 4326) as geog,
+                    cast(null as geometry) as nul
+                """;
+
+            List<ExecEvent> defaultEvents = await ExecuteAsync(session, Sql);
+            Assert.IsType<byte[]>(Assert.Single(defaultEvents.OfType<RowsPage>()).Cells[0][0]);
+
+            List<ExecEvent> typedEvents = await ExecuteAsync(session, Sql, spatialWkb: true);
+            ResultSetStarted resultSet = Assert.Single(typedEvents.OfType<ResultSetStarted>());
+            Assert.Equal("geometry", resultSet.Columns[0].SpatialKind);
+            Assert.Equal("wkb-v1", resultSet.Columns[0].SpatialEncoding);
+            Assert.Equal("geography", resultSet.Columns[1].SpatialKind);
+            Assert.Equal("geometry", resultSet.Columns[2].SpatialKind);
+
+            IReadOnlyList<object?> row = Assert.Single(typedEvents.OfType<RowsPage>()).Cells[0];
+            DriverSpatialValue geometry = Assert.IsType<DriverSpatialValue>(row[0]);
+            Assert.Equal("geometry", geometry.Kind);
+            Assert.Equal(0, geometry.Srid);
+            Assert.Equal(3001u, System.Buffers.Binary.BinaryPrimitives.ReadUInt32LittleEndian(geometry.Wkb.AsSpan(1, 4))); // ISO POINT ZM
+
+            DriverSpatialValue geography = Assert.IsType<DriverSpatialValue>(row[1]);
+            Assert.Equal("geography", geography.Kind);
+            Assert.Equal(4326, geography.Srid);
+            Assert.Equal(3001u, System.Buffers.Binary.BinaryPrimitives.ReadUInt32LittleEndian(geography.Wkb.AsSpan(1, 4)));
+            Assert.Null(row[2]);
+        }
+
+        [EngineFact]
+        public async Task SyntaxErrorMapsToStableServerCode()
+        {
+            var driver = new SqlClientDriver();
+            await using IDbSession session = await driver.OpenAsync(OpenRequest(), CancellationToken.None);
+            DbDriverException ex = await Assert.ThrowsAsync<DbDriverException>(() => ExecuteAsync(session, "selct broken"));
+            Assert.Equal("Sts2.QueryFailed.Server", ex.Code);
+            Assert.NotNull(ex.Server);
+            Assert.Null(ex.InnerException);
+        }
+
+        [EngineFact]
+        public async Task InfoMessageConsumedInsideResultSetPrecedesResultSetCompletion()
+        {
+            var driver = new SqlClientDriver();
+            await using IDbSession session = await driver.OpenAsync(OpenRequest(), CancellationToken.None);
+
+            List<ExecEvent> events = await ExecuteAsync(session, """
+                set ansi_warnings on;
+                select sum(value) as total
+                from (values (cast(1 as int)), (null), (2)) as source(value);
+                """);
+
+            int messageIndex = events.FindIndex(execEvent =>
+                execEvent is ServerMessage { Number: 8153 });
+            int completionIndex = events.FindIndex(execEvent =>
+                execEvent is ResultSetCompleted { ResultSetId: 0 });
+
+            Assert.True(messageIndex >= 0, "Expected SQL Server warning 8153.");
+            Assert.True(completionIndex > messageIndex,
+                "An informational token consumed while reading a result set must be published before resultSetDone.");
+        }
+
+        [EngineFact]
+        public async Task CompletionIsPublishedAfterProviderCleanup()
+        {
+            var driver = new SqlClientDriver();
+            await using IDbSession session = await driver.OpenAsync(OpenRequest(), CancellationToken.None);
+            FieldInfo activeQuery = session.GetType().GetField(
+                "activeQuery",
+                BindingFlags.Instance | BindingFlags.NonPublic)!;
+            await using IAsyncEnumerator<ExecEvent> enumerator = session.ExecuteAsync(
+                new QueryExecuteRequest { QueryId = "q-first", Sql = "select 1" },
+                CancellationToken.None).GetAsyncEnumerator();
+
+            while (await enumerator.MoveNextAsync() && enumerator.Current is not ExecCompleted)
+            {
+            }
+
+            Assert.IsType<ExecCompleted>(enumerator.Current);
+            Assert.Null(activeQuery.GetValue(session));
+            Assert.IsType<ExecCompleted>((await ExecuteAsync(session, "select 2"))[^1]);
+        }
+
+        [EngineFact]
+        public async Task CancelInterruptsInFlightCommand()
+        {
+            var driver = new SqlClientDriver();
+            await using IDbSession session = await driver.OpenAsync(OpenRequest(), CancellationToken.None);
+            using var cancellation = new CancellationTokenSource();
+
+            async Task ConsumeAsync()
+            {
+                await foreach (ExecEvent _ in session.ExecuteAsync(
+                    new QueryExecuteRequest
+                    {
+                        QueryId = "q-cancel",
+                        Sql = "WAITFOR DELAY '00:00:20'; SELECT 1 AS value",
+                        PageRows = 1000,
+                    }, cancellation.Token))
+                {
+                }
+            }
+
+            Task consume = ConsumeAsync();
+            // Let ExecuteReaderAsync enter the server WAITFOR before exercising the same two
+            // cancellation signals used by DriverEffectRunner.
+            await Task.Delay(250);
+            await session.CancelAsync("q-from-an-older-query", CancellationToken.None);
+            await Task.Delay(100);
+            Assert.False(consume.IsCompleted);
+            cancellation.Cancel();
+            await session.CancelAsync("q-cancel", CancellationToken.None);
+
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(async () =>
+                await consume.WaitAsync(TimeSpan.FromSeconds(5)));
+        }
+
+        [EngineFact]
+        public async Task CancelBeforeLargeCellReadStopsConversion()
+        {
+            var driver = new SqlClientDriver();
+            await using IDbSession session = await driver.OpenAsync(OpenRequest(), CancellationToken.None);
+            using var cancellation = new CancellationTokenSource();
+            await using IAsyncEnumerator<ExecEvent> events = session.ExecuteAsync(
+                new QueryExecuteRequest
+                {
+                    QueryId = "q-large-cancel",
+                    Sql = "select replicate(cast('x' as varchar(max)), 16000000) as payload",
+                    MaxCellBytes = 1024,
+                },
+                cancellation.Token).GetAsyncEnumerator();
+
+            Assert.True(await events.MoveNextAsync());
+            Assert.IsType<ExecStarted>(events.Current);
+            Assert.True(await events.MoveNextAsync());
+            Assert.IsType<ResultSetStarted>(events.Current);
+
+            cancellation.Cancel();
+            await session.CancelAsync("q-large-cancel", CancellationToken.None);
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(async () =>
+                await events.MoveNextAsync().AsTask().WaitAsync(TimeSpan.FromSeconds(5)));
+        }
+    }
+}
