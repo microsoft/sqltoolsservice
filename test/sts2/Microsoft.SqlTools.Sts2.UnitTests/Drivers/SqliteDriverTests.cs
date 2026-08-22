@@ -518,6 +518,30 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
         }
 
         [Fact]
+        public async Task SessionRejectsSecondConcurrentQueryAndReleasesGuard()
+        {
+            var driver = new SqliteDriver();
+            await using IDbSession session = await driver.OpenAsync(Request(":memory:"), CancellationToken.None);
+
+            await using (IAsyncEnumerator<ExecEvent> first = session.ExecuteAsync(
+                new QueryExecuteRequest { QueryId = "q-first", Sql = "select 1" },
+                CancellationToken.None).GetAsyncEnumerator())
+            {
+                Assert.True(await first.MoveNextAsync());
+                Assert.IsType<ExecStarted>(first.Current);
+
+                await using IAsyncEnumerator<ExecEvent> second = session.ExecuteAsync(
+                    new QueryExecuteRequest { QueryId = "q-second", Sql = "select 2" },
+                    CancellationToken.None).GetAsyncEnumerator();
+                InvalidOperationException ex = await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => second.MoveNextAsync().AsTask());
+                Assert.Equal("SqliteSession permits one active query.", ex.Message);
+            }
+
+            Assert.IsType<ExecCompleted>((await ExecuteAsync(session, "select 3"))[^1]);
+        }
+
+        [Fact]
         public async Task CompletionIsPublishedAfterProviderCleanup()
         {
             var driver = new SqliteDriver();

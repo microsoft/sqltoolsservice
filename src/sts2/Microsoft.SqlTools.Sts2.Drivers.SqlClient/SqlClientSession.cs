@@ -20,6 +20,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
     {
         private readonly SqlConnection connection;
         private ActiveQuery? activeQuery;
+        private int disposed;
 
         private sealed record ActiveQuery(
             string QueryId,
@@ -37,6 +38,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
         public async IAsyncEnumerable<ExecEvent> ExecuteAsync(QueryExecuteRequest request, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(request);
+            ObjectDisposedException.ThrowIf(Volatile.Read(ref disposed) != 0, this);
             int pageRows = request.PageRows > 0 ? request.PageRows : Sts2Defaults.PageRows;
             int pageBytes = request.PageBytes > 0 ? request.PageBytes : Sts2Defaults.PageBytes;
             int maxCellBytes = request.MaxCellBytes > 0 ? request.MaxCellBytes : Sts2Defaults.MaxCellBytes;
@@ -58,7 +60,15 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                         cancellationToken,
                         explicitCancellation.Token);
                 var publishedQuery = new ActiveQuery(request.QueryId, command, explicitCancellation);
-                Volatile.Write(ref activeQuery, publishedQuery);
+                if (Interlocked.CompareExchange(ref activeQuery, publishedQuery, null) is not null)
+                {
+                    throw new InvalidOperationException("SqlClientSession permits one active query.");
+                }
+                if (Volatile.Read(ref disposed) != 0)
+                {
+                    Interlocked.CompareExchange(ref activeQuery, null, publishedQuery);
+                    throw new ObjectDisposedException(nameof(SqlClientSession));
+                }
                 // Info-class engine messages (PRINT, RAISERROR severity <= 10, DBCC output)
                 // are raised on InfoMessage while the reader pumps the TDS stream (SPEC §10.2:
                 // map info messages to ServerMessage). Text passes through verbatim. Queue and
@@ -469,6 +479,10 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
 
         public async ValueTask DisposeAsync()
         {
+            if (Interlocked.Exchange(ref disposed, 1) != 0)
+            {
+                return;
+            }
             ActiveQuery? query = Volatile.Read(ref activeQuery);
             if (query is not null)
             {

@@ -57,6 +57,11 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
                 // and disposes the published cancellation source.
                 lock (cancelGate)
                 {
+                    ObjectDisposedException.ThrowIf(disposed != 0, this);
+                    if (currentQueryCancel is not null)
+                    {
+                        throw new InvalidOperationException("SqliteSession permits one active query.");
+                    }
                     currentQueryCancel = queryCancel;
                     currentQueryId = request.QueryId;
                 }
