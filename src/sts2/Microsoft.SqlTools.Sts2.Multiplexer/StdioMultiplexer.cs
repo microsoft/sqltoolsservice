@@ -681,28 +681,38 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
 
         private async Task SynthesizeUnavailableErrorAsync(string idRawJson, CancellationToken ct)
         {
-            var error = new JsonObject
-            {
-                ["jsonrpc"] = "2.0",
-                ["id"] = JsonNode.Parse(idRawJson),
-                ["error"] = new JsonObject
-                {
-                    ["code"] = JsonRpcInternalErrorCode,
-                    ["message"] = "STS2 is unavailable.",
-                    ["data"] = new JsonObject
-                    {
-                        ["code"] = "Sts2.Unavailable",
-                        ["retryable"] = false,
-                    },
-                },
-            };
+            byte[] error = BuildUnavailableError(idRawJson);
             Diagnostic(MultiplexerDiagnosticCodes.Sts2Dead, "Synthesized Sts2.Unavailable error for request.");
             await fatalWriteCompleted.Task.WaitAsync(ct).ConfigureAwait(false);
             await WriteStdoutAsync(
                 ChannelKind.Sts2,
-                JsonRpcFraming.BuildFrame(JsonSerializer.SerializeToUtf8Bytes(error)),
+                JsonRpcFraming.BuildFrame(error),
                 ct,
                 allowDeadSts2: true).ConfigureAwait(false);
+        }
+
+        private static byte[] BuildUnavailableError(string idRawJson)
+        {
+            var buffer = new ArrayBufferWriter<byte>(idRawJson.Length + 160);
+            using (var writer = new Utf8JsonWriter(buffer))
+            {
+                writer.WriteStartObject();
+                writer.WriteString("jsonrpc", "2.0");
+                writer.WritePropertyName("id");
+                // Preserve the caller's exact token spelling, just as ReplaceId does
+                // when restoring ordinary routed responses (SPEC §6.3).
+                writer.WriteRawValue(idRawJson, skipInputValidation: false);
+                writer.WriteStartObject("error");
+                writer.WriteNumber("code", JsonRpcInternalErrorCode);
+                writer.WriteString("message", "STS2 is unavailable.");
+                writer.WriteStartObject("data");
+                writer.WriteString("code", "Sts2.Unavailable");
+                writer.WriteBoolean("retryable", false);
+                writer.WriteEndObject();
+                writer.WriteEndObject();
+                writer.WriteEndObject();
+            }
+            return buffer.WrittenSpan.ToArray();
         }
 
         private async Task WriteStdoutAsync(
