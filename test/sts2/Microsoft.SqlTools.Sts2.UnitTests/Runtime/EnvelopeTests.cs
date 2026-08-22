@@ -120,5 +120,21 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
 
             Assert.Throws<System.IO.InvalidDataException>(() => EnvelopeJsonCodec.DeserializeLine(line));
         }
+
+        [Theory]
+        [InlineData("\"not-a-sequence\"")]
+        [InlineData("{}")]
+        [InlineData("[]")]
+        [InlineData("true")]
+        [InlineData("4.5")]
+        public void DeserializeRejectsNonIntegerCause(string invalidCause)
+        {
+            string line = EnvelopeJsonCodec.SerializeLine(Sample()).Replace(
+                "\"cause\":408",
+                "\"cause\":" + invalidCause,
+                StringComparison.Ordinal);
+
+            Assert.Throws<System.IO.InvalidDataException>(() => EnvelopeJsonCodec.DeserializeLine(line));
+        }
     }
 }

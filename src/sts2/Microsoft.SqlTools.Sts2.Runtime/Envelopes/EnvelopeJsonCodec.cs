@@ -83,9 +83,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Envelopes
                 Kind = kind,
                 SessionId = GetOptionalString(root, "sessionId"),
                 Corr = GetOptionalString(root, "corr"),
-                Cause = root.TryGetProperty("cause", out JsonElement causeElement) && causeElement.ValueKind == JsonValueKind.Number
-                    ? causeElement.GetInt64()
-                    : null,
+                Cause = GetOptionalInt64(root, "cause"),
                 Type = GetRequiredString(root, "type"),
                 ConfigVersion = root.GetProperty("configVersion").GetInt32(),
                 Digest = GetRequiredString(root, "digest"),
@@ -135,6 +133,19 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Envelopes
                 return value.GetString();
             }
             throw new InvalidDataException($"Envelope field '{name}' must be a string or null.");
+        }
+
+        private static long? GetOptionalInt64(JsonElement root, string name)
+        {
+            if (!root.TryGetProperty(name, out JsonElement value) || value.ValueKind == JsonValueKind.Null)
+            {
+                return null;
+            }
+            if (value.ValueKind == JsonValueKind.Number && value.TryGetInt64(out long number))
+            {
+                return number;
+            }
+            throw new InvalidDataException($"Envelope field '{name}' must be an Int64 number or null.");
         }
 
         private static JsonElement? CloneOptionalElement(JsonElement root, string name) =>
