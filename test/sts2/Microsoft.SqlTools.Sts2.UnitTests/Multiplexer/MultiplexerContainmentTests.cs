@@ -31,7 +31,8 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Multiplexer
 
             JsonElement fatal = JsonDocument.Parse(await h.StdoutFrameAsync(TestTimeout)).RootElement;
             Assert.Equal("v2/fatal", fatal.GetProperty("method").GetString());
-            Assert.Contains("poison", fatal.GetProperty("params").GetProperty("summary").GetString());
+            Assert.Contains("poison", fatal.GetProperty("params").GetProperty("reason").GetString());
+            Assert.False(fatal.GetProperty("params").TryGetProperty("summary", out _));
             Assert.Equal("/logs/sts2/journal-run-1.jsonl", fatal.GetProperty("params").GetProperty("journalPath").GetString());
 
             // Second MarkSts2Dead must not emit a second v2/fatal: next stdout frame is legacy traffic.
@@ -140,6 +141,99 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Multiplexer
         }
 
         [Fact]
+        public async Task MalformedSts2JsonIsContainedBeforeSharedStdout()
+        {
+            await using var h = new MuxHarness();
+            byte[] malformedFrame = Frames.Frame("""{"jsonrpc":"2.0","method":BROKEN}""");
+
+            await h.Mux.Sts2Output.WriteAsync(malformedFrame, TestTimeout);
+            await h.Mux.Sts2Output.FlushAsync(TestTimeout);
+
+            // The first visible frame is the sanitized fatal notification; the malformed
+            // service payload never reaches the shared JSON-RPC reader.
+            JsonElement fatal = JsonDocument.Parse(await h.StdoutFrameAsync(TestTimeout)).RootElement;
+            Assert.Equal("v2/fatal", fatal.GetProperty("method").GetString());
+            Assert.Contains("MalformedPayload", fatal.GetProperty("params").GetProperty("reason").GetString());
+
+            await h.ClientSendsAsync(
+                """{"jsonrpc":"2.0","id":"after-malformed","method":"v2/query.execute","params":{}}""",
+                TestTimeout);
+            JsonElement unavailable = JsonDocument.Parse(await h.StdoutFrameAsync(TestTimeout)).RootElement;
+            Assert.Equal("Sts2.Unavailable",
+                unavailable.GetProperty("error").GetProperty("data").GetProperty("code").GetString());
+
+            await h.ClientSendsAsync(
+                """{"jsonrpc":"2.0","id":41,"method":"legacy/still-live"}""",
+                TestTimeout);
+            Assert.Contains("legacy/still-live", await h.LegacyReceivesAsync(TestTimeout));
+            await h.LegacySendsAsync("""{"jsonrpc":"2.0","id":41,"result":"ok"}""", TestTimeout);
+            Assert.Contains("\"result\":\"ok\"", await h.StdoutFrameAsync(TestTimeout));
+        }
+
+        [Fact]
+        public async Task TruncatedSts2PayloadFailsTheChannel()
+        {
+            await using var h = new MuxHarness();
+            byte[] partialFrame = Encoding.UTF8.GetBytes(
+                "Content-Length: 30\r\n\r\n{\"jsonrpc\":\"2.0\"");
+
+            await h.Mux.Sts2Output.WriteAsync(partialFrame, TestTimeout);
+            await h.Mux.Sts2Output.FlushAsync(TestTimeout);
+            await h.Mux.Sts2Output.DisposeAsync();
+
+            JsonElement fatal = JsonDocument.Parse(await h.StdoutFrameAsync(TestTimeout)).RootElement;
+            Assert.Equal("v2/fatal", fatal.GetProperty("method").GetString());
+            Assert.Contains("TruncatedFrame", fatal.GetProperty("params").GetProperty("reason").GetString());
+
+            await h.LegacySendsAsync("""{"jsonrpc":"2.0","id":42,"result":"still alive"}""", TestTimeout);
+            Assert.Contains("still alive", await h.StdoutFrameAsync(TestTimeout));
+        }
+
+        [Fact]
+        public async Task BufferedSts2FramesAndIdsCannotEscapeAfterFatal()
+        {
+            GatedWriteStream? gate = null;
+            await using var h = new MuxHarness(
+                outputWrapper: output => gate = new GatedWriteStream(output));
+
+            // Hold the single stdout lock with legacy traffic, then queue an STS2 server
+            // request (which registers an id) plus a notification behind it.
+            await h.LegacySendsAsync("""{"jsonrpc":"2.0","id":50,"result":"blocker"}""", TestTimeout);
+            await gate!.Entered.WaitAsync(TestTimeout);
+            await h.Sts2SendsAsync(
+                """{"jsonrpc":"2.0","id":7,"method":"v2/server.request","params":{}}""",
+                TestTimeout);
+            await h.Sts2SendsAsync(
+                """{"jsonrpc":"2.0","method":"v2/query.rows","params":{"pageSeq":99}}""",
+                TestTimeout);
+
+            for (int i = 0; i < 200 && h.Mux.OutstandingServerRequestCount == 0; i++)
+            {
+                await Task.Delay(5, TestTimeout);
+            }
+            Assert.Equal(1, h.Mux.OutstandingServerRequestCount);
+
+            h.Mux.MarkSts2Dead("buffered output test");
+            Assert.Equal(0, h.Mux.OutstandingServerRequestCount);
+            gate.Release();
+
+            Assert.Contains("blocker", await h.StdoutFrameAsync(TestTimeout));
+            JsonElement fatal = JsonDocument.Parse(await h.StdoutFrameAsync(TestTimeout)).RootElement;
+            Assert.Equal("v2/fatal", fatal.GetProperty("method").GetString());
+
+            // If the server request raced back into the table, this response would be
+            // consumed/dropped instead of following the unknown-id legacy fallback.
+            string idProbe = """{"jsonrpc":"2.0","id":"sts2mux-1","result":"probe"}""";
+            await h.ClientSendsAsync(idProbe, TestTimeout);
+            Assert.Equal(idProbe, await h.LegacyReceivesAsync(TestTimeout));
+
+            // The next shared-stdout frame is legacy; neither queued STS2 frame escaped
+            // after fatal, and legacy remains independently live.
+            await h.LegacySendsAsync("""{"jsonrpc":"2.0","id":51,"result":"legacy-after-fatal"}""", TestTimeout);
+            Assert.Contains("legacy-after-fatal", await h.StdoutFrameAsync(TestTimeout));
+        }
+
+        [Fact]
         public async Task UnmaterializableOutboundFrameFailsSts2Cleanly()
         {
             await using var h = new MuxHarness(new MultiplexerOptions { MaxFrameBytes = int.MaxValue });
@@ -150,8 +244,8 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Multiplexer
 
             JsonElement fatal = JsonDocument.Parse(await h.StdoutFrameAsync(TestTimeout)).RootElement;
             Assert.Equal("v2/fatal", fatal.GetProperty("method").GetString());
-            Assert.Contains("FrameTooLarge", fatal.GetProperty("params").GetProperty("summary").GetString());
-            Assert.DoesNotContain("2147483647", fatal.GetProperty("params").GetProperty("summary").GetString());
+            Assert.Contains("FrameTooLarge", fatal.GetProperty("params").GetProperty("reason").GetString());
+            Assert.DoesNotContain("2147483647", fatal.GetProperty("params").GetProperty("reason").GetString());
 
             await h.LegacySendsAsync("""{"jsonrpc":"2.0","id":12,"result":"still alive"}""", TestTimeout);
             Assert.Contains("still alive", await h.StdoutFrameAsync(TestTimeout));

@@ -41,6 +41,8 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
         private readonly MultiplexerTransportStats transportStats = new();
         private readonly SemaphoreSlim stdoutLock = new(1, 1);
         private readonly CancellationTokenSource cts = new();
+        private readonly TaskCompletionSource fatalWriteCompleted = new(
+            TaskCreationOptions.RunContinuationsAsynchronously);
 
         private readonly Pipe legacyInbound = new();
         private readonly Pipe legacyOutbound = new();
@@ -93,6 +95,9 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
         /// </summary>
         internal PipeWriter Sts2OutputWriter => sts2Outbound.Writer;
 
+        /// <summary>Outstanding rewritten server-request ids; exposed internally for invariants/tests.</summary>
+        internal int OutstandingServerRequestCount => idTable.Count;
+
         /// <summary>Completes when all pump loops have stopped (stdin EOF or disposal).</summary>
         public Task Completion => completion;
 
@@ -135,7 +140,7 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
                 ["method"] = "v2/fatal",
                 ["params"] = new JsonObject
                 {
-                    ["summary"] = reason,
+                    ["reason"] = reason,
                     ["journalPath"] = journalPath,
                 },
             };
@@ -144,11 +149,21 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
             {
                 try
                 {
-                    await WriteStdoutAsync(ChannelKind.Sts2, frame, cts.Token).ConfigureAwait(false);
+                    await WriteStdoutAsync(
+                        ChannelKind.Sts2,
+                        frame,
+                        cts.Token,
+                        allowDeadSts2: true).ConfigureAwait(false);
                 }
                 catch
                 {
                     // Best effort only: containment must not create an unobserved fault.
+                }
+                finally
+                {
+                    // Future synthesized Unavailable responses wait for the one-shot fatal
+                    // boundary, so clients cannot observe ordinary post-death traffic first.
+                    fatalWriteCompleted.TrySetResult();
                 }
             });
         }
@@ -522,9 +537,14 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
                         buffer = buffer.Slice(frameLength);
                     }
 
+                    bool truncatedFrame = result.IsCompleted && !buffer.IsEmpty;
                     reader.AdvanceTo(buffer.Start, buffer.End);
                     if (result.IsCompleted)
                     {
+                        if (truncatedFrame)
+                        {
+                            throw new ChannelFrameException("TruncatedFrame");
+                        }
                         break;
                     }
                 }
@@ -541,6 +561,12 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
 
         private async Task ProcessOutboundFrameAsync(ChannelKind channel, ReadOnlyMemory<byte> frameBytes, int headerLength, CancellationToken ct)
         {
+            if (channel == ChannelKind.Sts2 && Volatile.Read(ref sts2Dead) != 0)
+            {
+                Diagnostic(MultiplexerDiagnosticCodes.Sts2Dead, "Dropped buffered frame from dead STS2 channel.");
+                return;
+            }
+
             MultiplexerTransportStats.ChannelStats stats = transportStats.For(channel);
             long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
             long inspectStarted = Stopwatch.GetTimestamp();
@@ -556,9 +582,24 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
             {
                 stats.RecordRewrite();
                 string publicId = idTable.Register(channel, info.IdRawJson);
+                if (channel == ChannelKind.Sts2 && Volatile.Read(ref sts2Dead) != 0)
+                {
+                    // MarkSts2Dead may have dropped the channel immediately before this
+                    // registration. A post-register check closes that race; the outbound
+                    // STS2 pump is single-threaded, so no later registration can slip in.
+                    idTable.DropChannel(ChannelKind.Sts2);
+                    return;
+                }
                 byte[] rewritten = ReplaceId(frameBytes.Span[headerLength..], publicId, asRawJson: false);
                 await WriteStdoutAsync(channel, JsonRpcFraming.BuildFrame(rewritten), ct).ConfigureAwait(false);
                 return;
+            }
+
+            if (channel == ChannelKind.Sts2 && info.ParseFailed)
+            {
+                // Legacy output retains its compatibility pass-through. STS2 is the new,
+                // isolated channel: malformed JSON must not poison the shared client reader.
+                throw new ChannelFrameException("MalformedPayload");
             }
 
             // Responses and notifications pass through unchanged (SPEC §6.3).
@@ -656,10 +697,19 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
                 },
             };
             Diagnostic(MultiplexerDiagnosticCodes.Sts2Dead, "Synthesized Sts2.Unavailable error for request.");
-            await WriteStdoutAsync(ChannelKind.Sts2, JsonRpcFraming.BuildFrame(JsonSerializer.SerializeToUtf8Bytes(error)), ct).ConfigureAwait(false);
+            await fatalWriteCompleted.Task.WaitAsync(ct).ConfigureAwait(false);
+            await WriteStdoutAsync(
+                ChannelKind.Sts2,
+                JsonRpcFraming.BuildFrame(JsonSerializer.SerializeToUtf8Bytes(error)),
+                ct,
+                allowDeadSts2: true).ConfigureAwait(false);
         }
 
-        private async Task WriteStdoutAsync(ChannelKind channel, ReadOnlyMemory<byte> frame, CancellationToken ct)
+        private async Task WriteStdoutAsync(
+            ChannelKind channel,
+            ReadOnlyMemory<byte> frame,
+            CancellationToken ct,
+            bool allowDeadSts2 = false)
         {
             MultiplexerTransportStats.ChannelStats stats = transportStats.For(channel);
             // The single stdout writer (SPEC §6.4, I10): whole frames only, never interleaved.
@@ -668,6 +718,17 @@ namespace Microsoft.SqlTools.Sts2.Multiplexer
             stats.RecordStdoutLockWait(Stopwatch.GetTimestamp() - waitStarted);
             try
             {
+                // Recheck only after acquiring the serialization boundary. A service frame
+                // may have queued before MarkSts2Dead while another channel owned stdout;
+                // it must not escape after the fatal transition. Multiplexer-owned fatal
+                // and Unavailable frames opt in explicitly.
+                if (channel == ChannelKind.Sts2
+                    && !allowDeadSts2
+                    && Volatile.Read(ref sts2Dead) != 0)
+                {
+                    Diagnostic(MultiplexerDiagnosticCodes.Sts2Dead, "Dropped queued frame from dead STS2 channel.");
+                    return;
+                }
                 long writeStarted = Stopwatch.GetTimestamp();
                 await realOutput.WriteAsync(frame, ct).ConfigureAwait(false);
                 stats.RecordStdoutWrite(frame.Length, Stopwatch.GetTimestamp() - writeStarted);

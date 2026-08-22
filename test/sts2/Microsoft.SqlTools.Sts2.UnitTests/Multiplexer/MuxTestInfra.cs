@@ -26,12 +26,19 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Multiplexer
         private readonly Pipe stdinPipe = new();
         private readonly Pipe stdoutPipe = new();
 
-        public MuxHarness(MultiplexerOptions? options = null, ISts2LifecycleSink? lifecycleSink = null)
+        public MuxHarness(
+            MultiplexerOptions? options = null,
+            ISts2LifecycleSink? lifecycleSink = null,
+            Func<Stream, Stream>? outputWrapper = null)
         {
             Diagnostics = new ConcurrentQueue<MultiplexerDiagnostic>();
             var opts = options ?? new MultiplexerOptions();
             opts = opts with { DiagnosticListener = d => Diagnostics.Enqueue(d) };
-            Mux = new StdioMultiplexer(stdinPipe.Reader.AsStream(), stdoutPipe.Writer.AsStream(), opts);
+            Stream realOutput = stdoutPipe.Writer.AsStream();
+            Mux = new StdioMultiplexer(
+                stdinPipe.Reader.AsStream(),
+                outputWrapper?.Invoke(realOutput) ?? realOutput,
+                opts);
             Mux.Start(lifecycleSink);
             StdoutReader = stdoutPipe.Reader.AsStream();
         }
@@ -75,6 +82,53 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Multiplexer
         {
             await Mux.DisposeAsync();
         }
+    }
+
+    /// <summary>A write stream whose first/all writes wait at a controllable test gate.</summary>
+    internal sealed class GatedWriteStream(Stream inner) : Stream
+    {
+        private readonly TaskCompletionSource entered = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        private readonly TaskCompletionSource released = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        internal Task Entered => entered.Task;
+
+        internal void Release() => released.TrySetResult();
+
+        public override bool CanRead => false;
+        public override bool CanSeek => false;
+        public override bool CanWrite => true;
+        public override long Length => throw new NotSupportedException();
+        public override long Position
+        {
+            get => throw new NotSupportedException();
+            set => throw new NotSupportedException();
+        }
+
+        public override void Flush() => inner.Flush();
+
+        public override Task FlushAsync(CancellationToken cancellationToken) =>
+            inner.FlushAsync(cancellationToken);
+
+        public override async ValueTask WriteAsync(
+            ReadOnlyMemory<byte> buffer,
+            CancellationToken cancellationToken = default)
+        {
+            entered.TrySetResult();
+            await released.Task.WaitAsync(cancellationToken);
+            await inner.WriteAsync(buffer, cancellationToken);
+        }
+
+        public override void Write(byte[] buffer, int offset, int count) =>
+            throw new NotSupportedException();
+
+        public override int Read(byte[] buffer, int offset, int count) =>
+            throw new NotSupportedException();
+
+        public override long Seek(long offset, SeekOrigin origin) =>
+            throw new NotSupportedException();
+
+        public override void SetLength(long value) =>
+            throw new NotSupportedException();
     }
 
     internal static class Frames
