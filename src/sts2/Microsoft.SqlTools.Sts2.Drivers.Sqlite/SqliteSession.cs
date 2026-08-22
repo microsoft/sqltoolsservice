@@ -274,7 +274,9 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
             raw.SQLITE_INTEGER => "INTEGER",
             raw.SQLITE_FLOAT => "REAL",
             raw.SQLITE_TEXT => "TEXT",
-            _ => "BLOB",
+            raw.SQLITE_BLOB => "BLOB",
+            raw.SQLITE_NULL => "NULL",
+            _ => "UNKNOWN",
         };
 
         private static long EstimateRowBytes(IReadOnlyList<object?> cells)

@@ -175,6 +175,19 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
         }
 
         [Fact]
+        public async Task NullExpressionMetadataIsNotReportedAsBlob()
+        {
+            var driver = new SqliteDriver();
+            await using IDbSession session = await driver.OpenAsync(Request(":memory:"), CancellationToken.None);
+
+            List<ExecEvent> events = await ExecuteAsync(session, "select null as missing");
+            ResultSetStarted resultSet = Assert.Single(events.OfType<ResultSetStarted>());
+
+            Assert.Equal("NULL", Assert.Single(resultSet.Columns).EngineType);
+            Assert.Null(Assert.Single(Assert.Single(events.OfType<RowsPage>()).Cells)[0]);
+        }
+
+        [Fact]
         public async Task RowIdPrimaryKeyNullabilityDoesNotOverstateTextConstraint()
         {
             var driver = new SqliteDriver();
