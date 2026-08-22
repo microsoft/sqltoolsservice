@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using System.Text.Json;
 using Microsoft.SqlTools.Sts2.Contracts;
 using Microsoft.SqlTools.Sts2.Core;
@@ -50,6 +51,26 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Core
         }
 
         [Fact]
+        public void NestedMustUnderstandFieldsAreRejectedRecursively()
+        {
+            string[] payloads =
+            [
+                """{"clientName":"t","options":{"mustUnderstand_newPagingMode":true}}""",
+                """{"openId":"o-1","profile":{"auth":{"mustUnderstand_newAuthRule":"required"}}}""",
+                """{"clientName":"t","extensions":[{"mustUnderstand_arrayFeature":1}]}""",
+            ];
+
+            foreach (string payload in payloads)
+            {
+                CoreDecision decision = Sts2CoreReducer.Decide(CoreState.Initial,
+                    Request(1, "v2/initialize", "r-init", payload));
+                RpcErrorOutput error = Assert.IsType<RpcErrorOutput>(Assert.Single(decision.Outputs));
+                Assert.Equal(Sts2ErrorCodes.InvalidRequest, error.DataCode);
+                Assert.Contains("mustUnderstand_", error.Message, StringComparison.Ordinal);
+            }
+        }
+
+        [Fact]
         public void QueryExecuteAcceptsAndGrantsInitialCredit()
         {
             CoreDecision decision = Sts2CoreReducer.Decide(OpenConnectionState(),
@@ -65,6 +86,7 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Core
             QueryInfo query = decision.NewState.Queries["q-3"];
             Assert.Equal(QueryPhase.Running, query.Phase);
             Assert.Equal(4, query.CreditOutstanding);
+            Assert.Empty(query.UnackedPages);
             Assert.Equal("q-3", decision.NewState.Connections["c-1"].ActiveQueryId);
         }
 
@@ -159,6 +181,7 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Core
             Assert.Equal(0, notify.Params.GetProperty("pageSeq").GetInt32());
             Assert.Equal(1, decision.NewState.Queries["q-3"].PagesSent);
             Assert.Equal(3, decision.NewState.Queries["q-3"].CreditOutstanding);
+            Assert.Equal("0:0", decision.NewState.Queries["q-3"].UnackedPages[0]);
         }
 
         [Fact]
@@ -266,7 +289,7 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Core
             RpcNotifyOutput terminal = Assert.IsType<RpcNotifyOutput>(Assert.Single(acked.Outputs));
             Assert.Equal("v2/query.complete", terminal.Method);
             Assert.Equal("disposed", terminal.Params.GetProperty("status").GetString());
-            Assert.Equal(QueryPhase.Disposed, acked.NewState.Queries["q-3"].Phase);
+            Assert.False(acked.NewState.Queries.ContainsKey("q-3"));
             Assert.Null(acked.NewState.Connections["c-1"].ActiveQueryId);
         }
 
@@ -379,6 +402,21 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Core
             Assert.Equal(10, decision.NewState.LastSeq);
         }
 
+        [Fact]
+        public void DuplicateEnvelopeSequenceIsRejectedWithoutReemittingOutput()
+        {
+            CoreState state = Sts2CoreReducer.Decide(CoreState.Initial,
+                Request(10, "v2/diagnostics.ping", "r-first")).NewState;
+
+            CoreDecision duplicate = Sts2CoreReducer.Decide(state,
+                Request(10, "v2/diagnostics.ping", "r-duplicate"));
+
+            DiagnosticOutput diagnostic = Assert.IsType<DiagnosticOutput>(Assert.Single(duplicate.Outputs));
+            Assert.Equal("core.unexpectedInput", diagnostic.Name);
+            Assert.Equal(10, duplicate.NewState.LastSeq);
+            Assert.DoesNotContain("r-duplicate", diagnostic.Data.GetRawText(), StringComparison.Ordinal);
+        }
+
         private static CoreState QueryWithFourPagesSent()
         {
             CoreState state = Sts2CoreReducer.Decide(OpenConnectionState(),
@@ -427,6 +465,48 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Core
             Assert.Empty(again.Outputs);
         }
 
+        [Fact]
+        public void DuplicatePerPageAckDoesNotGrantCreditForAnotherPage()
+        {
+            CoreState state = QueryWithFourPagesSent();
+
+            CoreDecision first = Sts2CoreReducer.Decide(state, Notify(10, "v2/query.ack",
+                """{"queryId":"q-3","resultSetId":0,"pageSeq":0}"""));
+            Assert.Equal(1, Assert.IsType<EffectRequestOutput>(Assert.Single(first.Outputs))
+                .Args.GetProperty("credit").GetInt32());
+            Assert.Equal(1, first.NewState.Queries["q-3"].PagesAcked);
+            Assert.Equal(1, first.NewState.Queries["q-3"].CreditOutstanding);
+
+            CoreDecision duplicate = Sts2CoreReducer.Decide(first.NewState, Notify(11, "v2/query.ack",
+                """{"queryId":"q-3","resultSetId":0,"pageSeq":0}"""));
+            Assert.Empty(duplicate.Outputs);
+            Assert.Equal(1, duplicate.NewState.Queries["q-3"].PagesAcked);
+            Assert.Equal(1, duplicate.NewState.Queries["q-3"].CreditOutstanding);
+            Assert.Equal(3, duplicate.NewState.Queries["q-3"].UnackedPages.Count);
+        }
+
+        [Fact]
+        public void PerPageAckIdentityIncludesTheResultSet()
+        {
+            CoreState state = Sts2CoreReducer.Decide(OpenConnectionState(),
+                Request(3, "v2/query.execute", "r-q", """{"connectionId":"c-1","sql":"select 1"}""")).NewState;
+            state = Sts2CoreReducer.Decide(state, EffectResponse(4, "driver.queryEvent", "evt-q-3",
+                """{"queryId":"q-3","eventType":"rows","resultSetId":0,"pageSeq":0,"rows":[[1]]}""")).NewState;
+            state = Sts2CoreReducer.Decide(state, EffectResponse(5, "driver.queryEvent", "evt-q-3",
+                """{"queryId":"q-3","eventType":"rows","resultSetId":1,"pageSeq":0,"rows":[[2]]}""")).NewState;
+
+            CoreDecision firstSet = Sts2CoreReducer.Decide(state, Notify(6, "v2/query.ack",
+                """{"queryId":"q-3","resultSetId":0,"pageSeq":0}"""));
+            CoreDecision duplicate = Sts2CoreReducer.Decide(firstSet.NewState, Notify(7, "v2/query.ack",
+                """{"queryId":"q-3","resultSetId":0,"pageSeq":0}"""));
+            CoreDecision secondSet = Sts2CoreReducer.Decide(duplicate.NewState, Notify(8, "v2/query.ack",
+                """{"queryId":"q-3","resultSetId":1,"pageSeq":0}"""));
+
+            Assert.Empty(duplicate.Outputs);
+            Assert.Equal(2, secondSet.NewState.Queries["q-3"].PagesAcked);
+            Assert.Empty(secondSet.NewState.Queries["q-3"].UnackedPages);
+        }
+
         [Theory]
         [InlineData("1.5")]
         [InlineData("1e999")]
@@ -439,8 +519,9 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Core
             // fault the pump.
             CoreDecision decision = Sts2CoreReducer.Decide(state, Notify(10, "v2/query.ack",
                 $$"""{"queryId":"q-3","throughPageSeq":{{throughValue}}}"""));
-            // Either ignored or treated as per-page; never an exception, never over-window.
-            Assert.True(decision.NewState.Queries["q-3"].CreditOutstanding <= Contracts.Sts2Defaults.WindowPages);
+            Assert.Empty(decision.Outputs);
+            Assert.Equal(0, decision.NewState.Queries["q-3"].PagesAcked);
+            Assert.Equal(0, decision.NewState.Queries["q-3"].CreditOutstanding);
         }
 
         [Fact]
@@ -496,8 +577,47 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Core
             RpcNotifyOutput complete = Assert.IsType<RpcNotifyOutput>(Assert.Single(done.Outputs));
             Assert.Equal("v2/query.complete", complete.Method);
             Assert.Equal("disposed", complete.Params.GetProperty("status").GetString());
-            Assert.Equal(QueryPhase.Disposed, done.NewState.Queries["q-3"].Phase);
+            Assert.False(done.NewState.Queries.ContainsKey("q-3"));
             Assert.Null(done.NewState.Connections["c-1"].ActiveQueryId);
+        }
+
+        [Fact]
+        public void CompletedQueriesAreRemovedWhenDisposedAcrossLongLivedSessions()
+        {
+            CoreState state = OpenConnectionState();
+            long seq = 3;
+
+            for (int queryNumber = 0; queryNumber < 1_000; queryNumber++)
+            {
+                string queryId = $"q-{seq}";
+                state = Sts2CoreReducer.Decide(state,
+                    Request(seq++, "v2/query.execute", $"r-q-{queryNumber}",
+                        """{"connectionId":"c-1","sql":"select 1"}""")).NewState;
+                state = Sts2CoreReducer.Decide(state,
+                    EffectResponse(seq++, "driver.queryEvent", $"evt-{queryId}",
+                        $$"""{"queryId":"{{queryId}}","eventType":"completed","rowsAffected":1}""")).NewState;
+                CoreDecision dispose = Sts2CoreReducer.Decide(state,
+                    Request(seq++, "v2/query.dispose", $"r-d-{queryNumber}",
+                        $$"""{"queryId":"{{queryId}}"}"""));
+                state = dispose.NewState;
+
+                Assert.False(state.Queries.ContainsKey(queryId));
+                Assert.Null(state.Connections["c-1"].ActiveQueryId);
+
+                // The runner's eventual cleanup ack and a repeated client dispose remain
+                // harmless without retaining a tombstone.
+                CoreDecision cleanupAck = Sts2CoreReducer.Decide(state,
+                    EffectResponse(seq++, "driver.queryDispose", $"drv-d-{queryNumber}",
+                        $$"""{"queryId":"{{queryId}}","status":"ok"}"""));
+                Assert.Empty(cleanupAck.Outputs);
+                CoreDecision duplicateDispose = Sts2CoreReducer.Decide(cleanupAck.NewState,
+                    Request(seq++, "v2/query.dispose", $"r-dd-{queryNumber}",
+                        $$"""{"queryId":"{{queryId}}"}"""));
+                Assert.IsType<RpcResultOutput>(Assert.Single(duplicateDispose.Outputs));
+                state = duplicateDispose.NewState;
+            }
+
+            Assert.Empty(state.Queries);
         }
 
         [Fact]

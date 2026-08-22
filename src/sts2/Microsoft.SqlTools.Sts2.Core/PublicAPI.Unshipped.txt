@@ -146,6 +146,8 @@ Microsoft.SqlTools.Sts2.Core.QueryInfo.Phase.init -> void
 Microsoft.SqlTools.Sts2.Core.QueryInfo.QueryId.get -> string!
 Microsoft.SqlTools.Sts2.Core.QueryInfo.QueryId.init -> void
 Microsoft.SqlTools.Sts2.Core.QueryInfo.QueryInfo() -> void
+Microsoft.SqlTools.Sts2.Core.QueryInfo.UnackedPages.get -> System.Collections.Immutable.ImmutableSortedDictionary<int, string!>!
+Microsoft.SqlTools.Sts2.Core.QueryInfo.UnackedPages.init -> void
 Microsoft.SqlTools.Sts2.Core.QueryPhase
 Microsoft.SqlTools.Sts2.Core.RpcErrorOutput
 Microsoft.SqlTools.Sts2.Core.RpcErrorOutput.Corr.get -> string!

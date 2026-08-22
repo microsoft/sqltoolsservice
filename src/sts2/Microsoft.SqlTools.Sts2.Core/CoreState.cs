@@ -91,6 +91,13 @@ namespace Microsoft.SqlTools.Sts2.Core
         /// <summary>Credit granted to the effect runner not yet consumed by a page.</summary>
         public required int CreditOutstanding { get; init; }
 
+        /// <summary>
+        /// Pages sent but not yet acknowledged, keyed by their cumulative per-query ordinal.
+        /// Values identify the wire page as <c>resultSetId:pageSeq</c>. This ledger is bounded
+        /// by the query window and makes the per-page ack form idempotent.
+        /// </summary>
+        public required ImmutableSortedDictionary<int, string> UnackedPages { get; init; }
+
         /// <summary>True once <c>query.complete</c> was emitted (I2/I3 guard).</summary>
         public required bool CompleteSent { get; init; }
     }
@@ -181,7 +188,7 @@ namespace Microsoft.SqlTools.Sts2.Core
         /// <summary>In-flight and open openId index for cancel routing and duplicate detection.</summary>
         public required ImmutableSortedDictionary<string, string> OpenIdToConnectionId { get; init; }
 
-        /// <summary>Queries by query id, including terminal ones until disposed.</summary>
+        /// <summary>Queries by query id, including terminal ones until disposal completes.</summary>
         public required ImmutableSortedDictionary<string, QueryInfo> Queries { get; init; }
     }
 }

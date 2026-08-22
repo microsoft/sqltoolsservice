@@ -1,4 +1,7 @@
 M:System.Guid.NewGuid;Core must not create ambient ids (SPEC §9.3.2); ids arrive in envelopes
+N:System.IO;Core performs no I/O (SPEC §9.2), including concrete files, pipes, and streams
+N:System.Net;Core performs no network I/O (SPEC §4.2 and §9.2)
+N:System.Threading;Core is single-threaded and synchronous (SPEC §9.3.3), including synchronization primitives
 T:System.Random;Core must not use randomness (SPEC §9.3.2)
 T:System.Security.Cryptography.RandomNumberGenerator;Core must not use randomness (SPEC §9.3.2)
 T:System.Threading.Tasks.Task;Core is synchronous (SPEC §9.3.3); no Task

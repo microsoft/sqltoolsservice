@@ -53,6 +53,11 @@ namespace Microsoft.SqlTools.Sts2.Core
                     ["pagesSent"] = query.PagesSent,
                     ["pagesAcked"] = query.PagesAcked,
                     ["creditOutstanding"] = query.CreditOutstanding,
+                    ["unackedPages"] = new JsonArray(query.UnackedPages.Select(page => (JsonNode)new JsonObject
+                    {
+                        ["ordinal"] = page.Key,
+                        ["page"] = page.Value,
+                    }).ToArray()),
                     ["completeSent"] = query.CompleteSent,
                 };
             }

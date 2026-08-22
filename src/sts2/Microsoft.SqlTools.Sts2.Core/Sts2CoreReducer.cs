@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
 using System.Text.Json;
@@ -26,9 +27,9 @@ namespace Microsoft.SqlTools.Sts2.Core
             ArgumentNullException.ThrowIfNull(state);
             ArgumentNullException.ThrowIfNull(envelope);
 
-            if (envelope.Seq < state.LastSeq)
+            if (envelope.Seq <= state.LastSeq)
             {
-                return Unexpected(state, envelope, "out-of-order envelope sequence");
+                return Unexpected(state, envelope, "non-increasing envelope sequence");
             }
 
             CoreState advanced = state with { LastSeq = envelope.Seq };
@@ -50,16 +51,11 @@ namespace Microsoft.SqlTools.Sts2.Core
             }
 
             // SPEC §7.1: unknown fields are ignored unless they demand understanding.
-            if (envelope.Payload is { ValueKind: JsonValueKind.Object } payload)
+            if (envelope.Payload is { } payload
+                && FindUnsupportedMustUnderstand(payload) is { } unsupportedField)
             {
-                foreach (JsonProperty property in payload.EnumerateObject())
-                {
-                    if (property.Name.StartsWith("mustUnderstand_", StringComparison.Ordinal))
-                    {
-                        return Error(state, envelope.Corr, Sts2ErrorCodes.InvalidRequest,
-                            "Request contains an unsupported mustUnderstand_ field: " + property.Name);
-                    }
-                }
+                return Error(state, envelope.Corr, Sts2ErrorCodes.InvalidRequest,
+                    "Request contains an unsupported mustUnderstand_ field: " + unsupportedField);
             }
 
             return envelope.Type switch
@@ -494,6 +490,7 @@ namespace Microsoft.SqlTools.Sts2.Core
                     PagesSent = 0,
                     PagesAcked = 0,
                     CreditOutstanding = Sts2Defaults.WindowPages,
+                    UnackedPages = ImmutableSortedDictionary<int, string>.Empty,
                     CompleteSent = false,
                 }),
             };
@@ -583,27 +580,47 @@ namespace Microsoft.SqlTools.Sts2.Core
                 return CoreDecision.StateOnly(state); // late/unknown acks are ignored (idempotent)
             }
 
-            int pagesAcked = query.PagesAcked;
+            ImmutableSortedDictionary<int, string> unackedPages = query.UnackedPages;
             if (envelope.Payload is { } p && p.TryGetProperty("throughPageSeq", out JsonElement through)
-                && through.ValueKind == JsonValueKind.Number && through.TryGetInt32(out int throughPageSeq))
+                && through.ValueKind == JsonValueKind.Number && through.TryGetInt32(out int throughPageSeq)
+                && throughPageSeq >= 0)
             {
-                // High-water (0-based pageSeq). Clamp to [current, PagesSent] so a duplicate,
-                // out-of-order, or impossibly-large client ack can never push pagesAcked past
-                // what was actually sent and over-grant credit beyond the window (I9, R011).
-                int requested = throughPageSeq >= 0 ? throughPageSeq + 1 : pagesAcked;
-                pagesAcked = Math.Min(query.PagesSent, Math.Max(pagesAcked, requested));
+                // High-water is the cumulative per-query page ordinal (D-0015). Remove only
+                // pages that were actually sent and remain outstanding, so a future or
+                // duplicate high-water can never pre-ack later pages or over-grant credit.
+                foreach (int ordinal in unackedPages.Keys.Where(ordinal => ordinal <= throughPageSeq).ToArray())
+                {
+                    unackedPages = unackedPages.Remove(ordinal);
+                }
             }
-            else
+            else if (TryGetPerPageAckKey(envelope.Payload, out string? pageKey))
             {
-                pagesAcked = Math.Min(query.PagesSent, pagesAcked + 1); // per-page credit
+                // The per-page form uses the rows page identity. Removing a matching
+                // outstanding entry makes retransmission idempotent; malformed, missing, or
+                // already-acked identities grant no credit.
+                int? acknowledgedOrdinal = null;
+                foreach ((int ordinal, string outstandingPageKey) in unackedPages)
+                {
+                    if (outstandingPageKey == pageKey)
+                    {
+                        acknowledgedOrdinal = ordinal;
+                        break;
+                    }
+                }
+                if (acknowledgedOrdinal is { } matchedOrdinal)
+                {
+                    unackedPages = unackedPages.Remove(matchedOrdinal);
+                }
             }
 
-            int unacked = query.PagesSent - pagesAcked;
+            int pagesAcked = query.PagesSent - unackedPages.Count;
+            int unacked = unackedPages.Count;
             int creditToGrant = Sts2Defaults.WindowPages - unacked - query.CreditOutstanding;
             QueryInfo updated = query with
             {
                 PagesAcked = pagesAcked,
                 CreditOutstanding = query.CreditOutstanding + Math.Max(0, creditToGrant),
+                UnackedPages = unackedPages,
             };
             CoreState next = state with { Queries = state.Queries.SetItem(queryId, updated) };
 
@@ -678,7 +695,9 @@ namespace Microsoft.SqlTools.Sts2.Core
             {
                 CoreState done = state with
                 {
-                    Queries = state.Queries.SetItem(queryId, query with { Phase = QueryPhase.Disposed }),
+                    // Unknown query ids already have idempotent cancel/dispose behavior, so
+                    // no tombstone is needed. The journal retains the historical terminal.
+                    Queries = state.Queries.Remove(queryId),
                     Connections = ClearActiveQuery(state.Connections, query.ConnectionId, queryId),
                 };
                 return new CoreDecision(done,
@@ -717,10 +736,11 @@ namespace Microsoft.SqlTools.Sts2.Core
 
             string notify = string.Create(CultureInfo.InvariantCulture,
                 $$"""{"queryId":{{JsonSerializer.Serialize(queryId)}},"status":"disposed","rowsAffected":null}""");
-            QueryInfo terminal = query with { Phase = QueryPhase.Disposed, CompleteSent = true };
             CoreState next = state with
             {
-                Queries = state.Queries.SetItem(queryId, terminal),
+                // The pump is stopped and the terminal is about to be emitted. Drop the
+                // query now instead of retaining one immutable-map tombstone per execution.
+                Queries = state.Queries.Remove(queryId),
                 Connections = ClearActiveQuery(state.Connections, query.ConnectionId, queryId),
             };
             var outputs = new List<CoreOutput> { new RpcNotifyOutput("v2/query.complete", Json(notify)) };
@@ -785,6 +805,7 @@ namespace Microsoft.SqlTools.Sts2.Core
                     {
                         PagesSent = query.PagesSent + 1,
                         CreditOutstanding = Math.Max(0, query.CreditOutstanding - 1),
+                        UnackedPages = query.UnackedPages.Add(query.PagesSent, PageKey(payload, query.PagesSent)),
                     };
                     CoreState next = state with { Queries = state.Queries.SetItem(queryId, updated) };
                     // QO-5: a compact payload (opted-in query) forwards the
@@ -1115,6 +1136,88 @@ namespace Microsoft.SqlTools.Sts2.Core
         // when it equals the policy ceiling (D-0012).
         private static bool IsWithinCapturePolicy(string requested, string max) =>
             requested == "digest" || requested == max;
+
+        private static string? FindUnsupportedMustUnderstand(JsonElement value)
+        {
+            if (value.ValueKind == JsonValueKind.Object)
+            {
+                foreach (JsonProperty property in value.EnumerateObject())
+                {
+                    if (property.Name.StartsWith("mustUnderstand_", StringComparison.Ordinal))
+                    {
+                        return property.Name;
+                    }
+
+                    if (FindUnsupportedMustUnderstand(property.Value) is { } nested)
+                    {
+                        return nested;
+                    }
+                }
+            }
+            else if (value.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement item in value.EnumerateArray())
+                {
+                    if (FindUnsupportedMustUnderstand(item) is { } nested)
+                    {
+                        return nested;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        private static bool TryGetPerPageAckKey(JsonElement? payload, out string? pageKey)
+        {
+            pageKey = null;
+            if (payload is not { ValueKind: JsonValueKind.Object } value
+                || !value.TryGetProperty("pageSeq", out JsonElement page)
+                || page.ValueKind != JsonValueKind.Number
+                || !page.TryGetInt32(out int pageSeq)
+                || pageSeq < 0)
+            {
+                return false;
+            }
+
+            int resultSetId = 0;
+            if (value.TryGetProperty("resultSetId", out JsonElement resultSet)
+                && (resultSet.ValueKind != JsonValueKind.Number
+                    || !resultSet.TryGetInt32(out resultSetId)
+                    || resultSetId < 0))
+            {
+                return false;
+            }
+
+            pageKey = PageKey(resultSetId, pageSeq);
+            return true;
+        }
+
+        private static string PageKey(JsonElement payload, int ordinal)
+        {
+            if (payload.TryGetProperty("pageSeq", out JsonElement page)
+                && page.ValueKind == JsonValueKind.Number
+                && page.TryGetInt32(out int pageSeq)
+                && pageSeq >= 0)
+            {
+                int resultSetId = 0;
+                if (!payload.TryGetProperty("resultSetId", out JsonElement resultSet)
+                    || (resultSet.ValueKind == JsonValueKind.Number
+                        && resultSet.TryGetInt32(out resultSetId)
+                        && resultSetId >= 0))
+                {
+                    return PageKey(resultSetId, pageSeq);
+                }
+            }
+
+            // Driver row envelopes are expected to carry non-negative integer identities.
+            // Retain malformed pages as unacknowledgeable unique entries so bad input cannot
+            // be converted into credit by a malformed client ack.
+            return string.Create(CultureInfo.InvariantCulture, $"invalid:{ordinal}");
+        }
+
+        private static string PageKey(int resultSetId, int pageSeq) =>
+            string.Create(CultureInfo.InvariantCulture, $"{resultSetId}:{pageSeq}");
 
         private static string? GetString(JsonElement? payload, string property) =>
             payload is { ValueKind: JsonValueKind.Object } p

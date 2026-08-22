@@ -123,6 +123,19 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Architecture
         }
 
         [Fact]
+        public void CoreBanCoversConcreteIoNetworkAndSynchronizationNamespaces()
+        {
+            string bannedSymbolsPath = Path.Combine(RepoRoot.Sts2SourceDir, "BannedSymbols.Core.txt");
+            HashSet<string> bannedSymbols = File.ReadLines(bannedSymbolsPath)
+                .Select(line => line.Split(';', 2)[0])
+                .ToHashSet(StringComparer.Ordinal);
+
+            Assert.Contains("N:System.IO", bannedSymbols);
+            Assert.Contains("N:System.Net", bannedSymbols);
+            Assert.Contains("N:System.Threading", bannedSymbols);
+        }
+
+        [Fact]
         public void PublicApiTrackedProjectsHaveApiFiles()
         {
             string[] tracked =
