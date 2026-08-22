@@ -63,7 +63,8 @@ namespace Microsoft.SqlTools.Sts2.Bootstrap
             Stream realInput = Console.OpenStandardInput();
             Stream realOutput = Console.OpenStandardOutput();
 
-            StreamWriter? diagnosticsLog = TryCreateDiagnosticsLog(logFilePath);
+            string logDirectory = ResolveLogDirectory(logFilePath);
+            StreamWriter? diagnosticsLog = TryCreateDiagnosticsLog(logDirectory);
             var options = new MultiplexerOptions
             {
                 DiagnosticListener = d => WriteDiagnostic(diagnosticsLog, d),
@@ -71,9 +72,6 @@ namespace Microsoft.SqlTools.Sts2.Bootstrap
 
             var multiplexer = new StdioMultiplexer(realInput, realOutput, options);
 
-            string logDirectory = string.IsNullOrWhiteSpace(logFilePath)
-                ? Path.GetTempPath()
-                : Path.GetDirectoryName(Path.GetFullPath(logFilePath)) ?? Path.GetTempPath();
             string runId = string.Create(
                 CultureInfo.InvariantCulture,
                 $"run-{DateTime.UtcNow:yyyyMMdd-HHmmss}-{Environment.ProcessId}");
@@ -134,17 +132,36 @@ namespace Microsoft.SqlTools.Sts2.Bootstrap
             return result;
         }
 
-        private static StreamWriter? TryCreateDiagnosticsLog(string? logFilePath)
+        internal static string ResolveLogDirectory(string? logFilePath)
+        {
+            if (string.IsNullOrWhiteSpace(logFilePath))
+            {
+                return Path.GetTempPath();
+            }
+
+            try
+            {
+                return Path.GetDirectoryName(Path.GetFullPath(logFilePath)) ?? Path.GetTempPath();
+            }
+            catch (Exception ex) when (ex is ArgumentException
+                or IOException
+                or NotSupportedException
+                or UnauthorizedAccessException)
+            {
+                // A malformed optional legacy log path must not prevent STS2 startup.
+                // Use the process temp directory for both diagnostics and journals.
+                return Path.GetTempPath();
+            }
+        }
+
+        private static StreamWriter? TryCreateDiagnosticsLog(string logDirectory)
         {
             try
             {
-                string directory = string.IsNullOrWhiteSpace(logFilePath)
-                    ? Path.GetTempPath()
-                    : Path.GetDirectoryName(Path.GetFullPath(logFilePath)) ?? Path.GetTempPath();
                 string fileName = string.Create(
                     CultureInfo.InvariantCulture,
                     $"sts2-mux-{Environment.ProcessId}.log");
-                return new StreamWriter(Path.Combine(directory, fileName), append: false) { AutoFlush = true };
+                return new StreamWriter(Path.Combine(logDirectory, fileName), append: false) { AutoFlush = true };
             }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
             {

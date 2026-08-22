@@ -10,4 +10,7 @@
     <ProjectReference Include="..\Microsoft.SqlTools.Sts2.Drivers.Sqlite\Microsoft.SqlTools.Sts2.Drivers.Sqlite.csproj" />
     <ProjectReference Include="..\Microsoft.SqlTools.Sts2.Contracts\Microsoft.SqlTools.Sts2.Contracts.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Microsoft.SqlTools.Sts2.UnitTests" />
+  </ItemGroup>
 </Project>
