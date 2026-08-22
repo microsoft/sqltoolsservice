@@ -280,5 +280,31 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
             await Assert.ThrowsAnyAsync<OperationCanceledException>(async () =>
                 await consume.WaitAsync(TimeSpan.FromSeconds(5)));
         }
+
+        [EngineFact]
+        public async Task CancelBeforeLargeCellReadStopsConversion()
+        {
+            var driver = new SqlClientDriver();
+            await using IDbSession session = await driver.OpenAsync(OpenRequest(), CancellationToken.None);
+            using var cancellation = new CancellationTokenSource();
+            await using IAsyncEnumerator<ExecEvent> events = session.ExecuteAsync(
+                new QueryExecuteRequest
+                {
+                    QueryId = "q-large-cancel",
+                    Sql = "select replicate(cast('x' as varchar(max)), 16000000) as payload",
+                    MaxCellBytes = 1024,
+                },
+                cancellation.Token).GetAsyncEnumerator();
+
+            Assert.True(await events.MoveNextAsync());
+            Assert.IsType<ExecStarted>(events.Current);
+            Assert.True(await events.MoveNextAsync());
+            Assert.IsType<ResultSetStarted>(events.Current);
+
+            cancellation.Cancel();
+            await session.CancelAsync("q-large-cancel", CancellationToken.None);
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(async () =>
+                await events.MoveNextAsync().AsTask().WaitAsync(TimeSpan.FromSeconds(5)));
+        }
     }
 }

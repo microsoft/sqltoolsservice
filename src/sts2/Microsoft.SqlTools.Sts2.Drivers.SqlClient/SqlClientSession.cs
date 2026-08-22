@@ -72,12 +72,13 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                 // rides the same finally (SPEC §10.2: event handlers unsubscribed).
                 try
                 {
-                    // Bind the pump token directly to the command. Register invokes immediately
-                    // when the token was already canceled. Command ownership and activeCommand
-                    // cleanup already surround this path, including that immediate callback.
-                    using CancellationTokenRegistration cancelRegistration = cancellationToken.Register(
-                        static state => CancelCommand((SqlCommand)state!),
-                        command);
+                    // SqlCommand.Cancel is synchronous provider code and has blocked in provider
+                    // edge cases. Never run it inline on CancellationTokenSource.Cancel(), which
+                    // is also the coordinator's terminal-ack path. Registration still happens
+                    // before the first provider await, and an already-canceled token queues the
+                    // callback immediately.
+                    using CancellationTokenRegistration cancelRegistration =
+                        RegisterProviderCancellation(cancellationToken, command.Cancel);
                     cancellationToken.ThrowIfCancellationRequested();
 
                     connection.InfoMessage += onInfoMessage;
@@ -268,6 +269,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                 var cells = new object?[reader.FieldCount];
                 for (int i = 0; i < reader.FieldCount; i++)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     cells[i] = reader.IsDBNull(i)
                         ? null
                         : readKinds[i] switch
@@ -275,9 +277,9 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                             SqlLargeValueReader.CellRead.Text =>
                                 columns[i].EngineType.Equals("vector", StringComparison.OrdinalIgnoreCase)
                                     ? SqlClientVectorValueReader.ReadText(reader, i)
-                                    : SqlLargeValueReader.ReadText(reader, i, maxCellBytes),
+                                    : SqlLargeValueReader.ReadText(reader, i, maxCellBytes, cancellationToken),
                             SqlLargeValueReader.CellRead.Binary =>
-                                SqlLargeValueReader.ReadBinary(reader, i, maxCellBytes),
+                                SqlLargeValueReader.ReadBinary(reader, i, maxCellBytes, cancellationToken),
                             SqlLargeValueReader.CellRead.Vector =>
                                 SqlClientVectorValueReader.Read(reader, i, maxCellBytes),
                             SqlLargeValueReader.CellRead.Spatial =>
@@ -326,10 +328,45 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             {
                 command.Cancel();
             }
-            catch (InvalidOperationException)
+            catch (Exception)
             {
-                // Command already completed/disposed; nothing to cancel.
+                // Cancellation is best-effort provider cleanup. It must not replace the
+                // query's stable terminal cancellation with an arbitrary provider failure.
             }
+        }
+
+        /// <summary>
+        /// Registers synchronous provider cancellation without ever invoking provider code on
+        /// the thread that signals the token. Provider cancellation is best effort; blocking or
+        /// throwing callbacks are isolated on a worker and cannot delay terminal acknowledgement.
+        /// </summary>
+        internal static CancellationTokenRegistration RegisterProviderCancellation(
+            CancellationToken cancellationToken,
+            Action providerCancel)
+        {
+            ArgumentNullException.ThrowIfNull(providerCancel);
+            return cancellationToken.Register(
+                static state => QueueProviderCancellation((Action)state!),
+                providerCancel);
+        }
+
+        private static void QueueProviderCancellation(Action providerCancel)
+        {
+            ThreadPool.UnsafeQueueUserWorkItem(
+                static callback =>
+                {
+                    try
+                    {
+                        callback();
+                    }
+                    catch (Exception)
+                    {
+                        // The query pump observes its cancellation token and owns the terminal
+                        // result. Provider cancellation is only an interrupt accelerator.
+                    }
+                },
+                providerCancel,
+                preferLocal: false);
         }
 
         public ValueTask CancelAsync(string queryId, CancellationToken cancellationToken)
@@ -340,7 +377,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             ActiveQuery? query = Volatile.Read(ref activeQuery);
             if (query is not null && string.Equals(query.QueryId, queryId, StringComparison.Ordinal))
             {
-                CancelCommand(query.Command);
+                QueueProviderCancellation(query.Command.Cancel);
             }
             return ValueTask.CompletedTask;
         }
