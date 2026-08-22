@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Microsoft.SqlTools.Sts2.Hosting;
 using Xunit;
@@ -91,6 +92,49 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Bootstrap
 
             Assert.Contains(nameof(InvalidOperationException), reason, StringComparison.Ordinal);
             Assert.DoesNotContain(canary, reason, StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public void CommandLineSanitizerRedactsValuesRegardlessOfTheirShape()
+        {
+            const string canary = "-secret-value";
+
+            IReadOnlyList<string> sanitized = Sts2BootstrapClass.SanitizeCommandLine(
+            [
+                "--enable-sts2",
+                "--log-file",
+                canary,
+                "--application-name=private-app",
+                "--parent-pid:-42",
+                "-123",
+                "positional-secret",
+                "--unknown-secret",
+                "--stdio",
+            ]);
+
+            Assert.Equal(
+            [
+                "--enable-sts2",
+                "--log-file",
+                "<redacted>",
+                "--application-name=<redacted>",
+                "--parent-pid:<redacted>",
+                "<redacted>",
+                "<redacted>",
+                "<redacted>",
+                "--stdio",
+            ],
+                sanitized);
+            Assert.DoesNotContain(canary, sanitized);
+        }
+
+        [Fact]
+        public void CommandLineSanitizerRedactsFlagShapedOptionValues()
+        {
+            IReadOnlyList<string> sanitized = Sts2BootstrapClass.SanitizeCommandLine(
+                ["--log-file", "--stdio", "--enable-sts2"]);
+
+            Assert.Equal(["--log-file", "<redacted>", "--enable-sts2"], sanitized);
         }
     }
 }

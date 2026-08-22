@@ -22,6 +22,38 @@ namespace Microsoft.SqlTools.Sts2.Bootstrap
     /// </summary>
     public static class Sts2Bootstrap
     {
+        private static readonly HashSet<string> CommandLineOptionsWithValues = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "--application-name",
+            "--data-path",
+            "--http-proxy-url",
+            "--locale",
+            "--log-file",
+            "--parallel-message-processing-limit",
+            "--parent-pid",
+            "--service-name",
+            "--tracing-level",
+        };
+
+        private static readonly HashSet<string> CommandLineSwitches = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "-d",
+            "-h",
+            "--autoflush-log",
+            "--developers",
+            "--enable-connection-pooling",
+            "--enable-logging",
+            "--enable-sql-authentication-provider",
+            "--enable-sts2",
+            "--help",
+            "--http-proxy-strict-ssl",
+            "--parallel-message-processing",
+            "--pii-logging",
+            "--request-mfa-token-from-client",
+            "--stdio",
+            "--vscode-debug-launch",
+        };
+
         /// <summary>Command-line flag that activates STS2 (SPEC §5.2).</summary>
         public const string EnableFlag = "--enable-sts2";
 
@@ -114,15 +146,28 @@ namespace Microsoft.SqlTools.Sts2.Bootstrap
         /// The old substring-"password" filter missed tokens, connection strings, and
         /// next-argument value forms.
         /// </summary>
-        private static IReadOnlyList<string> SanitizeCommandLine(string[] args)
+        internal static IReadOnlyList<string> SanitizeCommandLine(string[] args)
         {
             var result = new List<string>(args.Length);
+            bool redactNextValue = false;
             foreach (string arg in args)
             {
-                if (arg.StartsWith('-'))
+                if (redactNextValue || string.IsNullOrEmpty(arg))
                 {
-                    int sep = arg.IndexOfAny(['=', ':']);
-                    result.Add(sep > 0 ? string.Concat(arg.AsSpan(0, sep + 1), "<redacted>") : arg);
+                    result.Add("<redacted>");
+                    redactNextValue = false;
+                    continue;
+                }
+
+                int separator = arg.IndexOfAny(['=', ':']);
+                string optionName = separator > 0 ? arg[..separator] : arg;
+                bool optionHasValue = CommandLineOptionsWithValues.Contains(optionName);
+                if (optionHasValue || CommandLineSwitches.Contains(optionName))
+                {
+                    result.Add(separator > 0
+                        ? string.Concat(arg.AsSpan(0, separator + 1), "<redacted>")
+                        : arg);
+                    redactNextValue = optionHasValue && separator < 0;
                 }
                 else
                 {
