@@ -1524,6 +1524,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             }
 
             ScriptParseInfo parseInfo = GetScriptParseInfo(uri, createIfNotExists: true);
+            cancellationToken.ThrowIfCancellationRequested();
             if (RequiresReparse(parseInfo, scriptFile))
             {
                 ConnectionInfoBase connectionInfo = null;
