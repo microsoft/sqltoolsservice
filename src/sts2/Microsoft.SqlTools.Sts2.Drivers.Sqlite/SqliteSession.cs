@@ -19,6 +19,8 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
     /// <summary>One open Sqlite session. Owns the connection for its lifetime (SPEC §10.3).</summary>
     internal sealed class SqliteSession : IDbSession
     {
+        private const long JavaScriptMaxSafeInteger = 9_007_199_254_740_991L;
+
         private readonly SqliteConnection connection;
         private readonly Lock cancelGate = new();
         private CancellationTokenSource? currentQueryCancel;
@@ -291,6 +293,9 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
                         EstimateBinaryCellBytes(value.PrefixBytes?.Length ?? 0) + 160,
                     DriverTruncatedValue value =>
                         EstimateJsonStringBytes(value.PrefixText ?? string.Empty) + 160,
+                    // Unsafe Int64 values use {"$t":"int64","v":"..."}; price the
+                    // wrapper as well as the 20-digit decimal payload.
+                    long value when value is > JavaScriptMaxSafeInteger or < -JavaScriptMaxSafeInteger => 64,
                     long => 24,
                     // Non-finite doubles use the runtime's typed wrapper
                     // {"$t":"double","v":"-Infinity"}, not a JSON number.
