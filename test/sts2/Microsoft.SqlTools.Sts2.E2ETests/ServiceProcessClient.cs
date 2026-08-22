@@ -145,7 +145,7 @@ namespace Microsoft.SqlTools.Sts2.E2ETests
             Channel<(string Method, JsonElement Params)> channel = queryNotifications.GetOrAdd(
                 queryId,
                 static _ => Channel.CreateUnbounded<(string Method, JsonElement Params)>(
-                    new UnboundedChannelOptions { SingleReader = true, SingleWriter = true }));
+                    new UnboundedChannelOptions { SingleReader = true }));
             return await channel.Reader.ReadAsync(ct);
         }
 
@@ -203,7 +203,7 @@ namespace Microsoft.SqlTools.Sts2.E2ETests
                             queryNotifications.GetOrAdd(
                                 queryId,
                                 static _ => Channel.CreateUnbounded<(string Method, JsonElement Params)>(
-                                    new UnboundedChannelOptions { SingleReader = true, SingleWriter = true }))
+                                    new UnboundedChannelOptions { SingleReader = true }))
                                 .Writer.TryWrite((method, paramsElement));
                         }
                         continue;
