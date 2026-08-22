@@ -548,6 +548,13 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
             // Second cancel and a dispose are idempotent.
             Assert.Equal("rpc.out.result", (await session.RequestAsync("v2/query.cancel", $$"""{"queryId":"{{queryId}}"}""")).Kind);
             Assert.Equal("rpc.out.result", (await session.RequestAsync("v2/query.dispose", $$"""{"queryId":"{{queryId}}"}""")).Kind);
+
+            // Cancellation is per active execution, not a session-lifetime poison pill.
+            OutboundRpcMessage second = await session.RequestAsync("v2/query.execute",
+                $$"""{"connectionId":"{{connectionId}}","sql":"select after cancel"}""");
+            Assert.Equal("rpc.out.result", second.Kind);
+            completes = await session.WaitForNotificationsAsync("v2/query.complete", 2);
+            Assert.Equal("succeeded", completes[1].Body!.Value.GetProperty("status").GetString());
         }
 
         [Fact]
@@ -570,6 +577,45 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
             Assert.Equal("error", body.GetProperty("status").GetString());
             Assert.Equal("Sts2.QueryFailed.Server", body.GetProperty("error").GetProperty("code").GetString());
             Assert.Equal(8134, body.GetProperty("error").GetProperty("server").GetProperty("number").GetInt32());
+        }
+
+        [Fact]
+        public async Task CleanDriverEofWithoutCompletionBecomesATerminalTransportError()
+        {
+            string connectionId = await session.OpenConnectionAsync();
+            session.Driver.EnqueueQuery(new FakeQueryScript { Steps = [] });
+
+            await session.RequestAsync("v2/query.execute",
+                $$"""{"connectionId":"{{connectionId}}","sql":"select missing terminal"}""");
+            JsonElement complete = (await session.WaitForNotificationsAsync("v2/query.complete", 1))[0].Body!.Value;
+
+            Assert.Equal("error", complete.GetProperty("status").GetString());
+            Assert.Equal(Sts2ErrorCodes.QueryFailedTransport,
+                complete.GetProperty("error").GetProperty("code").GetString());
+            Assert.Null(session.Coordinator.CurrentState.Connections[connectionId].ActiveQueryId);
+        }
+
+        [Fact]
+        public async Task DriverEventsAfterCompletionAreIgnored()
+        {
+            string connectionId = await session.OpenConnectionAsync();
+            session.Driver.EnqueueQuery(new FakeQueryScript
+            {
+                Steps =
+                [
+                    new FakeQueryStep { Type = "completed", RowsAffected = 1 },
+                    new FakeQueryStep { Type = "message", Text = "must not escape after terminal" },
+                    new FakeQueryStep { Type = "crash" },
+                ],
+            });
+
+            await session.RequestAsync("v2/query.execute",
+                $$"""{"connectionId":"{{connectionId}}","sql":"select terminal then noise"}""");
+            await session.WaitForNotificationsAsync("v2/query.complete", 1);
+            await Task.Delay(100);
+
+            Assert.Single(session.Emitted.Where(message => message.Type == "v2/query.complete"));
+            Assert.DoesNotContain(session.Emitted, message => message.Type == "v2/query.message");
         }
 
         [Fact]

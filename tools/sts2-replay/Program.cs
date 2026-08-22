@@ -72,7 +72,7 @@ namespace Microsoft.SqlTools.Sts2.Replay
             }
             if (!result.Identical)
             {
-                Console.Error.WriteLine($"DIVERGED at seq {result.Divergence!.Seq}: recorded {result.Divergence.Recorded}; replayed {result.Divergence.Replayed}");
+                WriteFailure(result, Console.Error);
                 return 1;
             }
             return 0;
@@ -100,7 +100,8 @@ namespace Microsoft.SqlTools.Sts2.Replay
                 }
                 else
                 {
-                    Console.Error.WriteLine($"{manifest}: DIVERGED at seq {result.Divergence!.Seq}");
+                    Console.Error.Write(manifest + ": ");
+                    WriteFailure(result, Console.Error);
                 }
             }
             Console.WriteLine($"replay: {identical}/{manifests.Length} journals identical");
@@ -122,12 +123,33 @@ namespace Microsoft.SqlTools.Sts2.Replay
                 Console.WriteLine("identical: no divergence");
                 return 0;
             }
+            if (result.Outcome == ReplayOutcome.Incomplete)
+            {
+                Console.WriteLine(
+                    $"incomplete journal after seq {result.LastSeq}: {result.PendingOutputCount} pending output(s)");
+                return 1;
+            }
             ReplayDivergence d = result.Divergence!;
             Console.WriteLine($"first divergence at seq {d.Seq}");
             Console.WriteLine($"  recorded: {d.Recorded}");
             Console.WriteLine($"  replayed: {d.Replayed}");
             Console.WriteLine($"  cause chain: {string.Join(" <- ", d.CauseChain)}");
             return 1;
+        }
+
+        private static void WriteFailure(ReplayResult result, TextWriter writer)
+        {
+            if (result.Outcome == ReplayOutcome.Incomplete)
+            {
+                writer.WriteLine(
+                    $"INCOMPLETE after seq {result.LastSeq}: {result.PendingOutputCount} pending output(s)");
+                return;
+            }
+
+            ReplayDivergence divergence = result.Divergence
+                ?? throw new InvalidDataException("Diverged replay did not provide divergence details.");
+            writer.WriteLine(
+                $"DIVERGED at seq {divergence.Seq}: recorded {divergence.Recorded}; replayed {divergence.Replayed}");
         }
 
         private static int ExportCheck(string bundlePath)

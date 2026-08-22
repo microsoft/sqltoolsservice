@@ -10,6 +10,9 @@
     <IsPackable>true</IsPackable>
   </PropertyGroup>
   <ItemGroup>
+    <InternalsVisibleTo Include="Microsoft.SqlTools.Sts2.UnitTests" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\src\sts2\Microsoft.SqlTools.Sts2.Runtime\Microsoft.SqlTools.Sts2.Runtime.csproj" />
     <ProjectReference Include="..\..\src\sts2\Microsoft.SqlTools.Sts2.Core\Microsoft.SqlTools.Sts2.Core.csproj" />
     <ProjectReference Include="..\..\src\sts2\Microsoft.SqlTools.Sts2.Contracts\Microsoft.SqlTools.Sts2.Contracts.csproj" />

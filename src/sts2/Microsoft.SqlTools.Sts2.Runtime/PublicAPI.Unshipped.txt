@@ -166,6 +166,10 @@ Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest
 Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest.<Clone>$() -> Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest!
 Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest.CommandLine.get -> System.Collections.Generic.IReadOnlyList<string!>!
 Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest.CommandLine.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest.DriverPackageVersions.get -> System.Collections.Generic.IReadOnlyDictionary<string!, string!>!
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest.DriverPackageVersions.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest.EffectiveConfiguration.get -> System.Collections.Generic.IReadOnlyDictionary<string!, string!>!
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest.EffectiveConfiguration.init -> void
 Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest.Equals(Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest? other) -> bool
 Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest.GitCommit.get -> string?
 Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalManifest.GitCommit.init -> void
@@ -203,6 +207,10 @@ Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo
 Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo.<Clone>$() -> Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo!
 Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo.CommandLine.get -> System.Collections.Generic.IReadOnlyList<string!>!
 Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo.CommandLine.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo.DriverPackageVersions.get -> System.Collections.Generic.IReadOnlyDictionary<string!, string!>!
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo.DriverPackageVersions.init -> void
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo.EffectiveConfiguration.get -> System.Collections.Generic.IReadOnlyDictionary<string!, string!>!
+Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo.EffectiveConfiguration.init -> void
 Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo.Equals(Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo? other) -> bool
 Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo.GitCommit.get -> string?
 Microsoft.SqlTools.Sts2.Runtime.Journaling.JournalRunInfo.GitCommit.init -> void

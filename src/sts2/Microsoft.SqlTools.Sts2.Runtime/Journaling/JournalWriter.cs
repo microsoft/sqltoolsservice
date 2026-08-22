@@ -181,10 +181,23 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Journaling
                 Os = Environment.OSVersion.ToString(),
                 RuntimeVersion = Environment.Version.ToString(),
                 CommandLine = runInfo.CommandLine,
+                EffectiveConfiguration = SortedCopy(runInfo.EffectiveConfiguration),
+                DriverPackageVersions = SortedCopy(runInfo.DriverPackageVersions),
                 Segments = closedSegments.ToArray(),
                 WrittenAt = options.TimeProvider.GetUtcNow(),
             };
             File.WriteAllText(ManifestPath, JsonSerializer.Serialize(manifest, ManifestJsonOptions));
+        }
+
+        private static IReadOnlyDictionary<string, string> SortedCopy(
+            IReadOnlyDictionary<string, string> source)
+        {
+            var sorted = new SortedDictionary<string, string>(StringComparer.Ordinal);
+            foreach (KeyValuePair<string, string> entry in source)
+            {
+                sorted.Add(entry.Key, entry.Value);
+            }
+            return sorted;
         }
     }
 }

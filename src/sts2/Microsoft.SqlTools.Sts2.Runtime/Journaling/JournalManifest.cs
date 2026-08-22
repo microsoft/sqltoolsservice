@@ -19,6 +19,17 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Journaling
 
         /// <summary>Command-line flags with secrets removed.</summary>
         public IReadOnlyList<string> CommandLine { get; init; } = [];
+
+        /// <summary>
+        /// Effective, privacy-safe configuration values that influenced this run.
+        /// Values must not contain credentials or other secrets.
+        /// </summary>
+        public IReadOnlyDictionary<string, string> EffectiveConfiguration { get; init; }
+            = new Dictionary<string, string>();
+
+        /// <summary>Resolved package or assembly versions for the drivers used by this run.</summary>
+        public IReadOnlyDictionary<string, string> DriverPackageVersions { get; init; }
+            = new Dictionary<string, string>();
     }
 
     /// <summary>One closed or active journal segment.</summary>
@@ -63,6 +74,16 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Journaling
 
         /// <summary>Command-line flags with secrets removed.</summary>
         public IReadOnlyList<string> CommandLine { get; init; } = [];
+
+        /// <summary>
+        /// Effective, privacy-safe configuration values that influenced this run.
+        /// </summary>
+        public IReadOnlyDictionary<string, string> EffectiveConfiguration { get; init; }
+            = new Dictionary<string, string>();
+
+        /// <summary>Resolved package or assembly versions for the drivers used by this run.</summary>
+        public IReadOnlyDictionary<string, string> DriverPackageVersions { get; init; }
+            = new Dictionary<string, string>();
 
         /// <summary>Segments in write order with their hash chain.</summary>
         public IReadOnlyList<JournalSegment> Segments { get; init; } = [];

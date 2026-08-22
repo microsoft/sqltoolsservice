@@ -39,9 +39,17 @@ namespace Microsoft.SqlTools.Sts2.Testing
                             violations.Add("I1: runner did not supply terminal tracking");
                             break;
                         }
-                        foreach ((string corr, int count) in terminalsByCorr.Where(kv => kv.Value != 1))
+                        HashSet<string> expectedCorrs = journal
+                            .Where(e => e.Kind == EnvelopeKinds.RpcInRequest && e.Corr is not null)
+                            .Select(e => e.Corr!)
+                            .ToHashSet(StringComparer.Ordinal);
+                        foreach (string corr in expectedCorrs.Union(terminalsByCorr.Keys, StringComparer.Ordinal))
                         {
-                            violations.Add($"I1: request {corr} received {count} terminal responses (expected exactly 1)");
+                            int count = terminalsByCorr.GetValueOrDefault(corr);
+                            if (!expectedCorrs.Contains(corr) || count != 1)
+                            {
+                                violations.Add($"I1: request {corr} received {count} terminal responses (expected exactly 1)");
+                            }
                         }
                         break;
 
