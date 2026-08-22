@@ -225,7 +225,8 @@ Task("BuildTest")
         {
             var project = pair.Key;
             var projectFolder = System.IO.Path.Combine(testFolder, project);
-            var logPath = System.IO.Path.Combine(logFolder, $"{project}-{framework}-build.log");
+            var logName = project.Replace('/', '_').Replace('\\', '_');
+            var logPath = System.IO.Path.Combine(logFolder, $"{logName}-{framework}-build.log");
             ExitStatus exitStatus;
             using (var logWriter = new StreamWriter(logPath)) {
                 exitStatus = Run(dotnetcli, $"build --framework {framework} --configuration {testConfiguration} \"{projectFolder}\"",
@@ -340,7 +341,8 @@ Task("TestCore")
 
     foreach (var testProject in testProjects)
     {
-        var logFile = System.IO.Path.Combine(logFolder, $"{testProject}-core-result.trx");
+        var logName = testProject.Replace('/', '_').Replace('\\', '_');
+        var logFile = System.IO.Path.Combine(logFolder, $"{logName}-core-result.trx");
         var testWorkingDir = System.IO.Path.Combine(testFolder, testProject);
         Run(dotnetcli, $"test --logger \"trx;LogFileName={logFile}\"", testWorkingDir)
             .ExceptionOnError($"Test {testProject} failed for .NET Core.");

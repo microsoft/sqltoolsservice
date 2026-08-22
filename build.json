@@ -17,6 +17,12 @@
     ],
     "Microsoft.SqlTools.ServiceLayer.IntegrationTests": [
       "net10.0"
+    ],
+    "sts2/Microsoft.SqlTools.Sts2.UnitTests": [
+      "net10.0"
+    ],
+    "sts2/Microsoft.SqlTools.Sts2.E2ETests": [
+      "net10.0"
     ]
   },
   "Frameworks": [

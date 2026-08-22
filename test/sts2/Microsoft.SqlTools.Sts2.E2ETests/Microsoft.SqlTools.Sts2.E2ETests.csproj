@@ -10,4 +10,10 @@
     <PackageReference Include="xunit" />
     <PackageReference Include="xunit.runner.visualstudio" />
   </ItemGroup>
+  <ItemGroup>
+    <!-- The spawned executable is the subject of these tests. Force the exact current
+         configuration/TFM to build without taking a compile-time assembly dependency. -->
+    <ProjectReference Include="..\..\..\src\Microsoft.SqlTools.ServiceLayer\Microsoft.SqlTools.ServiceLayer.csproj"
+                      ReferenceOutputAssembly="false" />
+  </ItemGroup>
 </Project>
