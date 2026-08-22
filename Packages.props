@@ -64,6 +64,10 @@
     <PackageReference Update="OpenAI" Version="2.7.0" />
     <PackageReference Update="Microsoft.Bcl.Memory" Version="10.0.5" />
     <PackageReference Update="System.ClientModel" Version="1.8.1" />
+
+    <!-- STS2 architecture and public-surface enforcement. -->
+    <PackageReference Update="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="4.14.0" />
+    <PackageReference Update="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="4.14.0" />
   </ItemGroup>
 
   <!-- When updating version of Dependencies in the below section, please also update the version in the following files:

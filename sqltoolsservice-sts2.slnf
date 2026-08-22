@@ -1,0 +1,11 @@
+{
+  "solution": {
+    "path": "sqltoolsservice.sln",
+    "projects": [
+      "src\\sts2\\Microsoft.SqlTools.Sts2.Contracts\\Microsoft.SqlTools.Sts2.Contracts.csproj",
+      "src\\sts2\\Microsoft.SqlTools.Sts2.Abstractions\\Microsoft.SqlTools.Sts2.Abstractions.csproj",
+      "src\\sts2\\Microsoft.SqlTools.Sts2.Core\\Microsoft.SqlTools.Sts2.Core.csproj",
+      "test\\sts2\\Microsoft.SqlTools.Sts2.UnitTests\\Microsoft.SqlTools.Sts2.UnitTests.csproj"
+    ]
+  }
+}
