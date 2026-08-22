@@ -313,6 +313,40 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
         }
 
         [Fact]
+        public async Task SessionRejectsSecondConcurrentQueryAndReleasesGuard()
+        {
+            await using IDbSession session = new SqlClientSession(
+                new SqlConnection(),
+                new ServerInfo
+                {
+                    Product = "test",
+                    Version = "test",
+                    Dialect = "tsql",
+                });
+
+            await using (IAsyncEnumerator<ExecEvent> first = session.ExecuteAsync(
+                new QueryExecuteRequest { QueryId = "q-first", Sql = "select 1" },
+                CancellationToken.None).GetAsyncEnumerator())
+            {
+                Assert.True(await first.MoveNextAsync());
+                Assert.IsType<ExecStarted>(first.Current);
+
+                await using IAsyncEnumerator<ExecEvent> second = session.ExecuteAsync(
+                    new QueryExecuteRequest { QueryId = "q-second", Sql = "select 2" },
+                    CancellationToken.None).GetAsyncEnumerator();
+                InvalidOperationException ex = await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => second.MoveNextAsync().AsTask());
+                Assert.Equal("SqlClientSession permits one active query.", ex.Message);
+            }
+
+            await using IAsyncEnumerator<ExecEvent> next = session.ExecuteAsync(
+                new QueryExecuteRequest { QueryId = "q-next", Sql = "select 3" },
+                CancellationToken.None).GetAsyncEnumerator();
+            Assert.True(await next.MoveNextAsync());
+            Assert.IsType<ExecStarted>(next.Current);
+        }
+
+        [Fact]
         public void VectorRowsPageWithAccurateEstimatesRespectsByteBound() // D-0019 page clamp
         {
             // 32 rows of one 1,536-dim vector each at the pinned 256 KiB page
