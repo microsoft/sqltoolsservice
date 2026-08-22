@@ -274,6 +274,23 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
         }
 
         [Fact]
+        public async Task UnsafeInt64PagingIncludesTypedWrapperBytes()
+        {
+            var driver = new SqliteDriver();
+            await using IDbSession session = await driver.OpenAsync(Request(":memory:"), CancellationToken.None);
+
+            List<RowsPage> pages = (await ExecuteAsync(
+                session,
+                "select 9223372036854775807 union all select 9223372036854775807 union all select 9223372036854775807",
+                pageRows: 1000,
+                pageBytes: 64)).OfType<RowsPage>().ToList();
+
+            Assert.Equal(3, pages.Count);
+            Assert.All(pages, page => Assert.Single(page.Cells));
+            Assert.All(pages, page => Assert.Equal(long.MaxValue, Assert.IsType<long>(page.Cells[0][0])));
+        }
+
+        [Fact]
         public async Task QueryTimeoutInterruptsLongRunningCommand()
         {
             var driver = new SqliteDriver();
