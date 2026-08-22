@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Runtime.CompilerServices;
 using System.Text.Encodings.Web;
 using System.Threading;
@@ -30,6 +29,10 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
         {
             this.connection = connection;
             Server = server;
+            int busyTimeoutMs = connection.DefaultTimeout >= int.MaxValue / 1000
+                ? int.MaxValue
+                : Math.Max(0, connection.DefaultTimeout * 1000);
+            raw.sqlite3_busy_timeout(connection.Handle, busyTimeoutMs);
         }
 
         public ServerInfo Server { get; }
@@ -39,6 +42,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
             ArgumentNullException.ThrowIfNull(request);
             int pageRows = request.PageRows > 0 ? request.PageRows : Sts2Defaults.PageRows;
             int pageBytes = request.PageBytes > 0 ? request.PageBytes : Sts2Defaults.PageBytes;
+            int maxCellBytes = request.MaxCellBytes > 0 ? request.MaxCellBytes : Sts2Defaults.MaxCellBytes;
 
             // A FRESH per-query cancellation source: cancelling one query must never stick to
             // the next (the old session-wide CTS made every query after a cancel insta-cancel — R016).
@@ -60,51 +64,75 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
                     request.QueryTimeoutMs);
 
                 yield return new ExecStarted(request.QueryId);
+                // Microsoft.Data.Sqlite has no true async I/O. Yield before entering native
+                // sqlite3_step so the caller can observe ExecStarted and signal cancellation
+                // without its continuation being synchronously occupied by the query.
+                await Task.Yield();
 
-                await using SqliteCommand command = connection.CreateCommand();
-                command.CommandText = request.Sql;
                 using CancellationTokenRegistration cancelRegistration = linked.Token.Register(
                     static state => InterruptConnection((SqliteConnection)state!),
                     connection);
                 linked.Token.ThrowIfCancellationRequested();
 
-                SqliteDataReader reader;
-                try
-                {
-                    reader = await command.ExecuteReaderAsync(linked.Token).ConfigureAwait(false);
-                }
-                catch (SqliteException ex)
+                int resultSetId = 0;
+                long totalRowsAffected = 0;
+                // Execute one SQLite-complete statement at a time. Besides preventing a
+                // canceled provider reader from draining into a trailing mutation, the raw
+                // statement exposes SQLite's native cell spans: Microsoft.Data.Sqlite's
+                // GetChars/GetBytes APIs are documented as unsupported and otherwise either
+                // materialize the full value or can fail in native metadata lookup.
+                foreach (string statement in SplitStatements(request.Sql))
                 {
                     linked.Token.ThrowIfCancellationRequested();
-                    throw Classify(ex);
-                }
-
-                await using (reader.ConfigureAwait(false))
-                {
-                    int resultSetId = 0;
-                    long totalRowsAffected = 0;
-                    bool hasResultSet;
-                    do
+                    sqlite3_stmt? prepared = null;
+                    int beforeChanges = raw.sqlite3_total_changes(connection.Handle);
+                    try
                     {
-                        if (reader.FieldCount > 0)
+                        int prepareResult = raw.sqlite3_prepare_v2(connection.Handle, statement, out prepared);
+                        ThrowIfSqliteError(prepareResult, linked.Token);
+                        if (prepared is null)
                         {
-                            await foreach (ExecEvent execEvent in PumpResultSetAsync(reader, resultSetId, pageRows, pageBytes, linked.Token).ConfigureAwait(false))
+                            continue;
+                        }
+
+                        int firstStepResult = Step(prepared, linked.Token);
+                        int fieldCount = raw.sqlite3_column_count(prepared);
+                        if (fieldCount > 0)
+                        {
+                            foreach (ExecEvent execEvent in PumpResultSet(
+                                prepared,
+                                firstStepResult,
+                                resultSetId,
+                                pageRows,
+                                pageBytes,
+                                maxCellBytes,
+                                linked.Token))
                             {
                                 yield return execEvent;
                             }
                             resultSetId++;
                         }
-                        else
+                        else if (firstStepResult != raw.SQLITE_DONE)
                         {
-                            totalRowsAffected += reader.RecordsAffected >= 0 ? reader.RecordsAffected : 0;
+                            throw new InvalidOperationException(
+                                "SQLite returned a row for a statement without result columns.");
                         }
-
-                        hasResultSet = await NextResultAsync(reader, linked.Token).ConfigureAwait(false);
                     }
-                    while (hasResultSet);
+                    finally
+                    {
+                        prepared?.Dispose();
+                    }
 
-                    completion = new ExecCompleted([reader.RecordsAffected >= 0 ? reader.RecordsAffected : totalRowsAffected]);
+                    int afterChanges = raw.sqlite3_total_changes(connection.Handle);
+                    // total_changes detects whether this statement changed rows without
+                    // repeating the previous DML count for DDL. changes then preserves the
+                    // provider's direct-row semantics (trigger side effects are excluded).
+                    if (afterChanges != beforeChanges)
+                    {
+                        totalRowsAffected += Math.Max(0, raw.sqlite3_changes(connection.Handle));
+                    }
                 }
+                completion = new ExecCompleted([totalRowsAffected]);
             }
             finally
             {
@@ -124,15 +152,17 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
             yield return completion;
         }
 
-        /// <summary>
-        /// Streams one result set page-by-page (no whole-result buffering — R016). Each row
-        /// read is wrapped for the SqliteException boundary in <see cref="ReadRowAsync"/> so
-        /// the iterator can yield each page outside any try/catch (which C# forbids combining).
-        /// </summary>
-        private static async IAsyncEnumerable<ExecEvent> PumpResultSetAsync(
-            SqliteDataReader reader, int resultSetId, int pageRows, int pageBytes, [EnumeratorCancellation] CancellationToken cancellationToken)
+        /// <summary>Streams one result set page-by-page (no whole-result buffering — R016).</summary>
+        private IEnumerable<ExecEvent> PumpResultSet(
+            sqlite3_stmt statement,
+            int firstStepResult,
+            int resultSetId,
+            int pageRows,
+            int pageBytes,
+            int maxCellBytes,
+            CancellationToken cancellationToken)
         {
-            IReadOnlyList<ColumnInfo> columns = ReadColumns(reader, cancellationToken);
+            IReadOnlyList<ColumnInfo> columns = ReadColumns(statement);
             yield return new ResultSetStarted(resultSetId, columns);
 
             int pageSeq = 0;
@@ -141,13 +171,11 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
             var page = new List<IReadOnlyList<object?>>(pageRows);
             long approximatePageBytes = 0;
 
-            while (true)
+            int stepResult = firstStepResult;
+            while (stepResult == raw.SQLITE_ROW)
             {
-                object?[]? cells = await ReadRowAsync(reader, cancellationToken).ConfigureAwait(false);
-                if (cells is null)
-                {
-                    break;
-                }
+                cancellationToken.ThrowIfCancellationRequested();
+                object?[] cells = ReadCells(statement, maxCellBytes, cancellationToken);
                 long rowBytes = EstimateRowBytes(cells);
                 if (page.Count > 0 && approximatePageBytes + rowBytes > pageBytes)
                 {
@@ -169,6 +197,8 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
                     page = new List<IReadOnlyList<object?>>(pageRows);
                     approximatePageBytes = 0;
                 }
+
+                stepResult = Step(statement, cancellationToken);
             }
 
             if (page.Count > 0)
@@ -178,32 +208,53 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
             yield return new ResultSetCompleted(resultSetId, rowCount);
         }
 
-        private static IReadOnlyList<ColumnInfo> ReadColumns(
-            SqliteDataReader reader,
-            CancellationToken cancellationToken)
+        private IReadOnlyList<ColumnInfo> ReadColumns(sqlite3_stmt statement)
         {
-            try
+            int fieldCount = raw.sqlite3_column_count(statement);
+            var columns = new List<ColumnInfo>(fieldCount);
+            for (int i = 0; i < fieldCount; i++)
             {
-                System.Collections.ObjectModel.ReadOnlyCollection<DbColumn> schema = reader.GetColumnSchema();
-                var columns = new List<ColumnInfo>(reader.FieldCount);
-                for (int i = 0; i < reader.FieldCount; i++)
+                string? declaredType = raw.sqlite3_column_decltype(statement, i).utf8_to_string();
+                columns.Add(new ColumnInfo
                 {
-                    DbColumn column = schema[i];
-                    columns.Add(new ColumnInfo
-                    {
-                        Name = column.ColumnName ?? reader.GetName(i),
-                        EngineType = column.DataTypeName ?? reader.GetDataTypeName(i),
-                        Nullable = column.AllowDBNull,
-                    });
-                }
-                return columns;
+                    Name = raw.sqlite3_column_name(statement, i).utf8_to_string() ?? $"column{i}",
+                    EngineType = declaredType ?? StorageClassName(raw.sqlite3_column_type(statement, i)),
+                    Nullable = ReadColumnNullability(statement, i),
+                });
             }
-            catch (SqliteException ex)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                throw Classify(ex);
-            }
+            return columns;
         }
+
+        private bool? ReadColumnNullability(sqlite3_stmt statement, int ordinal)
+        {
+            string? database = raw.sqlite3_column_database_name(statement, ordinal).utf8_to_string();
+            string? table = raw.sqlite3_column_table_name(statement, ordinal).utf8_to_string();
+            string? column = raw.sqlite3_column_origin_name(statement, ordinal).utf8_to_string();
+            if (string.IsNullOrEmpty(database) || string.IsNullOrEmpty(table) || string.IsNullOrEmpty(column))
+            {
+                return null;
+            }
+
+            int result = raw.sqlite3_table_column_metadata(
+                connection.Handle,
+                database,
+                table,
+                column,
+                out _,
+                out _,
+                out int notNull,
+                out int primaryKey,
+                out _);
+            return result == raw.SQLITE_OK ? notNull == 0 && primaryKey == 0 : null;
+        }
+
+        private static string StorageClassName(int sqliteType) => sqliteType switch
+        {
+            raw.SQLITE_INTEGER => "INTEGER",
+            raw.SQLITE_FLOAT => "REAL",
+            raw.SQLITE_TEXT => "TEXT",
+            _ => "BLOB",
+        };
 
         private static long EstimateRowBytes(IReadOnlyList<object?> cells)
         {
@@ -217,6 +268,10 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
                     // The runtime emits {"$t":"binary","v":"..."}, not a
                     // bare base64 JSON string. Include conservative wrapper space.
                     byte[] value => EstimateBinaryCellBytes(value.Length),
+                    DriverTruncatedValue value when value.Kind == "binary" =>
+                        EstimateBinaryCellBytes(value.PrefixBytes?.Length ?? 0) + 160,
+                    DriverTruncatedValue value =>
+                        EstimateJsonStringBytes(value.PrefixText ?? string.Empty) + 160,
                     long => 24,
                     // Non-finite doubles use the runtime's typed wrapper
                     // {"$t":"double","v":"-Infinity"}, not a JSON number.
@@ -240,40 +295,34 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
             return total;
         }
 
-        /// <summary>Reads one row's cells, or null at end of result set. Classifies Sqlite faults.</summary>
-        private static async Task<object?[]?> ReadRowAsync(SqliteDataReader reader, CancellationToken cancellationToken)
+        private int Step(sqlite3_stmt statement, CancellationToken cancellationToken)
         {
-            try
-            {
-                if (!await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
-                {
-                    return null;
-                }
-                var cells = new object?[reader.FieldCount];
-                for (int i = 0; i < reader.FieldCount; i++)
-                {
-                    cells[i] = EncodeCell(reader, i);
-                }
-                return cells;
-            }
-            catch (SqliteException ex)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                throw Classify(ex);
-            }
+            cancellationToken.ThrowIfCancellationRequested();
+            int result = raw.sqlite3_step(statement);
+            ThrowIfSqliteError(result, cancellationToken);
+            return result;
         }
 
-        private static async Task<bool> NextResultAsync(SqliteDataReader reader, CancellationToken cancellationToken)
+        private void ThrowIfSqliteError(int result, CancellationToken cancellationToken)
         {
+            if (result is raw.SQLITE_OK or raw.SQLITE_ROW or raw.SQLITE_DONE)
+            {
+                return;
+            }
+
+            cancellationToken.ThrowIfCancellationRequested();
             try
             {
-                return await reader.NextResultAsync(cancellationToken).ConfigureAwait(false);
+                SqliteException.ThrowExceptionForRC(result, connection.Handle);
             }
             catch (SqliteException ex)
             {
-                cancellationToken.ThrowIfCancellationRequested();
                 throw Classify(ex);
             }
+            throw new DbDriverException(
+                Sts2ErrorCodes.QueryFailedServer,
+                $"SQLite query failed with result code {result}.",
+                new ServerErrorDetail { Number = result, Severity = 16, State = 1 });
         }
 
         private static DbDriverException Classify(SqliteException ex) =>
@@ -285,20 +334,73 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
         /// Wire encoding — JSON natives vs typed wrappers (SPEC §7.7) — is the runner's job;
         /// the port stays free of JSON types.
         /// </summary>
-        private static object? EncodeCell(SqliteDataReader reader, int ordinal)
+        private static object?[] ReadCells(
+            sqlite3_stmt statement,
+            int maxCellBytes,
+            CancellationToken cancellationToken)
         {
-            if (reader.IsDBNull(ordinal))
+            int fieldCount = raw.sqlite3_column_count(statement);
+            var cells = new object?[fieldCount];
+            for (int ordinal = 0; ordinal < fieldCount; ordinal++)
             {
-                return null;
+                cancellationToken.ThrowIfCancellationRequested();
+                cells[ordinal] = raw.sqlite3_column_type(statement, ordinal) switch
+                {
+                    raw.SQLITE_NULL => null,
+                    raw.SQLITE_INTEGER => raw.sqlite3_column_int64(statement, ordinal),
+                    raw.SQLITE_FLOAT => raw.sqlite3_column_double(statement, ordinal),
+                    raw.SQLITE_TEXT =>
+                        SqliteLargeValueReader.ReadText(
+                            statement,
+                            ordinal,
+                            maxCellBytes,
+                            cancellationToken),
+                    raw.SQLITE_BLOB =>
+                        SqliteLargeValueReader.ReadBinary(
+                            statement,
+                            ordinal,
+                            maxCellBytes,
+                            cancellationToken),
+                    _ => throw new InvalidOperationException("Unknown SQLite storage class."),
+                };
             }
-            return reader.GetFieldType(ordinal) switch
+            return cells;
+        }
+
+        /// <summary>
+        /// Splits a provider batch only where SQLite itself says the prefix is a complete
+        /// statement. This respects quoted semicolons, comments, and trigger bodies without
+        /// maintaining a second SQL grammar in the driver.
+        /// </summary>
+        private static IEnumerable<string> SplitStatements(string sql)
+        {
+            int start = 0;
+            for (int i = 0; i < sql.Length; i++)
             {
-                Type t when t == typeof(long) => reader.GetInt64(ordinal),
-                Type t when t == typeof(double) => reader.GetDouble(ordinal),
-                Type t when t == typeof(string) => reader.GetString(ordinal),
-                Type t when t == typeof(byte[]) => reader.GetValue(ordinal),
-                _ => reader.GetValue(ordinal),
-            };
+                if (sql[i] != ';')
+                {
+                    continue;
+                }
+
+                string candidate = sql[start..(i + 1)];
+                if (raw.sqlite3_complete(candidate) != 0)
+                {
+                    if (!string.IsNullOrWhiteSpace(candidate))
+                    {
+                        yield return candidate;
+                    }
+                    start = i + 1;
+                }
+            }
+
+            if (start < sql.Length)
+            {
+                string tail = sql[start..];
+                if (!string.IsNullOrWhiteSpace(tail))
+                {
+                    yield return tail;
+                }
+            }
         }
 
         private static void InterruptConnection(SqliteConnection connection)

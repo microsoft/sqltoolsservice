@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.Sts2.Abstractions;
 using Microsoft.SqlTools.Sts2.Contracts;
@@ -132,8 +133,13 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
         }
 
         /// <summary>Streams a character column: full string when within bound, else prefix + facts.</summary>
-        internal static object ReadText(SqlDataReader reader, int ordinal, int maxCellBytes)
+        internal static object ReadText(
+            SqlDataReader reader,
+            int ordinal,
+            int maxCellBytes,
+            CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             // SqlClient can report the character length without materializing
             // the field. More characters than the byte bound proves the UTF-8
             // value is oversized, so retain only the protocol prefix from the
@@ -154,6 +160,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             long fieldOffset = 0;
             while (true)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 long read = reader.GetChars(ordinal, fieldOffset, chars, 0, chars.Length);
                 if (read <= 0)
                 {
@@ -182,6 +189,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                     break;
                 }
             }
+            cancellationToken.ThrowIfCancellationRequested();
             int tail = utf8.GetBytes(chars, 0, 0, byteScratch, 0, flush: true);
             if (tail > 0)
             {
@@ -203,8 +211,13 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
         }
 
         /// <summary>Streams a binary column: full bytes when within bound, else prefix + facts.</summary>
-        internal static object ReadBinary(SqlDataReader reader, int ordinal, int maxCellBytes)
+        internal static object ReadBinary(
+            SqlDataReader reader,
+            int ordinal,
+            int maxCellBytes,
+            CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             long fieldBytes = reader.GetBytes(ordinal, 0, null, 0, 0);
             bool knownOversized = maxCellBytes > 0 && fieldBytes > maxCellBytes;
             int retainedByteLimit = knownOversized
@@ -217,6 +230,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             long fieldOffset = 0;
             while (true)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 long read = reader.GetBytes(ordinal, fieldOffset, chunk, 0, chunk.Length);
                 if (read <= 0)
                 {
@@ -242,6 +256,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                     break;
                 }
             }
+            cancellationToken.ThrowIfCancellationRequested();
             if (maxCellBytes <= 0 || totalBytes <= maxCellBytes)
             {
                 return prefix.ToArray(); // fits: ordinary byte[], encoder path unchanged

@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Sts2.Abstractions;
@@ -30,7 +32,8 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
             string sql,
             int pageRows = 1000,
             int pageBytes = 0,
-            int queryTimeoutMs = 0)
+            int queryTimeoutMs = 0,
+            int maxCellBytes = 0)
         {
             var events = new List<ExecEvent>();
             await foreach (ExecEvent execEvent in session.ExecuteAsync(
@@ -41,6 +44,7 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
                     PageRows = pageRows,
                     PageBytes = pageBytes,
                     QueryTimeoutMs = queryTimeoutMs,
+                    MaxCellBytes = maxCellBytes,
                 },
                 CancellationToken.None))
             {
@@ -86,6 +90,74 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
 
             Assert.IsType<ResultSetCompleted>(events[^2]);
             Assert.IsType<ExecCompleted>(events[^1]);
+        }
+
+        [Fact]
+        public async Task MultiStatementBatchPreservesQuotedSemicolonsAndTriggerBodies()
+        {
+            var driver = new SqliteDriver();
+            await using IDbSession session = await driver.OpenAsync(Request(":memory:"), CancellationToken.None);
+
+            List<ExecEvent> batchEvents = await ExecuteAsync(session, """
+                create table source(v text);
+                create table audit(v text);
+                create trigger source_ai after insert on source begin
+                    insert into audit values ('literal;semicolon');
+                    insert into audit values (new.v);
+                end;
+                insert into source values ('input;value');
+                select 'first;result';
+                select count(*) from audit;
+                """);
+            Assert.Equal([1L], Assert.IsType<ExecCompleted>(batchEvents[^1]).RowsAffected);
+            Assert.Equal(
+                [0, 1],
+                batchEvents.OfType<ResultSetStarted>().Select(result => result.ResultSetId));
+            Assert.Equal(
+                ["first;result", 2L],
+                batchEvents.OfType<RowsPage>().Select(page => page.Cells[0][0]));
+
+            RowsPage page = Assert.Single(
+                (await ExecuteAsync(session, "select v from audit order by rowid")).OfType<RowsPage>());
+            Assert.Equal("literal;semicolon", page.Cells[0][0]);
+            Assert.Equal("input;value", page.Cells[1][0]);
+        }
+
+        [Fact]
+        public async Task OversizedTextAndBlobCellsAreStreamedIntoBoundedTruncationValues()
+        {
+            const int MaxCellBytes = 1024;
+            const int TextLength = 200_000;
+            const int MultibyteCharacters = 700;
+            const int BlobLength = 5_000_000;
+            var driver = new SqliteDriver();
+            await using IDbSession session = await driver.OpenAsync(Request(":memory:"), CancellationToken.None);
+
+            RowsPage page = Assert.Single((await ExecuteAsync(
+                session,
+                $"select printf('%.*c', {TextLength}, 'x'), " +
+                $"printf('%.*c', {MultibyteCharacters}, 'é'), zeroblob({BlobLength})",
+                maxCellBytes: MaxCellBytes)).OfType<RowsPage>());
+            IReadOnlyList<object?> row = Assert.Single(page.Cells);
+
+            DriverTruncatedValue text = Assert.IsType<DriverTruncatedValue>(row[0]);
+            Assert.Equal("string", text.Kind);
+            Assert.Equal(new string('x', MaxCellBytes), text.PrefixText);
+            Assert.Equal(TextLength, text.TotalBytes);
+            Assert.Equal(HashUtf8(new string('x', TextLength)), text.DigestHex);
+
+            DriverTruncatedValue multibyte = Assert.IsType<DriverTruncatedValue>(row[1]);
+            Assert.Equal("string", multibyte.Kind);
+            Assert.Equal(new string('é', MaxCellBytes / 2), multibyte.PrefixText);
+            Assert.Equal(MultibyteCharacters * 2L, multibyte.TotalBytes);
+            Assert.Equal(HashUtf8(new string('é', MultibyteCharacters)), multibyte.DigestHex);
+
+            DriverTruncatedValue blob = Assert.IsType<DriverTruncatedValue>(row[2]);
+            Assert.Equal("binary", blob.Kind);
+            Assert.Equal(MaxCellBytes, Assert.IsType<byte[]>(blob.PrefixBytes).Length);
+            Assert.All(blob.PrefixBytes!, value => Assert.Equal(0, value));
+            Assert.Equal(BlobLength, blob.TotalBytes);
+            Assert.Equal(HashRepeatedByte(0, BlobLength), blob.DigestHex);
         }
 
         [Fact]
@@ -325,6 +397,48 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
         }
 
         [Fact]
+        public async Task CancelDoesNotExecuteTrailingBatchMutation()
+        {
+            var driver = new SqliteDriver();
+            await using IDbSession session = await driver.OpenAsync(Request(":memory:"), CancellationToken.None);
+            await ExecuteAsync(session, "create table side_effect(v integer)");
+            var started = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+
+            async Task ConsumeBatchAsync()
+            {
+                await foreach (ExecEvent execEvent in session.ExecuteAsync(
+                    new QueryExecuteRequest
+                    {
+                        QueryId = "q-cancel-batch",
+                        Sql = """
+                            with recursive a(x) as (select 1 union all select x + 1 from a where x < 1000)
+                            select sum(a.x * b.x * c.x) from a cross join a b cross join a c;
+                            insert into side_effect values (1);
+                            """,
+                    },
+                    CancellationToken.None))
+                {
+                    if (execEvent is ExecStarted)
+                    {
+                        started.TrySetResult();
+                    }
+                }
+            }
+
+            Task activeQuery = Task.Run(ConsumeBatchAsync);
+            await started.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            await Task.Delay(100); // let the provider enter sqlite3_step
+            await session.CancelAsync("q-cancel-batch", CancellationToken.None);
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(async () =>
+                await activeQuery.WaitAsync(TimeSpan.FromSeconds(5)));
+
+            RowsPage countPage = Assert.Single(
+                (await ExecuteAsync(session, "select count(*) from side_effect")).OfType<RowsPage>());
+            Assert.Equal(0L, countPage.Cells[0][0]);
+            Assert.IsType<ExecCompleted>((await ExecuteAsync(session, "select 1"))[^1]);
+        }
+
+        [Fact]
         public async Task DisposingAfterExecStartedClearsPublishedQueryState()
         {
             var driver = new SqliteDriver();
@@ -379,6 +493,27 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
             IDbSession session = await driver.OpenAsync(Request(":memory:"), CancellationToken.None);
             await session.DisposeAsync();
             await session.DisposeAsync(); // idempotent
+        }
+
+        private static string HashUtf8(string value) =>
+            Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(value)));
+
+        private static string HashRepeatedByte(byte value, int count)
+        {
+            byte[] chunk = new byte[Math.Min(32768, count)];
+            if (value != 0)
+            {
+                Array.Fill(chunk, value);
+            }
+            using IncrementalHash hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+            int remaining = count;
+            while (remaining > 0)
+            {
+                int length = Math.Min(chunk.Length, remaining);
+                hash.AppendData(chunk, 0, length);
+                remaining -= length;
+            }
+            return Convert.ToHexStringLower(hash.GetHashAndReset());
         }
     }
 }

@@ -241,6 +241,54 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
         }
 
         [Fact]
+        public async Task ProviderCancellationDoesNotBlockOrLeakProviderFailure()
+        {
+            using var cancellation = new CancellationTokenSource();
+            using var releaseProvider = new ManualResetEventSlim(false);
+            var providerEntered = new TaskCompletionSource(
+                TaskCreationOptions.RunContinuationsAsynchronously);
+            var providerFinished = new TaskCompletionSource(
+                TaskCreationOptions.RunContinuationsAsynchronously);
+
+            void BlockingThrowingProviderCancel()
+            {
+                providerEntered.TrySetResult();
+                try
+                {
+                    releaseProvider.Wait();
+                    throw new InvalidOperationException("simulated provider failure");
+                }
+                finally
+                {
+                    providerFinished.TrySetResult();
+                }
+            }
+
+            using CancellationTokenRegistration registration =
+                SqlClientSession.RegisterProviderCancellation(
+                    cancellation.Token,
+                    BlockingThrowingProviderCancel);
+
+            Task signalCancellation = Task.Run(cancellation.Cancel);
+            try
+            {
+                // This completes while the simulated provider callback is still blocked.
+                // If provider code were invoked inline, the wait would time out.
+                await signalCancellation.WaitAsync(TimeSpan.FromSeconds(2));
+                await providerEntered.Task.WaitAsync(TimeSpan.FromSeconds(2));
+                Assert.False(providerFinished.Task.IsCompleted);
+            }
+            finally
+            {
+                releaseProvider.Set();
+            }
+
+            // The provider exception is contained by the worker rather than surfacing on
+            // CancellationTokenSource.Cancel or becoming an unobserved task failure.
+            await providerFinished.Task.WaitAsync(TimeSpan.FromSeconds(2));
+        }
+
+        [Fact]
         public void VectorRowsPageWithAccurateEstimatesRespectsByteBound() // D-0019 page clamp
         {
             // 32 rows of one 1,536-dim vector each at the pinned 256 KiB page
