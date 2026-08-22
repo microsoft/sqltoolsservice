@@ -571,6 +571,31 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Drivers
             await session.DisposeAsync(); // idempotent
         }
 
+        [Fact]
+        public async Task SessionDisposeWaitsForInFlightProviderCall()
+        {
+            var driver = new SqliteDriver();
+            IDbSession session = await driver.OpenAsync(Request(":memory:"), CancellationToken.None);
+            var providerCallGate = Assert.IsType<SemaphoreSlim>(session.GetType().GetField(
+                "providerCallGate",
+                BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(session));
+
+            await providerCallGate.WaitAsync();
+            Task dispose = session.DisposeAsync().AsTask();
+            try
+            {
+                await Task.Delay(50);
+                Assert.False(dispose.IsCompleted);
+            }
+            finally
+            {
+                providerCallGate.Release();
+            }
+
+            await dispose.WaitAsync(TimeSpan.FromSeconds(5));
+            await session.DisposeAsync(); // idempotent
+        }
+
         private static string HashUtf8(string value) =>
             Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(value)));
 

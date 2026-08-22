@@ -23,6 +23,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
 
         private readonly SqliteConnection connection;
         private readonly Lock cancelGate = new();
+        private readonly SemaphoreSlim providerCallGate = new(1, 1);
         private CancellationTokenSource? currentQueryCancel;
         private string? currentQueryId;
         private int disposed;
@@ -92,18 +93,17 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
                 {
                     linked.Token.ThrowIfCancellationRequested();
                     sqlite3_stmt? prepared = null;
-                    int beforeChanges = raw.sqlite3_total_changes(connection.Handle);
+                    int beforeChanges = TotalChanges(linked.Token);
                     try
                     {
-                        int prepareResult = raw.sqlite3_prepare_v2(connection.Handle, statement, out prepared);
-                        ThrowIfSqliteError(prepareResult, linked.Token);
+                        prepared = Prepare(statement, linked.Token);
                         if (prepared is null)
                         {
                             continue;
                         }
 
                         int firstStepResult = Step(prepared, linked.Token);
-                        int fieldCount = raw.sqlite3_column_count(prepared);
+                        int fieldCount = ColumnCount(prepared, linked.Token);
                         if (fieldCount > 0)
                         {
                             foreach (ExecEvent execEvent in PumpResultSet(
@@ -127,16 +127,16 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
                     }
                     finally
                     {
-                        prepared?.Dispose();
+                        DisposeStatement(prepared);
                     }
 
-                    int afterChanges = raw.sqlite3_total_changes(connection.Handle);
+                    int afterChanges = TotalChanges(linked.Token);
                     // total_changes detects whether this statement changed rows without
                     // repeating the previous DML count for DDL. changes then preserves the
                     // provider's direct-row semantics (trigger side effects are excluded).
                     if (afterChanges != beforeChanges)
                     {
-                        totalRowsAffected += Math.Max(0, raw.sqlite3_changes(connection.Handle));
+                        totalRowsAffected += Math.Max(0, Changes(linked.Token));
                     }
                 }
                 completion = new ExecCompleted([totalRowsAffected]);
@@ -169,7 +169,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
             int maxCellBytes,
             CancellationToken cancellationToken)
         {
-            IReadOnlyList<ColumnInfo> columns = ReadColumns(statement);
+            IReadOnlyList<ColumnInfo> columns = ReadColumns(statement, cancellationToken);
             yield return new ResultSetStarted(resultSetId, columns);
 
             int pageSeq = 0;
@@ -215,7 +215,12 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
             yield return new ResultSetCompleted(resultSetId, rowCount);
         }
 
-        private IReadOnlyList<ColumnInfo> ReadColumns(sqlite3_stmt statement)
+        private IReadOnlyList<ColumnInfo> ReadColumns(
+            sqlite3_stmt statement,
+            CancellationToken cancellationToken) =>
+            WithProviderCall(cancellationToken, () => ReadColumnsCore(statement));
+
+        private IReadOnlyList<ColumnInfo> ReadColumnsCore(sqlite3_stmt statement)
         {
             int fieldCount = raw.sqlite3_column_count(statement);
             var columns = new List<ColumnInfo>(fieldCount);
@@ -328,10 +333,12 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
 
         private int Step(sqlite3_stmt statement, CancellationToken cancellationToken)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            int result = raw.sqlite3_step(statement);
-            ThrowIfSqliteError(result, cancellationToken);
-            return result;
+            return WithProviderCall(cancellationToken, () =>
+            {
+                int result = raw.sqlite3_step(statement);
+                ThrowIfSqliteError(result, cancellationToken);
+                return result;
+            });
         }
 
         private void ThrowIfSqliteError(int result, CancellationToken cancellationToken)
@@ -365,7 +372,15 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
         /// Wire encoding — JSON natives vs typed wrappers (SPEC §7.7) — is the runner's job;
         /// the port stays free of JSON types.
         /// </summary>
-        private static object?[] ReadCells(
+        private object?[] ReadCells(
+            sqlite3_stmt statement,
+            int maxCellBytes,
+            CancellationToken cancellationToken) =>
+            WithProviderCall(
+                cancellationToken,
+                () => ReadCellsCore(statement, maxCellBytes, cancellationToken));
+
+        private static object?[] ReadCellsCore(
             sqlite3_stmt statement,
             int maxCellBytes,
             CancellationToken cancellationToken)
@@ -464,6 +479,59 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
             return linked;
         }
 
+        private sqlite3_stmt? Prepare(string statement, CancellationToken cancellationToken) =>
+            WithProviderCall(cancellationToken, () =>
+            {
+                int result = raw.sqlite3_prepare_v2(connection.Handle, statement, out sqlite3_stmt? prepared);
+                ThrowIfSqliteError(result, cancellationToken);
+                return prepared;
+            });
+
+        private int ColumnCount(sqlite3_stmt statement, CancellationToken cancellationToken) =>
+            WithProviderCall(cancellationToken, () => raw.sqlite3_column_count(statement));
+
+        private int TotalChanges(CancellationToken cancellationToken) =>
+            WithProviderCall(cancellationToken, () => raw.sqlite3_total_changes(connection.Handle));
+
+        private int Changes(CancellationToken cancellationToken) =>
+            WithProviderCall(cancellationToken, () => raw.sqlite3_changes(connection.Handle));
+
+        private T WithProviderCall<T>(CancellationToken cancellationToken, Func<T> providerCall)
+        {
+            providerCallGate.Wait(cancellationToken);
+            try
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                ObjectDisposedException.ThrowIf(Volatile.Read(ref disposed) != 0, this);
+                return providerCall();
+            }
+            finally
+            {
+                providerCallGate.Release();
+            }
+        }
+
+        private void DisposeStatement(sqlite3_stmt? statement)
+        {
+            if (statement is null)
+            {
+                return;
+            }
+
+            // Cleanup must serialize with connection close but is still allowed after the
+            // session publishes disposed. sqlite3_close_v2 keeps the handle alive until all
+            // prepared statements are finalized, so a statement paused at a yield remains safe.
+            providerCallGate.Wait();
+            try
+            {
+                statement.Dispose();
+            }
+            finally
+            {
+                providerCallGate.Release();
+            }
+        }
+
         public ValueTask CancelAsync(string queryId, CancellationToken cancellationToken)
         {
             // A delayed cancellation for an old query must not interrupt the
@@ -484,11 +552,28 @@ namespace Microsoft.SqlTools.Sts2.Drivers.Sqlite
             {
                 return;
             }
+            // Publish an async boundary before cancellation/provider teardown so the runtime's
+            // outer close timeout covers this entire path.
+            await Task.Yield();
             lock (cancelGate)
             {
                 currentQueryCancel?.Cancel();
             }
-            await connection.DisposeAsync().ConfigureAwait(false);
+
+            // sqlite3_interrupt only signals an in-flight sqlite3_step; it does not wait for
+            // that native call to unwind. Serialize close with every connection/statement call
+            // so the handle cannot be closed underneath provider execution. Unlike waiting for
+            // the whole iterator, this cannot deadlock merely because the consumer is paused at
+            // a yielded page.
+            await providerCallGate.WaitAsync().ConfigureAwait(false);
+            try
+            {
+                await connection.DisposeAsync().ConfigureAwait(false);
+            }
+            finally
+            {
+                providerCallGate.Release();
+            }
         }
     }
 }
