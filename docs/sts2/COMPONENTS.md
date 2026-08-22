@@ -24,6 +24,13 @@ Pure deterministic reducer: state machine, command/event/effect DTOs.
 - Project references: Microsoft.SqlTools.Sts2.Contracts
 - Package references: none (BCL only)
 
+## Microsoft.SqlTools.Sts2.Multiplexer
+
+Stdio multiplexer: Content-Length framing, v2 routing, outbound server-request id rewriting, lifecycle mirroring, single stdout writer, crash containment.
+
+- Project references: none
+- Package references: none (BCL only)
+
 ## Microsoft.SqlTools.Sts2.Runtime
 
 Coordinator pump, write-ahead journal, redaction, secret side table, effect runner, config, metrics.

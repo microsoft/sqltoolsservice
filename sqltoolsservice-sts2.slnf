@@ -7,6 +7,7 @@
       "src\\sts2\\Microsoft.SqlTools.Sts2.Core\\Microsoft.SqlTools.Sts2.Core.csproj",
       "src\\sts2\\Microsoft.SqlTools.Sts2.Runtime\\Microsoft.SqlTools.Sts2.Runtime.csproj",
       "src\\sts2\\Microsoft.SqlTools.Sts2.Testing\\Microsoft.SqlTools.Sts2.Testing.csproj",
+      "src\\sts2\\Microsoft.SqlTools.Sts2.Multiplexer\\Microsoft.SqlTools.Sts2.Multiplexer.csproj",
       "tools\\sts2-replay\\sts2-replay.csproj",
       "test\\sts2\\Microsoft.SqlTools.Sts2.UnitTests\\Microsoft.SqlTools.Sts2.UnitTests.csproj"
     ]
