@@ -62,7 +62,8 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                 // Info-class engine messages (PRINT, RAISERROR severity <= 10, DBCC output)
                 // are raised on InfoMessage while the reader pumps the TDS stream (SPEC §10.2:
                 // map info messages to ServerMessage). Text passes through verbatim. Queue and
-                // drain at pump boundaries so messages hold stream order relative to result sets.
+                // drain at provider/row boundaries so messages hold stream order relative to
+                // result rows as well as result sets.
                 var pendingMessages = new ConcurrentQueue<ServerMessage>();
                 SqlInfoMessageEventHandler onInfoMessage = (_, args) =>
                 {
@@ -107,7 +108,16 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                                 }
                                 if (reader.FieldCount > 0)
                                 {
-                                    await foreach (ExecEvent execEvent in PumpResultSetAsync(reader, resultSetId, pageRows, pageBytes, maxCellBytes, request.VectorBinary, request.SpatialWkb, queryCancellation.Token).ConfigureAwait(false))
+                                    await foreach (ExecEvent execEvent in PumpResultSetAsync(
+                                        reader,
+                                        resultSetId,
+                                        pageRows,
+                                        pageBytes,
+                                        maxCellBytes,
+                                        request.VectorBinary,
+                                        request.SpatialWkb,
+                                        pendingMessages,
+                                        queryCancellation.Token).ConfigureAwait(false))
                                     {
                                         yield return execEvent;
                                     }
@@ -181,7 +191,15 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
 
         /// <summary>Streams one result set page-by-page (no full-result buffering).</summary>
         private static async IAsyncEnumerable<ExecEvent> PumpResultSetAsync(
-            SqlDataReader reader, int resultSetId, int pageRows, int pageBytes, int maxCellBytes, bool vectorBinary, bool spatialWkb, [EnumeratorCancellation] CancellationToken cancellationToken)
+            SqlDataReader reader,
+            int resultSetId,
+            int pageRows,
+            int pageBytes,
+            int maxCellBytes,
+            bool vectorBinary,
+            bool spatialWkb,
+            ConcurrentQueue<ServerMessage> pendingMessages,
+            [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             ColumnReadPlan columnPlan = await ReadColumnsAsync(reader, spatialWkb, cancellationToken).ConfigureAwait(false);
             IReadOnlyList<ColumnInfo> columns = columnPlan.Columns;
@@ -190,6 +208,12 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             // D-0018/D-0019: vector and CLR UDT columns route to dedicated reads.
             SqlLargeValueReader.CellRead[] readKinds = SqlLargeValueReader.ClassifyColumns(columns, vectorBinary, spatialWkb);
             SqlLargeValueReader.ApplyProviderUdtMetadata(readKinds, columnPlan.ProviderClrUdts);
+            // A provider may consume an informational token while resolving schema. Keep such a
+            // message ahead of the result-set notification it preceded on the TDS stream.
+            while (pendingMessages.TryDequeue(out ServerMessage? schemaMessage))
+            {
+                yield return schemaMessage;
+            }
             yield return new ResultSetStarted(resultSetId, columns);
 
             int pageSeq = 0;
@@ -199,8 +223,39 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             // is reached first completes the page (SqlRowsPageBuilder).
             var builder = new SqlRowsPageBuilder(pageRows, pageBytes);
 
-            while (await ReadRowAsync(reader, cancellationToken).ConfigureAwait(false))
+            IEnumerable<ExecEvent> FlushRowsThenMessages()
             {
+                IReadOnlyList<IReadOnlyList<object?>>? partialPage = builder.Flush();
+                if (partialPage is not null)
+                {
+                    yield return new RowsPage(resultSetId, pageSeq, rowOffset, partialPage);
+                    rowOffset += partialPage.Count;
+                    pageSeq++;
+                }
+                while (pendingMessages.TryDequeue(out ServerMessage? message))
+                {
+                    yield return message;
+                }
+            }
+
+            while (true)
+            {
+                bool hasRow = await ReadRowAsync(reader, cancellationToken).ConfigureAwait(false);
+                if (!hasRow)
+                {
+                    break;
+                }
+
+                // InfoMessage fires while ReadAsync advances the TDS stream. A message observed
+                // there belongs after already-buffered rows and before the row now exposed.
+                if (!pendingMessages.IsEmpty)
+                {
+                    foreach (ExecEvent boundaryEvent in FlushRowsThenMessages())
+                    {
+                        yield return boundaryEvent;
+                    }
+                }
+
                 object?[] cells = ReadCells(
                     reader,
                     readKinds,
@@ -214,12 +269,24 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                     rowOffset += page.Count;
                     pageSeq++;
                 }
+
+                // Sequential large-value reads can advance beyond the current row and surface an
+                // informational token. Publish the row first, then the message, without holding
+                // either until the entire result set completes.
+                if (!pendingMessages.IsEmpty)
+                {
+                    foreach (ExecEvent boundaryEvent in FlushRowsThenMessages())
+                    {
+                        yield return boundaryEvent;
+                    }
+                }
             }
 
-            IReadOnlyList<IReadOnlyList<object?>>? tail = builder.Flush();
-            if (tail is not null)
+            // ReadAsync(false) can itself consume trailing informational tokens. Pending rows
+            // precede those tokens; both precede resultSetDone.
+            foreach (ExecEvent boundaryEvent in FlushRowsThenMessages())
             {
-                yield return new RowsPage(resultSetId, pageSeq, rowOffset, tail);
+                yield return boundaryEvent;
             }
             yield return new ResultSetCompleted(resultSetId, rowCount);
         }
