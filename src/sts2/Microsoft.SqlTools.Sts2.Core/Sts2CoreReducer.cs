@@ -943,6 +943,22 @@ namespace Microsoft.SqlTools.Sts2.Core
             if (status == "ok")
             {
                 string? handleId = GetString(envelope.Payload, "handleId");
+                if (string.IsNullOrWhiteSpace(handleId))
+                {
+                    // A successful open must establish the opaque handle used by every
+                    // later driver effect. Do not admit malformed effect output into Core
+                    // as an "open" connection carrying a null handle.
+                    CoreState invalid = state with
+                    {
+                        Connections = state.Connections.Remove(connectionId),
+                        OpenIdToConnectionId = state.OpenIdToConnectionId.Remove(connection.OpenId),
+                    };
+                    return Error(
+                        invalid,
+                        connection.OpenCorr,
+                        Sts2ErrorCodes.Internal,
+                        "Driver returned an invalid connection handle.");
+                }
                 string serverInfo = envelope.Payload!.Value.TryGetProperty("serverInfo", out JsonElement si)
                     ? si.GetRawText()
                     : "null";

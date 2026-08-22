@@ -352,6 +352,28 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Core
             Assert.Empty(closed.NewState.Connections);
         }
 
+        [Theory]
+        [InlineData("""{"connectionId":"c-1","status":"ok"}""")]
+        [InlineData("""{"connectionId":"c-1","status":"ok","handleId":null}""")]
+        [InlineData("""{"connectionId":"c-1","status":"ok","handleId":""}""")]
+        [InlineData("""{"connectionId":"c-1","status":"ok","handleId":"   "}""")]
+        public void DriverOpenSuccessRequiresNonEmptyHandle(string effectPayload)
+        {
+            CoreState opening = Sts2CoreReducer.Decide(CoreState.Initial,
+                Request(1, "v2/connection.open", "r-open",
+                    """{"openId":"o-1","profile":{"driver":"fake"}}""")).NewState;
+
+            CoreDecision malformed = Sts2CoreReducer.Decide(opening,
+                EffectResponse(2, "driver.open", "drv-open-1", effectPayload));
+
+            RpcErrorOutput error = Assert.IsType<RpcErrorOutput>(Assert.Single(malformed.Outputs));
+            Assert.Equal("r-open", error.Corr);
+            Assert.Equal(Sts2ErrorCodes.Internal, error.DataCode);
+            Assert.Contains("connection handle", error.Message, StringComparison.Ordinal);
+            Assert.Empty(malformed.NewState.Connections);
+            Assert.Empty(malformed.NewState.OpenIdToConnectionId);
+        }
+
         [Fact]
         public void DecideIsDeterministic()
         {
