@@ -1,0 +1,20 @@
+# STS2 scenario (SPEC $14.2). Editing expectations to match broken behavior is forbidden.
+name: initialize-idempotent
+tags: [initialize, contract, dialect:neutral]
+status: active
+milestone: M2
+adapter: fake
+steps:
+  - request:
+      method: v2/initialize
+      params: { clientName: "scenario", requestedSpecVersion: "2.0" }
+    expectResult:
+      specVersion: "2.0.0-preview.1"
+      capabilities: { forwardOnlyStreaming: true, oneActiveQueryPerConnection: true, redactedReplay: true, exportLog: true, setCapture: true, maxCellBytesHonored: true, pageRowsHonored: true, pageBytesHonored: true, queryTimeoutHonored: true }
+  - request:
+      method: v2/initialize
+      params: { clientName: "scenario-again" }
+    expectResult:
+      specVersion: "2.0.0-preview.1"
+expect:
+  invariants: [I1, I5, I6, I7, I12]

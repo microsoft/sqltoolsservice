@@ -26,6 +26,10 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Architecture
             ["Microsoft.SqlTools.Sts2.Contracts"] = ([], []),
             ["Microsoft.SqlTools.Sts2.Core"] = (["Microsoft.SqlTools.Sts2.Contracts"], []),
             ["Microsoft.SqlTools.Sts2.Abstractions"] = (["Microsoft.SqlTools.Sts2.Contracts"], []),
+            ["Microsoft.SqlTools.Sts2.Runtime"] =
+                (["Microsoft.SqlTools.Sts2.Core", "Microsoft.SqlTools.Sts2.Contracts", "Microsoft.SqlTools.Sts2.Abstractions"], []),
+            ["Microsoft.SqlTools.Sts2.Testing"] =
+                (["Microsoft.SqlTools.Sts2.Runtime", "Microsoft.SqlTools.Sts2.Core", "Microsoft.SqlTools.Sts2.Contracts", "Microsoft.SqlTools.Sts2.Abstractions"], ["YamlDotNet"]),
         };
 
         private static readonly string[] AnalyzerPackages =
@@ -141,6 +145,7 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Architecture
             string[] tracked =
             [
                 "Microsoft.SqlTools.Sts2.Contracts", "Microsoft.SqlTools.Sts2.Core", "Microsoft.SqlTools.Sts2.Abstractions",
+                "Microsoft.SqlTools.Sts2.Runtime",
             ];
             foreach (string projectName in tracked)
             {

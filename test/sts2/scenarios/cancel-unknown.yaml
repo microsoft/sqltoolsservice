@@ -1,0 +1,13 @@
+# STS2 scenario (SPEC $14.2). Editing expectations to match broken behavior is forbidden.
+name: cancel-unknown
+tags: [query, cancel, idempotency, dialect:neutral]
+status: active
+milestone: M3
+adapter: fake
+steps:
+  - request:
+      method: v2/query.cancel
+      params: { queryId: "q-never-existed" }
+    expectResult: {}
+expect:
+  invariants: [I1, I5, I6, I7, I12]

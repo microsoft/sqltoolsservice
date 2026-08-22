@@ -1,0 +1,27 @@
+# STS2 scenario (SPEC $14.2). Editing expectations to match broken behavior is forbidden.
+name: connection-open-duplicate-openid
+tags: [connection, idempotency, dialect:neutral]
+status: active
+milestone: M2
+adapter: fake
+driver:
+  open:
+    - outcome: hang
+steps:
+  - request:
+      method: v2/connection.open
+      params: { openId: open-1, profile: $profiles.fakeBasic }
+    await: false
+    label: firstOpen
+  - request:
+      method: v2/connection.open
+      params: { openId: open-1, profile: $profiles.fakeBasic }
+    expectError: { dataCode: Sts2.InvalidRequest }
+  - request:
+      method: v2/connection.cancel
+      params: { openId: open-1 }
+    expectResult: {}
+  - awaitTerminal: { label: firstOpen }
+    expectError: { dataCode: Sts2.Canceled }
+expect:
+  invariants: [I1, I5, I6, I7, I8, I12]

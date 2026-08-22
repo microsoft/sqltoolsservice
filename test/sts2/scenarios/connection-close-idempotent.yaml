@@ -1,0 +1,25 @@
+# STS2 scenario (SPEC $14.2). Editing expectations to match broken behavior is forbidden.
+name: connection-close-idempotent
+tags: [connection, close, idempotency, dialect:neutral]
+status: active
+milestone: M2
+adapter: fake
+steps:
+  - request:
+      method: v2/connection.open
+      params: { openId: open-1, profile: $profiles.fakeBasic }
+    bind: { connectionId: $c }
+  - request:
+      method: v2/connection.close
+      params: { connectionId: $c }
+    expectResult: {}
+  - request:
+      method: v2/connection.close
+      params: { connectionId: $c }
+    expectResult: {}
+  - request:
+      method: v2/connection.close
+      params: { connectionId: "c-never-existed" }
+    expectResult: {}
+expect:
+  invariants: [I1, I5, I6, I7, I8, I12]
