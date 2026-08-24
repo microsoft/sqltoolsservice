@@ -1,0 +1,292 @@
+//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+using System;
+using System.Collections.Generic;
+using System.Text.Json;
+using Microsoft.SqlTools.Sts2.Core;
+using Microsoft.SqlTools.Sts2.Runtime.Coordination;
+using Microsoft.SqlTools.Sts2.Runtime.Envelopes;
+using Microsoft.SqlTools.Sts2.Runtime.Journaling;
+
+namespace Microsoft.SqlTools.Sts2.Runtime.Replay
+{
+    /// <summary>Where and how a replay diverged from the recorded journal (SPEC §13.2).</summary>
+    public sealed record ReplayDivergence
+    {
+        /// <summary>Journal seq at which the divergence was detected.</summary>
+        public required long Seq { get; init; }
+
+        /// <summary>What the journal recorded (kind/type/digest).</summary>
+        public required string Recorded { get; init; }
+
+        /// <summary>What replay produced instead.</summary>
+        public required string Replayed { get; init; }
+
+        /// <summary>Cause chain from the divergent envelope back to its root.</summary>
+        public required IReadOnlyList<long> CauseChain { get; init; }
+    }
+
+    /// <summary>Replay verdict (SPEC §13.2, R006).</summary>
+    public enum ReplayOutcome
+    {
+        /// <summary>Every recorded output matched and no expected output was left unrecorded at end of journal.</summary>
+        Verified,
+
+        /// <summary>An output's kind/type/corr/digest mismatched, or an output was missing/extra at a causal position.</summary>
+        Diverged,
+
+        /// <summary>The journal ended (or a partial <c>until</c> stop) with reduced-but-unrecorded outputs still pending — a truncated tail.</summary>
+        Incomplete,
+    }
+
+    /// <summary>Outcome of replaying one journal.</summary>
+    public sealed record ReplayResult
+    {
+        /// <summary>The replay verdict.</summary>
+        public required ReplayOutcome Outcome { get; init; }
+
+        /// <summary>True only on an exact, complete match (I7) — never on a truncated tail.</summary>
+        public bool Identical => Outcome == ReplayOutcome.Verified;
+
+        /// <summary>Number of expected outputs the reducer produced that the journal never recorded (truncation).</summary>
+        public int PendingOutputCount { get; init; }
+
+        /// <summary>Digest of every outbound RPC envelope, in order, as produced by replay.</summary>
+        public required IReadOnlyList<string> OutboundDigests { get; init; }
+
+        /// <summary>First divergence, when not identical.</summary>
+        public ReplayDivergence? Divergence { get; init; }
+
+        /// <summary>Core state after the last replayed envelope (redacted by construction).</summary>
+        public required CoreState FinalState { get; init; }
+
+        /// <summary>Seq of the last envelope replayed.</summary>
+        public required long LastSeq { get; init; }
+    }
+
+    /// <summary>
+    /// Replays a journal through the pure reducer without re-executing effects
+    /// (SPEC §13.2): recorded <c>effect.res</c> envelopes are fed back in, and every
+    /// recorded output envelope is matched by causal position and digest against what
+    /// the reducer produces now.
+    /// </summary>
+    public static class JournalReplayer
+    {
+        private static readonly JsonElement NullElement = JsonDocument.Parse("null").RootElement;
+
+        /// <summary>Replays <paramref name="envelopes"/>, optionally stopping after <paramref name="untilSeq"/>.</summary>
+        public static ReplayResult Replay(IEnumerable<Sts2Envelope> envelopes, long? untilSeq = null)
+        {
+            ArgumentNullException.ThrowIfNull(envelopes);
+
+            CoreState state = CoreState.Initial;
+            var outboundDigests = new List<string>();
+            var pendingOutputs = new Queue<(string Kind, string Type, string? Corr, string Digest, long CauseSeq)>();
+            var causeBySeq = new Dictionary<long, long?>();
+            long lastSeq = 0;
+            long expectedSeq = 1;
+            string? runId = null;
+
+            foreach (Sts2Envelope envelope in envelopes)
+            {
+                if (untilSeq is long limit && envelope.Seq > limit)
+                {
+                    break;
+                }
+                lastSeq = envelope.Seq;
+
+                if (envelope.Schema != EnvelopeJsonCodec.SchemaId)
+                {
+                    return InvalidJournal(envelope, causeBySeq, outboundDigests, state, lastSeq,
+                        $"unknown schema {envelope.Schema}");
+                }
+                if (!EnvelopeKinds.IsValid(envelope.Kind))
+                {
+                    return InvalidJournal(envelope, causeBySeq, outboundDigests, state, lastSeq,
+                        $"unknown envelope kind {envelope.Kind}");
+                }
+                if (envelope.Seq != expectedSeq)
+                {
+                    return InvalidJournal(envelope, causeBySeq, outboundDigests, state, lastSeq,
+                        $"non-gapless sequence: expected {expectedSeq}, found {envelope.Seq}");
+                }
+                expectedSeq++;
+                runId ??= envelope.RunId;
+                if (string.IsNullOrEmpty(envelope.RunId) || envelope.RunId != runId)
+                {
+                    return InvalidJournal(envelope, causeBySeq, outboundDigests, state, lastSeq,
+                        $"mixed or empty run id: expected {runId}, found {envelope.RunId}");
+                }
+                if (envelope.Cause is long cause
+                    && (cause >= envelope.Seq || !causeBySeq.ContainsKey(cause)))
+                {
+                    return InvalidJournal(envelope, causeBySeq, outboundDigests, state, lastSeq,
+                        $"invalid cause {cause} for seq {envelope.Seq}");
+                }
+                if (RequiresCause(envelope.Kind) && envelope.Cause is null)
+                {
+                    return InvalidJournal(envelope, causeBySeq, outboundDigests, state, lastSeq,
+                        $"non-root {envelope.Kind} envelope at seq {envelope.Seq} has no cause");
+                }
+                string recordedPayloadDigest = CanonicalJson.DigestOf(envelope.Payload ?? NullElement);
+                if (recordedPayloadDigest != envelope.Digest)
+                {
+                    return InvalidJournal(envelope, causeBySeq, outboundDigests, state, lastSeq,
+                        $"payload digest mismatch: recorded {envelope.Digest}, computed {recordedPayloadDigest}");
+                }
+                causeBySeq[envelope.Seq] = envelope.Cause;
+
+                switch (envelope.Kind)
+                {
+                    case EnvelopeKinds.RpcInRequest:
+                    case EnvelopeKinds.RpcInNotify:
+                    case EnvelopeKinds.EffectResponse:
+                    case EnvelopeKinds.Control:
+                    case EnvelopeKinds.TimerDue:
+                    {
+                        if (pendingOutputs.Count > 0)
+                        {
+                            (string kind, string type, _, string digest, _) = pendingOutputs.Dequeue();
+                            return Diverged(envelope.Seq, causeBySeq, outboundDigests, state, lastSeq,
+                                recorded: $"next input {envelope.Kind}/{envelope.Type}",
+                                replayed: $"an additional output {kind}/{type} digest={digest} the journal does not record");
+                        }
+
+                        CoreDecision decision = Sts2CoreReducer.Decide(state, new CoreEnvelope
+                        {
+                            Seq = envelope.Seq,
+                            Kind = envelope.Kind,
+                            Type = envelope.Type,
+                            SessionId = envelope.SessionId,
+                            Corr = envelope.Corr,
+                            Payload = envelope.Payload,
+                        });
+                        state = decision.NewState;
+                        foreach (CoreOutput output in decision.Outputs)
+                        {
+                            CoreOutputEncoder.EncodedOutput encoded = CoreOutputEncoder.Encode(output, envelope.Type);
+                            pendingOutputs.Enqueue((encoded.Kind, encoded.Type, encoded.Corr,
+                                CanonicalJson.DigestOf(encoded.Payload ?? NullElement), envelope.Seq));
+                        }
+                        break;
+                    }
+
+                    case EnvelopeKinds.RpcOutResult:
+                    case EnvelopeKinds.RpcOutError:
+                    case EnvelopeKinds.RpcOutNotify:
+                    case EnvelopeKinds.EffectRequest:
+                    case EnvelopeKinds.Diagnostic:
+                    case EnvelopeKinds.ConfigChanged:
+                    {
+                        if (pendingOutputs.Count == 0)
+                        {
+                            return Diverged(envelope.Seq, causeBySeq, outboundDigests, state, lastSeq,
+                                recorded: $"{envelope.Kind}/{envelope.Type} digest={envelope.Digest}",
+                                replayed: "no output at this causal position");
+                        }
+                        (string kind, string type, string? corr, string digest, long causeSeq) = pendingOutputs.Dequeue();
+                        if (kind != envelope.Kind || type != envelope.Type || corr != envelope.Corr
+                            || digest != envelope.Digest || envelope.Cause != causeSeq)
+                        {
+                            return Diverged(envelope.Seq, causeBySeq, outboundDigests, state, lastSeq,
+                                recorded: $"{envelope.Kind}/{envelope.Type} corr={envelope.Corr} cause={envelope.Cause} digest={envelope.Digest}",
+                                replayed: $"{kind}/{type} corr={corr} cause={causeSeq} digest={digest}");
+                        }
+                        if (kind is EnvelopeKinds.RpcOutResult or EnvelopeKinds.RpcOutError or EnvelopeKinds.RpcOutNotify)
+                        {
+                            outboundDigests.Add(digest);
+                        }
+                        break;
+                    }
+
+                    default:
+                        break; // metric, state.snapshot: journaled-only, not replay-relevant
+                }
+            }
+
+            // Strict completeness (R006): the reducer produced outputs the journal never
+            // recorded. The old code returned Identical for any prefix; a truncated tail
+            // (missing final result/notification/effect/config.changed) must NOT pass the
+            // determinism gate. A partial `until` stop that cuts mid-output is Incomplete too.
+            return new ReplayResult
+            {
+                Outcome = pendingOutputs.Count == 0 ? ReplayOutcome.Verified : ReplayOutcome.Incomplete,
+                PendingOutputCount = pendingOutputs.Count,
+                OutboundDigests = outboundDigests,
+                FinalState = state,
+                LastSeq = lastSeq,
+            };
+        }
+
+        /// <summary>Walks the cause chain from <paramref name="seq"/> to its root using recorded causes.</summary>
+        public static IReadOnlyList<long> CauseChainOf(IReadOnlyDictionary<long, long?> causeBySeq, long seq)
+        {
+            var chain = new List<long> { seq };
+            long current = seq;
+            while (causeBySeq.TryGetValue(current, out long? cause) && cause is long parent && !chain.Contains(parent))
+            {
+                chain.Add(parent);
+                current = parent;
+            }
+            return chain;
+        }
+
+        private static bool RequiresCause(string kind) => kind is
+            EnvelopeKinds.RpcOutResult or
+            EnvelopeKinds.RpcOutError or
+            EnvelopeKinds.RpcOutNotify or
+            EnvelopeKinds.EffectRequest or
+            EnvelopeKinds.EffectResponse or
+            EnvelopeKinds.ConfigChanged or
+            EnvelopeKinds.StateSnapshot or
+            EnvelopeKinds.Metric or
+            EnvelopeKinds.Diagnostic;
+
+        private static ReplayResult InvalidJournal(
+            Sts2Envelope envelope,
+            Dictionary<long, long?> causeBySeq,
+            List<string> outboundDigests,
+            CoreState state,
+            long lastSeq,
+            string problem) => Diverged(
+                envelope.Seq,
+                causeBySeq,
+                outboundDigests,
+                state,
+                lastSeq,
+                recorded: "invalid journal: " + problem,
+                replayed: "a structurally valid, self-authenticating envelope");
+
+        private static ReplayResult Diverged(
+            long seq,
+            Dictionary<long, long?> causeBySeq,
+            List<string> outboundDigests,
+            CoreState state,
+            long lastSeq,
+            string recorded,
+            string replayed) => new()
+        {
+            Outcome = ReplayOutcome.Diverged,
+            OutboundDigests = outboundDigests,
+            FinalState = state,
+            LastSeq = lastSeq,
+            Divergence = new ReplayDivergence
+            {
+                Seq = seq,
+                Recorded = recorded,
+                Replayed = replayed,
+                CauseChain = CauseChainOf(causeBySeq, seq),
+            },
+        };
+
+        /// <summary>
+        /// Deterministic redacted JSON dump of a Core state (SPEC §12.2, I16), in the one
+        /// shared <see cref="CoreStateDump"/> format so replay state compares byte-for-byte
+        /// against the live <c>diagnostics.state</c> Core portion.
+        /// </summary>
+        public static string DumpState(CoreState state, long atSeq) => CoreStateDump.ToJson(state, atSeq);
+    }
+}
