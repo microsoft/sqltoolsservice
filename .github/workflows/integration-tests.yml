@@ -133,6 +133,12 @@ jobs:
         run: |
           dotnet build test/Microsoft.SqlTools.ServiceLayer.IntegrationTests/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj --configuration Release
 
+      - name: Build STS2 tests
+        shell: pwsh
+        run: |
+          dotnet build test/sts2/Microsoft.SqlTools.Sts2.UnitTests/Microsoft.SqlTools.Sts2.UnitTests.csproj --configuration Release
+          dotnet build test/sts2/Microsoft.SqlTools.Sts2.E2ETests/Microsoft.SqlTools.Sts2.E2ETests.csproj --configuration Release
+
       - name: Run integration tests
         id: integration_tests
         continue-on-error: true
@@ -144,6 +150,33 @@ jobs:
             --no-build `
             --logger "trx;LogFileName=IntegrationTests.trx" `
             --results-directory "$PWD/TestResults"
+
+      - name: Run STS2 tests
+        id: sts2_tests
+        continue-on-error: true
+        timeout-minutes: 30
+        shell: pwsh
+        run: |
+          $env:STS2_REQUIRE_SQLSERVER = "1"
+          $env:STS2_SQLSERVER_CONNSTRING = "Server=localhost,1433;User ID=testAccount;Password=$env:SQL_PASSWORD;Encrypt=False;TrustServerCertificate=True"
+
+          dotnet test test/sts2/Microsoft.SqlTools.Sts2.UnitTests/Microsoft.SqlTools.Sts2.UnitTests.csproj `
+            --configuration Release `
+            --no-build `
+            --logger "trx;LogFileName=Sts2UnitTests.trx" `
+            --results-directory "$PWD/TestResults"
+          $unitExit = $LASTEXITCODE
+
+          dotnet test test/sts2/Microsoft.SqlTools.Sts2.E2ETests/Microsoft.SqlTools.Sts2.E2ETests.csproj `
+            --configuration Release `
+            --no-build `
+            --logger "trx;LogFileName=Sts2E2ETests.trx" `
+            --results-directory "$PWD/TestResults"
+          $e2eExit = $LASTEXITCODE
+
+          if ($unitExit -ne 0 -or $e2eExit -ne 0) {
+            exit 1
+          }
 
       - name: Publish integration test report
         if: always()
@@ -168,6 +201,6 @@ jobs:
         run: docker rm -f sqltoolsservice-integration-tests *> $null
 
       - name: Fail workflow when integration tests fail
-        if: steps.integration_tests.outcome == 'failure'
+        if: steps.integration_tests.outcome == 'failure' || steps.sts2_tests.outcome == 'failure'
         shell: pwsh
         run: exit 1
