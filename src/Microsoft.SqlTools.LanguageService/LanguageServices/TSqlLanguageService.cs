@@ -1501,6 +1501,96 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         }
 
         /// <summary>
+        /// Gets the parser-recognized matching token pair at a document position.
+        /// </summary>
+        /// <param name="uri">The URI of the open document.</param>
+        /// <param name="position">The zero-based document position to examine.</param>
+        /// <param name="cancellationToken">A token for cancelling the operation.</param>
+        /// <returns>The matching token ranges, or <c>null</c> when no pair is found.</returns>
+        public async Task<MatchingPairResult> GetMatchingPairAsync(
+            string uri,
+            Position position,
+            CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrEmpty(uri) || position == null)
+            {
+                return null;
+            }
+
+            ScriptFile scriptFile = CurrentWorkspace.GetFile(uri);
+            if (scriptFile == null)
+            {
+                return null;
+            }
+
+            ScriptParseInfo parseInfo = GetScriptParseInfo(uri, createIfNotExists: true);
+            cancellationToken.ThrowIfCancellationRequested();
+            if (RequiresReparse(parseInfo, scriptFile))
+            {
+                ConnectionInfoBase connectionInfo = null;
+                connectionService?.TryFindConnection(uri, out connectionInfo);
+                ParseResult parseResult = await ParseAndBind(scriptFile, connectionInfo).ConfigureAwait(false);
+                if (parseResult == null)
+                {
+                    return null;
+                }
+            }
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (!Monitor.TryEnter(parseInfo.BuildingMetadataLock, ConnectedBindingQueue.BindingTimeout))
+            {
+                return null;
+            }
+
+            try
+            {
+                if (RequiresReparse(parseInfo, scriptFile))
+                {
+                    return null;
+                }
+
+                PairMatch pairMatch = Resolver.FindPairMatch(
+                    parseInfo.ParseResult,
+                    position.Line + 1,
+                    position.Character + 1);
+                if (pairMatch == null)
+                {
+                    return null;
+                }
+
+                return new MatchingPairResult
+                {
+                    LeftRange = ToRange(pairMatch.StartToken.StartLocation, pairMatch.StartToken.EndLocation),
+                    RightRange = ToRange(pairMatch.EndToken.StartLocation, pairMatch.EndToken.EndLocation),
+                };
+            }
+            finally
+            {
+                Monitor.Exit(parseInfo.BuildingMetadataLock);
+            }
+        }
+
+        private static Range ToRange(
+            Microsoft.SqlServer.Management.SqlParser.Parser.Location start,
+            Microsoft.SqlServer.Management.SqlParser.Parser.Location end)
+        {
+            return new Range
+            {
+                Start = new Position
+                {
+                    Line = start.LineNumber - 1,
+                    Character = start.ColumnNumber - 1,
+                },
+                End = new Position
+                {
+                    Line = end.LineNumber - 1,
+                    Character = end.ColumnNumber - 1,
+                },
+            };
+        }
+
+        /// <summary>
         /// Runs UpdateLanguageServiceOnConnection as a background task
         /// </summary>
         /// <param name="info">Connection Info</param>
