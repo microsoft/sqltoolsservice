@@ -29,10 +29,12 @@
     <MSBuild Projects="$(Sts2E2EServiceProject)"
              Targets="Restore"
              Properties="$(Sts2E2EServiceProperties)"
+             RemoveProperties="TargetFramework"
              BuildInParallel="false" />
     <MSBuild Projects="$(Sts2E2EServiceProject)"
              Targets="Build"
              Properties="$(Sts2E2EServiceProperties)"
+             RemoveProperties="TargetFramework"
              BuildInParallel="false" />
   </Target>
 </Project>
