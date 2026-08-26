@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
@@ -77,14 +77,29 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
             Index index = context as Index;
             if (index != null)
             {
-                string name = index.Name;
-                string unique = index.IsUnique ? SR.UniqueIndex_LabelPart : SR.NonUniqueIndex_LabelPart;
-                string clustered = index.IsClustered ? SR.ClusteredIndex_LabelPart : SR.NonClusteredIndex_LabelPart;
-                name = name + $" ({unique}, {clustered})";
-                return name;
+                return BuildIndexLabel(index.Name, index.IsUnique, index.IsClustered, index.IndexType);
             }
             return string.Empty;
+        }
 
+        internal static string BuildIndexLabel(string name, bool isUnique, bool isClustered, IndexType indexType)
+        {
+            string unique = isUnique ? SR.UniqueIndex_LabelPart : SR.NonUniqueIndex_LabelPart;
+            string type = GetIndexTypeLabel(isClustered, indexType);
+            return name + $" ({unique}, {type})";
+        }
+
+        private static string GetIndexTypeLabel(bool isClustered, IndexType indexType)
+        {
+            switch (indexType)
+            {
+                case IndexType.ClusteredColumnStoreIndex:
+                    return SR.ClusteredColumnStoreIndex_LabelPart;
+                case IndexType.NonClusteredColumnStoreIndex:
+                    return SR.NonClusteredColumnStoreIndex_LabelPart;
+                default:
+                    return isClustered ? SR.ClusteredIndex_LabelPart : SR.NonClusteredIndex_LabelPart;
+            }
         }
 
         internal static string GetSubType(object context)
