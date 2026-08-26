@@ -57,6 +57,13 @@ namespace Microsoft.SqlTools.Sts2.E2ETests
         }
 
         [Fact]
+        public void DefaultSubjectExcludesSqliteAssets()
+        {
+            string serviceDirectory = Path.GetDirectoryName(ServiceProcessClient.LocateServiceDll())!;
+            Assert.Empty(Directory.EnumerateFiles(serviceDirectory, "*sqlite*", SearchOption.AllDirectories));
+        }
+
+        [Fact]
         public async Task DisabledMode_V1VersionWorks_AndNoSts2ArtifactsAreCreated()
         {
             await using var client = ServiceProcessClient.Start(enableSts2: false, logDirectory: logDirectory);
@@ -119,7 +126,10 @@ namespace Microsoft.SqlTools.Sts2.E2ETests
         [Fact]
         public async Task EnabledMode_SqliteQueryExercisesPagedLifecycleOverRealStdio()
         {
-            await using var client = ServiceProcessClient.Start(enableSts2: true, logDirectory: logDirectory);
+            await using var client = ServiceProcessClient.Start(
+                enableSts2: true,
+                logDirectory: logDirectory,
+                includeSqlite: true);
             await client.RequestAsync("v2/initialize", new { clientName = "e2e" }, TestTimeout);
 
             JsonElement open = await client.RequestAsync("v2/connection.open",

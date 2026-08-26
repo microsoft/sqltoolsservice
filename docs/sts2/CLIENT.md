@@ -29,6 +29,10 @@ table and `docs/sts2/TRACE-SCHEMA.md` for the envelope/trace format.
 This is a copy-pasteable reference; it is documented rather than run in CI (no Node
 toolchain is assumed in this repo). The wire shapes match `docs/sts2/CONTRACT.md`.
 
+The sample uses the non-production SQLite test driver. Production/default publishes
+contain only the SQL Client driver; build locally with
+`-p:IncludeSts2SqliteDriver=true` to make the `sqlite` driver available.
+
 ```typescript
 import { spawn } from "node:child_process";
 import {

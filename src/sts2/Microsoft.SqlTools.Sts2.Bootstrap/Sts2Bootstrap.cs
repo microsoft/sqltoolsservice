@@ -10,7 +10,9 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Sts2.Abstractions;
+#if STS2_INCLUDE_SQLITE_DRIVER
 using Microsoft.SqlTools.Sts2.Drivers.Sqlite;
+#endif
 using Microsoft.SqlTools.Sts2.Hosting;
 using Microsoft.SqlTools.Sts2.Multiplexer;
 
@@ -118,11 +120,7 @@ namespace Microsoft.SqlTools.Sts2.Bootstrap
                     // never conflate this run with an earlier one in the shared log directory.
                     JournalDirectory = Path.Combine(logDirectory, "sts2", runId),
                     ServiceVersion = typeof(Sts2Bootstrap).Assembly.GetName().Version?.ToString() ?? "0.0.0.0",
-                    Drivers = new Dictionary<string, IDbDriver>
-                    {
-                        ["sqlclient"] = new Drivers.SqlClient.SqlClientDriver(), // production (M5)
-                        ["sqlite"] = new SqliteDriver(),                        // portable (M4)
-                    },
+                    Drivers = CreateDrivers(),
                     CommandLine = SanitizeCommandLine(args),
                 },
                 multiplexer.Sts2OutputWriter,
@@ -136,6 +134,20 @@ namespace Microsoft.SqlTools.Sts2.Bootstrap
 
             multiplexer.Start(new SessionLifecycleSink(session, diagnosticsLog));
             return new Sts2BootstrapHandle(multiplexer.LegacyInput, multiplexer.LegacyOutput, multiplexer, session, diagnosticsLog);
+        }
+
+        private static Dictionary<string, IDbDriver> CreateDrivers()
+        {
+            var drivers = new Dictionary<string, IDbDriver>
+            {
+                ["sqlclient"] = new Drivers.SqlClient.SqlClientDriver(), // production (M5)
+            };
+#if STS2_INCLUDE_SQLITE_DRIVER
+            // Non-production real-I/O test driver. The conditional project reference
+            // keeps Microsoft.Data.Sqlite and every native SQLite RID out of release builds.
+            drivers["sqlite"] = new SqliteDriver();
+#endif
+            return drivers;
         }
 
         /// <summary>
