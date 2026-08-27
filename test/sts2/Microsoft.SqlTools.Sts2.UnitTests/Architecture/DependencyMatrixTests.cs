@@ -98,6 +98,31 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Architecture
         }
 
         [Fact]
+        public void SqliteIsOptInAtProductCompositionRoot()
+        {
+            string bootstrapProjectPath = Path.Combine(
+                RepoRoot.Sts2SourceDir,
+                "Microsoft.SqlTools.Sts2.Bootstrap",
+                "Microsoft.SqlTools.Sts2.Bootstrap.csproj");
+            XDocument bootstrapProject = XDocument.Load(bootstrapProjectPath);
+
+            XElement includeProperty = Assert.Single(
+                bootstrapProject.Descendants("IncludeSts2SqliteDriver"));
+            Assert.Equal("false", includeProperty.Value);
+            Assert.Contains("IncludeSts2SqliteDriver", includeProperty.Attribute("Condition")?.Value);
+
+            XElement sqliteReference = Assert.Single(
+                bootstrapProject.Descendants("ProjectReference").Where(reference =>
+                    string.Equals(
+                        Path.GetFileNameWithoutExtension(reference.Attribute("Include")!.Value.Replace('\\', '/')),
+                        "Microsoft.SqlTools.Sts2.Drivers.Sqlite",
+                        StringComparison.OrdinalIgnoreCase)));
+            string? condition = sqliteReference.Attribute("Condition")?.Value;
+            Assert.Contains("IncludeSts2SqliteDriver", condition);
+            Assert.Contains("true", condition);
+        }
+
+        [Fact]
         public void Sts2SourcesNeverUseLegacyServiceLayerNamespaces()
         {
             var offenders = new List<string>();

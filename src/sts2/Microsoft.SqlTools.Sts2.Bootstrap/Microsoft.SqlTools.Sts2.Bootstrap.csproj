@@ -1,13 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>STS2 composition root called by legacy Program.cs. Owns activation flags and process-level wiring.</Description>
+    <!-- SQLite is a non-production test driver. It must not enter the default
+         ServiceLayer publish graph; local/test builds opt in explicitly. -->
+    <IncludeSts2SqliteDriver Condition="'$(IncludeSts2SqliteDriver)' == ''">false</IncludeSts2SqliteDriver>
+    <DefineConstants Condition="'$(IncludeSts2SqliteDriver)' == 'true'">$(DefineConstants);STS2_INCLUDE_SQLITE_DRIVER</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.SqlTools.Sts2.Hosting\Microsoft.SqlTools.Sts2.Hosting.csproj" />
     <ProjectReference Include="..\Microsoft.SqlTools.Sts2.Runtime\Microsoft.SqlTools.Sts2.Runtime.csproj" />
     <ProjectReference Include="..\Microsoft.SqlTools.Sts2.Multiplexer\Microsoft.SqlTools.Sts2.Multiplexer.csproj" />
     <ProjectReference Include="..\Microsoft.SqlTools.Sts2.Drivers.SqlClient\Microsoft.SqlTools.Sts2.Drivers.SqlClient.csproj" />
-    <ProjectReference Include="..\Microsoft.SqlTools.Sts2.Drivers.Sqlite\Microsoft.SqlTools.Sts2.Drivers.Sqlite.csproj" />
+    <ProjectReference Include="..\Microsoft.SqlTools.Sts2.Drivers.Sqlite\Microsoft.SqlTools.Sts2.Drivers.Sqlite.csproj"
+                      Condition="'$(IncludeSts2SqliteDriver)' == 'true'" />
     <ProjectReference Include="..\Microsoft.SqlTools.Sts2.Contracts\Microsoft.SqlTools.Sts2.Contracts.csproj" />
   </ItemGroup>
   <ItemGroup>

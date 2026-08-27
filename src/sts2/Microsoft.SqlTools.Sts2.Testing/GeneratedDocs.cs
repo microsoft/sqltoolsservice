@@ -230,7 +230,7 @@ namespace Microsoft.SqlTools.Sts2.Testing
         {
             var sb = new StringBuilder(Header);
             sb.Append("# STS2 Components\n\n");
-            sb.Append("Roles come from each project's COMPONENT.md; references are read from the csproj files on disk. The allowed matrix is SPEC §4; DependencyMatrixTests enforces it (I11).\n\n");
+            sb.Append("Roles come from each project's COMPONENT.md; references are read from the csproj files on disk. Conditional references include their MSBuild condition. The allowed matrix is SPEC §4; DependencyMatrixTests enforces it (I11).\n\n");
 
             foreach (string projectDir in Directory.EnumerateDirectories(sts2SourceDir).Order(StringComparer.Ordinal))
             {
@@ -252,7 +252,14 @@ namespace Microsoft.SqlTools.Sts2.Testing
 
                 XDocument csproj = XDocument.Load(csprojPath);
                 string[] projectRefs = csproj.Descendants("ProjectReference")
-                    .Select(r => Path.GetFileNameWithoutExtension(r.Attribute("Include")!.Value.Replace('\\', '/')))
+                    .Select(r =>
+                    {
+                        string name = Path.GetFileNameWithoutExtension(r.Attribute("Include")!.Value.Replace('\\', '/'));
+                        string? condition = r.Attribute("Condition")?.Value;
+                        return string.IsNullOrWhiteSpace(condition)
+                            ? name
+                            : $"{name} (condition: `{condition}`)";
+                    })
                     .Order(StringComparer.Ordinal).ToArray();
                 string[] packageRefs = csproj.Descendants("PackageReference")
                     .Select(r => (r.Attribute("Include") ?? r.Attribute("Update"))!.Value)

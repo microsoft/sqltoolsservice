@@ -45,7 +45,7 @@ namespace Microsoft.SqlTools.Sts2.E2ETests
         /// <summary>Queue of notifications received from the service, by method name.</summary>
         public ConcurrentQueue<(string Method, JsonElement Params)> Notifications { get; } = new();
 
-        public static string LocateServiceDll()
+        public static string LocateServiceDll(bool includeSqlite = false)
         {
             string? dir = AppContext.BaseDirectory;
             while (dir != null && !File.Exists(Path.Combine(dir, "sqltoolsservice.sln")))
@@ -60,11 +60,17 @@ namespace Microsoft.SqlTools.Sts2.E2ETests
             DirectoryInfo testOutputDirectory = new(AppContext.BaseDirectory);
             string currentTfm = testOutputDirectory.Name;
             string currentConfiguration = testOutputDirectory.Parent?.Name ?? "Debug";
-            string candidate = Path.Combine(
+            string serviceOutputRoot = Path.Combine(
                 dir,
                 "src",
                 "Microsoft.SqlTools.ServiceLayer",
-                "bin",
+                "bin");
+            if (includeSqlite)
+            {
+                serviceOutputRoot = Path.Combine(serviceOutputRoot, "sts2-sqlite");
+            }
+            string candidate = Path.Combine(
+                serviceOutputRoot,
                 currentConfiguration,
                 currentTfm,
                 "MicrosoftSqlToolsServiceLayer.dll");
@@ -77,10 +83,10 @@ namespace Microsoft.SqlTools.Sts2.E2ETests
                 ". The E2E project reference must build ServiceLayer for the current configuration and TFM.");
         }
 
-        public static ServiceProcessClient Start(bool enableSts2, string logDirectory)
+        public static ServiceProcessClient Start(bool enableSts2, string logDirectory, bool includeSqlite = false)
         {
             Directory.CreateDirectory(logDirectory);
-            string args = "\"" + LocateServiceDll() + "\" --log-file \"" + Path.Combine(logDirectory, "sqltools.log") + "\"";
+            string args = "\"" + LocateServiceDll(includeSqlite) + "\" --log-file \"" + Path.Combine(logDirectory, "sqltools.log") + "\"";
             if (enableSts2)
             {
                 args += " --enable-sts2";

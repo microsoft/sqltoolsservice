@@ -10,10 +10,31 @@
     <PackageReference Include="xunit" />
     <PackageReference Include="xunit.runner.visualstudio" />
   </ItemGroup>
+  <PropertyGroup>
+    <!-- The SQLite-specific test needs a second subject with an opt-in dependency
+         graph. NuGet restore does not propagate per-ProjectReference properties, so
+         build that subject explicitly into isolated bin/obj directories. -->
+    <Sts2E2EServiceProject>$(MSBuildThisFileDirectory)..\..\..\src\Microsoft.SqlTools.ServiceLayer\Microsoft.SqlTools.ServiceLayer.csproj</Sts2E2EServiceProject>
+    <Sts2E2EServiceProperties>Configuration=$(Configuration);IncludeSts2SqliteDriver=true;Sts2IsolatedSqliteBuild=true</Sts2E2EServiceProperties>
+  </PropertyGroup>
   <ItemGroup>
-    <!-- The spawned executable is the subject of these tests. Force the exact current
-         configuration/TFM to build without taking a compile-time assembly dependency. -->
-    <ProjectReference Include="..\..\..\src\Microsoft.SqlTools.ServiceLayer\Microsoft.SqlTools.ServiceLayer.csproj"
+    <!-- All other tests spawn the default production graph. Build the subject without
+         taking a compile-time assembly dependency. -->
+    <ProjectReference Include="$(Sts2E2EServiceProject)"
                       ReferenceOutputAssembly="false" />
   </ItemGroup>
+  <Target Name="BuildSts2E2EService"
+          AfterTargets="Build"
+          Condition="'$(DesignTimeBuild)' != 'true'">
+    <MSBuild Projects="$(Sts2E2EServiceProject)"
+             Targets="Restore"
+             Properties="$(Sts2E2EServiceProperties)"
+             RemoveProperties="TargetFramework"
+             BuildInParallel="false" />
+    <MSBuild Projects="$(Sts2E2EServiceProject)"
+             Targets="Build"
+             Properties="$(Sts2E2EServiceProperties)"
+             RemoveProperties="TargetFramework"
+             BuildInParallel="false" />
+  </Target>
 </Project>

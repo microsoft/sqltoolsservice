@@ -9,6 +9,13 @@
     <HighEntropyVA>true</HighEntropyVA>
     <RootDir>$(MSBuildThisFileDirectory)</RootDir>
 
+    <!-- STS2's non-production SQLite E2E subject is compiled with a different
+         dependency graph. Keep its outputs isolated so solution builds cannot
+         overwrite (or be overwritten by) the production ServiceLayer output. -->
+    <BaseOutputPath Condition="'$(Sts2IsolatedSqliteBuild)' == 'true'">bin\sts2-sqlite\</BaseOutputPath>
+    <BaseIntermediateOutputPath Condition="'$(Sts2IsolatedSqliteBuild)' == 'true'">obj\sts2-sqlite\</BaseIntermediateOutputPath>
+    <DefaultItemExcludes Condition="'$(Sts2IsolatedSqliteBuild)' == 'true'">$(DefaultItemExcludes);bin\**;obj\**</DefaultItemExcludes>
+
     <SqlToolsServiceDotNetVersion Condition="'$(SqlToolsServiceDotNetVersion)' == ''">net10.0</SqlToolsServiceDotNetVersion>
     <!-- SqlCore is limited by the Sql Fabric workload version -->
     <SqlCoreDotNetVersion Condition="'$(SqlCoreDotNetVersion)' == ''">net8.0</SqlCoreDotNetVersion>
