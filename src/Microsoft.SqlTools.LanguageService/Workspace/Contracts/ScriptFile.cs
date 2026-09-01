@@ -159,7 +159,7 @@ namespace Microsoft.SqlTools.LanguageService.Workspace.Contracts
         {
             Validate.IsWithinRange(
                 "lineNumber", lineNumber,
-                1, FileLines.Count + 1);
+                1, FileLines.Count);
 
             return FileLines[lineNumber - 1];
         }
@@ -231,20 +231,47 @@ namespace Microsoft.SqlTools.LanguageService.Workspace.Contracts
         /// <param name="column">The 1-based column to be validated.</param>
         public void ValidatePosition(int line, int column)
         {
-            if (line < 1 || line > FileLines.Count + 1)
+            if (line < 1 || line > FileLines.Count)
             {
                 throw new ArgumentOutOfRangeException(nameof(line), SR.WorkspaceServicePositionLineOutOfRange);
             }
 
-            // The maximum column is either one past the length of the string
-            // or 1 if the string is empty.
-            string lineString = FileLines[line - 1];
-            int maxColumn = lineString.Length > 0 ? lineString.Length + 1 : 1;
-
-            if (column < 1 || column > maxColumn)
+            if (column < 1 || column > GetMaxColumn(line))
             {
                 throw new ArgumentOutOfRangeException(nameof(column), SR.WorkspaceServicePositionColumnOutOfRange(line));
             }
+        }
+
+        /// <summary>
+        /// Determines whether the given range falls entirely within this file's extents.
+        /// A client can send a range built against a newer revision of the document than
+        /// the one held here, so callers that must not fail should test the range first.
+        /// </summary>
+        /// <param name="bufferRange">The buffer range to test.</param>
+        public bool IsRangeValid(BufferRange bufferRange)
+        {
+            return bufferRange != null
+                && IsPositionValid(bufferRange.Start)
+                && IsPositionValid(bufferRange.End);
+        }
+
+        private bool IsPositionValid(BufferPosition position)
+        {
+            return position != null
+                && position.Line >= 1
+                && position.Line <= FileLines.Count
+                && position.Column >= 1
+                && position.Column <= GetMaxColumn(position.Line);
+        }
+
+        /// <summary>
+        /// Gets the highest valid 1-based column for the given 1-based line, which is
+        /// one past the length of the line, or 1 when the line is empty.
+        /// </summary>
+        private int GetMaxColumn(int line)
+        {
+            string lineString = FileLines[line - 1];
+            return lineString.Length > 0 ? lineString.Length + 1 : 1;
         }
 
         /// <summary>

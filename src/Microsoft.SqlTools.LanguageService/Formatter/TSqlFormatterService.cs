@@ -159,8 +159,17 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
                 {
                     return CreateSkippedResult(stopwatch);
                 }
+                BufferRange bufferRange = range.ToBufferRange();
+                if (!scriptFile.IsRangeValid(bufferRange))
+                {
+                    // The buffer here can lag the editor's copy, so a requested range may
+                    // outrun it. Formatting what this copy holds would rewrite the wrong
+                    // span of the client's document, so do nothing instead.
+                    Logger.Verbose($"Skipping range format for {docFormatParams.TextDocument.Uri}; range is outside the current buffer");
+                    return CreateSkippedResult(stopwatch);
+                }
                 TextEdit textEdit = new TextEdit { Range = range };
-                string text = scriptFile.GetTextInRange(range.ToBufferRange());
+                string text = scriptFile.GetTextInRange(bufferRange);
                 return DoFormat(docFormatParams, textEdit, text, stopwatch);
             });
         }

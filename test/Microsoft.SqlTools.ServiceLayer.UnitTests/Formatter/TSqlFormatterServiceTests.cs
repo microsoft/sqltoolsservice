@@ -319,6 +319,30 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
 
 
         [Test]
+        public async Task FormatRangeShouldSkipRangeBeyondBuffer()
+        {
+            // Given a request whose range runs one line past this copy of the document,
+            // as happens when the buffer lags the editor's
+            SetupLanguageService();
+            SetupScriptFile(defaultSqlContents);
+            rangeFormatParams.Range = new Range
+            {
+                Start = new Position { Line = 0, Character = 0 },
+                End = new Position { Line = 1, Character = 0 }
+            };
+
+            // When format range is called
+            await TestUtils.RunAndVerify<TextEdit[]>(
+                test: (requestContext) => FormatterService.HandleDocRangeFormatRequest(rangeFormatParams, requestContext),
+                verify: (edits =>
+                {
+                    // Then the request succeeds with no edits rather than failing
+                    Assert.AreEqual(0, edits.Length);
+                }));
+        }
+
+
+        [Test]
         public async Task FormatDocumentTelemetryShouldIncludeFormatTypeProperty()
         {
             await RunAndVerifyTelemetryTest(
