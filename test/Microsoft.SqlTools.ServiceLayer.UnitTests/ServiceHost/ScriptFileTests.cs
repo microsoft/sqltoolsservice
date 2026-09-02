@@ -249,6 +249,62 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
                 });
         }
 
+        /// <summary>
+        /// A position on the line just past the end of the file is out of range, and must be
+        /// reported as such instead of surfacing the underlying list indexer failure.
+        /// </summary>
+        [Test]
+        public void ReportsLineOutOfRangeJustPastEndOfFile()
+        {
+            ScriptFile scriptFile = GetTestScriptFile("first\r\nsecond");
+
+            ArgumentOutOfRangeException ex = Assert.Throws<ArgumentOutOfRangeException>(() =>
+                scriptFile.GetLinesInRange(
+                    new BufferRange(
+                        new BufferPosition(1, 1),
+                        new BufferPosition(3, 1))));
+
+            Assert.AreEqual("line", ex.ParamName);
+        }
+
+        [Test]
+        public void GetLineThrowsJustPastEndOfFile()
+        {
+            ScriptFile scriptFile = GetTestScriptFile("first\r\nsecond");
+
+            ArgumentOutOfRangeException ex = Assert.Throws<ArgumentOutOfRangeException>(
+                () => scriptFile.GetLine(3));
+
+            Assert.AreEqual("lineNumber", ex.ParamName);
+        }
+
+        [Test]
+        public void IsRangeValidDetectsRangesOutsideTheFile()
+        {
+            ScriptFile scriptFile = GetTestScriptFile("first\r\nsecond");
+
+            Assert.True(
+                scriptFile.IsRangeValid(new BufferRange(1, 1, 2, 7)),
+                "Range within the file is valid");
+            Assert.False(
+                scriptFile.IsRangeValid(new BufferRange(1, 1, 3, 1)),
+                "Range ending one line past the end of the file is not valid");
+            Assert.False(
+                scriptFile.IsRangeValid(new BufferRange(1, 1, 2, 20)),
+                "Range ending past the end of the last line is not valid");
+        }
+
+        [Test]
+        public void TrailingNewlineCreatesValidEmptyFinalLine()
+        {
+            ScriptFile scriptFile = GetTestScriptFile("first\r\nsecond\r\n");
+
+            Assert.AreEqual(string.Empty, scriptFile.GetLine(3));
+            Assert.True(
+                scriptFile.IsRangeValid(new BufferRange(3, 1, 3, 1)),
+                "The empty line after a trailing newline is within the file");
+        }
+
         private void AssertFileChange(
             string initialString,
             string expectedString,
