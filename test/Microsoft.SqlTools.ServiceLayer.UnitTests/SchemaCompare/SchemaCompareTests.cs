@@ -5,6 +5,7 @@
 
 #nullable disable
 
+using System.Collections.Generic;
 using Microsoft.SqlTools.SqlCore.SchemaCompare;
 using Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
 using NUnit.Framework;
@@ -83,6 +84,51 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SchemaCompare
 );";
             string result3 = SchemaCompareUtils.RemoveExcessWhitespace(script3);
             Assert.True(expected3.Equals(result3));
+        }
+
+        [Test]
+        public void ApplyToAllWithRetriesRetriesBlockedItemsAfterProgress()
+        {
+            var completedItems = new HashSet<int>();
+            int attemptsForFirstItem = 0;
+
+            bool success = SchemaCompareUtils.ApplyToAllWithRetries(
+                new[] { 1, 2 },
+                item =>
+                {
+                    if (item == 1)
+                    {
+                        attemptsForFirstItem++;
+                        if (!completedItems.Contains(2))
+                        {
+                            return false;
+                        }
+                    }
+
+                    completedItems.Add(item);
+                    return true;
+                });
+
+            Assert.True(success);
+            Assert.AreEqual(2, attemptsForFirstItem);
+            Assert.That(completedItems, Is.EquivalentTo(new[] { 1, 2 }));
+        }
+
+        [Test]
+        public void ApplyToAllWithRetriesStopsWhenNoItemsMakeProgress()
+        {
+            int attemptCount = 0;
+
+            bool success = SchemaCompareUtils.ApplyToAllWithRetries(
+                new[] { 1, 2, 3 },
+                _ =>
+                {
+                    attemptCount++;
+                    return false;
+                });
+
+            Assert.False(success);
+            Assert.AreEqual(3, attemptCount);
         }
 
         [Test]
