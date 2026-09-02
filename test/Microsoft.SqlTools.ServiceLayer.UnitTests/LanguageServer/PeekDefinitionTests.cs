@@ -7,7 +7,6 @@
 
 using System;
 using System.IO;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
@@ -168,10 +167,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         }
 
         [Test]
-        public void CreateFileName_ReturnsUniqueNamePerRequest()
+        public void CreateFileName_ReturnsSameNameForTheSameObject()
         {
-            MethodInfo createFileNameMethod = typeof(Scripter).GetMethod("CreateFileName", BindingFlags.Static | BindingFlags.NonPublic);
-            Assert.NotNull(createFileNameMethod);
+            PeekDefinitionFileNames.Reset();
 
             var identifier = new Sql3PartIdentifier
             {
@@ -180,14 +178,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                 ObjectName = "testTable"
             };
 
-            string firstFileName = (string)createFileNameMethod.Invoke(null, new object[] { identifier });
-            string secondFileName = (string)createFileNameMethod.Invoke(null, new object[] { identifier });
+            string firstFileName = Scripter.CreateFileName(identifier, "serverA", identifier.DatabaseName);
+            string secondFileName = Scripter.CreateFileName(identifier, "serverA", identifier.DatabaseName);
 
-            Assert.AreNotEqual(firstFileName, secondFileName);
-            StringAssert.StartsWith("master.dbo.testTable_", firstFileName);
-            StringAssert.StartsWith("master.dbo.testTable_", secondFileName);
-            StringAssert.EndsWith(".sql", firstFileName);
-            StringAssert.EndsWith(".sql", secondFileName);
+            // The same object keeps one file so that a repeated request reuses the open tab
+            Assert.AreEqual(firstFileName, secondFileName);
+            Assert.AreEqual("master.dbo.testTable.sql", firstFileName);
         }
 
         /// <summary>

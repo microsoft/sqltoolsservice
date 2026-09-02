@@ -7,6 +7,7 @@
 #pragma warning disable CS8632
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
@@ -53,6 +54,14 @@ namespace Microsoft.SqlTools.LanguageService.Scripting
         private Dictionary<int, string> serverVersionMap = new Dictionary<int, string>();
 
         private Dictionary<string, string> objectScriptMap = new Dictionary<string, string>();
+
+        /// <summary>
+        /// Guards each definition file so that requests running in parallel cannot interleave
+        /// their writes. Scripts are only ever written into the per-process folder owned by
+        /// <see cref="PeekDefinitionTempFolder"/>, so no other process competes for these files.
+        /// </summary>
+        private static readonly ConcurrentDictionary<string, object> FileLocks =
+            new ConcurrentDictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
         internal Scripter() { }
 
@@ -294,20 +303,29 @@ namespace Microsoft.SqlTools.LanguageService.Scripting
             Sql3PartIdentifier identifier,
             string objectType)
         {
-            // script file destination
-            string fileName = CreateFileName(identifier);
-
-            string tempFileName = Path.Combine(this.tempPath, fileName);
-
             SmoScriptingOperation operation = InitScriptOperation(identifier, objectType);
             operation.Execute();
-            string script = operation.ScriptText;
+            // A missing object produces no script. Treat that the same as the empty file written
+            // by the previous implementation so the caller can return an empty location list.
+            string script = operation.ScriptText ?? string.Empty;
+
+            // script file destination, resolved the same way the scripting operation resolves the
+            // database so that the file name always describes the definition it holds
+            string fileName = CreateFileName(
+                identifier,
+                this.serverConnection?.ServerInstance,
+                identifier.DatabaseName ?? this.Database?.Name);
+
+            string tempFileName = Path.Combine(this.tempPath, fileName);
 
             bool objectFound = false;
             int createStatementLineNumber = 0;
 
-            File.WriteAllText(tempFileName, script);
-            string[] lines = File.ReadAllLines(tempFileName);
+            WriteScriptFile(tempFileName, script);
+
+            // Read the lines from the script we just generated rather than back off disk, so a
+            // request running in parallel for the same object cannot be seen mid write
+            string[] lines = script.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
             int lineCount = 0;
             string createSyntax = null;
             if (objectScriptMap.ContainsKey(objectType.ToLower(System.Globalization.CultureInfo.InvariantCulture)))
@@ -337,24 +355,63 @@ namespace Microsoft.SqlTools.LanguageService.Scripting
             }
         }
 
-        private static string CreateFileName(Sql3PartIdentifier identifier)
+        /// <summary>
+        /// Returns the file name that holds an object's definition. The name is stable for a given
+        /// object so that requesting its definition again reuses the editor tab that is already
+        /// open. Objects that would otherwise share a name are separated by a numeric suffix.
+        /// </summary>
+        /// <param name="identifier">The object being scripted.</param>
+        /// <param name="serverName">The server the object was resolved against, used only to tell
+        /// apart objects that share a fully qualified name across connections.</param>
+        /// <param name="resolvedDatabaseName">The resolved database name, used for identity even
+        /// when the request did not qualify the object.</param>
+        internal static string CreateFileName(
+            Sql3PartIdentifier identifier,
+            string serverName,
+            string resolvedDatabaseName)
         {
-            string baseFileName;
+            List<string> nameParts = new List<string>();
+            // Preserve the previous display name: include the database only when the request
+            // explicitly qualified it. The resolved database is still part of the identity below.
+            if (!string.IsNullOrEmpty(identifier.DatabaseName))
+            {
+                nameParts.Add(identifier.DatabaseName);
+            }
+            if (!string.IsNullOrEmpty(identifier.SchemaName))
+            {
+                nameParts.Add(identifier.SchemaName);
+            }
+            nameParts.Add(identifier.ObjectName);
+            string baseFileName = string.Join(".", nameParts);
 
-            if (identifier.DatabaseName != null)
-            {
-                baseFileName = $"{identifier.DatabaseName}.{identifier.SchemaName}.{identifier.ObjectName}.sql";
-            }
-            else if (identifier.SchemaName != null)
-            {
-                baseFileName = $"{identifier.SchemaName}.{identifier.ObjectName}.sql";
-            }
-            else
-            {
-                baseFileName = $"{identifier.ObjectName}.sql";
-            }
+            string identity = PeekDefinitionFileNames.CreateIdentity(
+                serverName,
+                resolvedDatabaseName,
+                identifier.SchemaName,
+                identifier.ObjectName);
 
-            return $"{Path.GetFileNameWithoutExtension(baseFileName)}_{Guid.NewGuid():N}{Path.GetExtension(baseFileName)}";
+            return PeekDefinitionFileNames.GetOrAssign(
+                identity,
+                PeekDefinitionFileNames.SanitizeBaseName(baseFileName));
+        }
+
+        /// <summary>
+        /// Writes a definition to its file. The file is left untouched when it already holds the
+        /// same script, so repeating a request does not disturb an editor that has it open.
+        /// </summary>
+        internal static void WriteScriptFile(string path, string script)
+        {
+            object fileLock = FileLocks.GetOrAdd(path, _ => new object());
+            lock (fileLock)
+            {
+                if (File.Exists(path)
+                    && string.Equals(File.ReadAllText(path), script, StringComparison.Ordinal))
+                {
+                    return;
+                }
+
+                File.WriteAllText(path, script);
+            }
         }
 
         #region Helper Methods
