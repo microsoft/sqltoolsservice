@@ -133,17 +133,18 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         }
 
         [Test]
-        public void UnqualifiedRequestUsesTheResolvedDatabase()
+        public void UnqualifiedRequestsInDifferentDatabasesGetSeparateShortNames()
         {
-            // The request did not name a database; the caller resolves it from the connection so
-            // that the file name matches the definition actually scripted
             Sql3PartIdentifier unqualified = Identifier(null, "dbo", "myTable");
 
             string resolvedToOne = Scripter.CreateFileName(unqualified, ServerA, "dbOne");
             string resolvedToTwo = Scripter.CreateFileName(unqualified, ServerA, "dbTwo");
 
-            Assert.AreEqual("dbOne.dbo.myTable.sql", resolvedToOne);
-            Assert.AreEqual("dbTwo.dbo.myTable.sql", resolvedToTwo);
+            Assert.AreEqual("dbo.myTable.sql", resolvedToOne);
+            Assert.AreEqual("dbo.myTable_2.sql", resolvedToTwo);
+            Assert.AreEqual(
+                resolvedToOne,
+                Scripter.CreateFileName(unqualified, ServerA, "dbOne"));
         }
 
         [Test]

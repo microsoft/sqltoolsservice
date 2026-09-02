@@ -363,17 +363,19 @@ namespace Microsoft.SqlTools.LanguageService.Scripting
         /// <param name="identifier">The object being scripted.</param>
         /// <param name="serverName">The server the object was resolved against, used only to tell
         /// apart objects that share a fully qualified name across connections.</param>
-        /// <param name="databaseName">The resolved database name, which may differ from the one on
-        /// <paramref name="identifier"/> when the request did not qualify it.</param>
+        /// <param name="resolvedDatabaseName">The resolved database name, used for identity even
+        /// when the request did not qualify the object.</param>
         internal static string CreateFileName(
             Sql3PartIdentifier identifier,
             string serverName,
-            string databaseName)
+            string resolvedDatabaseName)
         {
             List<string> nameParts = new List<string>();
-            if (!string.IsNullOrEmpty(databaseName))
+            // Preserve the previous display name: include the database only when the request
+            // explicitly qualified it. The resolved database is still part of the identity below.
+            if (!string.IsNullOrEmpty(identifier.DatabaseName))
             {
-                nameParts.Add(databaseName);
+                nameParts.Add(identifier.DatabaseName);
             }
             if (!string.IsNullOrEmpty(identifier.SchemaName))
             {
@@ -384,7 +386,7 @@ namespace Microsoft.SqlTools.LanguageService.Scripting
 
             string identity = PeekDefinitionFileNames.CreateIdentity(
                 serverName,
-                databaseName,
+                resolvedDatabaseName,
                 identifier.SchemaName,
                 identifier.ObjectName);
 
