@@ -79,21 +79,12 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
 
         private void IncludeExcludeAllDifferences(List<SchemaDifference> schemaDifferences)
         {
-            var problematicDifferences = new List<SchemaDifference>();
-            foreach (SchemaDifference difference in schemaDifferences)
-            {
-                this.Success = this.Parameters.IncludeRequest ? this.ComparisonResult.Include(difference) : this.ComparisonResult.Exclude(difference);
-
-                if (!this.Success)
-                {
-                    problematicDifferences.Add(difference);
-                }
-            }
-
-            if (problematicDifferences.Count != 0)
-            {
-                IncludeExcludeAllDifferences(problematicDifferences);
-            }
+            this.Success = SchemaCompareUtils.ApplyToAllWithRetries(
+                schemaDifferences,
+                difference => this.Parameters.IncludeRequest
+                    ? this.ComparisonResult.Include(difference)
+                    : this.ComparisonResult.Exclude(difference),
+                () => this.CancellationToken.ThrowIfCancellationRequested());
         }
 
         /// <summary>

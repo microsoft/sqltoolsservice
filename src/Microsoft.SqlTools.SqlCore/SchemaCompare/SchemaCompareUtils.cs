@@ -22,6 +22,48 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
     {
         private static readonly Regex ExcessWhitespaceRegex = new Regex(" {2,}", RegexOptions.Compiled);
 
+        /// <summary>
+        /// Applies an operation to every item, retrying failures after successful items have
+        /// changed dependency state. Stops when a pass makes no progress so permanently blocked
+        /// items cannot cause unbounded recursion.
+        /// </summary>
+        internal static bool ApplyToAllWithRetries<T>(
+            IEnumerable<T> items,
+            Func<T, bool> tryApply,
+            Action throwIfCancellationRequested = null)
+        {
+            var pendingItems = new List<T>(items);
+
+            while (pendingItems.Count > 0)
+            {
+                throwIfCancellationRequested?.Invoke();
+                var failedItems = new List<T>();
+
+                foreach (T item in pendingItems)
+                {
+                    throwIfCancellationRequested?.Invoke();
+                    if (!tryApply(item))
+                    {
+                        failedItems.Add(item);
+                    }
+                }
+
+                if (failedItems.Count == 0)
+                {
+                    return true;
+                }
+
+                if (failedItems.Count == pendingItems.Count)
+                {
+                    return false;
+                }
+
+                pendingItems = failedItems;
+            }
+
+            return true;
+        }
+
         internal static DiffEntry CreateDiffEntry(SchemaDifference difference, DiffEntry parent, SchemaComparisonResult schemaComparisonResult)
         {
             if (difference == null)
