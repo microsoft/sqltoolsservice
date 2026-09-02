@@ -1345,6 +1345,12 @@ Send the query message.
         public string Message { get; set; }
 
         /// <summary>
+        /// Absolute, zero-based location in the source document associated with this error.
+        /// Null when the message has no location in the source document.
+        /// </summary>
+        public SelectionData ErrorSelection { get; set; }
+
+        /// <summary>
         /// Constructor with default "Now" time
         /// </summary>
         public ResultMessage(string message, bool isError, int? batchId)

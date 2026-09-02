@@ -631,7 +631,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         #region Private Helpers
 
-        private async Task SendMessage(string message, bool isError)
+        private async Task SendMessage(string message, bool isError, SelectionData errorSelection = null)
         {
             // If the message event is null, this is a no-op
             if (BatchMessageSent == null)
@@ -641,7 +641,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // State that we've sent any message, and send it
             messagesSent = true;
-            await BatchMessageSent(new ResultMessage(message, isError, Id));
+            await BatchMessageSent(new ResultMessage(message, isError, Id)
+            {
+                ErrorSelection = errorSelection
+            });
         }
 
         /// <summary>
@@ -714,9 +717,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 detailedMessage = null;
             }
 
+            SelectionData errorSelection = null;
+            if (isError)
+            {
+                errorSelection = CreateErrorSelection(lineNumber, procedure);
+            }
+
             if (detailedMessage != null)
             {
-                await SendMessage(detailedMessage, isError);
+                await SendMessage(detailedMessage, isError, errorSelection);
             }
             else
             {
@@ -742,6 +751,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
 
             return lineNumber + Selection.StartLine;
+        }
+
+        private SelectionData CreateErrorSelection(int lineNumber, string procedure)
+        {
+            if (lineNumber <= 0 || !string.IsNullOrEmpty(procedure))
+            {
+                return null;
+            }
+
+            int absoluteLine = GetAbsoluteLineNumber(lineNumber) - 1;
+            return new SelectionData(absoluteLine, 0, absoluteLine, 0);
         }
 
         private string GetBatchStartLineSuffix()
@@ -787,7 +807,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         string message = string.Format("Msg {0}, Level {1}, State {2}, Line {3}{4}{5}",
                             error.Number, error.Class, error.State, lineNumber,
                             Environment.NewLine, error.Message);
-                        await SendMessage(message, true);
+                        await SendMessage(
+                            message,
+                            true,
+                            CreateErrorSelection(error.LineNumber, error.Procedure));
                     }
                 }
             }

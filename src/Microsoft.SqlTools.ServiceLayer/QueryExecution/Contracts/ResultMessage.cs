@@ -37,6 +37,13 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts
         public string Message { get; set; }
 
         /// <summary>
+        /// Absolute, zero-based location in the source document associated with this error.
+        /// This is null when the message is not an error or the error location belongs to a
+        /// different source, such as a stored procedure.
+        /// </summary>
+        public SelectionData ErrorSelection { get; set; }
+
+        /// <summary>
         /// Constructor with default "Now" time
         /// </summary>
         public ResultMessage(string message, bool isError, int? batchId)
