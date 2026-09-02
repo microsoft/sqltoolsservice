@@ -382,15 +382,36 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         }
 
         [Test]
+        public async Task ServerMessageHandlerIncludesAbsoluteErrorSelection()
+        {
+            var selection = new SelectionData(29, 0, 40, 0);
+            Batch batch = new Batch(Constants.StandardQuery, selection, Common.Ordinal, MemoryFileSystem.GetFileStreamFactory());
+            ResultMessage actualMessage = null;
+            batch.BatchMessageSent += args =>
+            {
+                actualMessage = args;
+                return Task.CompletedTask;
+            };
+
+            await batch.HandleSqlErrorMessage(102, 15, 1, 7, string.Empty, "Incorrect syntax near ','.");
+
+            Assert.IsNotNull(actualMessage.ErrorSelection);
+            Assert.AreEqual(35, actualMessage.ErrorSelection.StartLine);
+            Assert.AreEqual(0, actualMessage.ErrorSelection.StartColumn);
+            Assert.AreEqual(35, actualMessage.ErrorSelection.EndLine);
+            Assert.AreEqual(0, actualMessage.ErrorSelection.EndColumn);
+        }
+
+        [Test]
         public async Task ServerMessageHandlerShowsProcedureErrorWithBatchStartLine()
         {
             // Set up the batch to track message calls
             var selection = new SelectionData(4, 0, 6, 0);
             Batch batch = new Batch(Constants.StandardQuery, selection, Common.Ordinal, MemoryFileSystem.GetFileStreamFactory());
-            string actualMessage = null;
+            ResultMessage actualMessage = null;
             batch.BatchMessageSent += args =>
             {
-                actualMessage = args.Message;
+                actualMessage = args;
                 return Task.CompletedTask;
             };
 
@@ -401,7 +422,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             // Then the reported line should remain procedure-local and include the batch start line
             Assert.AreEqual(
                 $"Msg 1, Level 15, State 0, Procedure dbo.test_proc, Line 2 [Batch Start Line 5]{Environment.NewLine}{errorMessage}",
-                actualMessage);
+                actualMessage.Message);
+            Assert.IsNull(actualMessage.ErrorSelection);
         }
 
         [Test]

@@ -631,7 +631,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
         #region Private Helpers
 
-        private async Task SendMessage(string message, bool isError)
+        private async Task SendMessage(string message, bool isError, SelectionData errorSelection = null)
         {
             // If the message event is null, this is a no-op
             if (BatchMessageSent == null)
@@ -641,7 +641,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
             // State that we've sent any message, and send it
             messagesSent = true;
-            await BatchMessageSent(new ResultMessage(message, isError, Id));
+            await BatchMessageSent(new ResultMessage(message, isError, Id)
+            {
+                ErrorSelection = errorSelection
+            });
         }
 
         /// <summary>
@@ -714,9 +717,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 detailedMessage = null;
             }
 
+            SelectionData errorSelection = null;
+            if (isError && lineNumber > 0 && string.IsNullOrEmpty(procedure))
+            {
+                int absoluteLine = GetAbsoluteLineNumber(lineNumber) - 1;
+                errorSelection = new SelectionData(absoluteLine, 0, absoluteLine, 0);
+            }
+
             if (detailedMessage != null)
             {
-                await SendMessage(detailedMessage, isError);
+                await SendMessage(detailedMessage, isError, errorSelection);
             }
             else
             {
