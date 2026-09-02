@@ -58,6 +58,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             ConnectionService = ConnectionService.Instance;
             WorkspaceService = WorkspaceService<SqlToolsSettings>.Instance;
             Settings = new SqlToolsSettings();
+            GridSelectionSummaryResultSubsetProvider = InterServiceResultSubset;
         }
 
         internal QueryExecutionService(ConnectionService connService, WorkspaceService<SqlToolsSettings> workspaceService)
@@ -65,6 +66,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             ConnectionService = connService;
             WorkspaceService = workspaceService;
             Settings = new SqlToolsSettings();
+            GridSelectionSummaryResultSubsetProvider = InterServiceResultSubset;
         }
 
         #endregion
@@ -129,6 +131,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// to allow overriding in unit testing
         /// </summary>
         internal IFileStreamFactory InsertFileFactory { get; set; }
+
+        /// <summary>
+        /// Retrieves result subsets for grid selection summaries. Internal so tests can model
+        /// a result set that grows while a paged operation is in progress.
+        /// </summary>
+        internal Func<SubsetParams, CancellationToken, Task<ResultSetSubset>> GridSelectionSummaryResultSubsetProvider { get; set; }
 
         /// <summary>
         /// The collection of active queries
@@ -1126,14 +1134,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         cts.Token.ThrowIfCancellationRequested();
 
                         var rowsToFetch = Math.Min(pageSize, rowRange.End - pageStartRowIndex + 1);
-                        ResultSetSubset subset = await InterServiceResultSubset(new SubsetParams()
+                        ResultSetSubset subset = await GridSelectionSummaryResultSubsetProvider(new SubsetParams()
                         {
                             OwnerUri = requestParams.OwnerUri,
                             ResultSetIndex = requestParams.ResultSetIndex,
                             BatchIndex = requestParams.BatchIndex,
                             RowsStartIndex = pageStartRowIndex,
                             RowsCount = rowsToFetch
-                        });
+                        }, cts.Token);
 
                         for (int rowIndex = 0; rowIndex < subset.Rows.Length; rowIndex++)
                         {
@@ -1208,7 +1216,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                                 }
                             }
                         }
-                        pageStartRowIndex += rowsToFetch;
+                        if (subset.Rows.Length == 0)
+                        {
+                            throw new ArgumentOutOfRangeException(nameof(pageStartRowIndex), SR.QueryServiceResultSetStartRowOutOfRange);
+                        }
+                        pageStartRowIndex += subset.Rows.Length;
                     } while (pageStartRowIndex <= rowRange.End);
                 }
 
