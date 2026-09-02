@@ -322,7 +322,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
         public async Task FormatRangeShouldSkipRangeBeyondBuffer()
         {
             // Given a request whose range runs one line past this copy of the document,
-            // as happens when the buffer lags the editor's
+            // as happens when the service's buffer lags behind the editor's buffer
             SetupLanguageService();
             SetupScriptFile(defaultSqlContents);
             rangeFormatParams.Range = new Range

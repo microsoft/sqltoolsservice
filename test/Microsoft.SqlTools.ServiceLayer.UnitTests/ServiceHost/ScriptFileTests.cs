@@ -294,6 +294,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
                 "Range ending past the end of the last line is not valid");
         }
 
+        [Test]
+        public void TrailingNewlineCreatesValidEmptyFinalLine()
+        {
+            ScriptFile scriptFile = GetTestScriptFile("first\r\nsecond\r\n");
+
+            Assert.AreEqual(string.Empty, scriptFile.GetLine(3));
+            Assert.True(
+                scriptFile.IsRangeValid(new BufferRange(3, 1, 3, 1)),
+                "The empty line after a trailing newline is within the file");
+        }
+
         private void AssertFileChange(
             string initialString,
             string expectedString,
