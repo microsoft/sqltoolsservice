@@ -305,7 +305,9 @@ namespace Microsoft.SqlTools.LanguageService.Scripting
         {
             SmoScriptingOperation operation = InitScriptOperation(identifier, objectType);
             operation.Execute();
-            string script = operation.ScriptText;
+            // A missing object produces no script. Treat that the same as the empty file written
+            // by the previous implementation so the caller can return an empty location list.
+            string script = operation.ScriptText ?? string.Empty;
 
             // script file destination, resolved the same way the scripting operation resolves the
             // database so that the file name always describes the definition it holds
@@ -368,20 +370,17 @@ namespace Microsoft.SqlTools.LanguageService.Scripting
             string serverName,
             string databaseName)
         {
-            string baseFileName;
-
+            List<string> nameParts = new List<string>();
             if (!string.IsNullOrEmpty(databaseName))
             {
-                baseFileName = $"{databaseName}.{identifier.SchemaName}.{identifier.ObjectName}";
+                nameParts.Add(databaseName);
             }
-            else if (identifier.SchemaName != null)
+            if (!string.IsNullOrEmpty(identifier.SchemaName))
             {
-                baseFileName = $"{identifier.SchemaName}.{identifier.ObjectName}";
+                nameParts.Add(identifier.SchemaName);
             }
-            else
-            {
-                baseFileName = identifier.ObjectName;
-            }
+            nameParts.Add(identifier.ObjectName);
+            string baseFileName = string.Join(".", nameParts);
 
             string identity = PeekDefinitionFileNames.CreateIdentity(
                 serverName,

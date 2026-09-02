@@ -25,6 +25,18 @@ namespace Microsoft.SqlTools.LanguageService.Scripting
 
         private static readonly object SyncRoot = new object();
 
+        /// <summary>
+        /// Device names that Windows reserves even when they have a file extension.
+        /// See https://learn.microsoft.com/windows/win32/fileio/naming-a-file.
+        /// </summary>
+        private static readonly HashSet<string> WindowsReservedDeviceNames =
+            new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "CON", "PRN", "AUX", "NUL",
+                "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
+                "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"
+            };
+
         /// <summary>Object identity to the file name assigned to it.</summary>
         private static readonly Dictionary<string, string> NamesByIdentity =
             new Dictionary<string, string>(StringComparer.Ordinal);
@@ -94,9 +106,9 @@ namespace Microsoft.SqlTools.LanguageService.Scripting
         }
 
         /// <summary>
-        /// Replaces the characters that are legal in a quoted SQL identifier but not in a file
-        /// name. Two names that differ only in those characters collapse onto the same base name
-        /// and are then separated by the numeric suffix, so no definition is ever lost.
+        /// Replaces characters that are legal in a quoted SQL identifier but not in a file name,
+        /// and prefixes names reserved by Windows. Names that sanitize to the same base name are
+        /// separated by the numeric suffix, so no definition is ever lost.
         /// </summary>
         internal static string SanitizeBaseName(string baseName)
         {
@@ -107,7 +119,20 @@ namespace Microsoft.SqlTools.LanguageService.Scripting
                 sanitized.Append(Array.IndexOf(invalidCharacters, character) >= 0 ? '_' : character);
             }
 
-            return sanitized.ToString();
+            string sanitizedBaseName = sanitized.ToString();
+            int firstPeriod = sanitizedBaseName.IndexOf('.');
+            string firstNamePart = firstPeriod >= 0
+                ? sanitizedBaseName.Substring(0, firstPeriod)
+                : sanitizedBaseName;
+
+            // Windows applies device-name rules to the portion before the first period, even when
+            // the complete file name has an extension (for example, CON.sql).
+            if (WindowsReservedDeviceNames.Contains(firstNamePart.TrimEnd(' ', '.')))
+            {
+                sanitizedBaseName = "_" + sanitizedBaseName;
+            }
+
+            return sanitizedBaseName;
         }
 
         /// <summary>

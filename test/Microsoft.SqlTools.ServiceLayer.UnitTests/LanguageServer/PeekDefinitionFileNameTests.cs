@@ -163,6 +163,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         }
 
         [Test]
+        public void RequestWithADatabaseButWithoutASchemaOmitsTheSchemaSegment()
+        {
+            string name = Scripter.CreateFileName(
+                Identifier("master", null, "myTable"),
+                ServerA,
+                "master");
+
+            Assert.AreEqual("master.myTable.sql", name);
+        }
+
+        [Test]
         public void ObjectsDifferingOnlyByCaseGetSeparateFiles()
         {
             // A case sensitive collation can hold both, and sharing one file would show the wrong
@@ -181,6 +192,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 
             Assert.AreEqual(-1, name.IndexOfAny(Path.GetInvalidFileNameChars()));
             Assert.AreEqual("master.dbo.odd_name_here.sql", name);
+        }
+
+        [TestCase("CON")]
+        [TestCase("COM1")]
+        [TestCase("LPT9")]
+        public void WindowsReservedDeviceNamesArePrefixed(string objectName)
+        {
+            string name = NameFor(ServerA, null, null, objectName);
+
+            Assert.AreEqual($"_{objectName}.sql", name);
         }
 
         [Test]
