@@ -142,7 +142,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             };
             var summaryRequest = RequestContextMocks.Create<GridSelectionSummaryResponse>(null);
 
-            Assert.ThrowsAsync<InvalidOperationException>(() =>
+            Assert.ThrowsAsync<ArgumentOutOfRangeException>(() =>
                 queryService.HandleGridSelectionSummaryRequest(summaryParams, summaryRequest.Object));
         }
     }

@@ -1218,7 +1218,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         }
                         if (subset.Rows.Length == 0)
                         {
-                            throw new InvalidOperationException(SR.QueryServiceResultSetStartRowOutOfRange);
+                            throw new ArgumentOutOfRangeException(nameof(pageStartRowIndex), SR.QueryServiceResultSetStartRowOutOfRange);
                         }
                         pageStartRowIndex += subset.Rows.Length;
                     } while (pageStartRowIndex <= rowRange.End);
