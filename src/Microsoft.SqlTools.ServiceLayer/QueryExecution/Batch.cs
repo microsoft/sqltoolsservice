@@ -718,10 +718,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
 
             SelectionData errorSelection = null;
-            if (isError && lineNumber > 0 && string.IsNullOrEmpty(procedure))
+            if (isError)
             {
-                int absoluteLine = GetAbsoluteLineNumber(lineNumber) - 1;
-                errorSelection = new SelectionData(absoluteLine, 0, absoluteLine, 0);
+                errorSelection = CreateErrorSelection(lineNumber, procedure);
             }
 
             if (detailedMessage != null)
@@ -752,6 +751,17 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
 
             return lineNumber + Selection.StartLine;
+        }
+
+        private SelectionData CreateErrorSelection(int lineNumber, string procedure)
+        {
+            if (lineNumber <= 0 || !string.IsNullOrEmpty(procedure))
+            {
+                return null;
+            }
+
+            int absoluteLine = GetAbsoluteLineNumber(lineNumber) - 1;
+            return new SelectionData(absoluteLine, 0, absoluteLine, 0);
         }
 
         private string GetBatchStartLineSuffix()
@@ -797,7 +807,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                         string message = string.Format("Msg {0}, Level {1}, State {2}, Line {3}{4}{5}",
                             error.Number, error.Class, error.State, lineNumber,
                             Environment.NewLine, error.Message);
-                        await SendMessage(message, true);
+                        await SendMessage(
+                            message,
+                            true,
+                            CreateErrorSelection(error.LineNumber, error.Procedure));
                     }
                 }
             }
