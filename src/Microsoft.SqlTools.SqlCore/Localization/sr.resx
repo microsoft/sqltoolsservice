@@ -870,8 +870,8 @@
     <comment></comment>
   </data>
   <data name="NonClusteredColumnStoreIndex_LabelPart" xml:space="preserve">
-  <value>Nonclustered Columnstore</value>
-  <comment></comment>
+    <value>Nonclustered Columnstore</value>
+    <comment></comment>
   </data>
   <data name="History_LabelPart" xml:space="preserve">
     <value>History</value>
