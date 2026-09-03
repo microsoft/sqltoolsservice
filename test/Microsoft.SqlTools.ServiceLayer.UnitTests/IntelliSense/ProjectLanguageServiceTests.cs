@@ -380,6 +380,103 @@ END
         }
 
         /// <summary>
+        /// A cross-database SqlProjectReference via a DatabaseSqlCmdVariable should resolve the
+        /// referenced project's objects for both completions and Go to Definition, which uses a
+        /// separate lookup path (<c>TryGetReferencedSourceInformation</c>) from completions/hover.
+        /// </summary>
+        [Test]
+        public void CrossProjectReference_CompletionsAndGoToDefinition_ResolveReferencedProject()
+        {
+            string projectBPath = ProjectUtils.CreateTestProject("CrossRefProjectB");
+            string projectAPath = ProjectUtils.CreateTestProject("CrossRefProjectA");
+
+            var projectB = SqlProject.OpenProject(projectBPath);
+            projectB.SqlObjectScripts.Add(
+                new SqlObjectScript(Path.Combine("Tables", "SomeTable.sql")),
+                "CREATE TABLE dbo.SomeTable (Id INT PRIMARY KEY, Name NVARCHAR(100));");
+
+            var projectA = SqlProject.OpenProject(projectAPath);
+            projectA.SqlCmdVariables.Add(new SqlCmdVariable("ProjectB", "ProjectB"));
+            projectA.DatabaseReferences.Add(new SqlProjectReference(
+                projectBPath, Guid.NewGuid().ToString("B"), suppressMissingDependencies: false,
+                databaseSqlCmdVariable: projectA.SqlCmdVariables.Get("ProjectB"), serverSqlCmdVariable: null));
+
+            TSqlModel modelA = null;
+            TSqlModel modelB = null;
+            try
+            {
+                string databaseNameA = Path.GetFileNameWithoutExtension(projectAPath);
+                modelA = TSqlModelBuilder.LoadModel(projectA);
+                modelB = TSqlModelBuilder.LoadModel(projectB);
+
+                var metadataProvider = new TSqlModelMetadataProvider(modelA, databaseNameA);
+                metadataProvider.AddReferencedDatabase(modelB, "$(ProjectB)");
+
+                var parseOptions = new ParseOptions(
+                    batchSeparator: "GO",
+                    isQuotedIdentifierSet: true,
+                    compatibilityLevel: DatabaseCompatibilityLevel.Current,
+                    transactSqlVersion: TransactSqlVersion.Current);
+
+                var langService = new TSqlLanguageService();
+                var workspaceService = new WorkspaceService<SqlToolsSettings>();
+                workspaceService.Workspace = new Microsoft.SqlTools.LanguageService.Workspace.Workspace();
+                langService.WorkspaceServiceInstance = workspaceService;
+
+                string projectUri = new Uri(projectAPath).AbsoluteUri;
+                string contextKey = $"project_{projectUri}";
+
+                langService.UpdateLanguageServiceOnProjectOpen(
+                    projectUri, metadataProvider, parseOptions, databaseNameA)
+                    .GetAwaiter().GetResult();
+
+                // Completions after "[$(ProjectB)].dbo." should include SomeTable.
+                string completionUri = "file:///cross_project_completions.sql";
+                string completionQuery = "SELECT * FROM [$(ProjectB)].dbo.";
+                var completionFile = workspaceService.Workspace.GetFileBuffer(completionUri, completionQuery);
+                langService.InitializeProjectFileContexts(new[] { completionUri }, contextKey, databaseNameA);
+
+                var completionPosition = new TextDocumentPosition
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = completionUri },
+                    Position = new Position { Line = 0, Character = completionQuery.Length }
+                };
+                var completions = langService.GetCompletionItems(completionPosition, completionFile, connInfo: null)
+                                              .GetAwaiter().GetResult();
+                var completionLabels = completions?.Select(c => c.Label).ToList() ?? new System.Collections.Generic.List<string>();
+                Assert.IsTrue(completionLabels.Any(n => string.Equals(n, "SomeTable", StringComparison.OrdinalIgnoreCase)),
+                    $"Expected 'SomeTable' in completions. Got: {string.Join(", ", completionLabels.Take(20))}");
+
+                // Go to Definition on "SomeTable" should resolve to ProjectB's own SomeTable.sql.
+                string definitionUri = "file:///cross_project_definition.sql";
+                string definitionQuery = "SELECT * FROM [$(ProjectB)].dbo.SomeTable";
+                var definitionFile = workspaceService.Workspace.GetFileBuffer(definitionUri, definitionQuery);
+                langService.InitializeProjectFileContexts(new[] { definitionUri }, contextKey, databaseNameA);
+
+                var definitionPosition = new TextDocumentPosition
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = definitionUri },
+                    Position = new Position { Line = 0, Character = definitionQuery.IndexOf("SomeTable") + 2 }
+                };
+                DefinitionResult result = langService.GetDefinition(definitionPosition, definitionFile, connInfo: null);
+
+                Assert.IsNotNull(result, "Definition result should not be null");
+                Assert.IsFalse(result.IsErrorResult, $"Should not have error. Message: {result?.Message}");
+                Assert.IsNotNull(result.Locations, "Locations should not be null");
+                Assert.Greater(result.Locations.Length, 0, "Should find at least one location");
+                Assert.IsTrue(result.Locations[0].Uri.Contains("SomeTable.sql"),
+                    $"Definition should point to ProjectB's SomeTable.sql. Got: {result.Locations[0].Uri}");
+            }
+            finally
+            {
+                modelA?.Dispose();
+                modelB?.Dispose();
+                ProjectUtils.DeleteTestProject(projectAPath);
+                ProjectUtils.DeleteTestProject(projectBPath);
+            }
+        }
+
+        /// <summary>
         /// Completions after "dbo.Customers." should include column names from the model.
         /// Exercises TSqlModelTable.Columns → TSqlObject.GetReferenced(Table.Columns).
         /// </summary>

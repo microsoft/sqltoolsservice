@@ -2784,6 +2784,18 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             string candidate,
             out Microsoft.SqlServer.Dac.SourceInformation? sourceInfo)
         {
+            // If the leading segment names a registered reference database, resolve the remainder
+            // against that referenced project's own objects instead of stripping and matching
+            // locally, which could silently land on a same-named object in the wrong database.
+            int firstDot = candidate.IndexOf('.');
+            if (firstDot > 0)
+            {
+                string possibleAlias = candidate.Substring(0, firstDot);
+                string remainder = candidate.Substring(firstDot + 1);
+                if (provider.TryGetReferencedSourceInformation(possibleAlias, remainder, out sourceInfo))
+                    return true;
+            }
+
             string current = candidate;
             while (!string.IsNullOrEmpty(current))
             {

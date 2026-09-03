@@ -9,6 +9,7 @@ using Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlServer.Dac.Projects;
 using Microsoft.SqlServer.Management.SqlParser.Metadata;
 using Microsoft.SqlTools.SqlCore.IntelliSense;
+using Microsoft.SqlTools.ServiceLayer.SqlProjects;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.SqlProjects;
 using NUnit.Framework;
 
@@ -278,6 +279,104 @@ CREATE TABLE [sss].[FileTable1] (
                 model?.Dispose();
                 ProjectUtils.DeleteTestProject(projectPath);
             }
+        }
+
+        /// <summary>
+        /// A cross-database SqlProjectReference configured with a DatabaseSqlCmdVariable should
+        /// resolve the referenced project's objects under its bracketed $(Name) alias.
+        /// </summary>
+        [Test]
+        public void CrossProjectReference_ResolvesReferencedDatabase_BySqlCmdVariable()
+        {
+            string projectBPath = ProjectUtils.CreateTestProject("ProjectB_" + System.Guid.NewGuid().ToString("N"));
+            string projectAPath = ProjectUtils.CreateTestProject("ProjectA_" + System.Guid.NewGuid().ToString("N"));
+
+            var projectB = SqlProject.OpenProject(projectBPath);
+            projectB.SqlObjectScripts.Add(new SqlObjectScript(Path.Combine("Tables", "SomeTable.sql")),
+                "CREATE TABLE dbo.SomeTable (Id INT PRIMARY KEY);");
+
+            var projectA = SqlProject.OpenProject(projectAPath);
+            projectA.SqlCmdVariables.Add(new SqlCmdVariable("ProjectB", "ProjectB"));
+            var databaseVariable = projectA.SqlCmdVariables.Get("ProjectB");
+            var reference = new SqlProjectReference(
+                projectBPath, System.Guid.NewGuid().ToString("B"), suppressMissingDependencies: false,
+                databaseSqlCmdVariable: databaseVariable, serverSqlCmdVariable: null);
+            projectA.DatabaseReferences.Add(reference);
+
+            TSqlModel? modelA = null;
+            TSqlModel? modelB = null;
+            try
+            {
+                modelA = TSqlModelBuilder.LoadModel(projectA);
+                modelB = TSqlModelBuilder.LoadModel(projectB);
+
+                var providerA = new TSqlModelMetadataProvider(modelA, "ProjectA");
+
+                Assert.AreEqual(1, providerA.Server.Databases.ToList().Count,
+                    "Only the project's own database should be present before registering references");
+
+                var aliases = SqlProjectsService.GetReferenceDatabaseAliases(reference).ToList();
+                CollectionAssert.AreEqual(new[] { "$(ProjectB)" }, aliases,
+                    "A SqlCmdVariable reference should yield only the bracketed form");
+                foreach (string alias in aliases)
+                    providerA.AddReferencedDatabase(modelB, alias);
+
+                var databases = providerA.Server.Databases.ToList();
+                Assert.AreEqual(2, databases.Count, "Should expose ProjectA's database plus the $(ProjectB) alias");
+
+                foreach (string aliasName in aliases)
+                {
+                    var referencedDb = databases.FirstOrDefault(d => d.Name == aliasName);
+                    Assert.IsNotNull(referencedDb, $"Database alias '{aliasName}' should be registered");
+
+                    var dboSchema = referencedDb!.Schemas.FirstOrDefault(s => s.Name == "dbo");
+                    Assert.IsNotNull(dboSchema, $"dbo schema should be visible under alias '{aliasName}'");
+
+                    Assert.IsNotNull(dboSchema!.Tables.FirstOrDefault(t => t.Name == "SomeTable"),
+                        $"SomeTable should resolve under alias '{aliasName}'");
+                }
+            }
+            finally
+            {
+                modelA?.Dispose();
+                modelB?.Dispose();
+                ProjectUtils.DeleteTestProject(projectAPath);
+                ProjectUtils.DeleteTestProject(projectBPath);
+            }
+        }
+
+        /// <summary>
+        /// A DatabaseSqlCmdVariable reference yields only the bracketed "$(Name)" alias, never a
+        /// resolved literal, even when "Value" is set to an unevaluated MSBuild property
+        /// placeholder (the shape SDK-style projects generate for it).
+        /// </summary>
+        [Test]
+        public void GetReferenceDatabaseAliases_VariableReference_YieldsOnlyBracketedForm()
+        {
+            var databaseVariable = new SqlCmdVariable("ProjectB", defaultValue: "ProjectB", value: "$(SqlCmdVar__1)");
+            var reference = new SqlProjectReference(
+                "..\\ProjectB\\ProjectB.sqlproj", System.Guid.NewGuid().ToString("B"),
+                suppressMissingDependencies: false,
+                databaseSqlCmdVariable: databaseVariable, serverSqlCmdVariable: null);
+
+            var aliases = SqlProjectsService.GetReferenceDatabaseAliases(reference).ToList();
+
+            CollectionAssert.AreEqual(new[] { "$(ProjectB)" }, aliases);
+        }
+
+        /// <summary>
+        /// A literal database name reference yields that name as-is.
+        /// </summary>
+        [Test]
+        public void GetReferenceDatabaseAliases_LiteralReference_YieldsLiteralName()
+        {
+            var reference = new SqlProjectReference(
+                "..\\ProjectB\\ProjectB.sqlproj", System.Guid.NewGuid().ToString("B"),
+                suppressMissingDependencies: false, databaseVariableLiteralName: "ProjectB");
+
+            var aliases = SqlProjectsService.GetReferenceDatabaseAliases(reference).ToList();
+
+            CollectionAssert.AreEqual(new[] { "ProjectB" }, aliases);
         }
 
         /// <summary>

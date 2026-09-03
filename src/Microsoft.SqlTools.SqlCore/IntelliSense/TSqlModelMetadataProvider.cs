@@ -79,6 +79,13 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         // Serializes reads of _sourceLocations against concurrent UpdateForFileChange writes.
         private readonly object _sourceLock = new object();
 
+        // Maps a referenced-database alias (e.g. "ProjectB" or the bracketed "$(ProjectB)" form)
+        // to that referenced project's own source location index, kept separate from
+        // _sourceLocations so a qualified lookup resolves against the right project's objects
+        // instead of a same-named local one once the database segment is stripped.
+        private readonly Dictionary<string, Dictionary<string, SourceInformation>> _referencedSourceLocations
+            = new(StringComparer.OrdinalIgnoreCase);
+
         /// <summary>
         /// Initializes a new lazy provider from an already-loaded <paramref name="model"/>.
         /// </summary>
@@ -94,6 +101,45 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
             _fileToObjects = new Dictionary<string, HashSet<QualifiedSqlObject>>(StringComparer.OrdinalIgnoreCase);
             _duplicates = new Dictionary<string, Dictionary<string, int>>(StringComparer.OrdinalIgnoreCase);
             _sourceLocations = BuildSourceLocationIndex();
+        }
+
+        /// <summary>
+        /// Registers a referenced project's model as an additional database, visible to the
+        /// SqlParser binder under <paramref name="databaseName"/> (a reference target's literal
+        /// database name, or its bracketed <c>$(SqlCmdVariable)</c> form). Call once per alias the
+        /// reference should resolve under, before this provider is registered with the language
+        /// service's binding queue.
+        /// </summary>
+        public void AddReferencedDatabase(TSqlModel referencedModel, string databaseName)
+        {
+            if (referencedModel == null)
+                throw new ArgumentNullException(nameof(referencedModel));
+            if (string.IsNullOrEmpty(databaseName))
+                throw new ArgumentNullException(nameof(databaseName));
+
+            _server.AddReferencedDatabase(referencedModel, databaseName);
+            _referencedSourceLocations[databaseName] = BuildSourceLocationIndexForModel(referencedModel);
+        }
+
+        /// <summary>
+        /// Builds a simple qualifiedName to SourceInformation index for a referenced project's
+        /// model. Unlike <see cref="BuildSourceLocationIndex"/>, this does not populate
+        /// <see cref="_duplicates"/> or <see cref="_fileToObjects"/>, since those track
+        /// incremental edits to this project's own files, not a referenced project's.
+        /// </summary>
+        private static Dictionary<string, SourceInformation> BuildSourceLocationIndexForModel(TSqlModel model)
+        {
+            var index = new Dictionary<string, SourceInformation>(StringComparer.OrdinalIgnoreCase);
+            foreach (TSqlObject obj in model.GetObjects(DacQueryScopes.UserDefined))
+            {
+                if (obj.Name?.Parts == null)
+                    continue;
+
+                SourceInformation? sourceInfo = obj.GetSourceInformation();
+                if (sourceInfo?.SourceName != null)
+                    index[string.Join(".", obj.Name.Parts)] = sourceInfo;
+            }
+            return index;
         }
 
         /// <summary>
@@ -151,6 +197,20 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
             {
                 return _sourceLocations.TryGetValue(qualifiedName, out sourceInfo);
             }
+        }
+
+        /// <summary>
+        /// Retrieves source file information for <paramref name="qualifiedName"/> (e.g.
+        /// "dbo.Orders", without the database segment) from a specific referenced database
+        /// previously registered via <see cref="AddReferencedDatabase"/>. Returns <c>false</c>
+        /// when <paramref name="databaseAlias"/> names no registered reference.
+        /// </summary>
+        public bool TryGetReferencedSourceInformation(string databaseAlias, string qualifiedName, out SourceInformation? sourceInfo)
+        {
+            sourceInfo = null;
+            return _referencedSourceLocations.TryGetValue(databaseAlias, out var index)
+                && index.TryGetValue(qualifiedName, out sourceInfo)
+                && sourceInfo?.SourceName != null;
         }
 
         /// <summary>

@@ -52,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         /// On close: Model must be disposed; binding context and ScriptParseInfo entries
         /// must be removed using ContextKey and FileUris.
         /// </summary>
-        private ConcurrentDictionary<string, (TSqlModel Model, TSqlModelMetadataProvider Provider, string ContextKey, string DatabaseName, HashSet<string> FileUris, ParseOptions ParseOptions)> projectIntelliSense = new(StringComparer.OrdinalIgnoreCase);
+        private ConcurrentDictionary<string, (TSqlModel Model, TSqlModelMetadataProvider Provider, string ContextKey, string DatabaseName, HashSet<string> FileUris, ParseOptions ParseOptions, IReadOnlyList<TSqlModel> ReferencedModels)> projectIntelliSense = new(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Monotonically-increasing generation counter per project URI.
@@ -168,6 +168,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                         intelliSense.ContextKey,
                         intelliSense.FileUris);
                     intelliSense.Model?.Dispose();
+                    foreach (TSqlModel referencedModel in intelliSense.ReferencedModels ?? Array.Empty<TSqlModel>())
+                        referencedModel.Dispose();
                 }
             }, requestContext);
         }
@@ -184,6 +186,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         private async Task BuildProjectIntelliSenseAsync(string projectUri, int generation)
         {
             TSqlModel? model = null;
+            var referencedModels = new List<TSqlModel>();
             try
             {
                 SqlProject project = GetProject(projectUri);
@@ -231,6 +234,36 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
                 var projectMetadataProvider = new TSqlModelMetadataProvider(model, databaseName);
 
+                // Wire each direct <ProjectReference> target into live IntelliSense the way
+                // `dotnet build` already resolves it via DacFx, by registering it as an additional
+                // database (see GetReferenceDatabaseAliases). A target's own references are not
+                // followed transitively, and a same-database reference (no alias) is out of scope.
+                foreach (SqlProjectReference reference in project.DatabaseReferences.OfType<SqlProjectReference>())
+                {
+                    TSqlModel? referencedModel = null;
+                    try
+                    {
+                        string referencedProjectPath = ResolveReferencedPath(projectDir, reference.ProjectPath);
+                        if (!File.Exists(referencedProjectPath))
+                            continue; // Missing dependency; build-side SuppressMissingDependenciesErrors is similarly lenient.
+
+                        var aliases = GetReferenceDatabaseAliases(reference).ToList();
+                        if (aliases.Count == 0)
+                            continue;
+
+                        SqlProject referencedProject = SqlProject.OpenProject(referencedProjectPath);
+                        referencedModel = await Task.Run(() => TSqlModelBuilder.LoadModel(referencedProject));
+                        referencedModels.Add(referencedModel);
+                        foreach (string alias in aliases)
+                            projectMetadataProvider.AddReferencedDatabase(referencedModel, alias);
+                    }
+                    catch (Exception ex)
+                    {
+                        referencedModel?.Dispose();
+                        Logger.Error($"Failed to load referenced project '{reference.ProjectPath}' for IntelliSense in project {projectUri}: {ex}");
+                    }
+                }
+
                 var parseOptions = new ParseOptions(
                     batchSeparator: TSqlLanguageService.DefaultBatchSeperator,
                     isQuotedIdentifierSet: true,
@@ -238,7 +271,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     transactSqlVersion: TransactSqlVersion.Current);
 
                 // Store everything needed for full teardown on project close.
-                projectIntelliSense[projectUri] = (model, projectMetadataProvider, contextKey, databaseName, fileUriList, parseOptions);
+                projectIntelliSense[projectUri] = (model, projectMetadataProvider, contextKey, databaseName, fileUriList, parseOptions, referencedModels);
 
                 // Gate 2: before registering the binding context — verify we are still the owner.
                 // (Close may have run between Gate 1 and here.)
@@ -246,6 +279,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 {
                     projectIntelliSense.TryRemove(projectUri, out _);
                     model.Dispose();
+                    foreach (TSqlModel referencedModel in referencedModels)
+                        referencedModel.Dispose();
                     return;
                 }
 
@@ -256,6 +291,36 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             {
                 Logger.Error($"Failed to build IntelliSense model for project {projectUri}: {ex}");
                 model?.Dispose();
+                foreach (TSqlModel referencedModel in referencedModels)
+                    referencedModel.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Resolves a &lt;ProjectReference&gt; path (always stored relative, with Windows
+        /// backslashes) to an absolute path, matching the normalisation used for script paths.
+        /// </summary>
+        private static string ResolveReferencedPath(string projectDir, string relativeOrAbsolutePath)
+        {
+            string norm = relativeOrAbsolutePath.Replace('\\', Path.DirectorySeparatorChar);
+            return Path.IsPathRooted(norm) ? norm : Path.GetFullPath(Path.Combine(projectDir, norm));
+        }
+
+        /// <summary>
+        /// Returns the alias a reference's target should resolve under, matching SSDT: a literal
+        /// database name is used as-is, while a DatabaseSqlCmdVariable resolves only through its
+        /// bracketed <c>$(Name)</c> form, never a resolved value, since the value isn't fixed
+        /// until publish time.
+        /// </summary>
+        internal static IEnumerable<string> GetReferenceDatabaseAliases(SqlProjectReference reference)
+        {
+            if (!string.IsNullOrEmpty(reference.DatabaseVariableLiteralName))
+            {
+                yield return reference.DatabaseVariableLiteralName;
+            }
+            else if (reference.DatabaseVariable != null)
+            {
+                yield return $"$({reference.DatabaseVariable.Name})";
             }
         }
 
