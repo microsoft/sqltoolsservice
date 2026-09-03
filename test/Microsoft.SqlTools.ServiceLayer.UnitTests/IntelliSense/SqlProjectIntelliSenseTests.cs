@@ -3,14 +3,19 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlServer.Dac.Projects;
 using Microsoft.SqlServer.Management.SqlParser.Metadata;
 using Microsoft.SqlTools.SqlCore.IntelliSense;
 using Microsoft.SqlTools.ServiceLayer.SqlProjects;
+using Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.SqlProjects;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.IntelliSense
@@ -377,6 +382,78 @@ CREATE TABLE [sss].[FileTable1] (
             var aliases = SqlProjectsService.GetReferenceDatabaseAliases(reference).ToList();
 
             CollectionAssert.AreEqual(new[] { "ProjectB" }, aliases);
+        }
+
+        /// <summary>
+        /// Adding a project reference to an already-open project should refresh its live
+        /// IntelliSense so the reference resolves immediately, without closing and reopening.
+        /// </summary>
+        [Test]
+        public async Task AddSqlProjectReference_ToOpenProject_RefreshesLiveIntelliSense()
+        {
+            string projectBPath = ProjectUtils.CreateTestProject("RefreshProjectB_" + Guid.NewGuid().ToString("N"));
+            var projectB = SqlProject.OpenProject(projectBPath);
+            projectB.SqlObjectScripts.Add(new SqlObjectScript(Path.Combine("Tables", "SomeTable.sql")),
+                "CREATE TABLE dbo.SomeTable (Id INT PRIMARY KEY);");
+
+            var service = new SqlProjectsService();
+            string projectAPath = ProjectUtils.CreateTestProject("RefreshProjectA_" + Guid.NewGuid().ToString("N"));
+            // SqlProjectsService's "ProjectUri" is a plain filesystem path (GetProject passes it
+            // straight to SqlProject.OpenProject), unlike TSqlLanguageService's real file:// URIs.
+            string projectUri = projectAPath;
+
+            try
+            {
+                var openRequest = new MockRequest<ResultStatus>();
+                await service.HandleOpenSqlProjectRequest(new SqlProjectParams { ProjectUri = projectUri }, openRequest.Object);
+                await WaitUntilAsync(() => service.TryGetProvider(projectUri, out _));
+
+                service.Projects[projectUri].SqlCmdVariables.Add(new SqlCmdVariable("ProjectB", "ProjectB"));
+
+                service.TryGetProvider(projectUri, out var beforeProvider);
+                Assert.AreEqual(1, beforeProvider!.Server.Databases.ToList().Count,
+                    "Only the project's own database should be present before adding the reference");
+
+                var addRequest = new MockRequest<ResultStatus>();
+                await service.HandleAddSqlProjectReferenceRequest(new AddSqlProjectReferenceParams
+                {
+                    ProjectUri = projectUri,
+                    ProjectPath = projectBPath,
+                    SuppressMissingDependencies = false,
+                    DatabaseVariable = "ProjectB"
+                }, addRequest.Object);
+                addRequest.AssertSuccess(nameof(service.HandleAddSqlProjectReferenceRequest));
+
+                await WaitUntilAsync(() =>
+                    service.TryGetProvider(projectUri, out var p) && p!.Server.Databases.ToList().Count > 1);
+
+                service.TryGetProvider(projectUri, out var afterProvider);
+                var referencedDb = afterProvider!.Server.Databases.ToList().FirstOrDefault(d => d.Name == "$(ProjectB)");
+                Assert.IsNotNull(referencedDb, "The newly added reference should be resolvable without reopening the project");
+
+                var someTable = referencedDb!.Schemas.FirstOrDefault(s => s.Name == "dbo")?.Tables.FirstOrDefault(t => t.Name == "SomeTable");
+                Assert.IsNotNull(someTable, "SomeTable should resolve through the newly added reference");
+            }
+            finally
+            {
+                ProjectUtils.DeleteTestProject(projectAPath);
+                ProjectUtils.DeleteTestProject(projectBPath);
+            }
+        }
+
+        /// <summary>
+        /// Polls <paramref name="condition"/> until it's true or a 5-second timeout elapses, for
+        /// asserting on the result of a fire-and-forget background IntelliSense build.
+        /// </summary>
+        private static async Task WaitUntilAsync(Func<bool> condition)
+        {
+            DateTime deadline = DateTime.UtcNow.AddSeconds(5);
+            while (!condition())
+            {
+                if (DateTime.UtcNow > deadline)
+                    Assert.Fail("Timed out waiting for the background IntelliSense build to complete");
+                await Task.Delay(20);
+            }
         }
 
         /// <summary>

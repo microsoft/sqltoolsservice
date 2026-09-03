@@ -157,21 +157,40 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 projectGenerations.AddOrUpdate(
                     requestParams.ProjectUri, 1, (_, prev) => prev + 1);
 
-                // Full IntelliSense teardown:
-                // 1. Remove binding context from the queue (releases MetadataProvider + _sourceLocations)
-                // 2. Remove ScriptParseInfo for all .sql files and the .sqlproj itself
-                // 3. Dispose TSqlModel to free DacFx unmanaged resources
-                if (projectIntelliSense.TryRemove(requestParams.ProjectUri, out var intelliSense))
-                {
-                    TSqlLanguageService.Instance.TearDownProjectContext(
-                        requestParams.ProjectUri,
-                        intelliSense.ContextKey,
-                        intelliSense.FileUris);
-                    intelliSense.Model?.Dispose();
-                    foreach (TSqlModel referencedModel in intelliSense.ReferencedModels ?? Array.Empty<TSqlModel>())
-                        referencedModel.Dispose();
-                }
+                TearDownProjectIntelliSense(requestParams.ProjectUri);
             }, requestContext);
+        }
+
+        /// <summary>
+        /// Full IntelliSense teardown for <paramref name="projectUri"/> if it is currently open:
+        /// removes the binding context from the queue (releasing the MetadataProvider and its
+        /// source locations), removes ScriptParseInfo for all .sql files and the .sqlproj itself,
+        /// and disposes the TSqlModel(s) to free DacFx unmanaged resources. Returns <c>false</c>
+        /// with no effect if the project isn't currently open.
+        /// </summary>
+        private bool TearDownProjectIntelliSense(string projectUri)
+        {
+            if (!projectIntelliSense.TryRemove(projectUri, out var intelliSense))
+                return false;
+
+            TSqlLanguageService.Instance.TearDownProjectContext(
+                projectUri, intelliSense.ContextKey, intelliSense.FileUris);
+            intelliSense.Model?.Dispose();
+            foreach (TSqlModel referencedModel in intelliSense.ReferencedModels ?? Array.Empty<TSqlModel>())
+                referencedModel.Dispose();
+            return true;
+        }
+
+        /// <summary>
+        /// Rebuilds live IntelliSense for <paramref name="projectUri"/> if it is currently open,
+        /// so a database reference added or removed while the project is open takes effect
+        /// without requiring the user to close and reopen it.
+        /// </summary>
+        private void RefreshProjectIntelliSenseIfOpen(string projectUri)
+        {
+            int generation = projectGenerations.AddOrUpdate(projectUri, 1, (_, prev) => prev + 1);
+            if (TearDownProjectIntelliSense(projectUri))
+                _ = Task.Run(() => BuildProjectIntelliSenseAsync(projectUri, generation));
         }
 
         /// <summary>
@@ -966,6 +985,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 }
 
                 project.DatabaseReferences.Add(reference);
+                RefreshProjectIntelliSenseIfOpen(requestParams.ProjectUri);
             }, requestContext);
         }
 
@@ -1007,7 +1027,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
         internal async Task HandleDeleteDatabaseReferenceRequest(DeleteDatabaseReferenceParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri, onlyLoadProperties: true).DatabaseReferences.Delete(requestParams.Name), requestContext);
+            await RunWithErrorHandling(() =>
+            {
+                GetProject(requestParams.ProjectUri, onlyLoadProperties: true).DatabaseReferences.Delete(requestParams.Name);
+                RefreshProjectIntelliSenseIfOpen(requestParams.ProjectUri);
+            }, requestContext);
         }
 
         #endregion
