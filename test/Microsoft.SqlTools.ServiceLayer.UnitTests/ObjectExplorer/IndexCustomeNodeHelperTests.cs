@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         [Test]
         public void BuildIndexLabelShouldReturnClusteredColumnstoreLabel()
         {
-            string label = IndexCustomeNodeHelper.BuildIndexLabel("IX_Test_CS", isUnique: false, isClustered: true, IndexType.ClusteredColumnStoreIndex);
+            string label = IndexCustomeNodeHelper.BuildIndexLabel("IX_Test_CS", isUnique: false, isClustered: true, indexType: IndexType.ClusteredColumnStoreIndex);
             Assert.That(label, Is.EqualTo("IX_Test_CS (Non-Unique, Clustered Columnstore)"));
         }
 
