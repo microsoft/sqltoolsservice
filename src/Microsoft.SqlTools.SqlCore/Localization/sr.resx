@@ -866,8 +866,8 @@
     <comment></comment>
   </data>
   <data name="ClusteredColumnStoreIndex_LabelPart" xml:space="preserve">
-  <value>Clustered Columnstore</value>
-  <comment></comment>
+    <value>Clustered Columnstore</value>
+    <comment></comment>
   </data>
   <data name="NonClusteredColumnStoreIndex_LabelPart" xml:space="preserve">
   <value>Nonclustered Columnstore</value>
