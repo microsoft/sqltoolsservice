@@ -436,6 +436,8 @@ CREATE TABLE [sss].[FileTable1] (
             }
             finally
             {
+                var closeRequest = new MockRequest<ResultStatus>();
+                await service.HandleCloseSqlProjectRequest(new SqlProjectParams { ProjectUri = projectUri }, closeRequest.Object);
                 ProjectUtils.DeleteTestProject(projectAPath);
                 ProjectUtils.DeleteTestProject(projectBPath);
             }
