@@ -23,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         [Test]
         public void BuildIndexLabelShouldReturnNonClusteredColumnstoreLabel()
         {
-            string label = IndexCustomeNodeHelper.BuildIndexLabel("IX_Test_NCCS", isUnique: false, isClustered: false, IndexType.NonClusteredColumnStoreIndex);
+            string label = IndexCustomeNodeHelper.BuildIndexLabel("IX_Test_NCCS", isUnique: false, isClustered: false, indexType: IndexType.NonClusteredColumnStoreIndex);
             Assert.That(label, Is.EqualTo("IX_Test_NCCS (Non-Unique, Nonclustered Columnstore)"));
         }
 
