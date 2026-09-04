@@ -63,6 +63,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         private ConcurrentDictionary<string, int> projectGenerations = new(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
+        /// Tracks project URIs that are currently open, independent of whether their initial
+        /// IntelliSense build has finished.
+        /// </summary>
+        private ConcurrentDictionary<string, bool> openProjectUris = new(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
         /// Initializes the service instance
         /// </summary>
         /// <param name="serviceHost"></param>
@@ -140,6 +146,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             // then capture the new generation into the background task as its ownership token.
             int generation = projectGenerations.AddOrUpdate(
                 requestParams.ProjectUri, 1, (_, prev) => prev + 1);
+            openProjectUris[requestParams.ProjectUri] = true;
             // Kick off async IntelliSense model build so .sql files in this project get completions
             // without a live server connection. Fire-and-forget: errors are logged inside.
             _ = Task.Run(() => BuildProjectIntelliSenseAsync(requestParams.ProjectUri, generation));
@@ -150,6 +157,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             await RunWithErrorHandling(() =>
             {
                 Projects.TryRemove(requestParams.ProjectUri, out _);
+                openProjectUris.TryRemove(requestParams.ProjectUri, out _);
 
                 // Bump the generation to invalidate any in-flight IntelliSense build.
                 // The background task checks this at each commit point and will discard
@@ -182,14 +190,16 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         }
 
         /// <summary>
-        /// Rebuilds live IntelliSense for <paramref name="projectUri"/> if it is currently open,
-        /// so a database reference added or removed while the project is open takes effect
-        /// without requiring the user to close and reopen it.
+        /// Rebuilds live IntelliSense for <paramref name="projectUri"/> if it is open, so a
+        /// reference change takes effect without closing and reopening. Checks
+        /// <see cref="openProjectUris"/> rather than whether a build already finished, so a change
+        /// during the initial build still gets a replacement.
         /// </summary>
         private void RefreshProjectIntelliSenseIfOpen(string projectUri)
         {
             int generation = projectGenerations.AddOrUpdate(projectUri, 1, (_, prev) => prev + 1);
-            if (TearDownProjectIntelliSense(projectUri))
+            TearDownProjectIntelliSense(projectUri);
+            if (openProjectUris.ContainsKey(projectUri))
                 _ = Task.Run(() => BuildProjectIntelliSenseAsync(projectUri, generation));
         }
 

@@ -510,6 +510,60 @@ CREATE TABLE [sss].[FileTable1] (
         }
 
         /// <summary>
+        /// Adding a reference while a project's initial IntelliSense build is still in flight must
+        /// still trigger a rebuild that reflects it.
+        /// </summary>
+        [Test]
+        public async Task AddSqlProjectReference_WhileInitialBuildInFlight_StillRefreshesLiveIntelliSense()
+        {
+            string projectBPath = ProjectUtils.CreateTestProject("RaceProjectB_" + Guid.NewGuid().ToString("N"));
+            var projectB = SqlProject.OpenProject(projectBPath);
+            projectB.SqlObjectScripts.Add(new SqlObjectScript(Path.Combine("Tables", "SomeTable.sql")),
+                "CREATE TABLE dbo.SomeTable (Id INT PRIMARY KEY);");
+
+            var service = new SqlProjectsService();
+            string projectAPath = ProjectUtils.CreateTestProject("RaceProjectA_" + Guid.NewGuid().ToString("N"));
+            string projectUri = projectAPath;
+
+            try
+            {
+                var openRequest = new MockRequest<ResultStatus>();
+                await service.HandleOpenSqlProjectRequest(new SqlProjectParams { ProjectUri = projectUri }, openRequest.Object);
+
+                // Add the reference before the initial build finishes, to hit the race.
+                service.Projects[projectUri].SqlCmdVariables.Add(new SqlCmdVariable("ProjectB", "ProjectB"));
+
+                var addRequest = new MockRequest<ResultStatus>();
+                await service.HandleAddSqlProjectReferenceRequest(new AddSqlProjectReferenceParams
+                {
+                    ProjectUri = projectUri,
+                    ProjectPath = projectBPath,
+                    SuppressMissingDependencies = false,
+                    DatabaseVariable = "ProjectB"
+                }, addRequest.Object);
+                addRequest.AssertSuccess(nameof(service.HandleAddSqlProjectReferenceRequest));
+
+                await WaitUntilAsync(() =>
+                    service.TryGetProvider(projectUri, out var p) && p!.Server.Databases.ToList().Count > 1);
+
+                service.TryGetProvider(projectUri, out var provider);
+                var referencedDb = provider!.Server.Databases.ToList().FirstOrDefault(d => d.Name == "$(ProjectB)");
+                Assert.IsNotNull(referencedDb, "The reference added during the initial build should still resolve");
+
+                var someTable = referencedDb!.Schemas.FirstOrDefault(s => s.Name == "dbo")?.Tables.FirstOrDefault(t => t.Name == "SomeTable");
+                Assert.IsNotNull(someTable, "SomeTable should resolve through the reference added during the race");
+            }
+            finally
+            {
+                var closeRequest = new MockRequest<ResultStatus>();
+                await service.HandleCloseSqlProjectRequest(new SqlProjectParams { ProjectUri = projectUri }, closeRequest.Object);
+                closeRequest.AssertSuccess(nameof(service.HandleCloseSqlProjectRequest));
+                ProjectUtils.DeleteTestProject(projectAPath);
+                ProjectUtils.DeleteTestProject(projectBPath);
+            }
+        }
+
+        /// <summary>
         /// Polls <paramref name="condition"/> until it's true or a 5-second timeout elapses, for
         /// asserting on the result of a fire-and-forget background IntelliSense build.
         /// </summary>
