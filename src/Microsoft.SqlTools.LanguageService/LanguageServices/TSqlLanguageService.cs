@@ -2784,6 +2784,8 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             string candidate,
             out Microsoft.SqlServer.Dac.SourceInformation? sourceInfo)
         {
+            candidate = UnquoteQualifiedName(candidate);
+
             // If the leading segment names a registered reference database, resolve the remainder
             // against that referenced project's own objects instead of stripping and matching
             // locally, which could silently land on a same-named object in the wrong database.
@@ -2807,6 +2809,31 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             }
             sourceInfo = null;
             return false;
+        }
+
+        /// <summary>
+        /// Strips bracket quoting from each dot-delimited part of <paramref name="qualifiedName"/>,
+        /// ignoring dots inside brackets. Source-location keys are stored unbracketed, but names
+        /// reaching here (e.g. from Resolver.FindCompletions) may still be bracket-quoted.
+        /// </summary>
+        internal static string UnquoteQualifiedName(string qualifiedName)
+        {
+            var parts = new List<string>();
+            int start = 0;
+            bool inBracket = false;
+            for (int i = 0; i < qualifiedName.Length; i++)
+            {
+                char c = qualifiedName[i];
+                if (c == '[') inBracket = true;
+                else if (c == ']') inBracket = false;
+                else if (c == '.' && !inBracket)
+                {
+                    parts.Add(qualifiedName.Substring(start, i - start));
+                    start = i + 1;
+                }
+            }
+            parts.Add(qualifiedName.Substring(start));
+            return string.Join(".", parts.Select(p => p.Trim('[', ']')));
         }
 
         /// <summary>

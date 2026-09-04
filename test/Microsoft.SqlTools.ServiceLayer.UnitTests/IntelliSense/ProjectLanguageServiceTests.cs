@@ -380,6 +380,20 @@ END
         }
 
         /// <summary>
+        /// UnquoteQualifiedName strips bracket quoting from each dot-delimited part, ignoring
+        /// dots inside brackets, so a bracket-quoted candidate (e.g. from Resolver.FindCompletions)
+        /// still matches the unbracketed keys the source-location index stores.
+        /// </summary>
+        [TestCase("dbo.Customers", "dbo.Customers")]
+        [TestCase("[dbo].[Customers]", "dbo.Customers")]
+        [TestCase("[$(ProjectB)].[dbo].[SomeTable]", "$(ProjectB).dbo.SomeTable")]
+        [TestCase("[SwaggerPetstore.Models].[Get0ItemsItem]", "SwaggerPetstore.Models.Get0ItemsItem")]
+        public void UnquoteQualifiedName_StripsBracketsPerSegment(string qualifiedName, string expected)
+        {
+            Assert.AreEqual(expected, TSqlLanguageService.UnquoteQualifiedName(qualifiedName));
+        }
+
+        /// <summary>
         /// A cross-database SqlProjectReference via a DatabaseSqlCmdVariable should resolve the
         /// referenced project's objects for both completions and Go to Definition, which uses a
         /// separate lookup path (<c>TryGetReferencedSourceInformation</c>) from completions/hover.
