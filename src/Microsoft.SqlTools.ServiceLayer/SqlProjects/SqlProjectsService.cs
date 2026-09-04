@@ -216,6 +216,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         {
             TSqlModel? model = null;
             var referencedModels = new List<TSqlModel>();
+            bool stored = false;
             try
             {
                 SqlProject project = GetProject(projectUri);
@@ -309,15 +310,19 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
                 // Store everything needed for full teardown on project close.
                 projectIntelliSense[projectUri] = (model, projectMetadataProvider, contextKey, databaseName, fileUriList, parseOptions, referencedModels);
+                stored = true;
 
                 // Gate 2: before registering the binding context — verify we are still the owner.
-                // (Close may have run between Gate 1 and here.)
+                // (Close may have run between Gate 1 and here.) Only dispose if we actually won
+                // the removal, in case a concurrent close/refresh already disposed the same models.
                 if (!IsCurrentGeneration(projectUri, generation))
                 {
-                    projectIntelliSense.TryRemove(projectUri, out _);
-                    model.Dispose();
-                    foreach (TSqlModel referencedModel in referencedModels)
-                        referencedModel.Dispose();
+                    if (projectIntelliSense.TryRemove(projectUri, out _))
+                    {
+                        model.Dispose();
+                        foreach (TSqlModel referencedModel in referencedModels)
+                            referencedModel.Dispose();
+                    }
                     return;
                 }
 
@@ -327,9 +332,15 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             catch (Exception ex)
             {
                 Logger.Error($"Failed to build IntelliSense model for project {projectUri}: {ex}");
-                model?.Dispose();
-                foreach (TSqlModel referencedModel in referencedModels)
-                    referencedModel.Dispose();
+
+                // Undo the store above if it happened, same double-dispose guard as Gate 2.
+                // If it never happened, these models are still only ours to dispose.
+                if (!stored || projectIntelliSense.TryRemove(projectUri, out _))
+                {
+                    model?.Dispose();
+                    foreach (TSqlModel referencedModel in referencedModels)
+                        referencedModel.Dispose();
+                }
             }
         }
 
