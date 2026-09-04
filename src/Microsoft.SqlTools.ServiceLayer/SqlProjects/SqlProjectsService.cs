@@ -281,7 +281,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                         if (!File.Exists(referencedProjectPath))
                             continue; // Missing dependency; build-side SuppressMissingDependenciesErrors is similarly lenient.
 
-                        var aliases = GetReferenceDatabaseAliases(reference).ToList();
+                        var aliases = GetReferenceDatabaseAliases(reference)
+                            .Where(a => !string.Equals(a, databaseName, StringComparison.OrdinalIgnoreCase))
+                            .Distinct(StringComparer.OrdinalIgnoreCase)
+                            .ToList();
                         if (aliases.Count == 0)
                             continue;
 
