@@ -110,7 +110,7 @@ END
 
             // Set up project context
             _projectUri = new Uri(_projectPath).AbsoluteUri;
-            _contextKey = $"project_{_projectUri}";
+            _contextKey = $"{TSqlLanguageService.ProjectContextKeyPrefix}{_projectUri}";
 
             // Call UpdateLanguageServiceOnProjectOpen
             _langService.UpdateLanguageServiceOnProjectOpen(
@@ -338,7 +338,7 @@ END
                 langService.WorkspaceServiceInstance = workspaceService;
 
                 string projectUri = new Uri(projectPath).AbsoluteUri;
-                string contextKey = $"project_{projectUri}";
+                string contextKey = $"{TSqlLanguageService.ProjectContextKeyPrefix}{projectUri}";
 
                 langService.UpdateLanguageServiceOnProjectOpen(
                     projectUri, metadataProvider, parseOptions, databaseName)
@@ -439,7 +439,7 @@ END
                 langService.WorkspaceServiceInstance = workspaceService;
 
                 string projectUri = new Uri(projectAPath).AbsoluteUri;
-                string contextKey = $"project_{projectUri}";
+                string contextKey = $"{TSqlLanguageService.ProjectContextKeyPrefix}{projectUri}";
 
                 langService.UpdateLanguageServiceOnProjectOpen(
                     projectUri, metadataProvider, parseOptions, databaseNameA)
@@ -655,8 +655,8 @@ END
             var parseInfo = _langService.GetScriptParseInfo(_projectUri);
             Assert.IsNotNull(parseInfo);
             string originalKey = parseInfo.ConnectionKey;
-            Assert.IsTrue(originalKey.StartsWith("project_", StringComparison.Ordinal),
-                "Key should start with 'project_' before any connection attempt");
+            Assert.IsTrue(originalKey.StartsWith(TSqlLanguageService.ProjectContextKeyPrefix, StringComparison.Ordinal),
+                "Key should start with the project context key prefix before any connection attempt");
 
             // Act: simulate what UpdateLanguageServiceOnConnection does — it should bail out early
             // because IsProjectContext returns true (the OwnerUri already has a project_ key).
@@ -1345,7 +1345,7 @@ END
             _langService.WorkspaceServiceInstance = _workspaceService;
 
             _projectUri = new Uri(_projectPath).AbsoluteUri;
-            _contextKey = $"project_{_projectUri}";
+            _contextKey = $"{TSqlLanguageService.ProjectContextKeyPrefix}{_projectUri}";
 
             _langService.UpdateLanguageServiceOnProjectOpen(
                 _projectUri, metadataProvider, parseOptions, _databaseName)
@@ -1775,7 +1775,7 @@ END
             _langService.WorkspaceServiceInstance = _workspaceService;
 
             _projectUri = new Uri(_projectPath).AbsoluteUri;
-            _contextKey = $"project_{_projectUri}";
+            _contextKey = $"{TSqlLanguageService.ProjectContextKeyPrefix}{_projectUri}";
 
             _langService.UpdateLanguageServiceOnProjectOpen(
                 _projectUri, metadataProvider, parseOptions, _databaseName)
