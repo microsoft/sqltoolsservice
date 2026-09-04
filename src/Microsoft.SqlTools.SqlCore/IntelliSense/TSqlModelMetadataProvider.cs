@@ -117,8 +117,12 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
             if (string.IsNullOrEmpty(databaseName))
                 throw new ArgumentNullException(nameof(databaseName));
 
-            _server.AddReferencedDatabase(referencedModel, databaseName);
-            _referencedSourceLocations[databaseName] = BuildSourceLocationIndexForModel(referencedModel);
+            // Only index source locations under databaseName if the server actually registered
+            // it (it declines a name colliding with the primary database), so this stays in sync
+            // with what Databases exposes instead of resolving Go to Definition into a database
+            // completions can't see.
+            if (_server.AddReferencedDatabase(referencedModel, databaseName))
+                _referencedSourceLocations[databaseName] = BuildSourceLocationIndexForModel(referencedModel);
         }
 
         /// <summary>

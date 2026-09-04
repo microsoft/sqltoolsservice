@@ -385,6 +385,71 @@ CREATE TABLE [sss].[FileTable1] (
         }
 
         /// <summary>
+        /// An alias that collides with the primary database's own name should not be registered.
+        /// Registering the same alias twice should replace the earlier entry, not duplicate it.
+        /// </summary>
+        [Test]
+        public void AddReferencedDatabase_AvoidsPrimaryCollisionAndDuplicateAliases()
+        {
+            string projectAPath = ProjectUtils.CreateTestProject("DedupProjectA_" + System.Guid.NewGuid().ToString("N"));
+            string projectBPath = ProjectUtils.CreateTestProject("DedupProjectB_" + System.Guid.NewGuid().ToString("N"));
+            string projectCPath = ProjectUtils.CreateTestProject("DedupProjectC_" + System.Guid.NewGuid().ToString("N"));
+
+            var projectA = SqlProject.OpenProject(projectAPath);
+            var projectB = SqlProject.OpenProject(projectBPath);
+            projectB.SqlObjectScripts.Add(new SqlObjectScript(Path.Combine("Tables", "TableFromB.sql")),
+                "CREATE TABLE dbo.TableFromB (Id INT PRIMARY KEY);");
+            var projectC = SqlProject.OpenProject(projectCPath);
+            projectC.SqlObjectScripts.Add(new SqlObjectScript(Path.Combine("Tables", "TableFromC.sql")),
+                "CREATE TABLE dbo.TableFromC (Id INT PRIMARY KEY);");
+
+            TSqlModel? modelA = null;
+            TSqlModel? modelB = null;
+            TSqlModel? modelC = null;
+            try
+            {
+                modelA = TSqlModelBuilder.LoadModel(projectA);
+                modelB = TSqlModelBuilder.LoadModel(projectB);
+                modelC = TSqlModelBuilder.LoadModel(projectC);
+
+                var provider = new TSqlModelMetadataProvider(modelA, "ProjectA");
+
+                provider.AddReferencedDatabase(modelB, "ProjectA");
+                Assert.AreEqual(1, provider.Server.Databases.ToList().Count,
+                    "A reference alias matching the primary database's name should not be registered");
+
+                provider.AddReferencedDatabase(modelB, "Shared");
+                provider.AddReferencedDatabase(modelC, "Shared");
+
+                var databases = provider.Server.Databases.ToList();
+                Assert.AreEqual(2, databases.Count, "A repeated alias should replace, not duplicate");
+
+                var sharedDb = databases.FirstOrDefault(d => d.Name == "Shared");
+                Assert.IsNotNull(sharedDb, "The 'Shared' alias should be registered");
+
+                var sharedSchema = sharedDb!.Schemas.FirstOrDefault(s => s.Name == "dbo");
+                Assert.IsNotNull(sharedSchema!.Tables.FirstOrDefault(t => t.Name == "TableFromC"),
+                    "The later registration should win over the earlier one under the same alias");
+                Assert.IsNull(sharedSchema.Tables.FirstOrDefault(t => t.Name == "TableFromB"),
+                    "The earlier registration should no longer be reachable under the shared alias");
+
+                Assert.IsTrue(provider.TryGetReferencedSourceInformation("Shared", "dbo.TableFromC", out _),
+                    "Source-location lookup should also reflect the later registration");
+                Assert.IsFalse(provider.TryGetReferencedSourceInformation("Shared", "dbo.TableFromB", out _),
+                    "Source-location lookup should not still point at the replaced registration");
+            }
+            finally
+            {
+                modelA?.Dispose();
+                modelB?.Dispose();
+                modelC?.Dispose();
+                ProjectUtils.DeleteTestProject(projectAPath);
+                ProjectUtils.DeleteTestProject(projectBPath);
+                ProjectUtils.DeleteTestProject(projectCPath);
+            }
+        }
+
+        /// <summary>
         /// Adding a project reference to an already-open project should refresh its live
         /// IntelliSense so the reference resolves immediately, without closing and reopening.
         /// </summary>

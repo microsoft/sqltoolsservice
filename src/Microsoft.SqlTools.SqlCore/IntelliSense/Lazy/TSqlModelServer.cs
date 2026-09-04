@@ -39,14 +39,18 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
 
         /// <summary>
         /// Registers <paramref name="referencedModel"/> as an additional database named
-        /// <paramref name="databaseName"/>, visible alongside the project's own database in
-        /// <see cref="Databases"/>. Call once per alias a reference should resolve under (e.g. the
-        /// literal database name and, separately, the bracketed <c>$(SqlCmdVariable)</c> form).
-        /// Must be called before this server is published to the binding queue.
+        /// <paramref name="databaseName"/>, replacing any existing entry with that name.
+        /// Returns <c>false</c> without registering anything if the name collides with the
+        /// primary database, which is never resolvable as a reference alias.
         /// </summary>
-        internal void AddReferencedDatabase(TSqlModel referencedModel, string databaseName)
+        internal bool AddReferencedDatabase(TSqlModel referencedModel, string databaseName)
         {
+            if (string.Equals(_database.Name, databaseName, StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            _referencedDatabases.RemoveAll(d => string.Equals(d.Name, databaseName, StringComparison.OrdinalIgnoreCase));
             _referencedDatabases.Add(new TSqlModelDatabase(this, referencedModel, databaseName));
+            return true;
         }
 
         public string Name => string.Empty;
