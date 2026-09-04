@@ -388,6 +388,7 @@ END
         [TestCase("[dbo].[Customers]", "dbo.Customers")]
         [TestCase("[$(ProjectB)].[dbo].[SomeTable]", "$(ProjectB).dbo.SomeTable")]
         [TestCase("[SwaggerPetstore.Models].[Get0ItemsItem]", "SwaggerPetstore.Models.Get0ItemsItem")]
+        [TestCase("[dbo].[Some]]Table]", "dbo.Some]Table")]
         public void UnquoteQualifiedName_StripsBracketsPerSegment(string qualifiedName, string expected)
         {
             Assert.AreEqual(expected, TSqlLanguageService.UnquoteQualifiedName(qualifiedName));

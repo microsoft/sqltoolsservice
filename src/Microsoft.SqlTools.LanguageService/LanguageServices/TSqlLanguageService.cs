@@ -2824,8 +2824,20 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             for (int i = 0; i < qualifiedName.Length; i++)
             {
                 char c = qualifiedName[i];
-                if (c == '[') inBracket = true;
-                else if (c == ']') inBracket = false;
+                if (c == '[')
+                {
+                    inBracket = true;
+                }
+                else if (c == ']' && inBracket)
+                {
+                    // SQL bracket quoting escapes a literal "]" as "]]".
+                    if (i + 1 < qualifiedName.Length && qualifiedName[i + 1] == ']')
+                    {
+                        i++; // skip escaped bracket
+                        continue;
+                    }
+                    inBracket = false;
+                }
                 else if (c == '.' && !inBracket)
                 {
                     parts.Add(qualifiedName.Substring(start, i - start));
@@ -2833,7 +2845,13 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 }
             }
             parts.Add(qualifiedName.Substring(start));
-            return string.Join(".", parts.Select(p => p.Trim('[', ']')));
+            return string.Join(".", parts.Select(p =>
+            {
+                string segment = p;
+                if (segment.Length >= 2 && segment[0] == '[' && segment[segment.Length - 1] == ']')
+                    segment = segment.Substring(1, segment.Length - 2);
+                return segment.Replace("]]", "]");
+            }));
         }
 
         /// <summary>
