@@ -269,6 +269,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 // followed transitively, and a same-database reference (no alias) is out of scope.
                 foreach (SqlProjectReference reference in project.DatabaseReferences.OfType<SqlProjectReference>())
                 {
+                    // Bail out before loading another referenced model once stale, instead of
+                    // burning DacFx work on a build Gate 2 below will just discard.
+                    if (!IsCurrentGeneration(projectUri, generation))
+                        break;
+
                     TSqlModel? referencedModel = null;
                     try
                     {
