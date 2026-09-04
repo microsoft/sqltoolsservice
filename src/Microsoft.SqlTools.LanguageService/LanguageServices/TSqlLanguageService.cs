@@ -2784,21 +2784,21 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             string candidate,
             out Microsoft.SqlServer.Dac.SourceInformation? sourceInfo)
         {
-            candidate = UnquoteQualifiedName(candidate);
+            List<string> parts = SplitQualifiedNameParts(candidate);
 
             // If the leading segment names a registered reference database, resolve the remainder
             // against that referenced project's own objects instead of stripping and matching
             // locally, which could silently land on a same-named object in the wrong database.
-            int firstDot = candidate.IndexOf('.');
-            if (firstDot > 0)
+            // Splitting before flattening keeps this correct even when the alias itself contains a dot.
+            if (parts.Count > 1)
             {
-                string possibleAlias = candidate.Substring(0, firstDot);
-                string remainder = candidate.Substring(firstDot + 1);
+                string possibleAlias = parts[0];
+                string remainder = string.Join(".", parts.Skip(1));
                 if (provider.TryGetReferencedSourceInformation(possibleAlias, remainder, out sourceInfo))
                     return true;
             }
 
-            string current = candidate;
+            string current = string.Join(".", parts);
             while (!string.IsNullOrEmpty(current))
             {
                 if (provider.TryGetSourceInformation(current, out sourceInfo) && sourceInfo?.SourceName != null)
@@ -2816,7 +2816,15 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// ignoring dots inside brackets. Source-location keys are stored unbracketed, but names
         /// reaching here (e.g. from Resolver.FindCompletions) may still be bracket-quoted.
         /// </summary>
-        internal static string UnquoteQualifiedName(string qualifiedName)
+        internal static string UnquoteQualifiedName(string qualifiedName) =>
+            string.Join(".", SplitQualifiedNameParts(qualifiedName));
+
+        /// <summary>
+        /// Splits <paramref name="qualifiedName"/> into unquoted parts, ignoring dots inside
+        /// brackets. Use this instead of the flattened <see cref="UnquoteQualifiedName"/> when
+        /// the true segment boundaries matter, e.g. to find a referenced database alias.
+        /// </summary>
+        private static List<string> SplitQualifiedNameParts(string qualifiedName)
         {
             var parts = new List<string>();
             int start = 0;
@@ -2845,20 +2853,21 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 }
             }
             parts.Add(qualifiedName.Substring(start));
-            return string.Join(".", parts.Select(p =>
+            return parts.Select(p =>
             {
                 string segment = p;
                 if (segment.Length >= 2 && segment[0] == '[' && segment[segment.Length - 1] == ']')
                     segment = segment.Substring(1, segment.Length - 2);
                 return segment.Replace("]]", "]");
-            }));
+            }).ToList();
         }
 
         /// <summary>
         /// Walks backward from <paramref name="tokenIndex"/> through the token stream, collecting
         /// all consecutive <c>identifier.</c> prefixes (handles both simple schema names such as
         /// <c>dbo</c> and dotted schema names such as <c>SwaggerPetstore.Models</c>). Returns
-        /// null if no schema prefix exists immediately before the token.
+        /// null if no schema prefix exists immediately before the token. Segments keep any bracket
+        /// quoting intact; the caller unquotes once it reassembles the full name.
         /// </summary>
         private static string? GetPrecedingSchemaPrefix(TokenManager tokenManager, int tokenIndex)
         {
@@ -2874,7 +2883,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 if (identIdx < 0)
                     break;
 
-                string segment = tokenManager.GetText(identIdx)?.Trim('[', ']');
+                string segment = tokenManager.GetText(identIdx);
                 if (string.IsNullOrEmpty(segment))
                     break;
 

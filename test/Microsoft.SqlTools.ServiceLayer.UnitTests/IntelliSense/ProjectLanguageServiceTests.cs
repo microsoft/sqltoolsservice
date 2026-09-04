@@ -492,6 +492,87 @@ END
         }
 
         /// <summary>
+        /// A cross-database reference whose alias itself contains a dot (a literal database name
+        /// like "My.DB", legal when bracket-quoted) must still resolve. This exercises the
+        /// token-walk path in QueueProjectTask (GetPrecedingSchemaPrefix), not the
+        /// Resolver.FindCompletions fallback the other cross-reference test goes through.
+        /// </summary>
+        [Test]
+        public void CrossProjectReference_DottedLiteralAlias_ResolvesGoToDefinition()
+        {
+            string projectBPath = ProjectUtils.CreateTestProject("DottedAliasProjectB");
+            string projectAPath = ProjectUtils.CreateTestProject("DottedAliasProjectA");
+
+            var projectB = SqlProject.OpenProject(projectBPath);
+            projectB.SqlObjectScripts.Add(
+                new SqlObjectScript(Path.Combine("Tables", "SomeTable.sql")),
+                "CREATE TABLE dbo.SomeTable (Id INT PRIMARY KEY, Name NVARCHAR(100));");
+
+            var projectA = SqlProject.OpenProject(projectAPath);
+            projectA.DatabaseReferences.Add(new SqlProjectReference(
+                projectBPath, Guid.NewGuid().ToString("B"), suppressMissingDependencies: false,
+                databaseVariableLiteralName: "My.DB"));
+
+            TSqlModel modelA = null;
+            TSqlModel modelB = null;
+            try
+            {
+                string databaseNameA = Path.GetFileNameWithoutExtension(projectAPath);
+                modelA = TSqlModelBuilder.LoadModel(projectA);
+                modelB = TSqlModelBuilder.LoadModel(projectB);
+
+                var metadataProvider = new TSqlModelMetadataProvider(modelA, databaseNameA);
+                metadataProvider.AddReferencedDatabase(modelB, "My.DB");
+
+                var parseOptions = new ParseOptions(
+                    batchSeparator: "GO",
+                    isQuotedIdentifierSet: true,
+                    compatibilityLevel: DatabaseCompatibilityLevel.Current,
+                    transactSqlVersion: TransactSqlVersion.Current);
+
+                var langService = new TSqlLanguageService();
+                var workspaceService = new WorkspaceService<SqlToolsSettings>();
+                workspaceService.Workspace = new Microsoft.SqlTools.LanguageService.Workspace.Workspace();
+                langService.WorkspaceServiceInstance = workspaceService;
+
+                string projectUri = new Uri(projectAPath).AbsoluteUri;
+                string contextKey = $"{TSqlLanguageService.ProjectContextKeyPrefix}{projectUri}";
+
+                langService.UpdateLanguageServiceOnProjectOpen(
+                    projectUri, metadataProvider, parseOptions, databaseNameA)
+                    .GetAwaiter().GetResult();
+
+                // Go to Definition on "SomeTable" should resolve to ProjectB's own SomeTable.sql,
+                // not fall through to local resolution because "My.DB" was mis-split as "My".
+                string definitionUri = "file:///dotted_alias_definition.sql";
+                string definitionQuery = "SELECT * FROM [My.DB].dbo.SomeTable";
+                var definitionFile = workspaceService.Workspace.GetFileBuffer(definitionUri, definitionQuery);
+                langService.InitializeProjectFileContexts(new[] { definitionUri }, contextKey, databaseNameA);
+
+                var definitionPosition = new TextDocumentPosition
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = definitionUri },
+                    Position = new Position { Line = 0, Character = definitionQuery.IndexOf("SomeTable") + 2 }
+                };
+                DefinitionResult result = langService.GetDefinition(definitionPosition, definitionFile, connInfo: null);
+
+                Assert.IsNotNull(result, "Definition result should not be null");
+                Assert.IsFalse(result.IsErrorResult, $"Should not have error. Message: {result?.Message}");
+                Assert.IsNotNull(result.Locations, "Locations should not be null");
+                Assert.Greater(result.Locations.Length, 0, "Should find at least one location");
+                Assert.IsTrue(result.Locations[0].Uri.Contains("SomeTable.sql"),
+                    $"Definition should point to ProjectB's SomeTable.sql. Got: {result.Locations[0].Uri}");
+            }
+            finally
+            {
+                modelA?.Dispose();
+                modelB?.Dispose();
+                ProjectUtils.DeleteTestProject(projectAPath);
+                ProjectUtils.DeleteTestProject(projectBPath);
+            }
+        }
+
+        /// <summary>
         /// Completions after "dbo.Customers." should include column names from the model.
         /// Exercises TSqlModelTable.Columns → TSqlObject.GetReferenced(Table.Columns).
         /// </summary>
