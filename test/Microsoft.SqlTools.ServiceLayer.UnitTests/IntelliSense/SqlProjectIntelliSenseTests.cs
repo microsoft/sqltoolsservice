@@ -3,13 +3,19 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlServer.Dac.Projects;
 using Microsoft.SqlServer.Management.SqlParser.Metadata;
 using Microsoft.SqlTools.SqlCore.IntelliSense;
+using Microsoft.SqlTools.ServiceLayer.SqlProjects;
+using Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.SqlProjects;
+using Microsoft.SqlTools.ServiceLayer.Utility;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.IntelliSense
@@ -277,6 +283,298 @@ CREATE TABLE [sss].[FileTable1] (
             {
                 model?.Dispose();
                 ProjectUtils.DeleteTestProject(projectPath);
+            }
+        }
+
+        /// <summary>
+        /// A cross-database SqlProjectReference configured with a DatabaseSqlCmdVariable should
+        /// resolve the referenced project's objects under its bracketed $(Name) alias.
+        /// </summary>
+        [Test]
+        public void CrossProjectReference_ResolvesReferencedDatabase_BySqlCmdVariable()
+        {
+            string projectBPath = ProjectUtils.CreateTestProject("ProjectB_" + System.Guid.NewGuid().ToString("N"));
+            string projectAPath = ProjectUtils.CreateTestProject("ProjectA_" + System.Guid.NewGuid().ToString("N"));
+
+            var projectB = SqlProject.OpenProject(projectBPath);
+            projectB.SqlObjectScripts.Add(new SqlObjectScript(Path.Combine("Tables", "SomeTable.sql")),
+                "CREATE TABLE dbo.SomeTable (Id INT PRIMARY KEY);");
+
+            var projectA = SqlProject.OpenProject(projectAPath);
+            projectA.SqlCmdVariables.Add(new SqlCmdVariable("ProjectB", "ProjectB"));
+            var databaseVariable = projectA.SqlCmdVariables.Get("ProjectB");
+            var reference = new SqlProjectReference(
+                projectBPath, System.Guid.NewGuid().ToString("B"), suppressMissingDependencies: false,
+                databaseSqlCmdVariable: databaseVariable, serverSqlCmdVariable: null);
+            projectA.DatabaseReferences.Add(reference);
+
+            TSqlModel? modelA = null;
+            TSqlModel? modelB = null;
+            try
+            {
+                modelA = TSqlModelBuilder.LoadModel(projectA);
+                modelB = TSqlModelBuilder.LoadModel(projectB);
+
+                var providerA = new TSqlModelMetadataProvider(modelA, "ProjectA");
+
+                Assert.AreEqual(1, providerA.Server.Databases.ToList().Count,
+                    "Only the project's own database should be present before registering references");
+
+                var aliases = SqlProjectsService.GetReferenceDatabaseAliases(reference).ToList();
+                CollectionAssert.AreEqual(new[] { "$(ProjectB)" }, aliases,
+                    "A SqlCmdVariable reference should yield only the bracketed form");
+                foreach (string alias in aliases)
+                    providerA.AddReferencedDatabase(modelB, alias);
+
+                var databases = providerA.Server.Databases.ToList();
+                Assert.AreEqual(2, databases.Count, "Should expose ProjectA's database plus the $(ProjectB) alias");
+
+                foreach (string aliasName in aliases)
+                {
+                    var referencedDb = databases.FirstOrDefault(d => d.Name == aliasName);
+                    Assert.IsNotNull(referencedDb, $"Database alias '{aliasName}' should be registered");
+
+                    var dboSchema = referencedDb!.Schemas.FirstOrDefault(s => s.Name == "dbo");
+                    Assert.IsNotNull(dboSchema, $"dbo schema should be visible under alias '{aliasName}'");
+
+                    Assert.IsNotNull(dboSchema!.Tables.FirstOrDefault(t => t.Name == "SomeTable"),
+                        $"SomeTable should resolve under alias '{aliasName}'");
+                }
+            }
+            finally
+            {
+                modelA?.Dispose();
+                modelB?.Dispose();
+                ProjectUtils.DeleteTestProject(projectAPath);
+                ProjectUtils.DeleteTestProject(projectBPath);
+            }
+        }
+
+        /// <summary>
+        /// A DatabaseSqlCmdVariable reference yields only the bracketed "$(Name)" alias, never a
+        /// resolved literal, even when "Value" is set to an unevaluated MSBuild property
+        /// placeholder (the shape SDK-style projects generate for it).
+        /// </summary>
+        [Test]
+        public void GetReferenceDatabaseAliases_VariableReference_YieldsOnlyBracketedForm()
+        {
+            var databaseVariable = new SqlCmdVariable("ProjectB", defaultValue: "ProjectB", value: "$(SqlCmdVar__1)");
+            var reference = new SqlProjectReference(
+                "..\\ProjectB\\ProjectB.sqlproj", System.Guid.NewGuid().ToString("B"),
+                suppressMissingDependencies: false,
+                databaseSqlCmdVariable: databaseVariable, serverSqlCmdVariable: null);
+
+            var aliases = SqlProjectsService.GetReferenceDatabaseAliases(reference).ToList();
+
+            CollectionAssert.AreEqual(new[] { "$(ProjectB)" }, aliases);
+        }
+
+        /// <summary>
+        /// A literal database name reference yields that name as-is.
+        /// </summary>
+        [Test]
+        public void GetReferenceDatabaseAliases_LiteralReference_YieldsLiteralName()
+        {
+            var reference = new SqlProjectReference(
+                "..\\ProjectB\\ProjectB.sqlproj", System.Guid.NewGuid().ToString("B"),
+                suppressMissingDependencies: false, databaseVariableLiteralName: "ProjectB");
+
+            var aliases = SqlProjectsService.GetReferenceDatabaseAliases(reference).ToList();
+
+            CollectionAssert.AreEqual(new[] { "ProjectB" }, aliases);
+        }
+
+        /// <summary>
+        /// An alias that collides with the primary database's own name should not be registered.
+        /// Registering the same alias twice should replace the earlier entry, not duplicate it.
+        /// </summary>
+        [Test]
+        public void AddReferencedDatabase_AvoidsPrimaryCollisionAndDuplicateAliases()
+        {
+            string projectAPath = ProjectUtils.CreateTestProject("DedupProjectA_" + System.Guid.NewGuid().ToString("N"));
+            string projectBPath = ProjectUtils.CreateTestProject("DedupProjectB_" + System.Guid.NewGuid().ToString("N"));
+            string projectCPath = ProjectUtils.CreateTestProject("DedupProjectC_" + System.Guid.NewGuid().ToString("N"));
+
+            var projectA = SqlProject.OpenProject(projectAPath);
+            var projectB = SqlProject.OpenProject(projectBPath);
+            projectB.SqlObjectScripts.Add(new SqlObjectScript(Path.Combine("Tables", "TableFromB.sql")),
+                "CREATE TABLE dbo.TableFromB (Id INT PRIMARY KEY);");
+            var projectC = SqlProject.OpenProject(projectCPath);
+            projectC.SqlObjectScripts.Add(new SqlObjectScript(Path.Combine("Tables", "TableFromC.sql")),
+                "CREATE TABLE dbo.TableFromC (Id INT PRIMARY KEY);");
+
+            TSqlModel? modelA = null;
+            TSqlModel? modelB = null;
+            TSqlModel? modelC = null;
+            try
+            {
+                modelA = TSqlModelBuilder.LoadModel(projectA);
+                modelB = TSqlModelBuilder.LoadModel(projectB);
+                modelC = TSqlModelBuilder.LoadModel(projectC);
+
+                var provider = new TSqlModelMetadataProvider(modelA, "ProjectA");
+
+                provider.AddReferencedDatabase(modelB, "ProjectA");
+                Assert.AreEqual(1, provider.Server.Databases.ToList().Count,
+                    "A reference alias matching the primary database's name should not be registered");
+
+                provider.AddReferencedDatabase(modelB, "Shared");
+                provider.AddReferencedDatabase(modelC, "Shared");
+
+                var databases = provider.Server.Databases.ToList();
+                Assert.AreEqual(2, databases.Count, "A repeated alias should replace, not duplicate");
+
+                var sharedDb = databases.FirstOrDefault(d => d.Name == "Shared");
+                Assert.IsNotNull(sharedDb, "The 'Shared' alias should be registered");
+
+                var sharedSchema = sharedDb!.Schemas.FirstOrDefault(s => s.Name == "dbo");
+                Assert.IsNotNull(sharedSchema!.Tables.FirstOrDefault(t => t.Name == "TableFromC"),
+                    "The later registration should win over the earlier one under the same alias");
+                Assert.IsNull(sharedSchema.Tables.FirstOrDefault(t => t.Name == "TableFromB"),
+                    "The earlier registration should no longer be reachable under the shared alias");
+
+                Assert.IsTrue(provider.TryGetReferencedSourceInformation("Shared", "dbo.TableFromC", out _),
+                    "Source-location lookup should also reflect the later registration");
+                Assert.IsFalse(provider.TryGetReferencedSourceInformation("Shared", "dbo.TableFromB", out _),
+                    "Source-location lookup should not still point at the replaced registration");
+            }
+            finally
+            {
+                modelA?.Dispose();
+                modelB?.Dispose();
+                modelC?.Dispose();
+                ProjectUtils.DeleteTestProject(projectAPath);
+                ProjectUtils.DeleteTestProject(projectBPath);
+                ProjectUtils.DeleteTestProject(projectCPath);
+            }
+        }
+
+        /// <summary>
+        /// Adding a project reference to an already-open project should refresh its live
+        /// IntelliSense so the reference resolves immediately, without closing and reopening.
+        /// </summary>
+        [Test]
+        public async Task AddSqlProjectReference_ToOpenProject_RefreshesLiveIntelliSense()
+        {
+            string projectBPath = ProjectUtils.CreateTestProject("RefreshProjectB_" + Guid.NewGuid().ToString("N"));
+            var projectB = SqlProject.OpenProject(projectBPath);
+            projectB.SqlObjectScripts.Add(new SqlObjectScript(Path.Combine("Tables", "SomeTable.sql")),
+                "CREATE TABLE dbo.SomeTable (Id INT PRIMARY KEY);");
+
+            var service = new SqlProjectsService();
+            string projectAPath = ProjectUtils.CreateTestProject("RefreshProjectA_" + Guid.NewGuid().ToString("N"));
+            // SqlProjectsService's "ProjectUri" is a plain filesystem path (GetProject passes it
+            // straight to SqlProject.OpenProject), unlike TSqlLanguageService's real file:// URIs.
+            string projectUri = projectAPath;
+
+            try
+            {
+                var openRequest = new MockRequest<ResultStatus>();
+                await service.HandleOpenSqlProjectRequest(new SqlProjectParams { ProjectUri = projectUri }, openRequest.Object);
+                await WaitUntilAsync(() => service.TryGetProvider(projectUri, out _));
+
+                service.Projects[projectUri].SqlCmdVariables.Add(new SqlCmdVariable("ProjectB", "ProjectB"));
+
+                service.TryGetProvider(projectUri, out var beforeProvider);
+                Assert.AreEqual(1, beforeProvider!.Server.Databases.ToList().Count,
+                    "Only the project's own database should be present before adding the reference");
+
+                var addRequest = new MockRequest<ResultStatus>();
+                await service.HandleAddSqlProjectReferenceRequest(new AddSqlProjectReferenceParams
+                {
+                    ProjectUri = projectUri,
+                    ProjectPath = projectBPath,
+                    SuppressMissingDependencies = false,
+                    DatabaseVariable = "ProjectB"
+                }, addRequest.Object);
+                addRequest.AssertSuccess(nameof(service.HandleAddSqlProjectReferenceRequest));
+
+                await WaitUntilAsync(() =>
+                    service.TryGetProvider(projectUri, out var p) && p!.Server.Databases.ToList().Count > 1);
+
+                service.TryGetProvider(projectUri, out var afterProvider);
+                var referencedDb = afterProvider!.Server.Databases.ToList().FirstOrDefault(d => d.Name == "$(ProjectB)");
+                Assert.IsNotNull(referencedDb, "The newly added reference should be resolvable without reopening the project");
+
+                var someTable = referencedDb!.Schemas.FirstOrDefault(s => s.Name == "dbo")?.Tables.FirstOrDefault(t => t.Name == "SomeTable");
+                Assert.IsNotNull(someTable, "SomeTable should resolve through the newly added reference");
+            }
+            finally
+            {
+                var closeRequest = new MockRequest<ResultStatus>();
+                await service.HandleCloseSqlProjectRequest(new SqlProjectParams { ProjectUri = projectUri }, closeRequest.Object);
+                closeRequest.AssertSuccess(nameof(service.HandleCloseSqlProjectRequest));
+                ProjectUtils.DeleteTestProject(projectAPath);
+                ProjectUtils.DeleteTestProject(projectBPath);
+            }
+        }
+
+        /// <summary>
+        /// Adding a reference while a project's initial IntelliSense build is still in flight must
+        /// still trigger a rebuild that reflects it.
+        /// </summary>
+        [Test]
+        public async Task AddSqlProjectReference_WhileInitialBuildInFlight_StillRefreshesLiveIntelliSense()
+        {
+            string projectBPath = ProjectUtils.CreateTestProject("RaceProjectB_" + Guid.NewGuid().ToString("N"));
+            var projectB = SqlProject.OpenProject(projectBPath);
+            projectB.SqlObjectScripts.Add(new SqlObjectScript(Path.Combine("Tables", "SomeTable.sql")),
+                "CREATE TABLE dbo.SomeTable (Id INT PRIMARY KEY);");
+
+            var service = new SqlProjectsService();
+            string projectAPath = ProjectUtils.CreateTestProject("RaceProjectA_" + Guid.NewGuid().ToString("N"));
+            string projectUri = projectAPath;
+
+            try
+            {
+                var openRequest = new MockRequest<ResultStatus>();
+                await service.HandleOpenSqlProjectRequest(new SqlProjectParams { ProjectUri = projectUri }, openRequest.Object);
+
+                // Add the reference before the initial build finishes, to hit the race.
+                service.Projects[projectUri].SqlCmdVariables.Add(new SqlCmdVariable("ProjectB", "ProjectB"));
+
+                var addRequest = new MockRequest<ResultStatus>();
+                await service.HandleAddSqlProjectReferenceRequest(new AddSqlProjectReferenceParams
+                {
+                    ProjectUri = projectUri,
+                    ProjectPath = projectBPath,
+                    SuppressMissingDependencies = false,
+                    DatabaseVariable = "ProjectB"
+                }, addRequest.Object);
+                addRequest.AssertSuccess(nameof(service.HandleAddSqlProjectReferenceRequest));
+
+                await WaitUntilAsync(() =>
+                    service.TryGetProvider(projectUri, out var p) && p!.Server.Databases.ToList().Count > 1);
+
+                service.TryGetProvider(projectUri, out var provider);
+                var referencedDb = provider!.Server.Databases.ToList().FirstOrDefault(d => d.Name == "$(ProjectB)");
+                Assert.IsNotNull(referencedDb, "The reference added during the initial build should still resolve");
+
+                var someTable = referencedDb!.Schemas.FirstOrDefault(s => s.Name == "dbo")?.Tables.FirstOrDefault(t => t.Name == "SomeTable");
+                Assert.IsNotNull(someTable, "SomeTable should resolve through the reference added during the race");
+            }
+            finally
+            {
+                var closeRequest = new MockRequest<ResultStatus>();
+                await service.HandleCloseSqlProjectRequest(new SqlProjectParams { ProjectUri = projectUri }, closeRequest.Object);
+                closeRequest.AssertSuccess(nameof(service.HandleCloseSqlProjectRequest));
+                ProjectUtils.DeleteTestProject(projectAPath);
+                ProjectUtils.DeleteTestProject(projectBPath);
+            }
+        }
+
+        /// <summary>
+        /// Polls <paramref name="condition"/> until it's true or a 5-second timeout elapses, for
+        /// asserting on the result of a fire-and-forget background IntelliSense build.
+        /// </summary>
+        private static async Task WaitUntilAsync(Func<bool> condition)
+        {
+            DateTime deadline = DateTime.UtcNow.AddSeconds(5);
+            while (!condition())
+            {
+                if (DateTime.UtcNow > deadline)
+                    Assert.Fail("Timed out waiting for the background IntelliSense build to complete");
+                await Task.Delay(20);
             }
         }
 

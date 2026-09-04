@@ -110,7 +110,7 @@ END
 
             // Set up project context
             _projectUri = new Uri(_projectPath).AbsoluteUri;
-            _contextKey = $"project_{_projectUri}";
+            _contextKey = $"{TSqlLanguageService.ProjectContextKeyPrefix}{_projectUri}";
 
             // Call UpdateLanguageServiceOnProjectOpen
             _langService.UpdateLanguageServiceOnProjectOpen(
@@ -338,7 +338,7 @@ END
                 langService.WorkspaceServiceInstance = workspaceService;
 
                 string projectUri = new Uri(projectPath).AbsoluteUri;
-                string contextKey = $"project_{projectUri}";
+                string contextKey = $"{TSqlLanguageService.ProjectContextKeyPrefix}{projectUri}";
 
                 langService.UpdateLanguageServiceOnProjectOpen(
                     projectUri, metadataProvider, parseOptions, databaseName)
@@ -376,6 +376,199 @@ END
             {
                 model?.Dispose();
                 ProjectUtils.DeleteTestProject(projectPath);
+            }
+        }
+
+        /// <summary>
+        /// UnquoteQualifiedName strips bracket quoting from each dot-delimited part, ignoring
+        /// dots inside brackets, so a bracket-quoted candidate (e.g. from Resolver.FindCompletions)
+        /// still matches the unbracketed keys the source-location index stores.
+        /// </summary>
+        [TestCase("dbo.Customers", "dbo.Customers")]
+        [TestCase("[dbo].[Customers]", "dbo.Customers")]
+        [TestCase("[$(ProjectB)].[dbo].[SomeTable]", "$(ProjectB).dbo.SomeTable")]
+        [TestCase("[SwaggerPetstore.Models].[Get0ItemsItem]", "SwaggerPetstore.Models.Get0ItemsItem")]
+        [TestCase("[dbo].[Some]]Table]", "dbo.Some]Table")]
+        public void UnquoteQualifiedName_StripsBracketsPerSegment(string qualifiedName, string expected)
+        {
+            Assert.AreEqual(expected, TSqlLanguageService.UnquoteQualifiedName(qualifiedName));
+        }
+
+        /// <summary>
+        /// A cross-database SqlProjectReference via a DatabaseSqlCmdVariable should resolve the
+        /// referenced project's objects for both completions and Go to Definition, which uses a
+        /// separate lookup path (<c>TryGetReferencedSourceInformation</c>) from completions/hover.
+        /// </summary>
+        [Test]
+        public void CrossProjectReference_CompletionsAndGoToDefinition_ResolveReferencedProject()
+        {
+            string projectBPath = ProjectUtils.CreateTestProject("CrossRefProjectB");
+            string projectAPath = ProjectUtils.CreateTestProject("CrossRefProjectA");
+
+            var projectB = SqlProject.OpenProject(projectBPath);
+            projectB.SqlObjectScripts.Add(
+                new SqlObjectScript(Path.Combine("Tables", "SomeTable.sql")),
+                "CREATE TABLE dbo.SomeTable (Id INT PRIMARY KEY, Name NVARCHAR(100));");
+
+            var projectA = SqlProject.OpenProject(projectAPath);
+            projectA.SqlCmdVariables.Add(new SqlCmdVariable("ProjectB", "ProjectB"));
+            projectA.DatabaseReferences.Add(new SqlProjectReference(
+                projectBPath, Guid.NewGuid().ToString("B"), suppressMissingDependencies: false,
+                databaseSqlCmdVariable: projectA.SqlCmdVariables.Get("ProjectB"), serverSqlCmdVariable: null));
+
+            TSqlModel modelA = null;
+            TSqlModel modelB = null;
+            try
+            {
+                string databaseNameA = Path.GetFileNameWithoutExtension(projectAPath);
+                modelA = TSqlModelBuilder.LoadModel(projectA);
+                modelB = TSqlModelBuilder.LoadModel(projectB);
+
+                var metadataProvider = new TSqlModelMetadataProvider(modelA, databaseNameA);
+                metadataProvider.AddReferencedDatabase(modelB, "$(ProjectB)");
+
+                var parseOptions = new ParseOptions(
+                    batchSeparator: "GO",
+                    isQuotedIdentifierSet: true,
+                    compatibilityLevel: DatabaseCompatibilityLevel.Current,
+                    transactSqlVersion: TransactSqlVersion.Current);
+
+                var langService = new TSqlLanguageService();
+                var workspaceService = new WorkspaceService<SqlToolsSettings>();
+                workspaceService.Workspace = new Microsoft.SqlTools.LanguageService.Workspace.Workspace();
+                langService.WorkspaceServiceInstance = workspaceService;
+
+                string projectUri = new Uri(projectAPath).AbsoluteUri;
+                string contextKey = $"{TSqlLanguageService.ProjectContextKeyPrefix}{projectUri}";
+
+                langService.UpdateLanguageServiceOnProjectOpen(
+                    projectUri, metadataProvider, parseOptions, databaseNameA)
+                    .GetAwaiter().GetResult();
+
+                // Completions after "[$(ProjectB)].dbo." should include SomeTable.
+                string completionUri = "file:///cross_project_completions.sql";
+                string completionQuery = "SELECT * FROM [$(ProjectB)].dbo.";
+                var completionFile = workspaceService.Workspace.GetFileBuffer(completionUri, completionQuery);
+                langService.InitializeProjectFileContexts(new[] { completionUri }, contextKey, databaseNameA);
+
+                var completionPosition = new TextDocumentPosition
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = completionUri },
+                    Position = new Position { Line = 0, Character = completionQuery.Length }
+                };
+                var completions = langService.GetCompletionItems(completionPosition, completionFile, connInfo: null)
+                                              .GetAwaiter().GetResult();
+                var completionLabels = completions?.Select(c => c.Label).ToList() ?? new System.Collections.Generic.List<string>();
+                Assert.IsTrue(completionLabels.Any(n => string.Equals(n, "SomeTable", StringComparison.OrdinalIgnoreCase)),
+                    $"Expected 'SomeTable' in completions. Got: {string.Join(", ", completionLabels.Take(20))}");
+
+                // Go to Definition on "SomeTable" should resolve to ProjectB's own SomeTable.sql.
+                string definitionUri = "file:///cross_project_definition.sql";
+                string definitionQuery = "SELECT * FROM [$(ProjectB)].dbo.SomeTable";
+                var definitionFile = workspaceService.Workspace.GetFileBuffer(definitionUri, definitionQuery);
+                langService.InitializeProjectFileContexts(new[] { definitionUri }, contextKey, databaseNameA);
+
+                var definitionPosition = new TextDocumentPosition
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = definitionUri },
+                    Position = new Position { Line = 0, Character = definitionQuery.IndexOf("SomeTable") + 2 }
+                };
+                DefinitionResult result = langService.GetDefinition(definitionPosition, definitionFile, connInfo: null);
+
+                Assert.IsNotNull(result, "Definition result should not be null");
+                Assert.IsFalse(result.IsErrorResult, $"Should not have error. Message: {result?.Message}");
+                Assert.IsNotNull(result.Locations, "Locations should not be null");
+                Assert.Greater(result.Locations.Length, 0, "Should find at least one location");
+                Assert.IsTrue(result.Locations[0].Uri.Contains("SomeTable.sql"),
+                    $"Definition should point to ProjectB's SomeTable.sql. Got: {result.Locations[0].Uri}");
+            }
+            finally
+            {
+                modelA?.Dispose();
+                modelB?.Dispose();
+                ProjectUtils.DeleteTestProject(projectAPath);
+                ProjectUtils.DeleteTestProject(projectBPath);
+            }
+        }
+
+        /// <summary>
+        /// A cross-database reference whose alias itself contains a dot (a literal database name
+        /// like "My.DB", legal when bracket-quoted) must still resolve. This exercises the
+        /// token-walk path in QueueProjectTask (GetPrecedingSchemaPrefix), not the
+        /// Resolver.FindCompletions fallback the other cross-reference test goes through.
+        /// </summary>
+        [Test]
+        public void CrossProjectReference_DottedLiteralAlias_ResolvesGoToDefinition()
+        {
+            string projectBPath = ProjectUtils.CreateTestProject("DottedAliasProjectB");
+            string projectAPath = ProjectUtils.CreateTestProject("DottedAliasProjectA");
+
+            var projectB = SqlProject.OpenProject(projectBPath);
+            projectB.SqlObjectScripts.Add(
+                new SqlObjectScript(Path.Combine("Tables", "SomeTable.sql")),
+                "CREATE TABLE dbo.SomeTable (Id INT PRIMARY KEY, Name NVARCHAR(100));");
+
+            var projectA = SqlProject.OpenProject(projectAPath);
+            projectA.DatabaseReferences.Add(new SqlProjectReference(
+                projectBPath, Guid.NewGuid().ToString("B"), suppressMissingDependencies: false,
+                databaseVariableLiteralName: "My.DB"));
+
+            TSqlModel modelA = null;
+            TSqlModel modelB = null;
+            try
+            {
+                string databaseNameA = Path.GetFileNameWithoutExtension(projectAPath);
+                modelA = TSqlModelBuilder.LoadModel(projectA);
+                modelB = TSqlModelBuilder.LoadModel(projectB);
+
+                var metadataProvider = new TSqlModelMetadataProvider(modelA, databaseNameA);
+                metadataProvider.AddReferencedDatabase(modelB, "My.DB");
+
+                var parseOptions = new ParseOptions(
+                    batchSeparator: "GO",
+                    isQuotedIdentifierSet: true,
+                    compatibilityLevel: DatabaseCompatibilityLevel.Current,
+                    transactSqlVersion: TransactSqlVersion.Current);
+
+                var langService = new TSqlLanguageService();
+                var workspaceService = new WorkspaceService<SqlToolsSettings>();
+                workspaceService.Workspace = new Microsoft.SqlTools.LanguageService.Workspace.Workspace();
+                langService.WorkspaceServiceInstance = workspaceService;
+
+                string projectUri = new Uri(projectAPath).AbsoluteUri;
+                string contextKey = $"{TSqlLanguageService.ProjectContextKeyPrefix}{projectUri}";
+
+                langService.UpdateLanguageServiceOnProjectOpen(
+                    projectUri, metadataProvider, parseOptions, databaseNameA)
+                    .GetAwaiter().GetResult();
+
+                // Go to Definition on "SomeTable" should resolve to ProjectB's own SomeTable.sql,
+                // not fall through to local resolution because "My.DB" was mis-split as "My".
+                string definitionUri = "file:///dotted_alias_definition.sql";
+                string definitionQuery = "SELECT * FROM [My.DB].dbo.SomeTable";
+                var definitionFile = workspaceService.Workspace.GetFileBuffer(definitionUri, definitionQuery);
+                langService.InitializeProjectFileContexts(new[] { definitionUri }, contextKey, databaseNameA);
+
+                var definitionPosition = new TextDocumentPosition
+                {
+                    TextDocument = new TextDocumentIdentifier { Uri = definitionUri },
+                    Position = new Position { Line = 0, Character = definitionQuery.IndexOf("SomeTable") + 2 }
+                };
+                DefinitionResult result = langService.GetDefinition(definitionPosition, definitionFile, connInfo: null);
+
+                Assert.IsNotNull(result, "Definition result should not be null");
+                Assert.IsFalse(result.IsErrorResult, $"Should not have error. Message: {result?.Message}");
+                Assert.IsNotNull(result.Locations, "Locations should not be null");
+                Assert.Greater(result.Locations.Length, 0, "Should find at least one location");
+                Assert.IsTrue(result.Locations[0].Uri.Contains("SomeTable.sql"),
+                    $"Definition should point to ProjectB's SomeTable.sql. Got: {result.Locations[0].Uri}");
+            }
+            finally
+            {
+                modelA?.Dispose();
+                modelB?.Dispose();
+                ProjectUtils.DeleteTestProject(projectAPath);
+                ProjectUtils.DeleteTestProject(projectBPath);
             }
         }
 
@@ -543,8 +736,8 @@ END
             var parseInfo = _langService.GetScriptParseInfo(_projectUri);
             Assert.IsNotNull(parseInfo);
             string originalKey = parseInfo.ConnectionKey;
-            Assert.IsTrue(originalKey.StartsWith("project_", StringComparison.Ordinal),
-                "Key should start with 'project_' before any connection attempt");
+            Assert.IsTrue(originalKey.StartsWith(TSqlLanguageService.ProjectContextKeyPrefix, StringComparison.Ordinal),
+                "Key should start with the project context key prefix before any connection attempt");
 
             // Act: simulate what UpdateLanguageServiceOnConnection does — it should bail out early
             // because IsProjectContext returns true (the OwnerUri already has a project_ key).
@@ -1233,7 +1426,7 @@ END
             _langService.WorkspaceServiceInstance = _workspaceService;
 
             _projectUri = new Uri(_projectPath).AbsoluteUri;
-            _contextKey = $"project_{_projectUri}";
+            _contextKey = $"{TSqlLanguageService.ProjectContextKeyPrefix}{_projectUri}";
 
             _langService.UpdateLanguageServiceOnProjectOpen(
                 _projectUri, metadataProvider, parseOptions, _databaseName)
@@ -1663,7 +1856,7 @@ END
             _langService.WorkspaceServiceInstance = _workspaceService;
 
             _projectUri = new Uri(_projectPath).AbsoluteUri;
-            _contextKey = $"project_{_projectUri}";
+            _contextKey = $"{TSqlLanguageService.ProjectContextKeyPrefix}{_projectUri}";
 
             _langService.UpdateLanguageServiceOnProjectOpen(
                 _projectUri, metadataProvider, parseOptions, _databaseName)
