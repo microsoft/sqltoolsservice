@@ -282,9 +282,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
                         SqlProject referencedProject = SqlProject.OpenProject(referencedProjectPath);
                         referencedModel = await Task.Run(() => TSqlModelBuilder.LoadModel(referencedProject));
-                        referencedModels.Add(referencedModel);
                         foreach (string alias in aliases)
                             projectMetadataProvider.AddReferencedDatabase(referencedModel, alias);
+                        referencedModels.Add(referencedModel);
                     }
                     catch (Exception ex)
                     {
