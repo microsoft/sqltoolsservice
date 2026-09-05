@@ -71,21 +71,21 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
                 if (this.Parameters.IncludeRequest)
                 {
                     IEnumerable<SchemaDifference> affectedDependencies = this.ComparisonResult.GetIncludeDependencies(node);
-                    this.AffectedDependencies = affectedDependencies.Select(difference => SchemaCompareUtils.CreateDiffEntry(difference: difference, parent: null, schemaComparisonResult: this.ComparisonResult)).ToList();
+                    this.AffectedDependencies = affectedDependencies.Select(SchemaCompareUtils.CreateDiffEntrySummary).ToList();
                 }
                 else
                 {   // if exclude was successful, the possible affected dependencies are given by GetIncludedDependencies()
                     if (this.Success)
                     {
                         IEnumerable<SchemaDifference> affectedDependencies = this.ComparisonResult.GetIncludeDependencies(node);
-                        this.AffectedDependencies = affectedDependencies.Select(difference => SchemaCompareUtils.CreateDiffEntry(difference: difference, parent: null, schemaComparisonResult: this.ComparisonResult)).ToList();
+                        this.AffectedDependencies = affectedDependencies.Select(SchemaCompareUtils.CreateDiffEntrySummary).ToList();
                     }
                     // if not successful, send back the exclude dependencies that caused it to fail
                     else
                     {
                         IEnumerable<SchemaDifference> blockingDependencies = this.ComparisonResult.GetExcludeDependencies(node);
                         blockingDependencies = blockingDependencies.Where(difference => difference.Included == node.Included);
-                        this.BlockingDependencies = blockingDependencies.Select(difference => SchemaCompareUtils.CreateDiffEntry(difference: difference, parent: null, schemaComparisonResult: this.ComparisonResult)).ToList();
+                        this.BlockingDependencies = blockingDependencies.Select(SchemaCompareUtils.CreateDiffEntrySummary).ToList();
                     }
 
                 }
@@ -118,28 +118,46 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
             return null;
         }
 
-        private bool IsEqual(SchemaDifference difference, DiffEntry diffEntry)
+        private static bool IsEqual(SchemaDifference difference, DiffEntry diffEntry)
         {
-            bool result = true;
-            // Create a diff entry from difference and check if it matches the diff entry passed
-            DiffEntry entryFromDifference = SchemaCompareUtils.CreateDiffEntry(difference, null, schemaComparisonResult: this.ComparisonResult);
-
-            System.Reflection.PropertyInfo[] properties = diffEntry.GetType().GetProperties();
-            foreach (var prop in properties)
+            if (difference == null || diffEntry == null ||
+                difference.UpdateAction != diffEntry.UpdateAction ||
+                difference.DifferenceType != diffEntry.DifferenceType ||
+                !string.Equals(difference.Name, diffEntry.Name, StringComparison.Ordinal))
             {
-                // Don't need to check if included is the same when verifying if the difference is equal
-                if (prop.Name != "Included")
-                {
-                    if (!((prop.GetValue(diffEntry) == null &&
-                        prop.GetValue(entryFromDifference) == null) ||
-                        prop.GetValue(diffEntry).SafeToString().Equals(prop.GetValue(entryFromDifference).SafeToString())))
-                    {
-                        return false;
-                    }
-                }
+                return false;
             }
 
-            return result;
+            return IsObjectEqual(
+                    difference.SourceObject,
+                    diffEntry.SourceValue,
+                    diffEntry.SourceObjectType) &&
+                IsObjectEqual(
+                    difference.TargetObject,
+                    diffEntry.TargetValue,
+                    diffEntry.TargetObjectType);
+        }
+
+        private static bool IsObjectEqual(
+            Microsoft.SqlServer.Dac.Model.TSqlObject schemaObject,
+            string[] nameParts,
+            string objectType)
+        {
+            if (schemaObject == null)
+            {
+                return nameParts == null && string.IsNullOrEmpty(objectType);
+            }
+
+            if (nameParts == null ||
+                !schemaObject.Name.Parts.SequenceEqual(nameParts, StringComparer.Ordinal))
+            {
+                return false;
+            }
+
+            string schemaObjectType = new Microsoft.SqlServer.Dac.Compare.SchemaComparisonExcludedObjectId(
+                schemaObject.ObjectType,
+                schemaObject.Name).TypeName;
+            return string.Equals(schemaObjectType, objectType, StringComparison.Ordinal);
         }
 
         public void Cancel()
