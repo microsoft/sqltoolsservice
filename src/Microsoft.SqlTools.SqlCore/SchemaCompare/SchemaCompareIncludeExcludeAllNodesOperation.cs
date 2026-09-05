@@ -71,7 +71,7 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
             {
                 foreach (SchemaDifference difference in this.ComparisonResult.Differences)
                 {
-                    DiffEntry diffEntry = SchemaCompareUtils.CreateDiffEntry(difference, null, this.ComparisonResult);
+                    DiffEntry diffEntry = SchemaCompareUtils.CreateDiffEntrySummary(difference);
                     this.AllIncludedOrExcludedDifferences.Add(diffEntry);
                 }
             }
