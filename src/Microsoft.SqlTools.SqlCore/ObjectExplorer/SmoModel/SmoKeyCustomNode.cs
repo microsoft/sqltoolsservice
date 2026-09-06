@@ -43,6 +43,11 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
             {
                 Name = "IndexKeyType",
                 ValidFor = ValidForFlag.All
+            },
+            new NodeSmoProperty
+            {
+                Name = "IndexType",
+                ValidFor = ValidForFlag.All
             }
         });
 
