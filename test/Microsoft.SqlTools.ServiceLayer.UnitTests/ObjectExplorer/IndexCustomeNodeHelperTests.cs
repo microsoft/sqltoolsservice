@@ -30,7 +30,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         [Test]
         public void BuildIndexLabelShouldStillReturnClusteredLabelForRegularIndex()
         {
-            string label = IndexCustomeNodeHelper.BuildIndexLabel("IX_Test_Regular", isUnique: true, isClustered: true, IndexType.ClusteredIndex);
+            string label = IndexCustomeNodeHelper.BuildIndexLabel("IX_Test_Regular", isUnique: true, isClustered: true, indexType: IndexType.ClusteredIndex);
             Assert.That(label, Is.EqualTo("IX_Test_Regular (Unique, Clustered)"));
         }
 
