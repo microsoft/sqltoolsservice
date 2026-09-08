@@ -1175,9 +1175,6 @@
   <data name="ErrorConnectionNotFound" xml:space="preserve">
     <value>La connessione non è stata trovata</value>
   </data>
-  <data name="ErrorEmptyStringReplacement" xml:space="preserve">
-    <value>Sostituzione di una stringa vuota con una stringa vuota.</value>
-  </data>
   <data name="ErrorInvalidEdition" xml:space="preserve">
     <value>Il valore dell'edizione non è valido</value>
   </data>
@@ -3664,6 +3661,9 @@
   </data>
   <data name="compatibilityLevel_sqlv170" xml:space="preserve">
     <value>SQL Server 2025 (170)</value>
+  </data>
+  <data name="compatibilityLevel_sqlv180" xml:space="preserve">
+    <value>SQL Server vNext (180)</value>
   </data>
   <data name="compatibilityLevel_yukon" xml:space="preserve">
     <value>SQL Server 2005 (90)</value>

@@ -55,6 +55,14 @@ namespace Microsoft.SqlTools.Sts2.Abstractions
         /// <summary>Full value byte count (UTF-8 for text), streamed.</summary>
         public required long TotalBytes { get; init; }
 
+        /// <summary>
+        /// The complete value, present only when the query opted into oversized-cell
+        /// retention and the value fit the retention budget. The runner moves this into
+        /// per-query side state and replaces it with a fetch handle on the wire; it is
+        /// never journaled and never held for a query that did not ask for it.
+        /// </summary>
+        public byte[]? RetainedBytes { get; init; }
+
         /// <summary>sha256 hex of the full value bytes, streamed.</summary>
         public required string DigestHex { get; init; }
     }

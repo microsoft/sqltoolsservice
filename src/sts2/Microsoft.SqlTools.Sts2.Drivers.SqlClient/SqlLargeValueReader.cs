@@ -184,7 +184,9 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                     retainedCharLimit = prefix.Length;
                     oversized = true;
                 }
-                if (read < chars.Length)
+                // As in ReadBinary: a short read is a packet boundary, not the end of the
+                // value. Ending here would truncate the text and desync the reader.
+                if (fieldChars >= 0 && fieldOffset >= fieldChars)
                 {
                     break;
                 }
@@ -216,6 +218,20 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             int ordinal,
             int maxCellBytes,
             CancellationToken cancellationToken)
+            => ReadBinary(reader, ordinal, maxCellBytes, retainOversized: false, cancellationToken);
+
+        /// <summary>
+        /// Streams a binary cell. When <paramref name="retainOversized"/> is set, an oversized
+        /// value is also kept whole so the caller can serve <c>v2/query.cell</c> fetch-back;
+        /// peak memory then rises from prefix+chunk to the value itself, which is why only
+        /// queries that opted in ever request it.
+        /// </summary>
+        internal static object ReadBinary(
+            SqlDataReader reader,
+            int ordinal,
+            int maxCellBytes,
+            bool retainOversized,
+            CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             long fieldBytes = reader.GetBytes(ordinal, 0, null, 0, 0);
@@ -223,6 +239,8 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             int retainedByteLimit = knownOversized
                 ? RetainedUnitsForKnownLength(fieldBytes, maxCellBytes)
                 : int.MaxValue;
+            // Whole-value buffer, only when this query asked to be able to fetch the rest.
+            var retained = retainOversized ? new List<byte>(InitialCapacity(fieldBytes, int.MaxValue)) : null;
             byte[] chunk = new byte[ChunkBytes];
             var prefix = new List<byte>(InitialCapacity(fieldBytes, retainedByteLimit));
             long totalBytes = 0;
@@ -239,6 +257,10 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                 fieldOffset += read;
                 totalBytes += read;
                 sha.AppendData(chunk, 0, (int)read);
+                if (retained is not null)
+                {
+                    retained.AddRange(chunk.AsSpan(0, (int)read));
+                }
                 if (prefix.Count < retainedByteLimit)
                 {
                     int keep = (int)Math.Min(read, (long)retainedByteLimit - prefix.Count);
@@ -251,7 +273,13 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                 {
                     retainedByteLimit = prefix.Count;
                 }
-                if (read < chunk.Length)
+                // A short read does NOT mean end of value. Over a sequential reader the
+                // provider returns what the current TDS packet holds, so a large value
+                // routinely arrives in partial chunks — treating the first of those as the
+                // end silently truncates the cell and leaves the column half-consumed, which
+                // stalls the next row. Only a zero-length read, or reaching a known length,
+                // ends the value.
+                if (fieldBytes >= 0 && fieldOffset >= fieldBytes)
                 {
                     break;
                 }
@@ -265,6 +293,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             {
                 Kind = "binary",
                 PrefixBytes = prefix.ToArray(),
+                RetainedBytes = retained?.ToArray(),
                 TotalBytes = totalBytes,
                 DigestHex = Convert.ToHexStringLower(sha.GetHashAndReset()),
             };

@@ -547,6 +547,9 @@ namespace Microsoft.SqlTools.Sts2.Hosting
             [JsonRpcMethod("v2/query.dispose", UseSingleObjectParameterDeserialization = true)]
             public Task<JsonElement?> QueryDisposeAsync(JsonElement? args = null) => session.InvokeAsync("v2/query.dispose", args);
 
+            [JsonRpcMethod("v2/query.cell", UseSingleObjectParameterDeserialization = true)]
+            public Task<JsonElement?> QueryCellAsync(JsonElement? args = null) => session.InvokeAsync("v2/query.cell", args);
+
             [JsonRpcMethod("v2/query.ack", UseSingleObjectParameterDeserialization = true)]
             public Task QueryAckAsync(JsonElement? args = null) =>
                 session.PostNotificationAsync("v2/query.ack", args);

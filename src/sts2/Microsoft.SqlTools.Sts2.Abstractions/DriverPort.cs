@@ -132,6 +132,13 @@ namespace Microsoft.SqlTools.Sts2.Abstractions
         public int PageBytes { get; init; }
 
         /// <summary>
+        /// When set, an oversized cell is also kept whole so the caller can serve
+        /// <c>v2/query.cell</c> fetch-back. Off by default: retaining a value defeats the
+        /// bounded-memory streaming that <see cref="MaxCellBytes"/> exists to provide.
+        /// </summary>
+        public bool RetainOversizedCells { get; init; }
+
+        /// <summary>
         /// Per-cell byte bound (QO-4): lets the driver STREAM large values —
         /// bounded prefix plus honest truncation metadata — instead of
         /// materializing them for the encoder to truncate later. 0 means the

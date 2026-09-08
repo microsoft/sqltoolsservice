@@ -1175,9 +1175,6 @@
   <data name="ErrorConnectionNotFound" xml:space="preserve">
     <value>无法找到连接</value>
   </data>
-  <data name="ErrorEmptyStringReplacement" xml:space="preserve">
-    <value>用空字符串取代空字符串。</value>
-  </data>
   <data name="ErrorInvalidEdition" xml:space="preserve">
     <value>版本值无效</value>
   </data>
@@ -3664,6 +3661,9 @@
   </data>
   <data name="compatibilityLevel_sqlv170" xml:space="preserve">
     <value>SQL Server 2025 (170)</value>
+  </data>
+  <data name="compatibilityLevel_sqlv180" xml:space="preserve">
+    <value>SQL Server vNext (180)</value>
   </data>
   <data name="compatibilityLevel_yukon" xml:space="preserve">
     <value>SQL Server 2005 (90)</value>

@@ -124,6 +124,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                                         pageRows,
                                         pageBytes,
                                         maxCellBytes,
+                                        request.RetainOversizedCells,
                                         request.VectorBinary,
                                         request.SpatialWkb,
                                         pendingMessages,
@@ -206,6 +207,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             int pageRows,
             int pageBytes,
             int maxCellBytes,
+            bool retainOversizedCells,
             bool vectorBinary,
             bool spatialWkb,
             ConcurrentQueue<ServerMessage> pendingMessages,
@@ -232,6 +234,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             // QO-3: rows and bytes both bound page construction — whichever limit
             // is reached first completes the page (SqlRowsPageBuilder).
             var builder = new SqlRowsPageBuilder(pageRows, pageBytes);
+            long lastPageTicks = Environment.TickCount64;
 
             IEnumerable<ExecEvent> FlushRowsThenMessages()
             {
@@ -271,13 +274,37 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                     readKinds,
                     columns,
                     maxCellBytes,
+                    retainOversizedCells,
                     cancellationToken);
                 rowCount++;
+                bool emitted = false;
                 foreach (IReadOnlyList<IReadOnlyList<object?>> page in builder.Add(cells))
                 {
                     yield return new RowsPage(resultSetId, pageSeq, rowOffset, page);
                     rowOffset += page.Count;
                     pageSeq++;
+                    emitted = true;
+                }
+
+                // A result set that never ends (a live event stream) would otherwise hold rows
+                // until a size limit it may never reach. Release what is buffered once the page
+                // has been open longer than the latency bound.
+                if (!emitted
+                    && Environment.TickCount64 - lastPageTicks >= Sts2Defaults.PageLatencyMs)
+                {
+                    IReadOnlyList<IReadOnlyList<object?>>? agedPage = builder.Flush();
+                    if (agedPage is not null)
+                    {
+                        yield return new RowsPage(resultSetId, pageSeq, rowOffset, agedPage);
+                        rowOffset += agedPage.Count;
+                        pageSeq++;
+                        emitted = true;
+                    }
+                }
+
+                if (emitted)
+                {
+                    lastPageTicks = Environment.TickCount64;
                 }
 
                 // Sequential large-value reads can advance beyond the current row and surface an
@@ -348,6 +375,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
             IReadOnlyList<SqlLargeValueReader.CellRead> readKinds,
             IReadOnlyList<ColumnInfo> columns,
             int maxCellBytes,
+            bool retainOversizedCells,
             CancellationToken cancellationToken)
         {
             try
@@ -365,7 +393,7 @@ namespace Microsoft.SqlTools.Sts2.Drivers.SqlClient
                                     ? SqlClientVectorValueReader.ReadText(reader, i)
                                     : SqlLargeValueReader.ReadText(reader, i, maxCellBytes, cancellationToken),
                             SqlLargeValueReader.CellRead.Binary =>
-                                SqlLargeValueReader.ReadBinary(reader, i, maxCellBytes, cancellationToken),
+                                SqlLargeValueReader.ReadBinary(reader, i, maxCellBytes, retainOversizedCells, cancellationToken),
                             SqlLargeValueReader.CellRead.Vector =>
                                 SqlClientVectorValueReader.Read(reader, i, maxCellBytes),
                             SqlLargeValueReader.CellRead.Spatial =>

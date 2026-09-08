@@ -1,22 +1,4 @@
 #nullable enable
-~override Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput.Equals(object obj) -> bool
-~override Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput.ToString() -> string
-const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeJsonCodec.SchemaId = "sts2.envelope/1" -> string!
-const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.Command = "cmd" -> string!
-const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.ConfigChanged = "config.changed" -> string!
-const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.Control = "control" -> string!
-const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.Diagnostic = "diag" -> string!
-const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.EffectRequest = "effect.req" -> string!
-const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.EffectResponse = "effect.res" -> string!
-const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.Event = "evt" -> string!
-const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.Metric = "metric" -> string!
-const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.RpcInNotify = "rpc.in.notify" -> string!
-const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.RpcInRequest = "rpc.in.request" -> string!
-const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.RpcOutError = "rpc.out.error" -> string!
-const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.RpcOutNotify = "rpc.out.notify" -> string!
-const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.RpcOutResult = "rpc.out.result" -> string!
-const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.StateSnapshot = "state.snapshot" -> string!
-const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.TimerDue = "timer.due" -> string!
 Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator
 Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.Completion.get -> System.Threading.Tasks.Task!
 Microsoft.SqlTools.Sts2.Runtime.Coordination.Coordinator.ConfigVersion.get -> int
@@ -105,6 +87,8 @@ Microsoft.SqlTools.Sts2.Runtime.Effects.DriverEffectRunner.DriverEffectRunner(Sy
 Microsoft.SqlTools.Sts2.Runtime.Effects.DriverEffectRunner.OpenSessionCount.get -> int
 Microsoft.SqlTools.Sts2.Runtime.Effects.DriverEffectRunner.OpensInFlightCount.get -> int
 Microsoft.SqlTools.Sts2.Runtime.Effects.DriverEffectRunner.Run(Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem! effect, Microsoft.SqlTools.Sts2.Runtime.Coordination.ICoordinatorInbox! inbox) -> void
+Microsoft.SqlTools.Sts2.Runtime.Effects.ICellRetentionSink
+Microsoft.SqlTools.Sts2.Runtime.Effects.ICellRetentionSink.Retain(byte[]! value) -> string?
 Microsoft.SqlTools.Sts2.Runtime.Effects.WireValueEncoder
 Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeJsonCodec
 Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds
@@ -312,6 +296,22 @@ Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult.Outcome.init -> void
 Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult.PendingOutputCount.get -> int
 Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult.PendingOutputCount.init -> void
 Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult.ReplayResult() -> void
+const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeJsonCodec.SchemaId = "sts2.envelope/1" -> string!
+const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.Command = "cmd" -> string!
+const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.ConfigChanged = "config.changed" -> string!
+const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.Control = "control" -> string!
+const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.Diagnostic = "diag" -> string!
+const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.EffectRequest = "effect.req" -> string!
+const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.EffectResponse = "effect.res" -> string!
+const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.Event = "evt" -> string!
+const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.Metric = "metric" -> string!
+const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.RpcInNotify = "rpc.in.notify" -> string!
+const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.RpcInRequest = "rpc.in.request" -> string!
+const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.RpcOutError = "rpc.out.error" -> string!
+const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.RpcOutNotify = "rpc.out.notify" -> string!
+const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.RpcOutResult = "rpc.out.result" -> string!
+const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.StateSnapshot = "state.snapshot" -> string!
+const Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.TimerDue = "timer.due" -> string!
 override Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.Equals(object? obj) -> bool
 override Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.GetHashCode() -> int
 override Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.ToString() -> string!
@@ -352,16 +352,16 @@ override Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult.ToString() -> strin
 static Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.operator !=(Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions? left, Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions? right) -> bool
 static Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions.operator ==(Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions? left, Microsoft.SqlTools.Sts2.Runtime.Coordination.CoordinatorOptions? right) -> bool
 static Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.Encode(Microsoft.SqlTools.Sts2.Core.CoreOutput! output, string! requestType) -> Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput
+static Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodeErrorBody(Microsoft.SqlTools.Sts2.Core.RpcErrorOutput! error) -> System.Text.Json.JsonElement
 static Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput.operator !=(Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput left, Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput right) -> bool
 static Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput.operator ==(Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput left, Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput right) -> bool
-static Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodeErrorBody(Microsoft.SqlTools.Sts2.Core.RpcErrorOutput! error) -> System.Text.Json.JsonElement
 static Microsoft.SqlTools.Sts2.Runtime.Coordination.DurabilityPolicy.IsCheckpoint(string! kind, string! type) -> bool
 static Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem.operator !=(Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem? left, Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem? right) -> bool
 static Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem.operator ==(Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem? left, Microsoft.SqlTools.Sts2.Runtime.Coordination.EffectWorkItem? right) -> bool
 static Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage.operator !=(Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage? left, Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage? right) -> bool
 static Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage.operator ==(Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage? left, Microsoft.SqlTools.Sts2.Runtime.Coordination.OutboundRpcMessage? right) -> bool
-static Microsoft.SqlTools.Sts2.Runtime.Effects.WireValueEncoder.Encode(object? cell, int maxCellBytes) -> System.Text.Json.Nodes.JsonNode?
 static Microsoft.SqlTools.Sts2.Runtime.Effects.WireValueEncoder.Encode(object? cell) -> System.Text.Json.Nodes.JsonNode?
+static Microsoft.SqlTools.Sts2.Runtime.Effects.WireValueEncoder.Encode(object? cell, int maxCellBytes) -> System.Text.Json.Nodes.JsonNode?
 static Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeJsonCodec.DeserializeLine(string! line) -> Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope!
 static Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeJsonCodec.SerializeLine(Microsoft.SqlTools.Sts2.Runtime.Envelopes.Sts2Envelope! envelope) -> string!
 static Microsoft.SqlTools.Sts2.Runtime.Envelopes.EnvelopeKinds.All.get -> System.Collections.Generic.IReadOnlyCollection<string!>!
@@ -397,3 +397,5 @@ static Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayDivergence.operator ==(Micro
 static Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult.operator !=(Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult? left, Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult? right) -> bool
 static Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult.operator ==(Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult? left, Microsoft.SqlTools.Sts2.Runtime.Replay.ReplayResult? right) -> bool
 static readonly Microsoft.SqlTools.Sts2.Runtime.Observability.Sts2EventSource.Log -> Microsoft.SqlTools.Sts2.Runtime.Observability.Sts2EventSource!
+~override Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput.Equals(object obj) -> bool
+~override Microsoft.SqlTools.Sts2.Runtime.Coordination.CoreOutputEncoder.EncodedOutput.ToString() -> string

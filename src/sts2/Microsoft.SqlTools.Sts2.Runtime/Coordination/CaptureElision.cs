@@ -72,7 +72,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Coordination
                 foreach (JsonProperty property in p.EnumerateObject())
                 {
                     writer.WritePropertyName(property.Name);
-                    string? fieldKind = elideRows && (property.Name is "rows" or "compact")
+                    string? fieldKind = elideRows && (property.Name is "rows" or "compact" or "cell")
                         ? property.Name
                         : elideSql && property.Name == "sql"
                             ? "sql"

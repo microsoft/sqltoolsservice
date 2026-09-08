@@ -20,6 +20,16 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
     /// ambiguous values. Invariant strings throughout (SPEC §2.11). Server-free and
     /// unit-tested so the type matrix is validated without a live engine.
     /// </summary>
+    /// <summary>
+    /// Takes custody of an oversized cell's full bytes and returns the handle the wire carries
+    /// so a client can fetch the remainder with <c>v2/query.cell</c>. Returns null when the
+    /// query's retention budget is exhausted, in which case the cell truncates as usual.
+    /// </summary>
+    public interface ICellRetentionSink
+    {
+        string? Retain(byte[] value);
+    }
+
     public static class WireValueEncoder
     {
         private const long JavaScriptMaxSafeInteger = 9_007_199_254_740_991L;
@@ -52,6 +62,9 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
         /// form so it does not construct a second JsonNode graph before serialization.
         /// </summary>
         internal static void Write(Utf8JsonWriter writer, object? cell, int maxCellBytes)
+            => Write(writer, cell, maxCellBytes, retention: null);
+
+        internal static void Write(Utf8JsonWriter writer, object? cell, int maxCellBytes, ICellRetentionSink? retention)
         {
             ArgumentNullException.ThrowIfNull(writer);
 
@@ -61,7 +74,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
             // the same rules as encoder-side truncation.
             if (cell is Abstractions.DriverTruncatedValue driverTruncated)
             {
-                WriteDriverTruncated(writer, driverTruncated, maxCellBytes);
+                WriteDriverTruncated(writer, driverTruncated, maxCellBytes, retention);
                 return;
             }
             if (maxCellBytes > 0)
@@ -83,8 +96,13 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
         private static void WriteDriverTruncated(
             Utf8JsonWriter writer,
             Abstractions.DriverTruncatedValue value,
-            int maxCellBytes)
+            int maxCellBytes,
+            ICellRetentionSink? retention = null)
         {
+            // Present only when this query opted into retention and the budget allowed it.
+            string? cellRef = value.RetainedBytes is { Length: > 0 } whole
+                ? retention?.Retain(whole)
+                : null;
             int cap = maxCellBytes > 0 ? PrefixLength(maxCellBytes) : Sts2Defaults.TruncatedPrefixBytes;
             string prefix;
             if (value.Kind == "binary")
@@ -96,7 +114,8 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                     "binary",
                     value.TotalBytes,
                     "sha256:" + value.DigestHex,
-                    prefix);
+                    prefix,
+                    cellRef);
             }
             else
             {
@@ -334,7 +353,8 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
             string of,
             long bytes,
             string digest,
-            ReadOnlySpan<char> prefix)
+            ReadOnlySpan<char> prefix,
+            string? cellRef = null)
         {
             writer.WriteStartObject();
             writer.WriteString("$t", "truncated");
@@ -342,6 +362,11 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
             writer.WriteNumber("bytes", bytes);
             writer.WriteString("digest", digest);
             writer.WriteString("v", prefix);
+            if (cellRef is not null)
+            {
+                // The remainder is retrievable for this query's lifetime via v2/query.cell.
+                writer.WriteString("more", cellRef);
+            }
             writer.WriteEndObject();
         }
 

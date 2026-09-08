@@ -72,6 +72,7 @@ namespace Microsoft.SqlTools.Sts2.Core
                 "v2/query.execute" => DecideQueryExecute(state, envelope),
                 "v2/query.cancel" => DecideQueryCancel(state, envelope),
                 "v2/query.dispose" => DecideQueryDispose(state, envelope),
+                "v2/query.cell" => DecideQueryCell(state, envelope),
                 _ => Error(state, envelope.Corr, Sts2ErrorCodes.InvalidRequest, "Unknown v2 method."),
             };
         }
@@ -112,6 +113,9 @@ namespace Microsoft.SqlTools.Sts2.Core
                     // STS2-3: query.execute options.maxCellBytes is honored (cells arrive
                     // bounded, oversized cells as truncated wrappers, SPEC §7.7).
                     ["maxCellBytesHonored"] = true,
+                    // Oversized cells carry a "more" handle for opted-in queries; v2/query.cell
+                    // pages the remainder while the query lives.
+                    ["retainOversizedCells"] = true,
                     // QO-3: query.execute options.pageRows/pageBytes (lower-only) and
                     // options.queryTimeoutMs are honored end to end (D-0014).
                     ["pageRowsHonored"] = true,
@@ -461,6 +465,9 @@ namespace Microsoft.SqlTools.Sts2.Core
             string queryId = string.Create(CultureInfo.InvariantCulture, $"q-{envelope.Seq}");
             string startEffectId = string.Create(CultureInfo.InvariantCulture, $"drv-qstart-{envelope.Seq}");
             int maxCellBytes = EffectiveMaxCellBytes(envelope.Payload);
+            // Opt-in: retaining oversized cells trades the driver's bounded-memory streaming
+            // for the ability to fetch the rest, so only a caller that asks for it pays.
+            bool retainOversizedCells = OptionIsTrue(envelope.Payload, "retainOversizedCells");
             // QO-3: page sizing and timeout follow the same normalize-into-journaled-args
             // pattern (STS2-3 precedent) so replay stays deterministic and the runner never
             // re-derives options.
@@ -476,7 +483,7 @@ namespace Microsoft.SqlTools.Sts2.Core
             bool vectorBinary = OptionIsLiteral(envelope.Payload, "vectorEncoding", "binary-v1");
             bool spatialWkb = OptionIsLiteral(envelope.Payload, "spatialEncoding", "wkb-v1");
             string startArgs = string.Create(CultureInfo.InvariantCulture, $$"""
-                {"queryId":{{JsonSerializer.Serialize(queryId)}},"connectionId":{{JsonSerializer.Serialize(connectionId)}},"handleId":{{JsonSerializer.Serialize(connection.HandleId)}},"sql":{{sqlRaw}},"credit":{{Sts2Defaults.WindowPages}},"maxCellBytes":{{maxCellBytes}},"pageRows":{{pageRows}},"pageBytes":{{pageBytes}},"queryTimeoutMs":{{queryTimeoutMs}},"compactRows":{{(compactRows ? "true" : "false")}},"vectorBinary":{{(vectorBinary ? "true" : "false")}},"spatialWkb":{{(spatialWkb ? "true" : "false")}}}
+                {"queryId":{{JsonSerializer.Serialize(queryId)}},"connectionId":{{JsonSerializer.Serialize(connectionId)}},"handleId":{{JsonSerializer.Serialize(connection.HandleId)}},"sql":{{sqlRaw}},"credit":{{Sts2Defaults.WindowPages}},"maxCellBytes":{{maxCellBytes}},"pageRows":{{pageRows}},"pageBytes":{{pageBytes}},"queryTimeoutMs":{{queryTimeoutMs}},"retainOversizedCells":{{(retainOversizedCells ? "true" : "false")}},"compactRows":{{(compactRows ? "true" : "false")}},"vectorBinary":{{(vectorBinary ? "true" : "false")}},"spatialWkb":{{(spatialWkb ? "true" : "false")}}}
                 """);
 
             CoreState next = state with
@@ -668,6 +675,47 @@ namespace Microsoft.SqlTools.Sts2.Core
                 new RpcResultOutput(corr, Json("{}")),
                 new EffectRequestOutput(effectId, "driver.queryCancel", Json(args), corr),
             ]);
+        }
+
+        /// <summary>
+        /// Fetches a byte range of an oversized cell the query retained (SPEC §7.7). The bytes
+        /// live in runner side state, so Core only validates the query and forwards the range.
+        /// </summary>
+        private static CoreDecision DecideQueryCell(CoreState state, CoreEnvelope envelope)
+        {
+            string corr = envelope.Corr!;
+            string? queryId = GetString(envelope.Payload, "queryId");
+            string? cellRef = GetString(envelope.Payload, "cellRef");
+            if (queryId is null || cellRef is null)
+            {
+                return Error(state, corr, Sts2ErrorCodes.InvalidRequest, "query.cell requires queryId and cellRef.");
+            }
+
+            if (!state.Queries.TryGetValue(queryId, out QueryInfo? query)
+                || query.Phase is QueryPhase.Disposing or QueryPhase.Disposed)
+            {
+                return Error(state, corr, Sts2ErrorCodes.NotFound, "No live query for this id; retained cells are released on dispose.");
+            }
+
+            long offset = 0;
+            int length = Sts2Defaults.CellChunkBytes;
+            if (envelope.Payload is { ValueKind: JsonValueKind.Object } payload)
+            {
+                if (payload.TryGetProperty("offset", out JsonElement offEl) && offEl.ValueKind == JsonValueKind.Number)
+                {
+                    offset = offEl.GetInt64();
+                }
+                if (payload.TryGetProperty("length", out JsonElement lenEl) && lenEl.ValueKind == JsonValueKind.Number)
+                {
+                    length = lenEl.GetInt32();
+                }
+            }
+
+            string effectId = string.Create(CultureInfo.InvariantCulture, $"drv-qcell-{envelope.Seq}");
+            string args = string.Create(CultureInfo.InvariantCulture,
+                $$"""{"corr":{{JsonSerializer.Serialize(corr)}},"queryId":{{JsonSerializer.Serialize(queryId)}},"cellRef":{{JsonSerializer.Serialize(cellRef)}},"offset":{{offset}},"length":{{length}}}""");
+
+            return new CoreDecision(state, [new EffectRequestOutput(effectId, "driver.queryCell", Json(args), corr)]);
         }
 
         private static CoreDecision DecideQueryDispose(CoreState state, CoreEnvelope envelope)
@@ -907,10 +955,32 @@ namespace Microsoft.SqlTools.Sts2.Core
             "driver.queryAdvance" => CoreDecision.StateOnly(state),
             "driver.queryCancel" => CoreDecision.StateOnly(state),
             "driver.queryDispose" => DecideDriverQueryDisposeResult(state, envelope),
+            "driver.queryCell" => DecideDriverQueryCellResult(state, envelope),
             "driver.queryEvent" => DecideQueryEvent(state, envelope),
             "diag.export" => DecideExportResult(state, envelope),
             _ => Unexpected(state, envelope, "unknown effect response type"),
         };
+
+        /// <summary>Turns the runner's retained-cell chunk into the caller's RPC result.</summary>
+        private static CoreDecision DecideDriverQueryCellResult(CoreState state, CoreEnvelope envelope)
+        {
+            string? corr = GetString(envelope.Payload, "corr");
+            if (corr is null)
+            {
+                return Unexpected(state, envelope, "driver.queryCell result without corr");
+            }
+
+            if (GetString(envelope.Payload, "status") != "ok")
+            {
+                string code = GetString(envelope.Payload, "code") ?? Sts2ErrorCodes.NotFound;
+                string message = GetString(envelope.Payload, "message") ?? "Retained cell is not available.";
+                return Error(state, corr, code, message);
+            }
+
+            string result = string.Create(CultureInfo.InvariantCulture,
+                $$"""{"v":{{JsonSerializer.Serialize(GetString(envelope.Payload, "cell"))}},"offset":{{GetRaw(envelope.Payload!.Value, "offset", "0")}},"length":{{GetRaw(envelope.Payload!.Value, "length", "0")}},"total":{{GetRaw(envelope.Payload!.Value, "total", "0")}},"eof":{{GetRaw(envelope.Payload!.Value, "eof", "false")}}}""");
+            return new CoreDecision(state, [new RpcResultOutput(corr, Json(result))]);
+        }
 
         private static CoreDecision DecideExportResult(CoreState state, CoreEnvelope envelope)
         {

@@ -1175,9 +1175,6 @@
   <data name="ErrorConnectionNotFound" xml:space="preserve">
     <value>연결을 찾을 수 없습니다.</value>
   </data>
-  <data name="ErrorEmptyStringReplacement" xml:space="preserve">
-    <value>빈 문자열을 빈 문자열로 바꾸기</value>
-  </data>
   <data name="ErrorInvalidEdition" xml:space="preserve">
     <value>버전 값이 유효하지 않습니다.</value>
   </data>
@@ -3664,6 +3661,9 @@
   </data>
   <data name="compatibilityLevel_sqlv170" xml:space="preserve">
     <value>SQL Server 2025 (170)</value>
+  </data>
+  <data name="compatibilityLevel_sqlv180" xml:space="preserve">
+    <value>SQL Server vNext(180)</value>
   </data>
   <data name="compatibilityLevel_yukon" xml:space="preserve">
     <value>SQL Server 2005(90)</value>

@@ -48,6 +48,15 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
         private readonly ConcurrentDictionary<string, CancellationTokenSource> opensInFlight = new(StringComparer.Ordinal);
         private readonly ConcurrentDictionary<string, IDbSession> sessions = new(StringComparer.Ordinal);
         private readonly ConcurrentDictionary<string, QueryPump> queryPumps = new(StringComparer.Ordinal);
+
+        /// <summary>
+        /// Oversized cells kept whole for <c>v2/query.cell</c> fetch-back, keyed by query id.
+        /// Deliberately NOT held on the pump: the pump is removed the moment streaming ends,
+        /// which is before a client that has just received a truncated marker can fetch the
+        /// rest. Retention lives until the query is disposed, matching the query's own lifetime
+        /// in Core. Side state throughout: it never reaches the reducer or the journal.
+        /// </summary>
+        private readonly ConcurrentDictionary<string, RetainedCells> retainedCells = new(StringComparer.Ordinal);
         private readonly ConcurrentDictionary<string, QueryPump> ownedQueryPumps = new(StringComparer.Ordinal);
         private readonly ConcurrentDictionary<long, Task> backgroundTasks = new();
         private long backgroundTaskId;
@@ -208,7 +217,14 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
             {
                 queryPumps.TryRemove(queryId, out _);
                 ownedQueryPumps.TryRemove(queryId, out _);
+                ReleaseRetainedCells(queryId);
                 DisposePumpResources(pump);
+            }
+            // A query whose pump already finished may still hold retained cells, so clear
+            // whatever remains rather than only what the pump list covers.
+            foreach (string queryId in retainedCells.Keys)
+            {
+                ReleaseRetainedCells(queryId);
             }
             foreach ((string openId, CancellationTokenSource cts) in opens)
             {
@@ -326,12 +342,61 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                     break;
                 }
 
+                case "driver.queryCell":
+                {
+                    string? corr = GetString(effect.Args, "corr");
+                    string corrJson = JsonSerializer.Serialize(corr);
+                    string? queryId = GetString(effect.Args, "queryId");
+                    string? cellRef = GetString(effect.Args, "cellRef");
+                    long offset = effect.Args.TryGetProperty("offset", out JsonElement offEl) && offEl.ValueKind == JsonValueKind.Number ? offEl.GetInt64() : 0;
+                    int length = effect.Args.TryGetProperty("length", out JsonElement lenEl) && lenEl.ValueKind == JsonValueKind.Number ? lenEl.GetInt32() : Sts2Defaults.CellChunkBytes;
+
+                    if (queryId is null || cellRef is null
+                        || !retainedCells.TryGetValue(queryId, out RetainedCells? cellSet)
+                        || !cellSet.Cells.TryGetValue(cellRef, out byte[]? whole))
+                    {
+                        // The query ended, or this cell was never retained. Say which, rather
+                        // than returning an empty chunk the caller would read as end-of-value.
+                        Track(PostAsync(inbox, effect,
+                            $$"""{"corr":{{corrJson}},"status":"error","code":{{JsonSerializer.Serialize(Sts2ErrorCodes.NotFound)}},"message":"No retained cell for this handle."}"""));
+                        break;
+                    }
+
+                    if (offset < 0 || offset > whole.LongLength)
+                    {
+                        Track(PostAsync(inbox, effect,
+                            $$"""{"corr":{{corrJson}},"status":"error","code":{{JsonSerializer.Serialize(Sts2ErrorCodes.InvalidRequest)}},"message":"Offset is outside the retained cell."}"""));
+                        break;
+                    }
+
+                    int take = (int)Math.Min(
+                        Math.Min(length <= 0 ? Sts2Defaults.CellChunkBytes : length, Sts2Defaults.CellChunkBytes),
+                        whole.LongLength - offset);
+                    string chunk = Convert.ToBase64String(whole.AsSpan((int)offset, take));
+                    bool eof = offset + take >= whole.LongLength;
+                    Track(PostAsync(inbox, effect,
+                        $$"""{"corr":{{corrJson}},"status":"ok","cell":{{JsonSerializer.Serialize(chunk)}},"offset":{{offset}},"length":{{take}},"total":{{whole.LongLength}},"eof":{{(eof ? "true" : "false")}}}"""));
+                    break;
+                }
+
                 case "driver.queryDispose":
                 {
                     string? queryId = GetString(effect.Args, "queryId");
-                    if (queryId is not null && queryPumps.TryRemove(queryId, out QueryPump? pump))
+                    QueryPump? pump = null;
+                    if (queryId is not null && queryPumps.TryRemove(queryId, out pump))
                     {
                         pump.Suppressed = true; // I3: no further events after dispose
+                    }
+
+                    // Release retained cells on dispose regardless of whether the pump is still
+                    // registered: streaming ends first, and the cells outlive it by design.
+                    if (queryId is not null)
+                    {
+                        ReleaseRetainedCells(queryId);
+                    }
+
+                    if (pump is not null)
+                    {
                         TryCancel(pump.Cancellation);
                         // Await the streaming task BEFORE acking so the driver reader/command is
                         // fully unwound before Core frees the connection — a new query can never
@@ -349,7 +414,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                             {
                                 // The pump's own faults are already classified into events.
                             }
-                            await PostDisposeAckAsync(inbox, effect, queryId).ConfigureAwait(false);
+                            await PostDisposeAckAsync(inbox, effect, queryId ?? "?").ConfigureAwait(false);
                         }));
                     }
                     else
@@ -472,6 +537,39 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
         /// Synchronously creates and registers the query pump (on the pump thread) so racing
         /// advance/cancel/dispose effects find it, then kicks the async streaming task.
         /// </summary>
+        /// <summary>
+        /// Takes custody of one oversized cell for a query that opted in, up to the per-query
+        /// budget. Past the budget the cell truncates with no handle, which the client sees as
+        /// an ordinary truncated cell rather than as a failure.
+        /// </summary>
+        private sealed class RetainedCells
+        {
+            public readonly ConcurrentDictionary<string, byte[]> Cells = new(StringComparer.Ordinal);
+
+            /// <summary>Bytes currently retained, against <see cref="Sts2Defaults.RetainedCellBytes"/>.</summary>
+            public long Bytes;
+
+            /// <summary>Monotonic source for retention handles within this query.</summary>
+            public int Seq;
+        }
+
+        private sealed class PumpRetentionSink(RetainedCells retained, string queryId) : ICellRetentionSink
+        {
+            public string? Retain(byte[] value)
+            {
+                long projected = Interlocked.Add(ref retained.Bytes, value.Length);
+                if (projected > Sts2Defaults.RetainedCellBytes)
+                {
+                    Interlocked.Add(ref retained.Bytes, -value.Length);
+                    return null;
+                }
+
+                string handle = $"{queryId}/c{Interlocked.Increment(ref retained.Seq)}";
+                retained.Cells[handle] = value;
+                return handle;
+            }
+        }
+
         private void StartQueryPump(EffectWorkItem effect, ICoordinatorInbox inbox)
         {
             string queryId = GetString(effect.Args, "queryId") ?? "?";
@@ -503,17 +601,28 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                 && vectorFlag.ValueKind == JsonValueKind.True;
             bool spatialWkb = effect.Args.TryGetProperty("spatialWkb", out JsonElement spatialFlag)
                 && spatialFlag.ValueKind == JsonValueKind.True;
+            // Core normalized options.retainOversizedCells into this journaled bool; only an
+            // opted-in query keeps oversized values whole for v2/query.cell fetch-back.
+            bool retainOversizedCells = effect.Args.TryGetProperty("retainOversizedCells", out JsonElement retainFlag)
+                && retainFlag.ValueKind == JsonValueKind.True;
 
             var pump = new QueryPump { Session = session, Credits = new SemaphoreSlim(initialCredit) };
             queryPumps[queryId] = pump;
             ownedQueryPumps[queryId] = pump;
-            pump.PumpTask = Task.Run(() => StreamQueryPumpAsync(effect, inbox, queryId, sql, maxCellBytes, pageRows, pageBytes, queryTimeoutMs, compactRows, vectorBinary, spatialWkb, pump));
+            pump.PumpTask = Task.Run(() => StreamQueryPumpAsync(effect, inbox, queryId, sql, maxCellBytes, pageRows, pageBytes, queryTimeoutMs, compactRows, vectorBinary, spatialWkb, retainOversizedCells, pump));
             Track(pump.PumpTask);
         }
 
-        private async Task StreamQueryPumpAsync(EffectWorkItem effect, ICoordinatorInbox inbox, string queryId, string sql, int maxCellBytes, int pageRows, int pageBytes, int queryTimeoutMs, bool compactRows, bool vectorBinary, bool spatialWkb, QueryPump pump)
+        private async Task StreamQueryPumpAsync(EffectWorkItem effect, ICoordinatorInbox inbox, string queryId, string sql, int maxCellBytes, int pageRows, int pageBytes, int queryTimeoutMs, bool compactRows, bool vectorBinary, bool spatialWkb, bool retainOversizedCells, QueryPump pump)
         {
             bool terminalObserved = false;
+            // Only an opted-in query gets a retention sink; without one an oversized cell
+            // truncates exactly as before and carries no fetch handle.
+            ICellRetentionSink? retentionSink =
+                retainOversizedCells
+                    ? new PumpRetentionSink(
+                        retainedCells.GetOrAdd(queryId, static _ => new RetainedCells()), queryId)
+                    : null;
 
             try
             {
@@ -535,6 +644,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                     // QO-4: the driver streams large values bounded by this;
                     // the encoder stays authoritative for anything it didn't.
                     MaxCellBytes = maxCellBytes,
+                    RetainOversizedCells = retainOversizedCells,
                     // D-0019: typed vector cells only for opted-in queries.
                     VectorBinary = vectorBinary,
                     SpatialWkb = spatialWkb,
@@ -592,6 +702,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                                 page,
                                 compactRows,
                                 maxCellBytes,
+                                retentionSink,
                                 typeHintsBySet.GetValueOrDefault(page.ResultSetId, "[]"),
                                 readMs,
                                 creditWaitMs,
@@ -794,6 +905,15 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
             int maxCellBytes,
             out long cellSlots,
             out long nullCells)
+            => WriteRows(writer, rows, maxCellBytes, retention: null, out cellSlots, out nullCells);
+
+        internal static long WriteRows(
+            Utf8JsonWriter writer,
+            IReadOnlyList<IReadOnlyList<object?>> rows,
+            int maxCellBytes,
+            ICellRetentionSink? retention,
+            out long cellSlots,
+            out long nullCells)
         {
             cellSlots = 0;
             nullCells = 0;
@@ -820,7 +940,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                     // SPEC §7.7 wire encoding at the query's effective bound
                     // (R024/STS2-3). Write directly into the final event buffer:
                     // building a JsonNode for every cell duplicated the page graph.
-                    WireValueEncoder.Write(writer, cell, maxCellBytes);
+                    WireValueEncoder.Write(writer, cell, maxCellBytes, retention);
                 }
                 writer.WriteEndArray();
             }
@@ -835,6 +955,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
             RowsPage page,
             bool compactRows,
             int maxCellBytes,
+            ICellRetentionSink? retention,
             string typeHintsJson,
             double readMs,
             double creditWaitMs,
@@ -881,6 +1002,7 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
                 writer,
                 page.Cells,
                 maxCellBytes,
+                retention,
                 out long cellSlots,
                 out long nullCells);
             double rowsSerializeMs = ElapsedMs(rowsSerializeStartTicks);
@@ -1481,6 +1603,19 @@ namespace Microsoft.SqlTools.Sts2.Runtime.Effects
             catch (ObjectDisposedException)
             {
                 // The stream completed between the dictionary lookup and this release.
+            }
+        }
+
+        /// <summary>
+        /// Drops every cell retained for a query and the bytes they counted against the budget.
+        /// Idempotent: dispose and runner teardown may both reach the same query.
+        /// </summary>
+        private void ReleaseRetainedCells(string queryId)
+        {
+            if (retainedCells.TryRemove(queryId, out RetainedCells? set))
+            {
+                set.Cells.Clear();
+                Interlocked.Exchange(ref set.Bytes, 0);
             }
         }
 

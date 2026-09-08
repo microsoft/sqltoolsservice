@@ -1175,9 +1175,6 @@
   <data name="ErrorConnectionNotFound" xml:space="preserve">
     <value>Bağlantı bulunamadı</value>
   </data>
-  <data name="ErrorEmptyStringReplacement" xml:space="preserve">
-    <value>Boş bir dizenin boş bir dizeyle değiştirilmesi.</value>
-  </data>
   <data name="ErrorInvalidEdition" xml:space="preserve">
     <value>Sürüm değeri geçerli değil</value>
   </data>
@@ -2004,7 +2001,7 @@
     <value>SQL Server</value>
   </data>
   <data name="MissingIndexDetailsTitle" xml:space="preserve">
-    <value>/*]D;]A;{0}]D; öğesinden Eksik Dizin Ayrıntıları]A;Sorgu İşlemcisi, aşağıdaki dizini uygulamanın sorgu maliyetini %{1} düşüreceğini tahmin ediyor.]D;]A;*/</value>
+    <value>/*]D;]A;{0} öğesinden Eksik Dizin Ayrıntıları]D;]A;Sorgu İşlemcisi, aşağıdaki dizini uygulamanın sorgu maliyetini %{1} düşüreceğini tahmin ediyor.]D;]A;*/</value>
   </data>
   <data name="MissingIndexFormat" xml:space="preserve">
     <value>Eksik Dizin ({0} Etkisi): {1}</value>
@@ -3664,6 +3661,9 @@
   </data>
   <data name="compatibilityLevel_sqlv170" xml:space="preserve">
     <value>SQL Server 2025 (170)</value>
+  </data>
+  <data name="compatibilityLevel_sqlv180" xml:space="preserve">
+    <value>SQL Server vNext (180)</value>
   </data>
   <data name="compatibilityLevel_yukon" xml:space="preserve">
     <value>SQL Server 2005 (90)</value>

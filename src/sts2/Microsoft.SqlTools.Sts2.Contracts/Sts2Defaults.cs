@@ -14,6 +14,16 @@ namespace Microsoft.SqlTools.Sts2.Contracts
         /// <summary>Max bytes per page (<c>sts2.results.pageBytes</c>).</summary>
         public const int PageBytes = 262144;
 
+        /// <summary>
+        /// Longest a partially filled page may be held before it is sent anyway
+        /// (<c>sts2.results.pageLatencyMs</c>).
+        ///
+        /// Row and byte limits alone starve a query whose rows trickle in and whose result set
+        /// never ends — a live Extended Events stream being the clear case: its rows arrive one
+        /// dispatch buffer at a time and a quiet server would hold them until 256 KB accumulated.
+        /// </summary>
+        public const int PageLatencyMs = 250;
+
         /// <summary>Unacked pages per query (<c>sts2.results.windowPages</c>).</summary>
         public const int WindowPages = 4;
 
@@ -22,6 +32,17 @@ namespace Microsoft.SqlTools.Sts2.Contracts
 
         /// <summary>Retained prefix for truncated cells (<c>sts2.results.truncatedPrefixBytes</c>).</summary>
         public const int TruncatedPrefixBytes = 65536;
+
+        /// <summary>
+        /// Ceiling on bytes a single query may hold for oversized-cell fetch-back
+        /// (<c>sts2.results.retainedCellBytes</c>). Only queries that opt in with
+        /// <c>options.retainOversizedCells</c> retain anything; past this ceiling a cell is
+        /// truncated as usual and carries no fetch handle.
+        /// </summary>
+        public const int RetainedCellBytes = 33554432;
+
+        /// <summary>Largest byte range one <c>v2/query.cell</c> call may return.</summary>
+        public const int CellChunkBytes = 4194304;
 
         /// <summary>Max transport frame (<c>sts2.transport.maxFrameBytes</c>).</summary>
         public const int MaxFrameBytes = 67108864;

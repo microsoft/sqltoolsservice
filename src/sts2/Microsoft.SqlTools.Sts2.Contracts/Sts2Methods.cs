@@ -44,6 +44,7 @@ namespace Microsoft.SqlTools.Sts2.Contracts
             new() { Name = "v2/query.ack", Kind = "client notification", Summary = "Backpressure credit or high-water mark.", Milestone = "M3" },
             new() { Name = "v2/query.cancel", Kind = "request", Summary = "Cancel query by queryId; idempotent.", Milestone = "M3" },
             new() { Name = "v2/query.dispose", Kind = "request", Summary = "Release query resources; idempotent.", Milestone = "M3" },
+            new() { Name = "v2/query.cell", Kind = "request", Summary = "Fetch a byte range of an oversized cell retained for this query.", Milestone = "M3" },
             new() { Name = "v2/diagnostics.ping", Kind = "request", Summary = "Echo, health summary, latest journal seq.", Milestone = "M0" },
             new() { Name = "v2/diagnostics.health", Kind = "request", Summary = "Counters, active connections/queries, fatal status, config version.", Milestone = "M6" },
             new() { Name = "v2/diagnostics.state", Kind = "request", Summary = "Redacted state snapshot: connection/query ids, phases, counters.", Milestone = "M6" },
