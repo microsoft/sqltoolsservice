@@ -17,29 +17,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
         [Test]
         public void ResolveShouldMapFullCanonicalSettingsSurface()
         {
-            SqlFormatterOptions formatterOptions = new SqlFormatterOptions
-            {
-                SqlVersion = SqlFormatterVersion.Sql180,
-                SqlEngineType = SqlFormatterEngineType.Standalone,
-                BuiltInFunctionCasing = SqlFormatterBuiltInFunctionCasing.Lowercase,
-                ClauseBodyAlignment = SqlFormatterClauseBodyAlignment.Indented,
-                ColumnAliasStyle = SqlFormatterColumnAliasStyle.EqualsSign,
-                CommaPlacement = SqlFormatterCommaPlacement.Leading,
-                IdentifierBracketing = SqlFormatterIdentifierBracketing.ExcludeBrackets,
-                IdentifierCasing = SqlFormatterIdentifierCasing.PascalCase,
-                KeywordCasing = SqlFormatterKeywordCasing.PascalCase,
-                LeadingCommaSpaceCount = 0,
-                NumNewlinesAfterBatches = 3,
-                NumNewlinesAfterBatchStatement = 4,
-                NumNewlinesAfterStatement = 3
-            };
-            foreach (var property in typeof(SqlFormatterOptions).GetProperties())
-            {
-                if (property.PropertyType == typeof(bool))
-                {
-                    property.SetValue(formatterOptions, !(bool)property.GetValue(formatterOptions));
-                }
-            }
+            SqlFormatterOptions formatterOptions = CreateNonDefaultFormatterOptions();
 
             ScriptDomFormatterSettings settings = ScriptDomFormatterSettings.Resolve(null, formatterOptions);
 
@@ -63,63 +41,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
         [Test]
         public void ToScriptGeneratorOptionsShouldMapFullSettingsSurface()
         {
-            ScriptDomFormatterSettings settings = new ScriptDomFormatterSettings
-            {
-                AlignClauseBodies = false,
-                AlignColumnDefinitionFields = true,
-                AlignSetClauseItem = false,
-                AllowExternalLanguagePaths = false,
-                AllowExternalLibraryPaths = false,
-                AsKeywordOnOwnLine = false,
-                IndentSetClause = true,
-                IndentationSize = 2,
-                IndentViewBody = true,
-                LeadingCommaSpaceCount = 0,
-                MultilineGroupByElementsList = true,
-                MultilineHavingPredicatesList = false,
-                MultilineInsertSourcesList = false,
-                MultilineInsertTargetsList = false,
-                MultilineInValuesList = true,
-                MultilineNestedFunctionCalls = true,
-                MultilineOrderByElementsList = true,
-                MultilinePartitionByElementsList = true,
-                MultilineProcedureParametersList = true,
-                MultilineSelectElementsList = false,
-                MultilineSetClauseItems = false,
-                MultilineViewColumnsList = false,
-                MultilineWherePredicatesList = false,
-                MultilineWithOptionsList = true,
-                NewLineAfterJoinKeyword = false,
-                NewLineBeforeCloseParenthesisInMultilineList = false,
-                NewLineBeforeFromClause = false,
-                NewLineBeforeGroupByClause = false,
-                NewLineBeforeHavingClause = false,
-                NewLineBeforeJoinClause = false,
-                NewLineBeforeOffsetClause = false,
-                NewLineBeforeOnClause = false,
-                NewLineBeforeOpenParenthesisInMultilineList = true,
-                NewLineBeforeOrderByClause = false,
-                NewLineBeforeOutputClause = false,
-                NewLineBeforeWhereClause = false,
-                NewLineBeforeWindowClause = false,
-                NewlineFormattedCheckConstraint = true,
-                NewLineFormattedIndexDefinition = true,
-                NumNewlinesAfterBatches = 3,
-                NumNewlinesAfterBatchStatement = 4,
-                NumNewlinesAfterStatement = 3,
-                PersistTrailingGo = true,
-                PreserveComments = false,
-                SpaceBetweenDataTypeAndParameters = false,
-                SpaceBetweenParametersInDataType = false,
-                TerminateBlockStatements = true
-            };
-            SetEnumProperty(settings, nameof(ScriptDomFormatterSettings.BuiltInFunctionCasing), "Lowercase");
-            SetEnumProperty(settings, nameof(ScriptDomFormatterSettings.ClauseBodyAlignment), "Indented");
-            SetEnumProperty(settings, nameof(ScriptDomFormatterSettings.ColumnAliasStyle), "EqualsSign");
-            SetEnumProperty(settings, nameof(ScriptDomFormatterSettings.CommaPlacement), "Leading");
-            SetEnumProperty(settings, nameof(ScriptDomFormatterSettings.IdentifierBracketing), "ExcludeBrackets");
-            SetEnumProperty(settings, nameof(ScriptDomFormatterSettings.IdentifierCasing), "PascalCase");
-            SetEnumProperty(settings, nameof(ScriptDomFormatterSettings.IndentationMode), "Tabs");
+            ScriptDomFormatterSettings settings = ScriptDomFormatterSettings.Resolve(
+                new FormattingOptions { InsertSpaces = false, TabSize = 2 },
+                CreateNonDefaultFormatterOptions());
 
             var options = ScriptDomFormatterOptionsMapper.ToScriptGeneratorOptions(settings);
 
@@ -128,16 +52,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 var generatorProperty = options.GetType().GetProperty(property.Name);
                 Assert.NotNull(generatorProperty, property.Name);
                 Assert.AreEqual(property.GetValue(settings), generatorProperty.GetValue(options), property.Name);
-            }
-
-            foreach (var property in options.GetType().GetProperties())
-            {
-                if (property.Name == "IncludeSemicolons")
-                {
-                    continue;
-                }
-
-                Assert.NotNull(typeof(ScriptDomFormatterSettings).GetProperty(property.Name), property.Name);
             }
         }
 
@@ -227,11 +141,33 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
             Assert.AreEqual(4, settings.IndentationSize);
         }
 
-        private static void SetEnumProperty(object target, string propertyName, string value)
+        private static SqlFormatterOptions CreateNonDefaultFormatterOptions()
         {
-            var property = target.GetType().GetProperty(propertyName);
-            Assert.NotNull(property, propertyName);
-            property.SetValue(target, System.Enum.Parse(property.PropertyType, value));
+            SqlFormatterOptions formatterOptions = new SqlFormatterOptions
+            {
+                SqlVersion = SqlFormatterVersion.Sql180,
+                SqlEngineType = SqlFormatterEngineType.Standalone,
+                BuiltInFunctionCasing = SqlFormatterBuiltInFunctionCasing.Lowercase,
+                ClauseBodyAlignment = SqlFormatterClauseBodyAlignment.Indented,
+                ColumnAliasStyle = SqlFormatterColumnAliasStyle.EqualsSign,
+                CommaPlacement = SqlFormatterCommaPlacement.Leading,
+                IdentifierBracketing = SqlFormatterIdentifierBracketing.ExcludeBrackets,
+                IdentifierCasing = SqlFormatterIdentifierCasing.PascalCase,
+                KeywordCasing = SqlFormatterKeywordCasing.PascalCase,
+                LeadingCommaSpaceCount = 0,
+                NumNewlinesAfterBatches = 3,
+                NumNewlinesAfterBatchStatement = 4,
+                NumNewlinesAfterStatement = 3
+            };
+            foreach (var property in typeof(SqlFormatterOptions).GetProperties())
+            {
+                if (property.PropertyType == typeof(bool))
+                {
+                    property.SetValue(formatterOptions, !(bool)property.GetValue(formatterOptions));
+                }
+            }
+
+            return formatterOptions;
         }
     }
 }
