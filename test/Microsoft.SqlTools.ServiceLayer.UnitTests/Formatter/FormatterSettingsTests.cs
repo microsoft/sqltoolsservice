@@ -54,7 +54,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                     sqlVersion: ""sql160"",
                     sqlEngineType: ""standalone"",
                     alignClauseBodies: false,
+                    builtInFunctionCasing: ""lowercase"",
+                    clauseBodyAlignment: ""indented"",
+                    columnAliasStyle: ""equalsSign"",
+                    commaPlacement: ""leading"",
+                    identifierBracketing: ""excludeBrackets"",
+                    identifierCasing: ""pascalCase"",
                     keywordCasing: ""lowercase"",
+                    leadingCommaSpaceCount: 0,
+                    multilineNestedFunctionCalls: true,
+                    numNewlinesAfterBatches: 2,
+                    numNewlinesAfterBatchStatement: 4,
                     numNewlinesAfterStatement: 3
                 }
             }
@@ -78,7 +88,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
             Assert.AreEqual(SqlFormatterVersion.Sql160, sqlToolsSettings.SqlTools.Format.Options.SqlVersion);
             Assert.AreEqual(SqlFormatterEngineType.Standalone, sqlToolsSettings.SqlTools.Format.Options.SqlEngineType);
             Assert.False(sqlToolsSettings.SqlTools.Format.Options.AlignClauseBodies);
+            Assert.AreEqual(SqlFormatterBuiltInFunctionCasing.Lowercase, sqlToolsSettings.SqlTools.Format.Options.BuiltInFunctionCasing);
+            Assert.AreEqual(SqlFormatterClauseBodyAlignment.Indented, sqlToolsSettings.SqlTools.Format.Options.ClauseBodyAlignment);
+            Assert.AreEqual(SqlFormatterColumnAliasStyle.EqualsSign, sqlToolsSettings.SqlTools.Format.Options.ColumnAliasStyle);
+            Assert.AreEqual(SqlFormatterCommaPlacement.Leading, sqlToolsSettings.SqlTools.Format.Options.CommaPlacement);
+            Assert.AreEqual(SqlFormatterIdentifierBracketing.ExcludeBrackets, sqlToolsSettings.SqlTools.Format.Options.IdentifierBracketing);
+            Assert.AreEqual(SqlFormatterIdentifierCasing.PascalCase, sqlToolsSettings.SqlTools.Format.Options.IdentifierCasing);
             Assert.AreEqual(SqlFormatterKeywordCasing.Lowercase, sqlToolsSettings.SqlTools.Format.Options.KeywordCasing);
+            Assert.AreEqual(0, sqlToolsSettings.SqlTools.Format.Options.LeadingCommaSpaceCount);
+            Assert.True(sqlToolsSettings.SqlTools.Format.Options.MultilineNestedFunctionCalls);
+            Assert.AreEqual(2, sqlToolsSettings.SqlTools.Format.Options.NumNewlinesAfterBatches);
+            Assert.AreEqual(4, sqlToolsSettings.SqlTools.Format.Options.NumNewlinesAfterBatchStatement);
             Assert.AreEqual(3, sqlToolsSettings.SqlTools.Format.Options.NumNewlinesAfterStatement);
             Assert.True(sqlToolsSettings.SqlTools.Format.Options.PreserveComments);
         }
@@ -90,10 +110,43 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
 
             Assert.AreEqual(SqlFormatterVersion.Sql170, options.SqlVersion);
             Assert.AreEqual(SqlFormatterEngineType.All, options.SqlEngineType);
+            Assert.AreEqual(SqlFormatterBuiltInFunctionCasing.Preserve, options.BuiltInFunctionCasing);
+            Assert.AreEqual(SqlFormatterClauseBodyAlignment.Aligned, options.ClauseBodyAlignment);
+            Assert.AreEqual(SqlFormatterColumnAliasStyle.AsKeyword, options.ColumnAliasStyle);
+            Assert.AreEqual(SqlFormatterCommaPlacement.Trailing, options.CommaPlacement);
+            Assert.AreEqual(SqlFormatterIdentifierBracketing.Preserve, options.IdentifierBracketing);
+            Assert.AreEqual(SqlFormatterIdentifierCasing.Preserve, options.IdentifierCasing);
             Assert.AreEqual(SqlFormatterKeywordCasing.Uppercase, options.KeywordCasing);
+            Assert.AreEqual(1, options.LeadingCommaSpaceCount);
             Assert.True(options.AlignClauseBodies);
+            Assert.False(options.MultilineGroupByElementsList);
+            Assert.True(options.MultilineHavingPredicatesList);
+            Assert.False(options.MultilineInValuesList);
+            Assert.False(options.MultilineNestedFunctionCalls);
+            Assert.False(options.MultilineOrderByElementsList);
+            Assert.False(options.MultilinePartitionByElementsList);
+            Assert.False(options.MultilineProcedureParametersList);
+            Assert.False(options.MultilineWithOptionsList);
+            Assert.True(options.NewLineAfterJoinKeyword);
+            Assert.True(options.NewLineBeforeOnClause);
+            Assert.AreEqual(1, options.NumNewlinesAfterBatches);
+            Assert.AreEqual(2, options.NumNewlinesAfterBatchStatement);
             Assert.True(options.PreserveComments);
             Assert.AreEqual(1, options.NumNewlinesAfterStatement);
+            Assert.False(options.PersistTrailingGo);
+            Assert.False(options.TerminateBlockStatements);
+        }
+
+        [TestCase("sql180", SqlFormatterVersion.Sql180)]
+        [TestCase("sqlFabricDW", SqlFormatterVersion.SqlFabricDW)]
+        public void LatestSqlVersionsShouldDeserializeFromConfiguration(
+            string configuredValue,
+            SqlFormatterVersion expected)
+        {
+            SqlFormatterOptions options = JObject.Parse($"{{ sqlVersion: '{configuredValue}' }}")
+                .ToObject<SqlFormatterOptions>();
+
+            Assert.AreEqual(expected, options.SqlVersion);
         }
 
         [Test]
