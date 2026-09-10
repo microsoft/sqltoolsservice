@@ -21,7 +21,9 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
         Sql140,
         Sql150,
         Sql160,
-        Sql170
+        Sql170,
+        Sql180,
+        SqlFabricDW
     }
 
     public enum SqlFormatterEngineType
@@ -35,6 +37,48 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
     {
         Lowercase,
         Uppercase,
+        PascalCase
+    }
+
+    public enum SqlFormatterBuiltInFunctionCasing
+    {
+        Preserve,
+        Uppercase,
+        Lowercase,
+        PascalCase
+    }
+
+    public enum SqlFormatterClauseBodyAlignment
+    {
+        Aligned,
+        Indented
+    }
+
+    public enum SqlFormatterColumnAliasStyle
+    {
+        AsKeyword,
+        EqualsSign,
+        Preserve
+    }
+
+    public enum SqlFormatterCommaPlacement
+    {
+        Trailing,
+        Leading
+    }
+
+    public enum SqlFormatterIdentifierBracketing
+    {
+        Preserve,
+        IncludeBrackets,
+        ExcludeBrackets
+    }
+
+    public enum SqlFormatterIdentifierCasing
+    {
+        Preserve,
+        Uppercase,
+        Lowercase,
         PascalCase
     }
 
@@ -62,6 +106,26 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
         public bool AsKeywordOnOwnLine { get; set; } = true;
 
         [JsonConverter(typeof(StringEnumConverter))]
+        public SqlFormatterBuiltInFunctionCasing BuiltInFunctionCasing { get; set; } = SqlFormatterBuiltInFunctionCasing.Preserve;
+
+        [JsonConverter(typeof(StringEnumConverter))]
+        public SqlFormatterClauseBodyAlignment ClauseBodyAlignment { get; set; } = SqlFormatterClauseBodyAlignment.Aligned;
+
+        [JsonConverter(typeof(StringEnumConverter))]
+        public SqlFormatterColumnAliasStyle ColumnAliasStyle { get; set; } = SqlFormatterColumnAliasStyle.AsKeyword;
+
+        [JsonConverter(typeof(StringEnumConverter))]
+        public SqlFormatterCommaPlacement CommaPlacement { get; set; } = SqlFormatterCommaPlacement.Trailing;
+
+        public int LeadingCommaSpaceCount { get; set; } = 1;
+
+        [JsonConverter(typeof(StringEnumConverter))]
+        public SqlFormatterIdentifierBracketing IdentifierBracketing { get; set; } = SqlFormatterIdentifierBracketing.Preserve;
+
+        [JsonConverter(typeof(StringEnumConverter))]
+        public SqlFormatterIdentifierCasing IdentifierCasing { get; set; } = SqlFormatterIdentifierCasing.Preserve;
+
+        [JsonConverter(typeof(StringEnumConverter))]
         public SqlFormatterKeywordCasing KeywordCasing { get; set; } = SqlFormatterKeywordCasing.Uppercase;
 
         public bool PreserveComments { get; set; } = true;
@@ -70,9 +134,23 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
 
         public bool IndentViewBody { get; set; }
 
+        public bool MultilineGroupByElementsList { get; set; }
+
+        public bool MultilineHavingPredicatesList { get; set; } = true;
+
         public bool MultilineInsertSourcesList { get; set; } = true;
 
         public bool MultilineInsertTargetsList { get; set; } = true;
+
+        public bool MultilineInValuesList { get; set; }
+
+        public bool MultilineNestedFunctionCalls { get; set; }
+
+        public bool MultilineOrderByElementsList { get; set; }
+
+        public bool MultilinePartitionByElementsList { get; set; }
+
+        public bool MultilineProcedureParametersList { get; set; }
 
         public bool MultilineSelectElementsList { get; set; } = true;
 
@@ -81,6 +159,10 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
         public bool MultilineViewColumnsList { get; set; } = true;
 
         public bool MultilineWherePredicatesList { get; set; } = true;
+
+        public bool MultilineWithOptionsList { get; set; }
+
+        public bool NewLineAfterJoinKeyword { get; set; } = true;
 
         public bool NewLineBeforeCloseParenthesisInMultilineList { get; set; } = true;
 
@@ -93,6 +175,8 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
         public bool NewLineBeforeJoinClause { get; set; } = true;
 
         public bool NewLineBeforeOffsetClause { get; set; } = true;
+
+        public bool NewLineBeforeOnClause { get; set; } = true;
 
         public bool NewLineBeforeOpenParenthesisInMultilineList { get; set; }
 
@@ -108,10 +192,18 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
 
         public bool NewLineFormattedIndexDefinition { get; set; }
 
+        public int NumNewlinesAfterBatches { get; set; } = 1;
+
+        public int NumNewlinesAfterBatchStatement { get; set; } = 2;
+
         public int NumNewlinesAfterStatement { get; set; } = 1;
+
+        public bool PersistTrailingGo { get; set; }
 
         public bool SpaceBetweenDataTypeAndParameters { get; set; } = true;
 
         public bool SpaceBetweenParametersInDataType { get; set; } = true;
+
+        public bool TerminateBlockStatements { get; set; }
     }
 }

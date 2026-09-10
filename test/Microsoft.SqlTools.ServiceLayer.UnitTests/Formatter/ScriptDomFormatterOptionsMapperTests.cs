@@ -19,9 +19,18 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
         {
             SqlFormatterOptions formatterOptions = new SqlFormatterOptions
             {
-                SqlVersion = SqlFormatterVersion.Sql160,
+                SqlVersion = SqlFormatterVersion.Sql180,
                 SqlEngineType = SqlFormatterEngineType.Standalone,
+                BuiltInFunctionCasing = SqlFormatterBuiltInFunctionCasing.Lowercase,
+                ClauseBodyAlignment = SqlFormatterClauseBodyAlignment.Indented,
+                ColumnAliasStyle = SqlFormatterColumnAliasStyle.EqualsSign,
+                CommaPlacement = SqlFormatterCommaPlacement.Leading,
+                IdentifierBracketing = SqlFormatterIdentifierBracketing.ExcludeBrackets,
+                IdentifierCasing = SqlFormatterIdentifierCasing.PascalCase,
                 KeywordCasing = SqlFormatterKeywordCasing.PascalCase,
+                LeadingCommaSpaceCount = 0,
+                NumNewlinesAfterBatches = 3,
+                NumNewlinesAfterBatchStatement = 4,
                 NumNewlinesAfterStatement = 3
             };
             foreach (var property in typeof(SqlFormatterOptions).GetProperties())
@@ -65,18 +74,29 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 IndentSetClause = true,
                 IndentationSize = 2,
                 IndentViewBody = true,
+                LeadingCommaSpaceCount = 0,
+                MultilineGroupByElementsList = true,
+                MultilineHavingPredicatesList = false,
                 MultilineInsertSourcesList = false,
                 MultilineInsertTargetsList = false,
+                MultilineInValuesList = true,
+                MultilineNestedFunctionCalls = true,
+                MultilineOrderByElementsList = true,
+                MultilinePartitionByElementsList = true,
+                MultilineProcedureParametersList = true,
                 MultilineSelectElementsList = false,
                 MultilineSetClauseItems = false,
                 MultilineViewColumnsList = false,
                 MultilineWherePredicatesList = false,
+                MultilineWithOptionsList = true,
+                NewLineAfterJoinKeyword = false,
                 NewLineBeforeCloseParenthesisInMultilineList = false,
                 NewLineBeforeFromClause = false,
                 NewLineBeforeGroupByClause = false,
                 NewLineBeforeHavingClause = false,
                 NewLineBeforeJoinClause = false,
                 NewLineBeforeOffsetClause = false,
+                NewLineBeforeOnClause = false,
                 NewLineBeforeOpenParenthesisInMultilineList = true,
                 NewLineBeforeOrderByClause = false,
                 NewLineBeforeOutputClause = false,
@@ -84,49 +104,52 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 NewLineBeforeWindowClause = false,
                 NewlineFormattedCheckConstraint = true,
                 NewLineFormattedIndexDefinition = true,
+                NumNewlinesAfterBatches = 3,
+                NumNewlinesAfterBatchStatement = 4,
                 NumNewlinesAfterStatement = 3,
+                PersistTrailingGo = true,
                 PreserveComments = false,
                 SpaceBetweenDataTypeAndParameters = false,
-                SpaceBetweenParametersInDataType = false
+                SpaceBetweenParametersInDataType = false,
+                TerminateBlockStatements = true
             };
+            SetEnumProperty(settings, nameof(ScriptDomFormatterSettings.BuiltInFunctionCasing), "Lowercase");
+            SetEnumProperty(settings, nameof(ScriptDomFormatterSettings.ClauseBodyAlignment), "Indented");
+            SetEnumProperty(settings, nameof(ScriptDomFormatterSettings.ColumnAliasStyle), "EqualsSign");
+            SetEnumProperty(settings, nameof(ScriptDomFormatterSettings.CommaPlacement), "Leading");
+            SetEnumProperty(settings, nameof(ScriptDomFormatterSettings.IdentifierBracketing), "ExcludeBrackets");
+            SetEnumProperty(settings, nameof(ScriptDomFormatterSettings.IdentifierCasing), "PascalCase");
+            SetEnumProperty(settings, nameof(ScriptDomFormatterSettings.IndentationMode), "Tabs");
 
             var options = ScriptDomFormatterOptionsMapper.ToScriptGeneratorOptions(settings);
 
-            Assert.AreEqual(settings.SqlVersion, options.SqlVersion);
-            Assert.AreEqual(settings.SqlEngineType, options.SqlEngineType);
-            Assert.AreEqual(settings.AlignClauseBodies, options.AlignClauseBodies);
-            Assert.AreEqual(settings.AlignColumnDefinitionFields, options.AlignColumnDefinitionFields);
-            Assert.AreEqual(settings.AlignSetClauseItem, options.AlignSetClauseItem);
-            Assert.AreEqual(settings.AllowExternalLanguagePaths, options.AllowExternalLanguagePaths);
-            Assert.AreEqual(settings.AllowExternalLibraryPaths, options.AllowExternalLibraryPaths);
-            Assert.AreEqual(settings.AsKeywordOnOwnLine, options.AsKeywordOnOwnLine);
-            Assert.AreEqual(settings.IndentSetClause, options.IndentSetClause);
-            Assert.AreEqual(settings.KeywordCasing, options.KeywordCasing);
-            Assert.AreEqual(settings.IndentationSize, options.IndentationSize);
-            Assert.AreEqual(settings.IndentViewBody, options.IndentViewBody);
-            Assert.AreEqual(settings.MultilineInsertSourcesList, options.MultilineInsertSourcesList);
-            Assert.AreEqual(settings.MultilineInsertTargetsList, options.MultilineInsertTargetsList);
-            Assert.AreEqual(settings.MultilineSelectElementsList, options.MultilineSelectElementsList);
-            Assert.AreEqual(settings.MultilineSetClauseItems, options.MultilineSetClauseItems);
-            Assert.AreEqual(settings.MultilineViewColumnsList, options.MultilineViewColumnsList);
-            Assert.AreEqual(settings.MultilineWherePredicatesList, options.MultilineWherePredicatesList);
-            Assert.AreEqual(settings.NewLineBeforeCloseParenthesisInMultilineList, options.NewLineBeforeCloseParenthesisInMultilineList);
-            Assert.AreEqual(settings.NewLineBeforeFromClause, options.NewLineBeforeFromClause);
-            Assert.AreEqual(settings.NewLineBeforeGroupByClause, options.NewLineBeforeGroupByClause);
-            Assert.AreEqual(settings.NewLineBeforeHavingClause, options.NewLineBeforeHavingClause);
-            Assert.AreEqual(settings.NewLineBeforeJoinClause, options.NewLineBeforeJoinClause);
-            Assert.AreEqual(settings.NewLineBeforeOffsetClause, options.NewLineBeforeOffsetClause);
-            Assert.AreEqual(settings.NewLineBeforeOpenParenthesisInMultilineList, options.NewLineBeforeOpenParenthesisInMultilineList);
-            Assert.AreEqual(settings.NewLineBeforeOrderByClause, options.NewLineBeforeOrderByClause);
-            Assert.AreEqual(settings.NewLineBeforeOutputClause, options.NewLineBeforeOutputClause);
-            Assert.AreEqual(settings.NewLineBeforeWhereClause, options.NewLineBeforeWhereClause);
-            Assert.AreEqual(settings.NewLineBeforeWindowClause, options.NewLineBeforeWindowClause);
-            Assert.AreEqual(settings.NewlineFormattedCheckConstraint, options.NewlineFormattedCheckConstraint);
-            Assert.AreEqual(settings.NewLineFormattedIndexDefinition, options.NewLineFormattedIndexDefinition);
-            Assert.AreEqual(settings.NumNewlinesAfterStatement, options.NumNewlinesAfterStatement);
-            Assert.AreEqual(settings.PreserveComments, options.PreserveComments);
-            Assert.AreEqual(settings.SpaceBetweenDataTypeAndParameters, options.SpaceBetweenDataTypeAndParameters);
-            Assert.AreEqual(settings.SpaceBetweenParametersInDataType, options.SpaceBetweenParametersInDataType);
+            foreach (var property in typeof(ScriptDomFormatterSettings).GetProperties())
+            {
+                var generatorProperty = options.GetType().GetProperty(property.Name);
+                Assert.NotNull(generatorProperty, property.Name);
+                Assert.AreEqual(property.GetValue(settings), generatorProperty.GetValue(options), property.Name);
+            }
+
+            foreach (var property in options.GetType().GetProperties())
+            {
+                if (property.Name == "IncludeSemicolons")
+                {
+                    continue;
+                }
+
+                Assert.NotNull(typeof(ScriptDomFormatterSettings).GetProperty(property.Name), property.Name);
+            }
+        }
+
+        [TestCase(SqlFormatterVersion.Sql180, "Sql180")]
+        [TestCase(SqlFormatterVersion.SqlFabricDW, "SqlFabricDW")]
+        public void ResolveShouldMapLatestSqlVersions(SqlFormatterVersion sqlVersion, string expected)
+        {
+            ScriptDomFormatterSettings settings = ScriptDomFormatterSettings.Resolve(
+                null,
+                new SqlFormatterOptions { SqlVersion = sqlVersion });
+
+            Assert.AreEqual(expected, settings.SqlVersion.ToString());
         }
 
         [Test]
@@ -151,7 +174,19 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
             Assert.True(settings.NewLineBeforeWhereClause);
             Assert.AreEqual(3, settings.NumNewlinesAfterStatement);
             Assert.AreEqual(2, settings.IndentationSize);
+            Assert.AreEqual("Spaces", settings.IndentationMode.ToString());
             Assert.True(settings.PreserveComments);
+        }
+
+        [Test]
+        public void ResolveShouldUseTabsWhenRequestedByLsp()
+        {
+            ScriptDomFormatterSettings settings = ScriptDomFormatterSettings.Resolve(
+                new FormattingOptions { InsertSpaces = false, TabSize = 4 },
+                null);
+
+            Assert.AreEqual("Tabs", settings.IndentationMode.ToString());
+            Assert.AreEqual(4, settings.IndentationSize);
         }
 
         [Test]
@@ -161,7 +196,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
             {
                 SqlVersion = (SqlFormatterVersion)(-1),
                 SqlEngineType = (SqlFormatterEngineType)(-1),
+                BuiltInFunctionCasing = (SqlFormatterBuiltInFunctionCasing)(-1),
+                ClauseBodyAlignment = (SqlFormatterClauseBodyAlignment)(-1),
+                ColumnAliasStyle = (SqlFormatterColumnAliasStyle)(-1),
+                CommaPlacement = (SqlFormatterCommaPlacement)(-1),
+                IdentifierBracketing = (SqlFormatterIdentifierBracketing)(-1),
+                IdentifierCasing = (SqlFormatterIdentifierCasing)(-1),
                 KeywordCasing = (SqlFormatterKeywordCasing)(-1),
+                LeadingCommaSpaceCount = 2,
+                NumNewlinesAfterBatches = 6,
+                NumNewlinesAfterBatchStatement = -1,
                 NumNewlinesAfterStatement = 6
             };
 
@@ -169,9 +213,25 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
 
             Assert.AreEqual("Sql170", settings.SqlVersion.ToString());
             Assert.AreEqual("All", settings.SqlEngineType.ToString());
+            Assert.AreEqual("Preserve", settings.BuiltInFunctionCasing.ToString());
+            Assert.AreEqual("Aligned", settings.ClauseBodyAlignment.ToString());
+            Assert.AreEqual("AsKeyword", settings.ColumnAliasStyle.ToString());
+            Assert.AreEqual("Trailing", settings.CommaPlacement.ToString());
+            Assert.AreEqual("Preserve", settings.IdentifierBracketing.ToString());
+            Assert.AreEqual("Preserve", settings.IdentifierCasing.ToString());
             Assert.AreEqual("Uppercase", settings.KeywordCasing.ToString());
+            Assert.AreEqual(1, settings.LeadingCommaSpaceCount);
+            Assert.AreEqual(1, settings.NumNewlinesAfterBatches);
+            Assert.AreEqual(2, settings.NumNewlinesAfterBatchStatement);
             Assert.AreEqual(1, settings.NumNewlinesAfterStatement);
             Assert.AreEqual(4, settings.IndentationSize);
+        }
+
+        private static void SetEnumProperty(object target, string propertyName, string value)
+        {
+            var property = target.GetType().GetProperty(propertyName);
+            Assert.NotNull(property, propertyName);
+            property.SetValue(target, System.Enum.Parse(property.PropertyType, value));
         }
     }
 }

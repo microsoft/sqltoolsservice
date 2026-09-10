@@ -81,6 +81,11 @@ namespace Microsoft.SqlTools.LanguageService.Formatter.ScriptDom
                 case SqlVersion.Sql160:
                     return new TSql160Parser(initialQuotedIdentifiers: true, engineType);
                 case SqlVersion.Sql170:
+                    return new TSql170Parser(initialQuotedIdentifiers: true, engineType);
+                case SqlVersion.Sql180:
+                    return new TSql180Parser(initialQuotedIdentifiers: true, engineType);
+                case SqlVersion.SqlFabricDW:
+                    return new TSqlFabricDWParser(initialQuotedIdentifiers: true, engineType);
                 default:
                     return new TSql170Parser(initialQuotedIdentifiers: true, engineType);
             }
@@ -109,6 +114,11 @@ namespace Microsoft.SqlTools.LanguageService.Formatter.ScriptDom
                 case SqlVersion.Sql160:
                     return new Sql160ScriptGenerator(options);
                 case SqlVersion.Sql170:
+                    return new Sql170ScriptGenerator(options);
+                case SqlVersion.Sql180:
+                    return new Sql180ScriptGenerator(options);
+                case SqlVersion.SqlFabricDW:
+                    return new SqlFabricDWScriptGenerator(options);
                 default:
                     return new Sql170ScriptGenerator(options);
             }
