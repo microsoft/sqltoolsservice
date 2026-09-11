@@ -396,8 +396,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Create a command that we'll use for executing the query
             using (DbCommand dbCommand = CreateCommand(conn))
             {
-                // Make sure that we cancel the command if the cancellation token is cancelled
-                cancellationToken.Register(() => dbCommand?.Cancel());
+                // Make sure that we cancel the command if the cancellation token is cancelled. The
+                // registration is scoped to the command so a later cancel cannot call into a
+                // command that has already been disposed.
+                using var cancellationRegistration = cancellationToken.Register(() => dbCommand?.Cancel());
 
                 // Setup the command for executing the batch
                 dbCommand.CommandText = BatchText;

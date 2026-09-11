@@ -780,25 +780,74 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 return;
             }
 
-            if (connInfo == null)
+            // From here on the client has been told the query was accepted and is waiting for a
+            // QueryCompleteEvent. Whatever goes wrong before execution starts must still end in that
+            // event, otherwise the editor stays "executing" forever on the client side.
+            try
             {
-                ConnectionService.TryFindConnection(executeParams.OwnerUri, out connInfo);
-            }
+                if (connInfo == null)
+                {
+                    ConnectionService.TryFindConnection(executeParams.OwnerUri, out connInfo);
+                }
+                if (connInfo == null)
+                {
+                    throw new InvalidOperationException(SR.QueryServiceQueryInvalidOwnerUri);
+                }
 
-            bool sessionSettingsApplied;
-            if (!this.QuerySessionSettingsApplied.TryGetValue(connInfo.OwnerUri, out sessionSettingsApplied))
+                bool sessionSettingsApplied;
+                if (!this.QuerySessionSettingsApplied.TryGetValue(connInfo.OwnerUri, out sessionSettingsApplied))
+                {
+                    sessionSettingsApplied = false;
+                }
+
+                if (!sessionSettingsApplied)
+                {
+                    await ApplySessionQueryExecutionOptions(connInfo, newQuery.Settings);
+                    this.QuerySessionSettingsApplied.AddOrUpdate(connInfo.OwnerUri, true, (key, oldValue) => true);
+                }
+
+                // Execute the query asynchronously
+                ExecuteAndCompleteQuery(executeParams.OwnerUri, newQuery, queryEventSender, querySuccessFunc, queryFailureFunc);
+            }
+            catch (Exception e)
             {
-                sessionSettingsApplied = false;
+                await FailQueryBeforeExecution(executeParams.OwnerUri, newQuery, queryEventSender, queryFailureFunc, e);
             }
+        }
 
-            if (!sessionSettingsApplied)
+        /// <summary>
+        /// Reports a query that was accepted but could not be started. The failure is surfaced as an
+        /// error message plus a QueryCompleteEvent so the client sees a terminal state, and the query
+        /// is marked as errored so the next execute request for the editor replaces it.
+        /// </summary>
+        private static async Task FailQueryBeforeExecution(string ownerUri, Query query, IEventSender eventSender,
+            Query.QueryAsyncErrorEventHandler queryFailureCallback, Exception error)
+        {
+            Logger.Error($"Query:'{ownerUri}' failed before execution could start: {error}");
+            query.MarkErroredBeforeExecution();
+
+            try
             {
-                ApplySessionQueryExecutionOptions(connInfo, newQuery.Settings);
-                this.QuerySessionSettingsApplied.AddOrUpdate(connInfo.OwnerUri, true, (key, oldValue) => true);
+                await eventSender.SendEvent(MessageEvent.Type, new MessageParams
+                {
+                    OwnerUri = ownerUri,
+                    Message = new ResultMessage(error.Message, true, null)
+                });
+                await eventSender.SendEvent(QueryCompleteEvent.Type, new QueryCompleteParams
+                {
+                    OwnerUri = ownerUri,
+                    BatchSummaries = query.BatchSummaries,
+                    ServerConnectionId = query.ServerConnectionId,
+                });
+                if (queryFailureCallback != null)
+                {
+                    await queryFailureCallback(query, error);
+                }
             }
-
-            // Execute the query asynchronously
-            ExecuteAndCompleteQuery(executeParams.OwnerUri, newQuery, queryEventSender, querySuccessFunc, queryFailureFunc);
+            catch (Exception e)
+            {
+                Logger.Error($"Failed to report the start failure of Query:'{ownerUri}': {e}");
+            }
         }
 
         /// <summary>
@@ -1794,7 +1843,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             return mergedRanges;
         }
 
-        private async void ApplySessionQueryExecutionOptions(ConnectionInfo connection, QueryExecutionSettings settings)
+        private async Task ApplySessionQueryExecutionOptions(ConnectionInfo connection, QueryExecutionSettings settings)
         {
             QuerySettingsHelper helper = new QuerySettingsHelper(settings);
 

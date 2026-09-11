@@ -311,6 +311,15 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public bool HasErrored { get; private set; }
 
         /// <summary>
+        /// Marks a query that was accepted but could not be started as errored, so it is reported
+        /// and cleaned up like any other failed query instead of lingering as "in progress".
+        /// </summary>
+        internal void MarkErroredBeforeExecution()
+        {
+            HasErrored = true;
+        }
+
+        /// <summary>
         /// The Process ID of the query when connected.
         /// </summary>
         public string ServerConnectionId { get; private set; }
