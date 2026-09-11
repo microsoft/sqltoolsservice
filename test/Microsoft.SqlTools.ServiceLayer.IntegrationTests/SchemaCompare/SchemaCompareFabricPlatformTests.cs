@@ -102,9 +102,26 @@ GO";
                 Assert.IsTrue(operation.ComparisonResult.IsValid, "Fabric dacpac comparison should be valid.");
                 Assert.IsFalse(operation.ComparisonResult.IsEqual, "Source adds constraints the target lacks; expected differences.");
 
-                // The primary key surfaces as a diff carrying its standalone ADD CONSTRAINT script.
-                DiffEntry pkConstraint = FindDiff(operation.Differences,
-                    d => (d.SourceObjectType != null && d.SourceObjectType.EndsWith("PrimaryKeyConstraint", StringComparison.Ordinal)));
+                Assert.IsTrue(operation.Differences.TrueForAll(d => !d.HasDetails && d.Children.Count == 0 && d.SourceScript == null && d.TargetScript == null),
+                    "Initial comparison results should not eagerly generate scripts or child trees.");
+
+                // The primary key surfaces after the owning top-level diff is materialized.
+                DiffEntry pkConstraint = null;
+                for (int differenceIndex = 0; differenceIndex < operation.Differences.Count && pkConstraint == null; differenceIndex++)
+                {
+                    var detailsOperation = new CoreOps.SchemaCompareGetDifferenceDetailsOperation(
+                        new SchemaCompareDifferenceDetailsParams
+                        {
+                            OperationId = operation.OperationId,
+                            DifferenceIndex = differenceIndex
+                        },
+                        operation.ComparisonResult);
+                    SchemaCompareDifferenceDetailsResult details = detailsOperation.Execute();
+                    Assert.IsTrue(details.Success);
+                    Assert.IsTrue(details.Difference.HasDetails);
+                    pkConstraint = FindDiff(new[] { details.Difference },
+                        d => d.SourceObjectType != null && d.SourceObjectType.EndsWith("PrimaryKeyConstraint", StringComparison.Ordinal));
+                }
                 Assert.IsNotNull(pkConstraint, "Expected a diff entry for the PRIMARY KEY constraint on Fabric.");
                 Assert.IsFalse(string.IsNullOrEmpty(pkConstraint.SourceScript),
                     "Fabric constraint diff should carry its standalone ALTER script.");

@@ -57,8 +57,33 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
             serviceHost.SetRequestHandler(SchemaComparePublishProjectChangesRequest.Type, this.HandleSchemaComparePublishProjectChangesRequest, true);
             serviceHost.SetRequestHandler(SchemaCompareIncludeExcludeNodeRequest.Type, this.HandleSchemaCompareIncludeExcludeNodeRequest, true);
             serviceHost.SetRequestHandler(SchemaCompareIncludeExcludeAllNodesRequest.Type, this.HandleSchemaCompareIncludeExcludeAllNodesRequest, true);
+            serviceHost.SetRequestHandler(SchemaCompareGetDifferenceDetailsRequest.Type, this.HandleSchemaCompareGetDifferenceDetailsRequest, true);
             serviceHost.SetRequestHandler(SchemaCompareOpenScmpRequest.Type, this.HandleSchemaCompareOpenScmpRequest, true);
             serviceHost.SetRequestHandler(SchemaCompareSaveScmpRequest.Type, this.HandleSchemaCompareSaveScmpRequest, true);
+        }
+
+        /// <summary>
+        /// Loads scripts and the child tree for one top-level difference.
+        /// </summary>
+        public async Task HandleSchemaCompareGetDifferenceDetailsRequest(
+            CoreContracts.SchemaCompareDifferenceDetailsParams parameters,
+            RequestContext<CoreContracts.SchemaCompareDifferenceDetailsResult> requestContext)
+        {
+            try
+            {
+                SchemaComparisonResult compareResult = schemaCompareResults.Value[parameters.OperationId];
+                var operation = new CoreOps.SchemaCompareGetDifferenceDetailsOperation(parameters, compareResult);
+                await requestContext.SendResult(operation.Execute());
+            }
+            catch (Exception e)
+            {
+                Logger.Error("Failed to load schema compare difference details. Error: " + e);
+                await requestContext.SendResult(new CoreContracts.SchemaCompareDifferenceDetailsResult
+                {
+                    Success = false,
+                    ErrorMessage = e.Message
+                });
+            }
         }
 
         /// <summary>

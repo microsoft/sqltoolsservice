@@ -1616,6 +1616,10 @@ WITH VALUES
 
                 // try to exclude
                 DiffEntry t2Diff = CoreOps.SchemaCompareUtils.CreateDiffEntry(schemaCompareOperation.ComparisonResult.Differences.Where(x => x.SourceObject != null && x.SourceObject.Name.Parts[1] == "t2").First(), null, schemaCompareOperation.ComparisonResult);
+                // Include/exclude identity must not depend on expensive display-only scripts or descendants.
+                t2Diff.SourceScript = null;
+                t2Diff.TargetScript = null;
+                t2Diff.Children = null;
                 SchemaCompareNodeParams t2ExcludeParams = new SchemaCompareNodeParams()
                 {
                     OperationId = schemaCompareOperation.OperationId,
@@ -1776,6 +1780,7 @@ WITH VALUES
                 Assert.True(excludeAllNodesOperation.Success, "Exclude all operation should succeed");
                 Assert.AreEqual(3, excludeAllNodesOperation.AllIncludedOrExcludedDifferences.Count);
                 Assert.True(excludeAllNodesOperation.AllIncludedOrExcludedDifferences.All(x => x.Included == false), "All differences should be excluded");
+                Assert.True(excludeAllNodesOperation.AllIncludedOrExcludedDifferences.All(x => x.SourceScript == null && x.TargetScript == null), "Bulk results should not regenerate scripts");
 
                 // Include all differences
                 var includeAllNodesParams = new SchemaCompareIncludeExcludeAllNodesParams()
@@ -1788,9 +1793,10 @@ WITH VALUES
                 var includeAllNodesOperation = new CoreOps.SchemaCompareIncludeExcludeAllNodesOperation(includeAllNodesParams, schemaCompareOperation.ComparisonResult);
                 includeAllNodesOperation.Execute();
 
-                Assert.True(excludeAllNodesOperation.Success, "Include all operation should succeed");
+                Assert.True(includeAllNodesOperation.Success, "Include all operation should succeed");
                 Assert.AreEqual(3, includeAllNodesOperation.AllIncludedOrExcludedDifferences.Count);
                 Assert.True(includeAllNodesOperation.AllIncludedOrExcludedDifferences.All(x => x.Included == true), "All differences should be included");
+                Assert.True(includeAllNodesOperation.AllIncludedOrExcludedDifferences.All(x => x.SourceScript == null && x.TargetScript == null), "Bulk results should not regenerate scripts");
 
                 // cleanup
                 SchemaCompareTestUtils.VerifyAndCleanup(sourceDacpacFilePath);

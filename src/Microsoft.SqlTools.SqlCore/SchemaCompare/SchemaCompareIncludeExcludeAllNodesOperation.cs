@@ -56,8 +56,11 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
 
             try
             {
-                var schemaDifferences = new List<SchemaDifference>(this.ComparisonResult.Differences);
-                this.IncludeExcludeAllDifferences(schemaDifferences);
+                // Apply selection once to the difference tree instead of recalculating
+                // dependency state for each difference in a per-object retry loop.
+                this.Success = this.Parameters.IncludeRequest
+                    ? this.ComparisonResult.IncludeAll()
+                    : this.ComparisonResult.ExcludeAll();
             }
             catch (Exception e)
             {
@@ -71,20 +74,10 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
             {
                 foreach (SchemaDifference difference in this.ComparisonResult.Differences)
                 {
-                    DiffEntry diffEntry = SchemaCompareUtils.CreateDiffEntry(difference, null, this.ComparisonResult);
+                    DiffEntry diffEntry = SchemaCompareUtils.CreateDiffEntrySummary(difference);
                     this.AllIncludedOrExcludedDifferences.Add(diffEntry);
                 }
             }
-        }
-
-        private void IncludeExcludeAllDifferences(List<SchemaDifference> schemaDifferences)
-        {
-            this.Success = SchemaCompareUtils.ApplyToAllWithRetries(
-                schemaDifferences,
-                difference => this.Parameters.IncludeRequest
-                    ? this.ComparisonResult.Include(difference)
-                    : this.ComparisonResult.Exclude(difference),
-                () => this.CancellationToken.ThrowIfCancellationRequested());
         }
 
         /// <summary>

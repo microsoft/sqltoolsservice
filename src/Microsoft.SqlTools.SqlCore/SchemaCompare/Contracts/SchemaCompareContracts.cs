@@ -106,6 +106,11 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts
     public class DiffEntry
     {
         /// <summary>
+        /// Whether scripts and child differences have been materialized for this entry.
+        /// </summary>
+        public bool HasDetails { get; set; }
+
+        /// <summary>
         /// The schema update action (Create, Delete, Change, etc.) for this difference.
         /// </summary>
         public SchemaUpdateAction UpdateAction { get; set; }
@@ -164,6 +169,24 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts
         /// Whether this difference is included in the comparison result.
         /// </summary>
         public bool Included { get; set; }
+    }
+
+    /// <summary>
+    /// Parameters for loading the expensive details of one top-level difference.
+    /// </summary>
+    public class SchemaCompareDifferenceDetailsParams
+    {
+        public string OperationId { get; set; }
+
+        public int DifferenceIndex { get; set; }
+    }
+
+    /// <summary>
+    /// Result of loading one difference's scripts and child tree.
+    /// </summary>
+    public class SchemaCompareDifferenceDetailsResult : SchemaCompareResultBase
+    {
+        public DiffEntry Difference { get; set; }
     }
 
     /// <summary>

@@ -72,6 +72,7 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
             }
 
             var diffEntry = new DiffEntry();
+            diffEntry.HasDetails = true;
             diffEntry.UpdateAction = difference.UpdateAction;
             diffEntry.DifferenceType = difference.DifferenceType;
             diffEntry.Name = difference.Name;
@@ -120,6 +121,46 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
             foreach (SchemaDifference child in difference.Children)
             {
                 diffEntry.Children.Add(CreateDiffEntry(child, diffEntry, schemaComparisonResult));
+            }
+
+            return diffEntry;
+        }
+
+        /// <summary>
+        /// Creates identity and inclusion data for initial results and checkbox responses.
+        /// Scripts and descendants are loaded separately when details are requested.
+        /// </summary>
+        internal static DiffEntry CreateDiffEntrySummary(SchemaDifference difference)
+        {
+            if (difference == null)
+            {
+                return null;
+            }
+
+            var diffEntry = new DiffEntry
+            {
+                HasDetails = false,
+                UpdateAction = difference.UpdateAction,
+                DifferenceType = difference.DifferenceType,
+                Name = difference.Name,
+                Included = difference.Included,
+                Children = new List<DiffEntry>()
+            };
+
+            if (difference.SourceObject != null)
+            {
+                diffEntry.SourceValue = difference.SourceObject.Name.Parts.ToArray();
+                diffEntry.SourceObjectType = new SchemaComparisonExcludedObjectId(
+                    difference.SourceObject.ObjectType,
+                    difference.SourceObject.Name).TypeName;
+            }
+
+            if (difference.TargetObject != null)
+            {
+                diffEntry.TargetValue = difference.TargetObject.Name.Parts.ToArray();
+                diffEntry.TargetObjectType = new SchemaComparisonExcludedObjectId(
+                    difference.TargetObject.ObjectType,
+                    difference.TargetObject.Name).TypeName;
             }
 
             return diffEntry;
