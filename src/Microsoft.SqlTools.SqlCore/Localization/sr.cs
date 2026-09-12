@@ -1495,6 +1495,16 @@ namespace Microsoft.SqlTools.SqlCore
             }
         }
 
+        public static string ClusteredColumnStoreIndex_LabelPart
+        {
+            get { return Keys.GetString(Keys.ClusteredColumnStoreIndex_LabelPart); }
+        }
+
+        public static string NonClusteredColumnStoreIndex_LabelPart
+        {
+            get { return Keys.GetString(Keys.NonClusteredColumnStoreIndex_LabelPart); }
+        }   
+
         public static string UniqueIndex_LabelPart
         {
             get
@@ -4272,6 +4282,10 @@ namespace Microsoft.SqlTools.SqlCore
 
 
             public const string NonClusteredIndex_LabelPart = "NonClusteredIndex_LabelPart";
+
+            public const string ClusteredColumnStoreIndex_LabelPart = "ClusteredColumnStoreIndex_LabelPart";
+
+            public const string NonClusteredColumnStoreIndex_LabelPart = "NonClusteredColumnStoreIndex_LabelPart";
 
 
             public const string History_LabelPart = "History_LabelPart";
