@@ -106,10 +106,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
             FormatterService.UpdateFormatterSettings(new FormatterSettings
             {
                 EnablePreviewFormatter = false,
-                KeywordCasing = CasingOptions.Lowercase,
+                KeywordCasing = CasingOptions.Uppercase,
                 Options = new SqlFormatterOptions
                 {
-                    KeywordCasing = SqlFormatterKeywordCasing.Uppercase
+                    KeywordCasing = SqlFormatterKeywordCasing.Lowercase
                 }
             });
             SetupScriptFile("select 1 as value");
@@ -119,8 +119,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
                 verify: (edits =>
                 {
                     Assert.AreEqual(1, edits.Length);
-                    StringAssert.Contains("SELECT", edits[0].NewText);
-                    StringAssert.Contains(" AS ", edits[0].NewText);
+                    StringAssert.Contains("select", edits[0].NewText);
+                    StringAssert.Contains(" as ", edits[0].NewText);
                 }));
         }
 
