@@ -149,21 +149,24 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Formatter
             Assert.AreEqual(expected, options.SqlVersion);
         }
 
-        [Test]
-        public void IntelliSenseKeywordCasingShouldFollowActiveFormatterProfile()
+        [TestCase(null)]
+        [TestCase(false)]
+        [TestCase(true)]
+        public void IntelliSenseKeywordCasingShouldFollowScriptDomOptions(bool? legacyFlag)
         {
             SqlToolsSettings settings = new SqlToolsSettings();
             settings.SqlTools.Format.KeywordCasing = CasingOptions.Lowercase;
+            settings.SqlTools.Format.EnablePreviewFormatter = legacyFlag;
             settings.SqlTools.Format.Options = new SqlFormatterOptions
             {
                 KeywordCasing = SqlFormatterKeywordCasing.Uppercase
             };
 
-            Assert.AreEqual(CasingOptions.Lowercase, settings.FormatKeywordCasing);
-
-            settings.SqlTools.Format.EnablePreviewFormatter = true;
-
             Assert.AreEqual(CasingOptions.Uppercase, settings.FormatKeywordCasing);
+
+            settings.SqlTools.Format.Options.KeywordCasing = SqlFormatterKeywordCasing.Lowercase;
+
+            Assert.AreEqual(CasingOptions.Lowercase, settings.FormatKeywordCasing);
 
             settings.SqlTools.Format.Options = null;
 

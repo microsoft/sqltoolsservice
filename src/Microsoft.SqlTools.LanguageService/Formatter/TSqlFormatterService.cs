@@ -211,19 +211,7 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
         private FormatOperationResult DoFormat(DocumentFormattingParams docFormatParams, TextEdit edit, string text, Stopwatch stopwatch)
         {
             Validate.IsNotNull(nameof(docFormatParams), docFormatParams);
-
-            if (UsePreviewFormatter)
-            {
-                return FormatWithScriptDom(edit, text, docFormatParams.Options, stopwatch);
-            }
-
-            FormatOptions options = GetOptions(docFormatParams);
-            edit.NewText = Format(text, options, false);
-            return CreateFormatResult(
-                new[] { edit },
-                TelemetryPropertyNames.LegacyFormatterImplementation,
-                TelemetryPropertyNames.FormatterOutcomeApplied,
-                stopwatch);
+            return FormatWithScriptDom(edit, text, docFormatParams.Options, stopwatch);
         }
 
         private FormatOperationResult FormatWithScriptDom(
@@ -258,9 +246,7 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
         {
             return CreateFormatResult(
                 Array.Empty<TextEdit>(),
-                UsePreviewFormatter
-                    ? TelemetryPropertyNames.ScriptDomFormatterImplementation
-                    : TelemetryPropertyNames.LegacyFormatterImplementation,
+                TelemetryPropertyNames.ScriptDomFormatterImplementation,
                 TelemetryPropertyNames.FormatterOutcomeSkipped,
                 stopwatch);
         }
@@ -296,16 +282,6 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
                 default:
                     return TelemetryPropertyNames.FormatterOutcomeApplied;
             }
-        }
-
-        private bool UsePreviewFormatter
-        {
-            get { return settings?.EnablePreviewFormatter == true; }
-        }
-
-        private FormatOptions GetOptions(DocumentFormattingParams docFormatParams)
-        {
-            return MergeFormatOptions(docFormatParams.Options, settings);
         }
 
         internal static FormatOptions MergeFormatOptions(FormattingOptions formatRequestOptions, FormatterSettings settings)

@@ -16,7 +16,7 @@ namespace Microsoft.SqlTools.LanguageService.Formatter
     public class FormatterSettings
     {
         /// <summary>
-        /// Should the preview SQL formatter implementation be used instead of the legacy formatter?
+        /// Retained for deserialization compatibility. LSP formatting always uses ScriptDom.
         /// </summary>
         public bool? EnablePreviewFormatter
         {
