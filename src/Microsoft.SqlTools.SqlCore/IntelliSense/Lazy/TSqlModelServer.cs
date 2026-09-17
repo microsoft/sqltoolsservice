@@ -25,6 +25,11 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
     {
         private readonly TSqlModelDatabase _database;
 
+        // Additional databases registered for reference targets (e.g. "ProjectB.dbo.Foo" or
+        // "[$(ProjectB)].dbo.Foo"). Populated only during project-open setup, before this
+        // instance is published to the binding queue, so no locking is needed in Databases.
+        private readonly List<TSqlModelDatabase> _referencedDatabases = new();
+
         public TSqlModelServer(TSqlModel model, string databaseName)
         {
             _database = new TSqlModelDatabase(this, model, databaseName);
@@ -32,13 +37,30 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
 
         internal TSqlModelDatabase Database => _database;
 
+        /// <summary>
+        /// Registers <paramref name="referencedModel"/> as an additional database named
+        /// <paramref name="databaseName"/>, replacing any existing entry with that name.
+        /// Returns <c>false</c> without registering anything if the name collides with the
+        /// primary database, which is never resolvable as a reference alias.
+        /// </summary>
+        internal bool AddReferencedDatabase(TSqlModel referencedModel, string databaseName)
+        {
+            if (string.Equals(_database.Name, databaseName, StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            _referencedDatabases.RemoveAll(d => string.Equals(d.Name, databaseName, StringComparison.OrdinalIgnoreCase));
+            _referencedDatabases.Add(new TSqlModelDatabase(this, referencedModel, databaseName));
+            return true;
+        }
+
         public string Name => string.Empty;
         public bool IsSystemObject => false;
         public IDatabaseObject Parent => null!;
         public CollationInfo CollationInfo => CollationInfo.Default;
 
         public IMetadataCollection<IDatabase> Databases =>
-            new LazyCollection<IDatabase>(() => new IDatabase[] { _database });
+            new LazyCollection<IDatabase>(() =>
+                new IDatabase[] { _database }.Concat(_referencedDatabases).ToArray());
 
         public IMetadataCollection<ICredential> Credentials => LazyCollection<ICredential>.Empty;
         public IMetadataCollection<ILogin> Logins => LazyCollection<ILogin>.Empty;
