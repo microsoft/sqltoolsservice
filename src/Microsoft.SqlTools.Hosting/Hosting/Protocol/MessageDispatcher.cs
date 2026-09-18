@@ -42,9 +42,6 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
         private SemaphoreSlim semaphore;
 
-        private readonly object serialDispatchLock = new object();
-
-        private Task serialDispatchTask = Task.CompletedTask;
         #endregion
 
         #region Properties
@@ -307,7 +304,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
             }
         }
 
-        protected Task DispatchMessage(
+        protected async Task DispatchMessage(
             Message messageToDispatch,
             MessageWriter messageWriter)
         {
@@ -348,21 +345,9 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 }
                 else
                 {
-                    // Preserve ordering among non-parallel handlers without tying up the reader.
-                    // A handler may send a request to the client and await its response; the
-                    // response can now be read while this chain is incomplete.
-                    lock (this.serialDispatchLock)
-                    {
-                        this.serialDispatchTask = this.serialDispatchTask.ContinueWith(
-                            _ => InvokeHandler(handlerToAwait, messageToDispatch, messageWriter),
-                            CancellationToken.None,
-                            TaskContinuationOptions.RunContinuationsAsynchronously,
-                            TaskScheduler.Default).Unwrap();
-                    }
+                    await InvokeHandler(handlerToAwait, messageToDispatch, messageWriter);
                 }
             }
-
-            return Task.CompletedTask;
         }
 
         private async Task RunParallelHandler(

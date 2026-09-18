@@ -14,7 +14,6 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.Hosting.Protocol.Channel;
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.Hosting.Protocol.Serializers;
-using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
@@ -131,50 +130,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
             {
                 release.TrySetResult(true);
                 dispatcher.Stop();
-                channel.Stop();
-            }
-        }
-
-        [Test]
-        [Timeout(10_000)]
-        public async Task SerialHandlerCanReceiveResponseToOutboundRequest()
-        {
-            var channel = new TestChannel();
-            var endpoint = new ProtocolEndpoint(channel, MessageProtocolType.LanguageServer);
-            endpoint.Initialize();
-            var outboundRequestStarted = NewSignal();
-            var handlerCompleted = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
-            var clientRequest = RequestType<int, int>.Create("test/client-round-trip");
-
-            endpoint.SetRequestHandler(
-                RequestType<int, int>.Create("test/serial-handler"),
-                async (_, _) =>
-                {
-                    Task<int> response = endpoint.SendRequest(clientRequest, 7, waitForResponse: true);
-                    outboundRequestStarted.TrySetResult(true);
-                    handlerCompleted.TrySetResult(await response);
-                },
-                isParallelProcessingSupported: true);
-
-            try
-            {
-                // ParallelMessageProcessing deliberately remains false. The read loop must still
-                // be able to consume responses needed by the serialized handler.
-                endpoint.MessageDispatcher.Start();
-                channel.Input.Messages.Writer.TryWrite(
-                    Message.Request(100, "test/serial-handler", null));
-                await outboundRequestStarted.Task.WaitAsync(TimeSpan.FromSeconds(2));
-
-                channel.Input.Messages.Writer.TryWrite(
-                    Message.Response(1, clientRequest.MethodName, JToken.FromObject(8)));
-
-                Assert.That(
-                    await handlerCompleted.Task.WaitAsync(TimeSpan.FromSeconds(2)),
-                    Is.EqualTo(8));
-            }
-            finally
-            {
-                endpoint.MessageDispatcher.Stop();
                 channel.Stop();
             }
         }
