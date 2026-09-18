@@ -1821,7 +1821,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     IConnectionSummary summary = info.ConnectionDetails;
                     parameters.Connection = summary.Clone();
                     parameters.OwnerUri = ownerUri;
-                    _ = ServiceHost.SendEvent(ConnectionChangedNotification.Type, parameters);
+                    _ = ServiceHost.SendEvent(ConnectionChangedNotification.Type, parameters)
+                        .ContinueWithOnFaulted(null);
                     return true;
                 }
                 catch (Exception e)

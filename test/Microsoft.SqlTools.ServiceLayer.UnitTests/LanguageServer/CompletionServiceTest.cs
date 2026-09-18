@@ -180,7 +180,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             {
                 Assert.That(operationStarted.WaitOne(TimeSpan.FromSeconds(1)), Is.True);
 
-                bool documentLockTaken = docInfo.ScriptParseInfo.BuildingMetadataLock.TryEnter(500);
+                bool documentLockTaken = docInfo.ScriptParseInfo.AsyncBuildingMetadataLock.TryEnter(500);
                 try
                 {
                     Assert.That(documentLockTaken, Is.True,
@@ -190,7 +190,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                 {
                     if (documentLockTaken)
                     {
-                        docInfo.ScriptParseInfo.BuildingMetadataLock.Exit();
+                        docInfo.ScriptParseInfo.AsyncBuildingMetadataLock.Exit();
                     }
                 }
             }

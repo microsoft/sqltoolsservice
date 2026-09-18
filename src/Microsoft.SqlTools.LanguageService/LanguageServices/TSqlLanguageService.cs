@@ -1134,7 +1134,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                     // Get the current ScriptInfo if one exists so we can lock it while we're rebuilding the cache
                     ScriptParseInfo scriptInfo = GetScriptParseInfo(connInfo.OwnerUri, createIfNotExists: false);
                     if (scriptInfo != null && scriptInfo.IsConnected &&
-                        await scriptInfo.BuildingMetadataLock.TryEnterAsync(TSqlLanguageService.OnConnectionWaitTimeout))
+                        await scriptInfo.AsyncBuildingMetadataLock.TryEnterAsync(TSqlLanguageService.OnConnectionWaitTimeout))
                     {
                         try
                         {
@@ -1145,9 +1145,8 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                             }
                             finally
                             {
-                                // A Monitor is owned by the thread that entered it, so it must be
-                                // released before the asynchronous metadata rebuild can change threads.
-                                scriptInfo.BuildingMetadataLock.Exit();
+                                // Release the document lock before rebuilding the connection metadata.
+                                scriptInfo.AsyncBuildingMetadataLock.Exit();
                             }
 
                             await UpdateLanguageServiceOnConnection(connInfo);
@@ -1388,7 +1387,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             // per file, and the binding queue that completes the work dispatches on the same pool,
             // so blocked waiters here can leave the queue with no thread to signal them. That is
             // the deadlock behind microsoft/vscode-mssql#22920.
-            if (await parseInfo.BuildingMetadataLock.TryEnterAsync(
+            if (await parseInfo.AsyncBuildingMetadataLock.TryEnterAsync(
                 ConnectedBindingQueue.BindingTimeout,
                 cancellationToken))
             {
@@ -1494,7 +1493,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 }
                 finally
                 {
-                    parseInfo.BuildingMetadataLock.Exit();
+                    parseInfo.AsyncBuildingMetadataLock.Exit();
                 }
             }
             else
@@ -1660,7 +1659,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (!parseInfo.BuildingMetadataLock.TryEnter(ConnectedBindingQueue.BindingTimeout))
+            if (!parseInfo.AsyncBuildingMetadataLock.TryEnter(ConnectedBindingQueue.BindingTimeout))
             {
                 return null;
             }
@@ -1689,7 +1688,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             }
             finally
             {
-                parseInfo.BuildingMetadataLock.Exit();
+                parseInfo.AsyncBuildingMetadataLock.Exit();
             }
         }
 
@@ -1750,7 +1749,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 return;
             }
 
-            if (await scriptInfo.BuildingMetadataLock.TryEnterAsync(TSqlLanguageService.OnConnectionWaitTimeout))
+            if (await scriptInfo.AsyncBuildingMetadataLock.TryEnterAsync(TSqlLanguageService.OnConnectionWaitTimeout))
             {
                 try
                 {
@@ -1768,7 +1767,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 {
                     // Set Metadata Build event to Signal state.
                     // (Tell Language Service that I am ready with Metadata Provider Object)
-                    scriptInfo.BuildingMetadataLock.Exit();
+                    scriptInfo.AsyncBuildingMetadataLock.Exit();
                 }
             }
             await PrepopulateCommonMetadata(info, scriptInfo, this.BindingQueue);
@@ -1800,7 +1799,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
                 // Stamp the .sqlproj URI itself
                 ScriptParseInfo scriptInfo = GetScriptParseInfo(projectUri, createIfNotExists: true);
-                if (await scriptInfo.BuildingMetadataLock.TryEnterAsync(TSqlLanguageService.OnConnectionWaitTimeout))
+                if (await scriptInfo.AsyncBuildingMetadataLock.TryEnterAsync(TSqlLanguageService.OnConnectionWaitTimeout))
                 {
                     try
                     {
@@ -1810,7 +1809,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                     }
                     finally
                     {
-                        scriptInfo.BuildingMetadataLock.Exit();
+                        scriptInfo.AsyncBuildingMetadataLock.Exit();
                     }
                 }
 
@@ -1839,7 +1838,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             foreach (string fileUri in fileUris)
             {
                 ScriptParseInfo scriptInfo = GetScriptParseInfo(fileUri, createIfNotExists: true);
-                if (scriptInfo.BuildingMetadataLock.TryEnter(TSqlLanguageService.OnConnectionWaitTimeout))
+                if (scriptInfo.AsyncBuildingMetadataLock.TryEnter(TSqlLanguageService.OnConnectionWaitTimeout))
                 {
                     try
                     {
@@ -1849,7 +1848,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                     }
                     finally
                     {
-                        scriptInfo.BuildingMetadataLock.Exit();
+                        scriptInfo.AsyncBuildingMetadataLock.Exit();
                     }
                 }
             }
@@ -1898,7 +1897,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 }
 
                 await ParseAndBind(scriptFile, info);
-                if (await scriptInfo.BuildingMetadataLock.TryEnterAsync(TSqlLanguageService.OnConnectionWaitTimeout))
+                if (await scriptInfo.AsyncBuildingMetadataLock.TryEnterAsync(TSqlLanguageService.OnConnectionWaitTimeout))
                 {
                     try
                     {
@@ -1959,7 +1958,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                     }
                     finally
                     {
-                        scriptInfo.BuildingMetadataLock.Exit();
+                        scriptInfo.AsyncBuildingMetadataLock.Exit();
                     }
                 }
             }
@@ -2023,7 +2022,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             var scriptParseInfo = currentCompletionParseInfo;
             if (scriptParseInfo != null && scriptParseInfo.CurrentSuggestions != null)
             {
-                if (scriptParseInfo.BuildingMetadataLock.TryEnter())
+                if (scriptParseInfo.AsyncBuildingMetadataLock.TryEnter())
                 {
                     try
                     {
@@ -2054,7 +2053,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                     }
                     finally
                     {
-                        scriptParseInfo.BuildingMetadataLock.Exit();
+                        scriptParseInfo.AsyncBuildingMetadataLock.Exit();
                     }
                 }
             }
@@ -2704,7 +2703,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 string tokenText = TextUtilities.RemoveSquareBracketSyntax(token.Text);
                 textDocumentPosition.Position.Line = token.StartLocation.LineNumber;
                 textDocumentPosition.Position.Character = token.StartLocation.ColumnNumber;
-                if (scriptParseInfo.BuildingMetadataLock.TryEnter())
+                if (scriptParseInfo.AsyncBuildingMetadataLock.TryEnter())
                 {
                     try
                     {
@@ -2728,7 +2727,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                     }
                     finally
                     {
-                        scriptParseInfo.BuildingMetadataLock.Exit();
+                        scriptParseInfo.AsyncBuildingMetadataLock.Exit();
                     }
                 }
                 else
@@ -3042,7 +3041,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(scriptFile.ClientUri);
             if (scriptParseInfo != null && scriptParseInfo.ParseResult != null)
             {
-                if (scriptParseInfo.BuildingMetadataLock.TryEnter())
+                if (scriptParseInfo.AsyncBuildingMetadataLock.TryEnter())
                 {
                     try
                     {
@@ -3071,7 +3070,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                     }
                     finally
                     {
-                        scriptParseInfo.BuildingMetadataLock.Exit();
+                        scriptParseInfo.AsyncBuildingMetadataLock.Exit();
                     }
                 }
             }
@@ -3115,7 +3114,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
             if (scriptParseInfo.ParseResult != null)
             {
-                if (scriptParseInfo.BuildingMetadataLock.TryEnter())
+                if (scriptParseInfo.AsyncBuildingMetadataLock.TryEnter())
                 {
                     try
                     {
@@ -3161,7 +3160,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                     }
                     finally
                     {
-                        scriptParseInfo.BuildingMetadataLock.Exit();
+                        scriptParseInfo.AsyncBuildingMetadataLock.Exit();
                     }
                 }
             }
@@ -3242,7 +3241,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
             ScriptDocumentInfo scriptDocumentInfo;
             Stopwatch buildingMetadataLockStopwatch = Stopwatch.StartNew();
-            if (!await scriptParseInfo.BuildingMetadataLock.TryEnterAsync(ConnectedBindingQueue.BindingTimeout))
+            if (!await scriptParseInfo.AsyncBuildingMetadataLock.TryEnterAsync(ConnectedBindingQueue.BindingTimeout))
             {
                 Logger.Warning($"Completion for '{scriptFile.ClientUri}' timed out after {buildingMetadataLockStopwatch.ElapsedMilliseconds} ms waiting for BuildingMetadataLock");
                 return null;
@@ -3262,7 +3261,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             }
             finally
             {
-                scriptParseInfo.BuildingMetadataLock.Exit();
+                scriptParseInfo.AsyncBuildingMetadataLock.Exit();
                 Logger.Verbose($"Completion for '{scriptFile.ClientUri}' released BuildingMetadataLock after holding it for {buildingMetadataLockStopwatch.ElapsedMilliseconds} ms");
             }
 
