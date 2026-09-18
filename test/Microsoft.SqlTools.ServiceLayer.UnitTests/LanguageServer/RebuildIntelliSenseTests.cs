@@ -88,7 +88,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                 .Returns(Task.CompletedTask);
             langService.ServiceHostInstance = serviceHost.Object;
 
-            MetadataLock oldMetadataLock = scriptParseInfo.AsyncBuildingMetadataLock;
+            MetadataLock oldMetadataLock = scriptParseInfo.BuildingMetadataLock;
             bool oldMetadataLockWasAvailable = false;
             bool metadataUpdateStarted = false;
 

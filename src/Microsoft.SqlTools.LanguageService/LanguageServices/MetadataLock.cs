@@ -18,7 +18,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
     /// that the binding queue itself needs to run, and the service deadlocks. Unlike a Monitor
     /// this lock is not reentrant: a holder must not try to enter it again.
     /// </remarks>
-    internal sealed class MetadataLock
+    public sealed class MetadataLock
     {
         private readonly SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
 
