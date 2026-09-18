@@ -70,8 +70,8 @@ namespace Microsoft.SqlTools.ServiceLayer
                     commandOptions,
                     sts2.LegacyInputStream,
                     sts2.LegacyOutputStream);
-                serviceHost.MessageDispatcher.ParallelMessageProcessing = commandOptions.ParallelMessageProcessing;
                 serviceHost.MessageDispatcher.ParallelMessageProcessingLimit = commandOptions.ParallelMessageProcessingLimit;
+                serviceHost.MessageDispatcher.ParallelMessageProcessing = commandOptions.ParallelMessageProcessing;
 
                 // If this service was started by another process, then it should shutdown when that parent process does.
                 if (commandOptions.ParentProcessId != null)
