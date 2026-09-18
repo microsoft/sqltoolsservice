@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Composition;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
@@ -54,7 +55,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         private IMultiServiceProvider serviceProvider;
         private ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue(needsMetadata: false);
         private string connectionName = "ObjectExplorer";
-        private readonly ConcurrentDictionary<TreeNode, SemaphoreSlim> nodeExpansionLocks = new();
+
+        /// <summary>
+        /// Serializes concurrent expansions of the same node.
+        /// </summary>
+        /// <remarks>
+        /// Keys are held weakly. A strong map would pin every node it has ever seen, and with it the
+        /// whole tree and session behind that node, growing without bound over the lifetime of a
+        /// long-running service. <see cref="TreeNode"/> does not override equality, so the reference
+        /// identity this table uses matches the previous lookup behaviour.
+        /// </remarks>
+        private readonly ConditionalWeakTable<TreeNode, SemaphoreSlim> nodeExpansionLocks = new();
 
         /// <summary>
         /// This timeout limits the amount of time that object explorer tasks can take to complete
@@ -452,7 +463,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 response = new ExpandResponse { Nodes = new NodeInfo[] { }, ErrorMessage = node.ErrorMessage, SessionId = session.Uri, NodePath = nodePath };
             }
             Logger.Verbose($"Before entering node expansion lock for {nodePath}");
-            SemaphoreSlim nodeExpansionLock = this.nodeExpansionLocks.GetOrAdd(
+            SemaphoreSlim nodeExpansionLock = this.nodeExpansionLocks.GetValue(
                 node,
                 _ => new SemaphoreSlim(1, 1));
             if (!await nodeExpansionLock.WaitAsync(TSqlLanguageService.OnConnectionWaitTimeout))

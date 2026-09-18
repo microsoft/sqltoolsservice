@@ -118,16 +118,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 HardTimeout = hardTimeout
             };
 
-            lock (this.bindingQueueLock)
-            {
-                this.bindingQueue.AddLast(queueItem);
-            }
-
-            Logger.Verbose($"Binding queue item {queueItem.Id} queued for key '{queueItem.Key}'");
-
-            this.itemQueuedEvent.Set();
-
-            return queueItem;
+            return this.EnqueueOrAbandon(queueItem);
         }
 
         /// <summary>
@@ -154,13 +145,43 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 HardTimeout = hardTimeout,
             };
 
+            return this.EnqueueOrAbandon(queueItem);
+        }
+
+        /// <summary>
+        /// Adds an item to the queue and wakes the processor, unless the queue has been disposed.
+        /// </summary>
+        /// <remarks>
+        /// A disposed queue has no processor left to dispatch the item, and
+        /// <see cref="itemQueuedEvent"/> may already be torn down. Abandoning the item releases its
+        /// waiters immediately rather than blocking them on work that can never run.
+        /// </remarks>
+        private QueueItem EnqueueOrAbandon(QueueItem queueItem)
+        {
+            bool queued;
             lock (this.bindingQueueLock)
             {
-                this.bindingQueue.AddLast(queueItem);
+                queued = !this.disposed;
+                if (queued)
+                {
+                    this.bindingQueue.AddLast(queueItem);
+
+                    // Signalled under the lock that guards disposal and the processor's Reset, so a
+                    // concurrent Dispose cannot tear the handle down between the add and the set.
+                    this.itemQueuedEvent.Set();
+                }
             }
 
-            Logger.Verbose($"Binding queue item {queueItem.Id} queued for key '{queueItem.Key}'");
-            this.itemQueuedEvent.Set();
+            if (queued)
+            {
+                Logger.Verbose($"Binding queue item {queueItem.Id} queued for key '{queueItem.Key}'");
+            }
+            else
+            {
+                Logger.Verbose($"Binding queue item {queueItem.Id} abandoned for key '{queueItem.Key}'; the binding queue is disposed");
+                queueItem.Abandon();
+            }
+
             return queueItem;
         }
 
@@ -697,11 +718,16 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
         public void Dispose()
         {
-            if (this.disposed)
+            // Set under the queueing lock so an in-flight enqueue either lands before disposal
+            // (and is abandoned by ClearQueuedItems below) or observes the flag and abandons itself.
+            lock (this.bindingQueueLock)
             {
-                return;
+                if (this.disposed)
+                {
+                    return;
+                }
+                this.disposed = true;
             }
-            this.disposed = true;
 
             // Work still in the linked list has no consumer after disposal. Complete it before
             // tearing down the wait handles so callers cannot remain stranded.
@@ -730,7 +756,10 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
             if (processorStopped && itemQueuedEvent != null)
             {
-                itemQueuedEvent.Dispose();
+                lock (this.bindingQueueLock)
+                {
+                    itemQueuedEvent.Dispose();
+                }
             }
             else if (!processorStopped)
             {

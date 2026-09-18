@@ -126,7 +126,18 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         internal static Task HandleGetServerContextualizationRequest(GetServerContextualizationParams contextualizationParams,
             RequestContext<GetServerContextualizationResult> requestContext)
         {
-            return Task.Run(() => GetServerContextualization(contextualizationParams, requestContext));
+            // Contextualization scripts a whole database through SMO and can run for a long time.
+            // Awaiting it here would hold the serial dispatch chain, so let it run detached and
+            // unrelated messages (cancellations, document notifications) keep being serviced. The
+            // result is still observed, so a failure is logged and reported to the caller instead
+            // of being silently dropped.
+            Func<Task, Task> reportFailure = faulted =>
+                requestContext.SendError(faulted.Exception.GetBaseException());
+
+            _ = Task.Run(() => GetServerContextualization(contextualizationParams, requestContext))
+                .ContinueWithOnFaulted(reportFailure);
+
+            return Task.CompletedTask;
         }
 
         internal static async Task GetServerContextualization(GetServerContextualizationParams contextualizationParams, RequestContext<GetServerContextualizationResult> requestContext)
