@@ -455,101 +455,156 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             SemaphoreSlim nodeExpansionLock = this.nodeExpansionLocks.GetOrAdd(
                 node,
                 _ => new SemaphoreSlim(1, 1));
-            if (await nodeExpansionLock.WaitAsync(TSqlLanguageService.OnConnectionWaitTimeout))
+            if (!await nodeExpansionLock.WaitAsync(TSqlLanguageService.OnConnectionWaitTimeout))
             {
-                Logger.Verbose($"After entering node expansion lock for {nodePath}");
-                try
-                {
-                    int timeout = (int)TimeSpan.FromSeconds(settings?.ExpandTimeout ?? ObjectExplorerSettings.DefaultExpandTimeout).TotalMilliseconds;
-                    QueueItem queueItem = bindingQueue.QueueBindingOperation(
-                           key: bindingQueue.AddConnectionContext(session.ConnectionInfo, connectionName),
-                           bindingTimeout: timeout,
-                           waitForLockTimeout: timeout,
-                           bindOperation: (bindingContext, cancelToken) =>
-                           {
-                               if (!session.ConnectionInfo.IsAzureAuth)
-                               {
-                                   // explicitly set null here to prevent setting access token for non-Azure auth modes.
-                                   securityToken = null;
-                               }
+                Logger.Error($"Timed out waiting for the node expansion lock for {nodePath}");
+                return CreateExpandFailureResponse(
+                    session,
+                    nodePath,
+                    $"Timed out waiting for another Object Explorer operation on node: {nodePath}",
+                    ObjectExplorerErrorCodes.ExpandTimeout);
+            }
 
-                               var filterDefinitions = node.FilterProperties;
-                               var appliedFilters = new List<INodeFilter>();
-
-                               if (filters != null)
-                               {
-                                   foreach (var f in filters)
-                                   {
-                                       NodeFilterProperty filterProperty = filterDefinitions.FirstOrDefault(x => x.Name == f.Name);
-                                       appliedFilters.Add(f.ToINodeFilter(filterProperty));
-                                   }
-                               }
-
-
-                               if (forceRefresh)
-                               {
-                                   Logger.Verbose($"Forcing refresh for {nodePath}");
-                                   nodes = node.Refresh(cancelToken, securityToken?.Token, appliedFilters).Select(x => new NodeInfo(x)).ToArray();
-                               }
-                               else
-                               {
-                                   Logger.Verbose($"Expanding {nodePath}");
-                                   try
-                                   {
-                                       nodes = node.Expand(cancelToken, securityToken?.Token, appliedFilters).Select(x => new NodeInfo(x)).ToArray();
-                                   }
-                                   catch (ConnectionFailureException ex)
-                                   {
-                                       var errorMessage = ex.InnerException?.Message ?? ex.Message;
-
-                                       Logger.Error($"Failed to expand node: {errorMessage}");
-                                       var errorNode = ErrorNodeInfo.Create(parentNodePath: nodePath, errorMessage: errorMessage);
-                                       nodes = new NodeInfo[] { errorNode };
-                                   }
-                               }
-                               response.Nodes = nodes;
-                               response.ErrorMessage = node.ErrorMessage;
-                               try
-                               {
-                                   // SMO changes the database when getting sql objects. Make sure the database is changed back to the original one
-                                   if (bindingContext.ServerConnection.CurrentDatabase != bindingContext.ServerConnection.DatabaseName)
-                                   {
-                                       bindingContext.ServerConnection.SqlConnectionObject.ChangeDatabase(bindingContext.ServerConnection.DatabaseName);
-                                   }
-                               }
-                               catch (Exception ex)
-                               {
-                                   Logger.Warning($"Failed to change the database in OE connection. error: {ex.Message}");
-                                   // We should just try to change the connection. If it fails, there's not much we can do
-                               }
-                               return response;
-                           });
-                    Logger.Verbose($"Queuing binding operation for {nodePath}");
-                    if (!await queueItem.WaitForCompletionAsync() || queueItem.TimedOut)
+            Logger.Verbose($"After entering node expansion lock for {nodePath}");
+            try
+            {
+                int timeout = (int)TimeSpan.FromSeconds(settings?.ExpandTimeout ?? ObjectExplorerSettings.DefaultExpandTimeout).TotalMilliseconds;
+                QueueItem queueItem = bindingQueue.QueueBindingOperation(
+                    key: bindingQueue.AddConnectionContext(session.ConnectionInfo, connectionName),
+                    bindingTimeout: timeout,
+                    waitForLockTimeout: timeout,
+                    timeoutOperation: (bindingContext) => CreateExpandFailureResponse(
+                        session,
+                        nodePath,
+                        $"Object Explorer did not finish expanding node within {timeout} ms: {nodePath}",
+                        ObjectExplorerErrorCodes.ExpandTimeout),
+                    errorHandler: (ex) => CreateExpandFailureResponse(
+                        session,
+                        nodePath,
+                        ex.Message,
+                        ObjectExplorerErrorCodes.ExpandError),
+                    bindOperation: (bindingContext, cancelToken) =>
                     {
-                        string errorMessage = "Timed out waiting to expand the Object Explorer node.";
-                        Logger.Warning($"{errorMessage} Node path: {nodePath}");
-                        return new ExpandResponse { Nodes = new NodeInfo[0], ErrorMessage = errorMessage, SessionId = session.Uri, NodePath = nodePath };
-                    }
-                    Logger.Verbose($"Done with binding operation for {nodePath}");
-                    if (queueItem.GetResultAsT<ExpandResponse>() != null)
-                    {
-                        response = queueItem.GetResultAsT<ExpandResponse>();
-                    }
-                }
-                catch (TimeoutException ex)
+                        if (!session.ConnectionInfo.IsAzureAuth)
+                        {
+                            // explicitly set null here to prevent setting access token for non-Azure auth modes.
+                            securityToken = null;
+                        }
+
+                        var filterDefinitions = node.FilterProperties;
+                        var appliedFilters = new List<INodeFilter>();
+
+                        if (filters != null)
+                        {
+                            foreach (var f in filters)
+                            {
+                                NodeFilterProperty filterProperty = filterDefinitions.FirstOrDefault(x => x.Name == f.Name);
+                                appliedFilters.Add(f.ToINodeFilter(filterProperty));
+                            }
+                        }
+
+                        if (forceRefresh)
+                        {
+                            Logger.Verbose($"Forcing refresh for {nodePath}");
+                            nodes = node.Refresh(cancelToken, securityToken?.Token, appliedFilters).Select(x => new NodeInfo(x)).ToArray();
+                        }
+                        else
+                        {
+                            Logger.Verbose($"Expanding {nodePath}");
+                            try
+                            {
+                                nodes = node.Expand(cancelToken, securityToken?.Token, appliedFilters).Select(x => new NodeInfo(x)).ToArray();
+                            }
+                            catch (ConnectionFailureException ex)
+                            {
+                                var errorMessage = ex.InnerException?.Message ?? ex.Message;
+
+                                Logger.Error($"Failed to expand node: {errorMessage}");
+                                var errorNode = ErrorNodeInfo.Create(parentNodePath: nodePath, errorMessage: errorMessage);
+                                nodes = new NodeInfo[] { errorNode };
+                            }
+                        }
+                        response.Nodes = nodes;
+                        response.ErrorMessage = node.ErrorMessage;
+                        try
+                        {
+                            // SMO changes the database when getting sql objects. Make sure the database is changed back to the original one
+                            if (bindingContext.ServerConnection.CurrentDatabase != bindingContext.ServerConnection.DatabaseName)
+                            {
+                                bindingContext.ServerConnection.SqlConnectionObject.ChangeDatabase(bindingContext.ServerConnection.DatabaseName);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Warning($"Failed to change the database in OE connection. error: {ex.Message}");
+                            // We should just try to change the connection. If it fails, there's not much we can do
+                        }
+                        return response;
+                    });
+                Logger.Verbose($"Queuing binding operation for {nodePath}");
+                bool completed = await queueItem.WaitForCompletionAsync();
+                Logger.Verbose($"Done with binding operation for {nodePath}");
+
+                ExpandResponse queuedResponse = queueItem.GetResultAsT<ExpandResponse>();
+                if (!completed)
                 {
-                    response.ErrorMessage = ex.Message;
+                    return CreateExpandFailureResponse(
+                        session,
+                        nodePath,
+                        $"Timed out waiting to expand the Object Explorer node: {nodePath}",
+                        ObjectExplorerErrorCodes.ExpandTimeout);
                 }
-                catch
+
+                if (queuedResponse == null)
                 {
+                    Logger.Error($"Binding operation produced no result for {nodePath}");
+                    return CreateExpandFailureResponse(
+                        session,
+                        nodePath,
+                        $"Object Explorer failed to expand node: {nodePath}",
+                        ObjectExplorerErrorCodes.ExpandError);
                 }
-                finally
-                {
-                    nodeExpansionLock.Release();
-                }
+
+                response = queuedResponse;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Failed expanding node {nodePath}. error: {ex.Message}");
+                return CreateExpandFailureResponse(
+                    session,
+                    nodePath,
+                    ex.Message,
+                    ObjectExplorerErrorCodes.ExpandError);
+            }
+            finally
+            {
+                nodeExpansionLock.Release();
             }
             return response;
+        }
+
+        /// <summary>
+        /// Builds an <see cref="ExpandResponse"/> that reports a failed expansion.
+        /// <para>
+        /// A response carrying an empty <see cref="ExpandResponse.Nodes"/> array and no error is
+        /// indistinguishable from a node that legitimately has no children, so every failure path
+        /// must report an error message instead. <see cref="ExpandResponse.Nodes"/> is deliberately
+        /// left null so clients can tell "expansion failed" from "expanded to nothing".
+        /// </para>
+        /// </summary>
+        private static ExpandResponse CreateExpandFailureResponse(
+            ObjectExplorerSession session,
+            string nodePath,
+            string errorMessage,
+            string errorCode)
+        {
+            return new ExpandResponse
+            {
+                SessionId = session.Uri,
+                NodePath = nodePath,
+                ErrorMessage = errorMessage,
+                ErrorCode = errorCode
+            };
         }
 
         /// <summary>

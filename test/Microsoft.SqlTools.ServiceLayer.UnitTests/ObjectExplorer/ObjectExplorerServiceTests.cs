@@ -426,7 +426,149 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             Assert.That(error, Does.Contain("System.ArgumentNullException: Value cannot be null. (Parameter 'connectionDetails')"), "Error message about connectionDetails being null should have been sent for an invalid input");
         }
 
+        /// <summary>
+        /// A response carrying an empty <see cref="ExpandResponse.Nodes"/> array and no error looks
+        /// exactly like a node that genuinely has no children, so a client renders it as "no items"
+        /// instead of reporting the failure. Every failure path must report an error instead.
+        /// </summary>
+        [Test]
+        public async Task ExpandReportsAnErrorWhenTheBindingOperationProducesNoResult()
+        {
+            var session = await CreateSession();
+            UseBindingQueue(item => null);
+
+            ExpandResponse response = await ExpandRootNode(session);
+
+            Assert.That(response.ErrorCode, Is.EqualTo(ObjectExplorerErrorCodes.ExpandError), "A queued operation that produced no result should report an expand error");
+            Assert.That(response.ErrorMessage, Is.Not.Null.And.Not.Empty, "The failure should carry an error message");
+            Assert.That(response.Nodes, Is.Null, "A failed expansion should not report an empty child list");
+        }
+
+        [Test]
+        public async Task ExpandReportsATimeoutWhenTheBindingOperationTimesOut()
+        {
+            var session = await CreateSession();
+
+            // The queue calls TimeoutOperation for both a lock-wait timeout and a hard timeout;
+            // a null handler there is what previously left the caller with an empty response.
+            UseBindingQueue(item =>
+            {
+                Assert.That(item.TimeoutOperation, Is.Not.Null, "The expand request should supply a timeout handler");
+                return item.TimeoutOperation(null);
+            });
+
+            ExpandResponse response = await ExpandRootNode(session);
+
+            Assert.That(response.ErrorCode, Is.EqualTo(ObjectExplorerErrorCodes.ExpandTimeout), "A timed-out expand should report a timeout, which is what drives the client's serverless wake retry");
+            Assert.That(response.ErrorMessage, Is.Not.Null.And.Not.Empty, "The timeout should carry an error message");
+            Assert.That(response.Nodes, Is.Null, "A timed-out expansion should not report an empty child list");
+        }
+
+        [Test]
+        public async Task ExpandReportsTheFailureWhenTheBindingOperationThrows()
+        {
+            var session = await CreateSession();
+            const string expectedMessage = "expansion blew up";
+
+            UseBindingQueue(item =>
+            {
+                Assert.That(item.ErrorHandler, Is.Not.Null, "The expand request should supply an error handler");
+                return item.ErrorHandler(new InvalidOperationException(expectedMessage));
+            });
+
+            ExpandResponse response = await ExpandRootNode(session);
+
+            Assert.That(response.ErrorCode, Is.EqualTo(ObjectExplorerErrorCodes.ExpandError), "A failed expand should report an expand error");
+            Assert.That(response.ErrorMessage, Does.Contain(expectedMessage), "The underlying failure should reach the client");
+            Assert.That(response.Nodes, Is.Null, "A failed expansion should not report an empty child list");
+        }
+
+        [Test]
+        public async Task ExpandStillReturnsChildrenWhenTheBindingOperationSucceeds()
+        {
+            var session = await CreateSession();
+            UseBindingQueue(item => item.BindOperation(new ConnectedBindingContext(), CancellationToken.None));
+
+            ExpandResponse response = await ExpandRootNode(session);
+
+            Assert.That(response.ErrorCode, Is.Null, "A successful expand should not report an error code");
+            VerifyServerNodeChildren(response.Nodes);
+        }
+
         #region Helper methods
+
+        /// <summary>
+        /// Replaces the service's binding queue with one that completes every queued operation
+        /// immediately, using <paramref name="resultFactory"/> to decide what the queue reports back.
+        /// Must be called after <see cref="CreateSession"/>, which uses the queue itself.
+        /// </summary>
+        private void UseBindingQueue(Func<QueueItem, object> resultFactory)
+        {
+            service.ConnectedBindingQueue = new StubConnectedBindingQueue(resultFactory);
+        }
+
+        private async Task<ExpandResponse> ExpandRootNode(SessionCreatedParameters session)
+        {
+            ExpandParams expandParams = new ExpandParams()
+            {
+                SessionId = session.SessionId,
+                NodePath = session.RootNode.NodePath
+            };
+
+            ExpandResponse response = null;
+            await RunAndVerify<bool, ExpandResponse>(
+                test: (requestContext) => CallServiceExpand(expandParams, requestContext),
+                verify: (actual => response = actual));
+
+            Assert.That(response, Is.Not.Null, "An expand notification should always be sent");
+            return response;
+        }
+
+        /// <summary>
+        /// A binding queue that never actually dispatches, so a test can drive exactly one of the
+        /// queue's completion paths - success, error handler, timeout handler or no result at all.
+        /// </summary>
+        private sealed class StubConnectedBindingQueue : ConnectedBindingQueue
+        {
+            private readonly Func<QueueItem, object> resultFactory;
+
+            public StubConnectedBindingQueue(Func<QueueItem, object> resultFactory)
+                : base(needsMetadata: false)
+            {
+                this.resultFactory = resultFactory;
+            }
+
+            public override string AddConnectionContext(LanguageService.LanguageServices.ConnectionInfoBase connInfo, string featureName = null, bool overwrite = false)
+            {
+                return "stub-connection-key";
+            }
+
+            public override QueueItem QueueBindingOperation(
+                string key,
+                Func<IBindingContext, CancellationToken, object> bindOperation,
+                Func<IBindingContext, object> timeoutOperation = null,
+                Func<Exception, object> errorHandler = null,
+                int? bindingTimeout = null,
+                int? waitForLockTimeout = null,
+                int? hardTimeout = null)
+            {
+                QueueItem queueItem = new QueueItem()
+                {
+                    Key = key,
+                    BindOperation = bindOperation,
+                    TimeoutOperation = timeoutOperation,
+                    ErrorHandler = errorHandler,
+                    BindingTimeout = bindingTimeout,
+                    WaitForLockTimeout = waitForLockTimeout,
+                    HardTimeout = hardTimeout
+                };
+
+                queueItem.Result = resultFactory(queueItem);
+                queueItem.ItemProcessed.Set();
+                return queueItem;
+            }
+        }
+
         private async Task<SessionCreatedParameters> CreateSession()
         {
             SessionCreatedParameters sessionResult = null;

@@ -17,6 +17,12 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts
         public const string ExpandTimeout = "EXPAND_TIMEOUT";
 
         /// <summary>
+        /// An Object Explorer expand/refresh operation failed before it could produce any
+        /// children. Reported on <see cref="ExpandResponse.ErrorCode"/>.
+        /// </summary>
+        public const string ExpandError = "EXPAND_ERROR";
+
+        /// <summary>
         /// An Object Explorer create-session operation did not complete before its timeout and
         /// was canceled. Reported on <see cref="SessionCreatedParameters.ErrorCode"/>.
         /// </summary>

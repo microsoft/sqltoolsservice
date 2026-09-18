@@ -748,10 +748,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             langService.ServiceHostInstance = Hosting.ServiceHost.Instance;
             langService.CurrentWorkspace.GetFile(scriptFile.ClientUri);
             workspaceService.CurrentSettings.SqlTools.IntelliSense.EnableIntellisense = true;
-            workspaceService.CurrentSettings.SqlTools.Format.KeywordCasing =
-                lowerCaseSuggestions ?
-                CasingOptions.Lowercase :
-                CasingOptions.Uppercase;
+            workspaceService.CurrentSettings.SqlTools.Format.Options = new SqlFormatterOptions
+            {
+                KeywordCasing = lowerCaseSuggestions
+                    ? SqlFormatterKeywordCasing.Lowercase
+                    : SqlFormatterKeywordCasing.Uppercase
+            };
             createdLanguageServices.Add(langService);
             return langService;
         }
