@@ -550,12 +550,17 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// </summary>
         public void ClearQueuedItems()
         {
+            List<QueueItem> removedItems;
             lock (this.bindingQueueLock)
             {
-                if (this.bindingQueue.Count > 0)
-                {
-                    this.bindingQueue.Clear();
-                }
+                removedItems = this.bindingQueue.ToList();
+                this.bindingQueue.Clear();
+            }
+
+            foreach (QueueItem item in removedItems)
+            {
+                item.TimedOut = true;
+                item.ItemProcessed.Set();
             }
         }
 

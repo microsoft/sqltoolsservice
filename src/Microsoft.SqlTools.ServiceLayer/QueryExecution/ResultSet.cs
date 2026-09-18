@@ -689,11 +689,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// Sends the ResultsUpdated message if the number of rows has changed since last send.
         /// </summary>
         /// <param name="stateInfo"></param>
-        private void SendResultAvailableOrUpdated(object stateInfo = null)
+        private async void SendResultAvailableOrUpdated(object stateInfo = null)
         {
-            // Make the call to send current results and synchronously wait for it to finish
-            //
-            SendCurrentResults().Wait();
+            try
+            {
+                await SendCurrentResults();
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Failed to send a result-set update: {ex}");
+            }
         }
 
         private async Task SendCurrentResults()
@@ -703,7 +708,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                 // Wait to acquire the sendResultsSemphore before proceeding, as we want only one instance of this method executing at any given time.
                 //
-                sendResultsSemphore.Wait();
+                await sendResultsSemphore.WaitAsync();
 
                 var currentResultSetSnapshot = (ResultSet)MemberwiseClone();
                 if (LastUpdatedSummary == null) // We need to send results available message.

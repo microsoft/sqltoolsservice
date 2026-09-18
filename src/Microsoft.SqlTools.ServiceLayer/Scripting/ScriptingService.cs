@@ -97,7 +97,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <summary>
         /// Handles request to start the scripting operation
         /// </summary>
-        public Task HandleScriptExecuteRequest(ScriptingParams parameters, RequestContext<ScriptingResult> requestContext)
+        public async Task HandleScriptExecuteRequest(ScriptingParams parameters, RequestContext<ScriptingResult> requestContext)
         {
             SmoScriptingOperation operation = null;
             // if a connection string wasn't provided as a parameter then
@@ -122,7 +122,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                         if (connInfo.AzureTokenFetcher != null)
                         {
                             scriptingServerConnection = ConnectionServiceInstance.OpenServerConnectionInternal(connInfo);
-                            (accessToken, _) = connInfo.AzureTokenFetcher(connInfo.AzureResourceUri).GetAwaiter().GetResult();
+                            (accessToken, _) = await connInfo.AzureTokenFetcher(connInfo.AzureResourceUri);
                         }
                         else
                         {
@@ -150,8 +150,28 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     : new ScriptAsScriptingOperation(parameters, accessToken);
             }
 
-            operation.PlanNotification += (sender, e) => requestContext.SendEvent(ScriptingPlanNotificationEvent.Type, e).Wait();
-            operation.ProgressNotification += (sender, e) => requestContext.SendEvent(ScriptingProgressNotificationEvent.Type, e).Wait();
+            operation.PlanNotification += async (sender, e) =>
+            {
+                try
+                {
+                    await requestContext.SendEvent(ScriptingPlanNotificationEvent.Type, e);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error($"Failed to send a scripting plan notification: {ex}");
+                }
+            };
+            operation.ProgressNotification += async (sender, e) =>
+            {
+                try
+                {
+                    await requestContext.SendEvent(ScriptingProgressNotificationEvent.Type, e);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error($"Failed to send a scripting progress notification: {ex}");
+                }
+            };
             operation.CompleteNotification += (sender, e) => this.SendScriptingCompleteEvent(requestContext, ScriptingCompleteEvent.Type, e, operation, parameters);
 
             RunTask(requestContext, operation);
@@ -159,10 +179,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             // If ReturnScriptAsynchronously is enabled, return operation ID immediately
             if (parameters.ReturnScriptAsynchronously)
             {
-                return requestContext.SendResult(new ScriptingResult { OperationId = operation.OperationId });
+                await requestContext.SendResult(new ScriptingResult { OperationId = operation.OperationId });
             }
-
-            return Task.CompletedTask;
         }
 
         private bool ShouldCreateScriptAsOperation(ScriptingParams parameters)

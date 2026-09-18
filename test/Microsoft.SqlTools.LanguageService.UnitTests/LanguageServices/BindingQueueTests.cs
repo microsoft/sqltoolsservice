@@ -115,6 +115,23 @@ namespace Microsoft.SqlTools.LanguageService.UnitTests.LanguageServices
             return new CompletionItem[0];
         }
 
+        [Test]
+        public async Task ClearQueuedItemsCompletesRemovedItems()
+        {
+            InitializeTestSettings();
+            Assert.That(this.bindingQueue.StopQueueProcessor(15_000), Is.True);
+
+            QueueItem item = this.bindingQueue.QueueBindingOperation(
+                key: "removed-item",
+                bindOperation: this.TestBindOperation);
+
+            this.bindingQueue.ClearQueuedItems();
+
+            await item.WaitForCompletionAsync().WaitAsync(TimeSpan.FromSeconds(1));
+            Assert.That(item.TimedOut, Is.True);
+            Assert.That(item.WasExecuted, Is.False);
+        }
+
         /// <summary>
         /// Items that are in flight do not each hold a thread while the queue watches their timeout.
         /// </summary>

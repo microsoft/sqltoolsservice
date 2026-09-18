@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Composition;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
@@ -54,6 +55,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         private IMultiServiceProvider serviceProvider;
         private ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue(needsMetadata: false);
         private string connectionName = "ObjectExplorer";
+        private readonly ConditionalWeakTable<TreeNode, SemaphoreSlim> nodeExpansionLocks = new ConditionalWeakTable<TreeNode, SemaphoreSlim>();
 
         /// <summary>
         /// This timeout limits the amount of time that object explorer tasks can take to complete
@@ -391,10 +393,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
         internal Task<ExpandResponse> ExpandNode(ObjectExplorerSession session, string nodePath, bool forceRefresh = false, SecurityToken? securityToken = null, NodeFilter[]? filters = null)
         {
-            return Task.Run(() => QueueExpandNodeRequest(session, nodePath, forceRefresh, securityToken, filters));
+            return QueueExpandNodeRequest(session, nodePath, forceRefresh, securityToken, filters);
         }
 
-        internal ExpandResponse QueueExpandNodeRequest(ObjectExplorerSession session, string nodePath, bool forceRefresh = false, SecurityToken? securityToken = null, NodeFilter[]? filters = null)
+        internal async Task<ExpandResponse> QueueExpandNodeRequest(ObjectExplorerSession session, string nodePath, bool forceRefresh = false, SecurityToken? securityToken = null, NodeFilter[]? filters = null)
         {
             NodeInfo[] nodes = null;
             TreeNode? node = session.Root.FindNodeByPath(nodePath);
@@ -404,7 +406,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             if (node?.NodeTypeId == NodeTypes.Database && TableDesignerService.Instance.Settings.PreloadDatabaseModel)
             {
                 // The operation below are not blocking, but just in case, wrapping it with a task run to make sure it has no impact on the node expansion time.
-                var _ = Task.Run(() =>
+                _ = Task.Run(async () =>
                 {
                     try
                     {
@@ -419,7 +421,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                             // when the static AzureAccountToken on ConnectionDetails has become stale.
                             if (session.ConnectionInfo.AzureTokenFetcher != null)
                             {
-                                azureToken = session.ConnectionInfo.AzureTokenFetcher(session.ConnectionInfo.AzureResourceUri).GetAwaiter().GetResult().token;
+                                azureToken = (await session.ConnectionInfo.AzureTokenFetcher(session.ConnectionInfo.AzureResourceUri)).token;
                             }
                             else
                             {
@@ -449,13 +451,14 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 Logger.Verbose($"Got node from FindNodeByPath for {nodePath}");
                 response = new ExpandResponse { Nodes = new NodeInfo[] { }, ErrorMessage = node.ErrorMessage, SessionId = session.Uri, NodePath = nodePath };
             }
-            Logger.Verbose($"Before enter BuildingMetadataLock for {nodePath}");
-            if (!Monitor.TryEnter(node.BuildingMetadataLock, TSqlLanguageService.OnConnectionWaitTimeout))
+            SemaphoreSlim nodeExpansionLock = this.nodeExpansionLocks.GetValue(node, _ => new SemaphoreSlim(1, 1));
+            Logger.Verbose($"Before enter node expansion lock for {nodePath}");
+            if (!await nodeExpansionLock.WaitAsync(TSqlLanguageService.OnConnectionWaitTimeout))
             {
-                // Another operation held this node's metadata lock for the entire wait. Report that
+                // Another operation held this node's expansion lock for the entire wait. Report that
                 // as a timeout rather than returning an empty child list, which the client cannot
                 // tell apart from a node that genuinely has no children.
-                Logger.Error($"Timed out waiting for BuildingMetadataLock for {nodePath}");
+                Logger.Error($"Timed out waiting for the node expansion lock for {nodePath}");
                 return CreateExpandFailureResponse(
                     session,
                     nodePath,
@@ -463,7 +466,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                     ObjectExplorerErrorCodes.ExpandTimeout);
             }
 
-            Logger.Verbose($"After enter BuildingMetadataLock for {nodePath}");
+            Logger.Verbose($"After enter node expansion lock for {nodePath}");
             try
             {
                 int timeout = (int)TimeSpan.FromSeconds(settings?.ExpandTimeout ?? ObjectExplorerSettings.DefaultExpandTimeout).TotalMilliseconds;
@@ -541,7 +544,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                            return response;
                        });
                 Logger.Verbose($"Queuing binding operation for {nodePath}");
-                queueItem.ItemProcessed.WaitOne();
+                await queueItem.WaitForCompletionAsync();
                 Logger.Verbose($"Done with binding operation for {nodePath}");
 
                 // Every completion path of the queued operation - success, bind error, lock-wait
@@ -572,7 +575,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             }
             finally
             {
-                Monitor.Exit(node.BuildingMetadataLock);
+                nodeExpansionLock.Release();
             }
             return response;
         }
@@ -644,7 +647,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                                return session;
                            });
 
-                queueItem.ItemProcessed.WaitOne();
+                await queueItem.WaitForCompletionAsync();
                 if (queueItem.GetResultAsT<ObjectExplorerSession>() != null)
                 {
                     session = queueItem.GetResultAsT<ObjectExplorerSession>();
