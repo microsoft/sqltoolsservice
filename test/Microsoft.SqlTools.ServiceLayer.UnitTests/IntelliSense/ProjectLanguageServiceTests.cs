@@ -195,10 +195,7 @@ END
         }
 
         /// <summary>
-        /// After a project model update only the project files that are open in the editor are
-        /// re-analyzed. Refreshing every file of the project loaded all of them from disk and
-        /// analyzed all of them after each edit, which hung the service on a project with
-        /// thousands of files (microsoft/vscode-mssql#22920).
+        /// A project model update re-analyzes only the project files open in the editor.
         /// </summary>
         [Test]
         [Timeout(30_000)]
@@ -209,8 +206,7 @@ END
             string tablesDir = Path.Combine(Path.GetDirectoryName(_projectPath), "Tables");
             Directory.CreateDirectory(tablesDir);
 
-            // The project reports every file, the edited one included: it excludes the edited
-            // file by comparing URI strings, which does not match the form the client sent.
+            // The project's URI-string exclusion misses the edited file's escaped client URI.
             var projectFileUris = new List<string>();
             for (int i = 0; i < siblingCount; i++)
             {
@@ -274,10 +270,7 @@ END
         }
 
         /// <summary>
-        /// A refresh of several files analyzes them one at a time, and stops after the file in
-        /// progress once a newer request has superseded it. Each analysis holds a thread pool
-        /// thread until the binding queue has processed it, so this bounds how many threads a
-        /// burst of refreshes can take from the pool the queue itself depends on.
+        /// A multi-file refresh analyzes one file at a time and stops once superseded.
         /// </summary>
         [Test]
         [Timeout(30_000)]
@@ -358,9 +351,7 @@ END
         }
 
         /// <summary>
-        /// Every file of a refresh gets real diagnostics. Files of one project share a binding
-        /// context and do not wait for its lock, so when they were all analyzed at once only the
-        /// first got the lock; the rest published an empty list, which cleared their squiggles.
+        /// Every file of a refresh reports its errors; none loses the binding lock race.
         /// </summary>
         [Test]
         [Timeout(30_000)]

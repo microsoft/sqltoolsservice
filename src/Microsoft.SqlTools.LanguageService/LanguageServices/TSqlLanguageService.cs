@@ -999,20 +999,10 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         }
 
         /// <summary>
-        /// Returns the files of a project that are open in the editor, with the changed file first,
-        /// so their diagnostics can be refreshed after a project model update.
+        /// Returns the project files that are open in the editor, changed file first. Matches by
+        /// normalized URI: Workspace.GetFile would load unopened files from disk, and the client's
+        /// escaped URIs (file:///c%3A/...) do not match the unescaped ones the project reports.
         /// </summary>
-        /// <remarks>
-        /// Only documents the workspace already holds qualify. Squiggles are only visible in open
-        /// editors, and <c>Workspace.GetFile</c> loads a file from disk when it is not open,
-        /// so asking it for every sibling pulled the whole project into the workspace and analyzed
-        /// all of it after each edit. On a project with thousands of files that exhausted the thread
-        /// pool and hung the service (microsoft/vscode-mssql#22920).
-        /// Open documents are matched by normalized URI rather than looked up by sibling URI: the
-        /// workspace is keyed by the URI the client sent (VS Code escapes the drive colon as %3A)
-        /// while the project reports unescaped URIs, so a lookup misses the open document and
-        /// falls back to the copy on disk instead of the editor buffer.
-        /// </remarks>
         private List<ScriptFile> GetOpenProjectFilesToRefresh(string projectUri, string changedFileUri)
         {
             string normalizedChangedUri = NormalizeUri(changedFileUri);
@@ -3466,9 +3456,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             // We create this on a different TaskScheduler so that we
             // don't block the main message loop thread.
             existingRequestCancellation = new CancellationTokenSource();
-            // Capture this request's token now. The task below starts later, and by then a newer
-            // request may have replaced the field, which would leave this request holding the
-            // newer token and unable to tell that it has been superseded.
+            // Capture the token now; a newer request may replace the field before the task starts.
             CancellationToken cancellationToken = existingRequestCancellation.Token;
             // Large scripts take much longer to parse, so debounce them longer: only refresh after the user has
             // truly stopped typing, so resuming after a brief pause doesn't collide with an in-flight parse.
@@ -3522,16 +3510,9 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             // is going on.  It makes sense to send back the results from the
             // first delay period while the second one is ticking away.
             //
-            // Any further files are analyzed one at a time, and only while this
-            // request is still the newest one. Each analysis occupies a thread
-            // pool thread until the binding queue has processed it, and the
-            // queue dispatches on that same pool. Starting every file at once
-            // let a refresh of many files take every pool thread, leaving none
-            // for the queue to release them with, which hung the whole service
-            // (microsoft/vscode-mssql#22920). Files that share a binding context
-            // gained nothing from the concurrency anyway: they do not wait for
-            // the context's lock, so all but the first lost the race for it and
-            // had their diagnostics cleared instead of refreshed.
+            // Further files are analyzed one at a time, and only while this request is
+            // the newest: each analysis blocks a pool thread until the binding queue,
+            // which runs on the same pool, has processed it.
             bool analysisStarted = false;
 
             // Get the requested files
@@ -3559,8 +3540,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                     Logger.Verbose("Analyzing script file: " + scriptFile.FilePath);
                     analysisStarted = true;
 
-                    // Waiting here does not hold up the message loop: RunScriptDiagnostics starts this
-                    // method on the thread pool, so STS message queues are unblocked before analysis begins.
+                    // This runs on the thread pool, so awaiting does not hold up the message loop.
                     await PublishSemanticMarkersAsync(scriptFile, GetSemanticMarkers(scriptFile), eventContext);
                 }
                 catch (Exception e)
