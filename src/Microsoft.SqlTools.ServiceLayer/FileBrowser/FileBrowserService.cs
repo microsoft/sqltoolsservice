@@ -193,7 +193,12 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                             return result;
                         });
 
-                    queueItem.ItemProcessed.WaitOne();
+                    if (!await queueItem.WaitForCompletionAsync()
+                        || !queueItem.WasExecuted
+                        || queueItem.TimedOut)
+                    {
+                        throw new TimeoutException("Timed out while closing the file browser.");
+                    }
                     if (queueItem.GetResultAsT<FileBrowserCloseResponse>() != null)
                     {
                         result = queueItem.GetResultAsT<FileBrowserCloseResponse>();
@@ -264,7 +269,12 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                             return result;
                         });
 
-                    queueItem.ItemProcessed.WaitOne();
+                    if (!await queueItem.WaitForCompletionAsync()
+                        || !queueItem.WasExecuted
+                        || queueItem.TimedOut)
+                    {
+                        throw new TimeoutException("Timed out while opening the file browser.");
+                    }
 
                     if (queueItem.GetResultAsT<FileBrowserOpenedParams>() != null)
                     {
@@ -308,7 +318,12 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                             return result;
                         });
 
-                    queueItem.ItemProcessed.WaitOne();
+                    if (!await queueItem.WaitForCompletionAsync()
+                        || !queueItem.WasExecuted
+                        || queueItem.TimedOut)
+                    {
+                        throw new TimeoutException("Timed out while expanding the file browser.");
+                    }
 
                     if (queueItem.GetResultAsT<FileBrowserExpandedParams>() != null)
                     {
@@ -356,7 +371,12 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                             return result;
                         });
 
-                    queueItem.ItemProcessed.WaitOne();
+                    if (!await queueItem.WaitForCompletionAsync()
+                        || !queueItem.WasExecuted
+                        || queueItem.TimedOut)
+                    {
+                        throw new TimeoutException("Timed out while validating file browser paths.");
+                    }
 
                     if (queueItem.GetResultAsT<FileBrowserValidatedParams>() != null)
                     {

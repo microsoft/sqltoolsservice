@@ -38,13 +38,22 @@ namespace Microsoft.SqlTools.Utility
         /// </param>
         public override void Post(SendOrPostCallback callback, object state)
         {
+            this.TryPost(callback, state);
+        }
+
+        /// <summary>
+        /// Posts a callback and reports whether the loop accepted it. Callers which expose a Task
+        /// for posted work need this result so shutdown cannot leave that Task incomplete forever.
+        /// </summary>
+        internal bool TryPost(SendOrPostCallback callback, object state)
+        {
             // If the loop has already been shut down, silently drop the post rather than
             // crashing the caller. This can happen when an async event (e.g. a task-added
             // notification) fires on a thread-pool thread after EndLoop() has been called
             // during teardown. The check + Add is not atomic, so we also catch the race.
             if (this.requestQueue.IsAddingCompleted)
             {
-                return;
+                return false;
             }
 
             try
@@ -52,11 +61,13 @@ namespace Microsoft.SqlTools.Utility
                 this.requestQueue.Add(
                     new Tuple<SendOrPostCallback, object>(
                         callback, state));
+                return true;
             }
             catch (InvalidOperationException)
             {
                 // CompleteAdding() was called between the IsAddingCompleted check and Add —
                 // the loop is shutting down, so there is nothing to dispatch to.
+                return false;
             }
         }
 

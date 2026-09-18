@@ -6,9 +6,11 @@
 #nullable disable
 
 using System;
+using System.Data.Common;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
+using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteRequests;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
@@ -160,6 +162,128 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
                 Assert.That(events.Completions, Is.EqualTo(1),
                     "an accepted query must always end with a QueryCompleteEvent");
                 Assert.That(events.ReportedError, Does.Contain("simulated"), "the reason is reported to the user");
+            });
+        }
+
+        /// <summary>
+        /// Deterministic reproduction for microsoft/vscode-mssql#22920.
+        ///
+        /// The execute request is accepted before the first-query session options are applied. If
+        /// opening that connection never returns, cancellation must release the pre-execution wait
+        /// and send QueryCompleteEvent so the client does not remain in its "query is already
+        /// running" state.
+        /// </summary>
+        [Test]
+        [Timeout(10_000)]
+        public async Task CancelDuringStalledSessionOptionsCompletesAcceptedQuery()
+        {
+            ConnectionInfo ci = Common.CreateConnectedConnectionInfo(Common.StandardTestDataSet, false, false);
+            var stalledSessionOptions = new TaskCompletionSource<DbConnection>(
+                TaskCreationOptions.RunContinuationsAsynchronously);
+
+            var connectionService = new Mock<ConnectionService>();
+            ConnectionInfo outVal;
+            connectionService
+                .Setup(s => s.TryFindConnection(It.IsAny<string>(), out outVal))
+                .OutCallback((string owner, out ConnectionInfo connInfo) => connInfo = ci)
+                .Returns(true);
+            connectionService
+                .Setup(s => s.GetOrOpenConnection(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>()))
+                .Returns(stalledSessionOptions.Task);
+
+            var queryService = CreateService(connectionService);
+            var (executeContext, events) = CreateRequestContext();
+            var queryParams = new ExecuteDocumentSelectionParams
+            {
+                QuerySelection = Common.WholeDocument,
+                OwnerUri = Constants.OwnerUri
+            };
+
+            try
+            {
+                await queryService.HandleExecuteRequest(queryParams, executeContext.Object);
+                await WaitUntil(() => events.Results == 1);
+
+                Assert.That(events.Results, Is.EqualTo(1), "the client was told the query was accepted");
+                Assert.That(queryService.WorkTask.IsCompleted, Is.False,
+                    "execution is stuck applying session options before Query.Execute is called");
+
+                var cancelContext = RequestContextMocks.Create<QueryCancelResult>(_ => { });
+                await queryService.HandleCancelRequest(
+                    new QueryCancelParams { OwnerUri = Constants.OwnerUri },
+                    cancelContext.Object);
+                await queryService.WorkTask;
+                await WaitUntil(() => events.Completions == 1);
+
+                Assert.Multiple(() =>
+                {
+                    Assert.That(queryService.ActiveQueries[Constants.OwnerUri].HasCancelled, Is.True,
+                        "STS records the cancellation request");
+                    Assert.That(queryService.WorkTask.IsCompletedSuccessfully, Is.True,
+                        "cancellation releases the pre-execution connection wait");
+                    Assert.That(events.Completions, Is.EqualTo(1),
+                        "the accepted query receives exactly one terminal event");
+                });
+            }
+            finally
+            {
+                // Release the abandoned underlying task without introducing an unobserved failure.
+                stalledSessionOptions.TrySetResult(null);
+                if (queryService.WorkTask != null)
+                {
+                    await queryService.WorkTask;
+                }
+            }
+        }
+
+        /// <summary>
+        /// SqlClient reports a cancelled command as a SqlException rather than an
+        /// OperationCanceledException. Once the user has cancelled, any failure of the
+        /// pre-execution step must be reported as a cancellation, not as an error.
+        /// </summary>
+        [Test]
+        [Timeout(10_000)]
+        public async Task CancelledQueryReportsCancellationWhenPreExecutionStepThrows()
+        {
+            ConnectionInfo ci = Common.CreateConnectedConnectionInfo(Common.StandardTestDataSet, false, false);
+            QueryExecutionService queryService = null;
+
+            var connectionService = new Mock<ConnectionService>();
+            ConnectionInfo outVal;
+            connectionService
+                .Setup(s => s.TryFindConnection(It.IsAny<string>(), out outVal))
+                .OutCallback((string owner, out ConnectionInfo connInfo) => connInfo = ci)
+                .Returns(true);
+            connectionService
+                .Setup(s => s.GetOrOpenConnection(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>()))
+                .Returns(() =>
+                {
+                    // The user cancels while the driver is busy, and the driver then surfaces
+                    // that cancellation as an ordinary exception.
+                    queryService.ActiveQueries[Constants.OwnerUri].Cancel();
+                    return Task.FromException<DbConnection>(
+                        new InvalidOperationException("Operation cancelled by user."));
+                });
+
+            queryService = CreateService(connectionService);
+            var (executeContext, events) = CreateRequestContext();
+            var queryParams = new ExecuteDocumentSelectionParams
+            {
+                QuerySelection = Common.WholeDocument,
+                OwnerUri = Constants.OwnerUri
+            };
+
+            await queryService.HandleExecuteRequest(queryParams, executeContext.Object);
+            await queryService.WorkTask;
+            await WaitUntil(() => events.Completions == 1);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(events.Results, Is.EqualTo(1), "the client was told the query was accepted");
+                Assert.That(events.Completions, Is.EqualTo(1), "the accepted query reaches a terminal state");
+                Assert.That(queryService.ActiveQueries[Constants.OwnerUri].HasCancelled, Is.True);
+                Assert.That(events.ReportedError, Is.Null,
+                    "a failure caused by the user's own cancellation is not an error");
             });
         }
     }

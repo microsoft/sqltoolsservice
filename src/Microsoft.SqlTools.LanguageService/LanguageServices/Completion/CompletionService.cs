@@ -6,6 +6,8 @@
 #nullable disable
 
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
@@ -54,10 +56,11 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices.Completion
         /// <summary>
         /// Creates a completion list given connection and document info
         /// </summary>
-        public AutoCompletionResult CreateCompletions(
+        public async Task<AutoCompletionResult> CreateCompletions(
             ConnectionInfoBase connInfo,
             ScriptDocumentInfo scriptDocumentInfo,
-            bool useLowerCaseSuggestions)
+            bool useLowerCaseSuggestions,
+            CancellationToken cancellationToken = default)
         {
             AutoCompletionResult result = new AutoCompletionResult();
             if (scriptDocumentInfo.ScriptParseInfo.IsConnected || scriptDocumentInfo.ScriptParseInfo.IsProject)
@@ -66,9 +69,10 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices.Completion
                 QueueItem queueItem = AddToQueue(connInfo, scriptDocumentInfo.ScriptParseInfo, scriptDocumentInfo, useLowerCaseSuggestions);
 
                 // wait for the queue item
-                queueItem.ItemProcessed.WaitOne();
+                bool completed = await queueItem.WaitForCompletionAsync(
+                    cancellationToken: cancellationToken);
                 Logger.Verbose($"Finished processing completion request for {connInfo?.OwnerUri} in CompletionService.CreateCompletions");
-                if (queueItem.TimedOut)
+                if (!completed || queueItem.TimedOut)
                 {
                     Logger.Warning($"Completion request timed out for {connInfo?.OwnerUri}");
                     return null;

@@ -8,7 +8,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.Hosting.Protocol;
@@ -127,15 +126,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         internal static Task HandleGetServerContextualizationRequest(GetServerContextualizationParams contextualizationParams,
             RequestContext<GetServerContextualizationResult> requestContext)
         {
-            _ = Task.Factory.StartNew(async () =>
-            {
-                await GetServerContextualization(contextualizationParams, requestContext);
-            },
-            CancellationToken.None,
-            TaskCreationOptions.None,
-            TaskScheduler.Default);
-
-            return Task.CompletedTask;
+            return Task.Run(() => GetServerContextualization(contextualizationParams, requestContext));
         }
 
         internal static async Task GetServerContextualization(GetServerContextualizationParams contextualizationParams, RequestContext<GetServerContextualizationResult> requestContext)

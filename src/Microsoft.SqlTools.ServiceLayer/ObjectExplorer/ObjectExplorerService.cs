@@ -54,6 +54,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         private IMultiServiceProvider serviceProvider;
         private ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue(needsMetadata: false);
         private string connectionName = "ObjectExplorer";
+        private readonly ConcurrentDictionary<TreeNode, SemaphoreSlim> nodeExpansionLocks = new();
 
         /// <summary>
         /// This timeout limits the amount of time that object explorer tasks can take to complete
@@ -367,7 +368,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             if (!sessionMap.TryGetValue(uri, out session))
             {
                 // Establish a connection to the specified server/database
-                session = await DoCreateSession(connectionDetails, uri);
+                session = await DoCreateSession(connectionDetails, uri, cancellationToken);
             }
 
             SessionCreatedParameters response;
@@ -391,10 +392,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
         internal Task<ExpandResponse> ExpandNode(ObjectExplorerSession session, string nodePath, bool forceRefresh = false, SecurityToken? securityToken = null, NodeFilter[]? filters = null)
         {
-            return Task.Run(() => QueueExpandNodeRequest(session, nodePath, forceRefresh, securityToken, filters));
+            return QueueExpandNodeRequest(session, nodePath, forceRefresh, securityToken, filters);
         }
 
-        internal ExpandResponse QueueExpandNodeRequest(ObjectExplorerSession session, string nodePath, bool forceRefresh = false, SecurityToken? securityToken = null, NodeFilter[]? filters = null)
+        internal async Task<ExpandResponse> QueueExpandNodeRequest(ObjectExplorerSession session, string nodePath, bool forceRefresh = false, SecurityToken? securityToken = null, NodeFilter[]? filters = null)
         {
             NodeInfo[] nodes = null;
             TreeNode? node = session.Root.FindNodeByPath(nodePath);
@@ -404,7 +405,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             if (node?.NodeTypeId == NodeTypes.Database && TableDesignerService.Instance.Settings.PreloadDatabaseModel)
             {
                 // The operation below are not blocking, but just in case, wrapping it with a task run to make sure it has no impact on the node expansion time.
-                var _ = Task.Run(() =>
+                _ = Task.Run(async () =>
                 {
                     try
                     {
@@ -419,7 +420,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                             // when the static AzureAccountToken on ConnectionDetails has become stale.
                             if (session.ConnectionInfo.AzureTokenFetcher != null)
                             {
-                                azureToken = session.ConnectionInfo.AzureTokenFetcher(session.ConnectionInfo.AzureResourceUri).GetAwaiter().GetResult().token;
+                                azureToken = (await session.ConnectionInfo.AzureTokenFetcher(
+                                    session.ConnectionInfo.AzureResourceUri)).token;
                             }
                             else
                             {
@@ -449,10 +451,13 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 Logger.Verbose($"Got node from FindNodeByPath for {nodePath}");
                 response = new ExpandResponse { Nodes = new NodeInfo[] { }, ErrorMessage = node.ErrorMessage, SessionId = session.Uri, NodePath = nodePath };
             }
-            Logger.Verbose($"Before enter BuildingMetadataLock for {nodePath}");
-            if (node != null && Monitor.TryEnter(node.BuildingMetadataLock, TSqlLanguageService.OnConnectionWaitTimeout))
+            Logger.Verbose($"Before entering node expansion lock for {nodePath}");
+            SemaphoreSlim nodeExpansionLock = this.nodeExpansionLocks.GetOrAdd(
+                node,
+                _ => new SemaphoreSlim(1, 1));
+            if (await nodeExpansionLock.WaitAsync(TSqlLanguageService.OnConnectionWaitTimeout))
             {
-                Logger.Verbose($"After enter BuildingMetadataLock for {nodePath}");
+                Logger.Verbose($"After entering node expansion lock for {nodePath}");
                 try
                 {
                     int timeout = (int)TimeSpan.FromSeconds(settings?.ExpandTimeout ?? ObjectExplorerSettings.DefaultExpandTimeout).TotalMilliseconds;
@@ -520,19 +525,28 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                                return response;
                            });
                     Logger.Verbose($"Queuing binding operation for {nodePath}");
-                    queueItem.ItemProcessed.WaitOne();
+                    if (!await queueItem.WaitForCompletionAsync() || queueItem.TimedOut)
+                    {
+                        string errorMessage = "Timed out waiting to expand the Object Explorer node.";
+                        Logger.Warning($"{errorMessage} Node path: {nodePath}");
+                        return new ExpandResponse { Nodes = new NodeInfo[0], ErrorMessage = errorMessage, SessionId = session.Uri, NodePath = nodePath };
+                    }
                     Logger.Verbose($"Done with binding operation for {nodePath}");
                     if (queueItem.GetResultAsT<ExpandResponse>() != null)
                     {
                         response = queueItem.GetResultAsT<ExpandResponse>();
                     }
                 }
+                catch (TimeoutException ex)
+                {
+                    response.ErrorMessage = ex.Message;
+                }
                 catch
                 {
                 }
                 finally
                 {
-                    Monitor.Exit(node.BuildingMetadataLock);
+                    nodeExpansionLock.Release();
                 }
             }
             return response;
@@ -542,11 +556,15 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         /// Establishes a new session and stores its information
         /// </summary>
         /// <returns><see cref="ObjectExplorerSession"/> object if successful, null if unsuccessful</returns>
-        internal async Task<ObjectExplorerSession> DoCreateSession(ConnectionDetails connectionDetails, string uri)
+        internal Task<ObjectExplorerSession> DoCreateSession(ConnectionDetails connectionDetails, string uri)
+        {
+            return DoCreateSession(connectionDetails, uri, CancellationToken.None);
+        }
+
+        private async Task<ObjectExplorerSession> DoCreateSession(ConnectionDetails connectionDetails, string uri, CancellationToken cancellationToken)
         {
             try
             {
-                ObjectExplorerSession session = null;
                 connectionDetails.PersistSecurityInfo = true;
                 ConnectParams connectParams = new ConnectParams() { OwnerUri = uri, Connection = connectionDetails, Type = Connection.ConnectionType.ObjectExplorer };
                 bool isDefaultOrSystemDatabase = DatabaseUtils.IsSystemDatabaseConnection(connectionDetails.DatabaseName) || string.IsNullOrWhiteSpace(connectionDetails.DatabaseDisplayName);
@@ -571,27 +589,38 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                            waitForLockTimeout: timeout,
                            bindOperation: (bindingContext, cancelToken) =>
                            {
-                               session = ObjectExplorerSession.CreateSession(connectionResult, bindingContext.ServerConnection, isDefaultOrSystemDatabase, serviceProvider, () =>
+                               var session = ObjectExplorerSession.CreateSession(connectionResult, bindingContext.ServerConnection, isDefaultOrSystemDatabase, serviceProvider, () =>
             {
                 return WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer.GroupBySchema;
             });
                                session.ConnectionInfo = connectionInfo;
 
-                               sessionMap.AddOrUpdate(uri, session, (key, oldSession) => session);
                                return session;
                            });
 
-                queueItem.ItemProcessed.WaitOne();
-                if (queueItem.GetResultAsT<ObjectExplorerSession>() != null)
+                bool completed = await queueItem.WaitForCompletionAsync();
+                if (cancellationToken.IsCancellationRequested)
                 {
-                    session = queueItem.GetResultAsT<ObjectExplorerSession>();
+                    // The outer session timeout already notified the client.
+                    return null;
                 }
+                if (!completed || queueItem.TimedOut)
+                {
+                    throw new TimeoutException("Timed out waiting to create the Object Explorer session.");
+                }
+
+                ObjectExplorerSession session = queueItem.GetResultAsT<ObjectExplorerSession>()
+                    ?? throw new InvalidOperationException("The binding queue did not create the Object Explorer session.");
+                sessionMap.AddOrUpdate(uri, session, (key, oldSession) => session);
                 return session;
             }
             catch (Exception ex)
             {
                 int? errorCode = ex is SqlException sqlEx ? sqlEx.ErrorCode : null;
-                await SendSessionFailedNotification(uri, ex.Message, errorCode);
+                if (!cancellationToken.IsCancellationRequested)
+                {
+                    await SendSessionFailedNotification(uri, ex.Message, errorCode);
+                }
                 return null;
             }
         }
@@ -808,10 +837,17 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
         private async void OnUnhandledException(string queueKey, Exception ex)
         {
-            string sessionUri = LookupUriFromQueueKey(queueKey);
-            if (!string.IsNullOrWhiteSpace(sessionUri))
+            try
             {
-                await SendSessionDisconnectedNotification(uri: sessionUri, success: false, errorMessage: ex.ToString());
+                string sessionUri = LookupUriFromQueueKey(queueKey);
+                if (!string.IsNullOrWhiteSpace(sessionUri))
+                {
+                    await SendSessionDisconnectedNotification(uri: sessionUri, success: false, errorMessage: ex.ToString());
+                }
+            }
+            catch (Exception notificationException)
+            {
+                Logger.Error($"Failed to report Object Explorer binding exception for key '{queueKey}': {notificationException}. Original exception: {ex}");
             }
         }
 

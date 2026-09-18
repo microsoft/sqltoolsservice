@@ -171,7 +171,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             }
 
             ConnectedBindingContext bindingContext = (ConnectedBindingContext)this.GetOrCreateBindingContext(projectKey);
-            if (bindingContext.BindingLock.WaitOne())
+            if (bindingContext.BindingLock.WaitOne(bindingContext.BindingTimeout))
             {
                 try
                 {
@@ -188,6 +188,12 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 {
                     bindingContext.BindingLock.Set();
                 }
+            }
+            else
+            {
+                string message = $"Timed out waiting for the binding lock while creating project context '{projectKey}'.";
+                Logger.Warning(message);
+                throw new TimeoutException(message);
             }
         }
 
@@ -220,7 +226,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             }
             IBindingContext bindingContext = this.GetOrCreateBindingContext(connectionKey);
 
-            if (bindingContext.BindingLock.WaitOne())
+            if (bindingContext.BindingLock.WaitOne(bindingContext.BindingTimeout))
             {
                 try
                 {
@@ -250,6 +256,12 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 {
                     bindingContext.BindingLock.Set();
                 }         
+            }
+            else
+            {
+                string message = $"Timed out waiting for the binding lock while creating connection context '{connectionKey}'.";
+                Logger.Warning(message);
+                throw new TimeoutException(message);
             }
 
             return connectionKey;

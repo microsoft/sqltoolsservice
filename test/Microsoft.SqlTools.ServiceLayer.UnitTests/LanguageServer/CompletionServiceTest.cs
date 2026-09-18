@@ -28,7 +28,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
     {
         // Disable flaky test (mairvine - 3/15/2018)
         // [Test]
-        public void CompletionItemsShouldCreatedUsingSqlParserIfTheProcessDoesNotTimeout()
+        public async Task CompletionItemsShouldCreatedUsingSqlParserIfTheProcessDoesNotTimeout()
         {
             ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue();
             ScriptDocumentInfo docInfo = CreateScriptDocumentInfo();
@@ -44,7 +44,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                 It.IsAny<IMetadataDisplayInfoProvider>())).Returns(declarations);
             completionService.SqlParserWrapper = sqlParserWrapper.Object;
 
-            AutoCompletionResult result = completionService.CreateCompletions(connectionInfo, docInfo, useLowerCaseSuggestions);
+            AutoCompletionResult result = await completionService.CreateCompletions(connectionInfo, docInfo, useLowerCaseSuggestions);
             Assert.NotNull(result);
             var count = result.CompletionItems == null ? 0 : result.CompletionItems.Length;
 
@@ -56,7 +56,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         /// 500 ms slow threshold and must remain eligible to win before the 2-second hard timeout.
         /// </summary>
         [Test]
-        public void CompletionSlowOperationUsesParserResultBeforeHardTimeout()
+        public async Task CompletionSlowOperationUsesParserResultBeforeHardTimeout()
         {
             using ConnectedBindingQueue bindingQueue = new ConnectedBindingQueue();
             ScriptDocumentInfo docInfo = CreateScriptDocumentInfo();
@@ -73,7 +73,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 
             try
             {
-                AutoCompletionResult result = completionService.CreateCompletions(connectionInfo, docInfo, useLowerCaseSuggestions);
+                AutoCompletionResult result = await completionService.CreateCompletions(connectionInfo, docInfo, useLowerCaseSuggestions);
 
                 Assert.That(completionService.HardTimeout, Is.EqualTo(2_000));
                 Assert.That(defaultCompletionList, Is.Not.Empty);
@@ -94,7 +94,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         /// </summary>
         [Test]
         [Timeout(10_000)]
-        public void CompletionHardTimeoutReturnsFailureWhileParserIsStillBlocked()
+        public async Task CompletionHardTimeoutReturnsFailureWhileParserIsStillBlocked()
         {
             using var operationStarted = new ManualResetEvent(false);
             using var operationFinished = new ManualResetEvent(false);
@@ -124,7 +124,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 
             try
             {
-                AutoCompletionResult result = completionService.CreateCompletions(
+                AutoCompletionResult result = await completionService.CreateCompletions(
                     connectionInfo,
                     docInfo,
                     useLowerCaseSuggestions: true);
@@ -171,16 +171,16 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                 .Returns(new List<Declaration>());
             completionService.SqlParserWrapper = sqlParserWrapper.Object;
 
-            Task<AutoCompletionResult> completionTask = Task.Run(() => completionService.CreateCompletions(
+            Task<AutoCompletionResult> completionTask = completionService.CreateCompletions(
                 connectionInfo,
                 docInfo,
-                useLowerCaseSuggestions: true));
+                useLowerCaseSuggestions: true);
 
             try
             {
                 Assert.That(operationStarted.WaitOne(TimeSpan.FromSeconds(1)), Is.True);
 
-                bool documentLockTaken = Monitor.TryEnter(docInfo.ScriptParseInfo.BuildingMetadataLock, 500);
+                bool documentLockTaken = docInfo.ScriptParseInfo.BuildingMetadataLock.TryEnter(500);
                 try
                 {
                     Assert.That(documentLockTaken, Is.True,
@@ -190,7 +190,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                 {
                     if (documentLockTaken)
                     {
-                        Monitor.Exit(docInfo.ScriptParseInfo.BuildingMetadataLock);
+                        docInfo.ScriptParseInfo.BuildingMetadataLock.Exit();
                     }
                 }
             }

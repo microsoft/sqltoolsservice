@@ -88,7 +88,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                 .Returns(Task.CompletedTask);
             langService.ServiceHostInstance = serviceHost.Object;
 
-            object oldMetadataLock = scriptParseInfo.BuildingMetadataLock;
+            MetadataLock oldMetadataLock = scriptParseInfo.BuildingMetadataLock;
             bool oldMetadataLockWasAvailable = false;
             bool metadataUpdateStarted = false;
 
@@ -170,12 +170,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             }
         }
 
-        private static bool CanAcquireFromAnotherThread(object lockObject)
+        private static bool CanAcquireFromAnotherThread(MetadataLock lockObject)
         {
             bool lockWasAcquired = false;
             var probeThread = new Thread(() =>
             {
-                if (Monitor.TryEnter(lockObject))
+                if (lockObject.TryEnter())
                 {
                     try
                     {
@@ -183,7 +183,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                     }
                     finally
                     {
-                        Monitor.Exit(lockObject);
+                        lockObject.Exit();
                     }
                 }
             })

@@ -29,6 +29,41 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
     public class ResultSetTests
     {
         [Test]
+        [Timeout(10_000)]
+        public async Task PendingResultNotificationDoesNotBlockSerializedScheduler()
+        {
+            var scheduler = new ConcurrentExclusiveSchedulerPair(
+                TaskScheduler.Default,
+                maxConcurrencyLevel: 1);
+            var taskFactory = new TaskFactory(scheduler.ConcurrentScheduler);
+            var callbackStarted = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var releaseCallback = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var resultSet = new ResultSet(Common.Ordinal, Common.Ordinal, MemoryFileSystem.GetFileStreamFactory());
+
+            resultSet.ResultAvailable += async _ =>
+            {
+                callbackStarted.TrySetResult(null);
+                await releaseCallback.Task;
+            };
+
+            Task firstNotification = taskFactory.StartNew(resultSet.SendCurrentResults).Unwrap();
+            await callbackStarted.Task.WaitAsync(TimeSpan.FromSeconds(2));
+
+            Task secondNotification = taskFactory.StartNew(resultSet.SendCurrentResults).Unwrap();
+            Task schedulerProbe = taskFactory.StartNew(() => { });
+
+            try
+            {
+                await schedulerProbe.WaitAsync(TimeSpan.FromSeconds(2));
+            }
+            finally
+            {
+                releaseCallback.TrySetResult(null);
+                await Task.WhenAll(firstNotification, secondNotification);
+            }
+        }
+
+        [Test]
         public void ResultCreation()
         {
             // If:

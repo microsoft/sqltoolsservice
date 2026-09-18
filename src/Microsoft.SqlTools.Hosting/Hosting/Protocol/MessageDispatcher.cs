@@ -41,6 +41,10 @@ namespace Microsoft.SqlTools.Hosting.Protocol
             new CancellationTokenSource();
 
         private SemaphoreSlim semaphore;
+
+        private readonly object serialDispatchLock = new object();
+
+        private Task serialDispatchTask = Task.CompletedTask;
         #endregion
 
         #region Properties
@@ -90,9 +94,10 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
         public void Start()
         {
-            // Initialize semaphore for Parallel message processing using 10 initial requests.
-            var initialSemaphoreLimit = ParallelMessageProcessingLimit <= 10 ? ParallelMessageProcessingLimit : 10;
-            semaphore = new SemaphoreSlim(initialSemaphoreLimit, ParallelMessageProcessingLimit);
+            // The reader never waits on this semaphore: it must remain free to consume responses
+            // and cancellation messages needed by handlers already in progress.
+            int parallelLimit = Math.Max(1, this.ParallelMessageProcessingLimit);
+            semaphore = new SemaphoreSlim(parallelLimit, parallelLimit);
 
             // Start the main message loop thread.  The Task is
             // not explicitly awaited because it is running on
@@ -302,7 +307,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
             }
         }
 
-        protected async Task DispatchMessage(
+        protected Task DispatchMessage(
             Message messageToDispatch,
             MessageWriter messageWriter)
         {
@@ -316,9 +321,13 @@ namespace Microsoft.SqlTools.Hosting.Protocol
             }
             else if (messageToDispatch.MessageType == MessageType.Response)
             {
-                if (this.responseHandler != null)
+                try
                 {
-                    this.responseHandler(messageToDispatch);
+                    this.responseHandler?.Invoke(messageToDispatch);
+                }
+                catch (Exception e)
+                {
+                    Logger.Error(string.Format("An unexpected error occurred in the response handler: {0}", e));
                 }
             }
             else if (messageToDispatch.MessageType == MessageType.Event)
@@ -333,33 +342,79 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
             if (handlerToAwait != null)
             {
-                try
+                if (this.ParallelMessageProcessing && isParallelProcessingSupported)
                 {
-                    if (this.ParallelMessageProcessing && isParallelProcessingSupported)
+                    _ = Task.Run(() => this.RunParallelHandler(
+                        handlerToAwait,
+                        messageToDispatch,
+                        messageWriter,
+                        this.messageLoopCancellationToken.Token));
+                }
+                else
+                {
+                    // Preserve ordering among non-parallel handlers without tying up the reader.
+                    // A handler may send a request to the client and await its response; the
+                    // response can now be read while this chain is incomplete.
+                    lock (this.serialDispatchLock)
                     {
-                        _ = Task.Run(async () =>
-                        {
-                            await handlerToAwait(messageToDispatch, messageWriter);
-                        });
-                    }
-                    else
-                    {
-                        await handlerToAwait(messageToDispatch, messageWriter);
+                        this.serialDispatchTask = this.serialDispatchTask.ContinueWith(
+                            _ => InvokeHandler(handlerToAwait, messageToDispatch, messageWriter),
+                            CancellationToken.None,
+                            TaskContinuationOptions.RunContinuationsAsynchronously,
+                            TaskScheduler.Default).Unwrap();
                     }
                 }
-                catch (TaskCanceledException e)
+            }
+
+            return Task.CompletedTask;
+        }
+
+        private async Task RunParallelHandler(
+            Func<Message, MessageWriter, Task> handler,
+            Message message,
+            MessageWriter messageWriter,
+            CancellationToken cancellationToken)
+        {
+            bool entered = false;
+            try
+            {
+                await this.semaphore.WaitAsync(cancellationToken);
+                entered = true;
+                await InvokeHandler(handler, message, messageWriter);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                Logger.Verbose("Parallel message handler was cancelled because the dispatcher is stopping.");
+            }
+            finally
+            {
+                if (entered)
                 {
-                    // Some tasks may be cancelled due to legitimate
-                    // timeouts so don't let those exceptions go higher.
-                    Logger.Verbose(string.Format("A TaskCanceledException occurred in the request handler: {0}", e.ToString()));
+                    this.semaphore.Release();
                 }
-                catch (Exception e)
+            }
+        }
+
+        private static async Task InvokeHandler(
+            Func<Message, MessageWriter, Task> handler,
+            Message message,
+            MessageWriter messageWriter)
+        {
+            try
+            {
+                await handler(message, messageWriter);
+            }
+            catch (TaskCanceledException e)
+            {
+                Logger.Verbose(string.Format("A TaskCanceledException occurred in the request handler: {0}", e));
+            }
+            catch (Exception e)
+            {
+                if (!(e is AggregateException exception
+                    && exception.InnerExceptions.Count > 0
+                    && exception.InnerExceptions[0] is TaskCanceledException))
                 {
-                    if (!(e is AggregateException exception && exception.InnerExceptions[0] is TaskCanceledException))
-                    {
-                        // Log the error but don't rethrow it to prevent any errors in the handler from crashing the service
-                        Logger.Error(string.Format("An unexpected error occurred in the request handler: {0}", e.ToString()));
-                    }
+                    Logger.Error(string.Format("An unexpected error occurred in the request handler: {0}", e));
                 }
             }
         }

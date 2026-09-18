@@ -38,6 +38,8 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
         private Task queueProcessorTask;
 
+        private bool disposed;
+
         public delegate void UnhandledExceptionDelegate(string connectionKey, Exception ex);
 
         public event UnhandledExceptionDelegate OnUnhandledException;
@@ -49,6 +51,13 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         internal ConcurrentDictionary<string, IBindingContext> BindingContextMap { get; set; }
 
         internal ConcurrentDictionary<IBindingContext, Task> BindingContextTasks { get; set; } = new();
+
+        /// <summary>
+        /// Scheduler used to dispatch queue items and run their binding operations. Defaults to
+        /// the thread pool. Tests substitute a scheduler with a fixed, small number of threads to
+        /// prove that waiting on a queue item never consumes the threads the queue needs.
+        /// </summary>
+        internal TaskScheduler DispatchScheduler { get; set; } = TaskScheduler.Default;
 
         /// <summary>
         /// Constructor for a binding queue instance
@@ -122,6 +131,40 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         }
 
         /// <summary>
+        /// Queues an asynchronous binding operation so waiting for dedicated-thread work does not
+        /// retain one of the scheduler threads needed to dispatch other items.
+        /// </summary>
+        public virtual QueueItem QueueBindingOperationAsync(
+            string key,
+            Func<IBindingContext, CancellationToken, Task<object?>> bindOperation,
+            Func<IBindingContext, object>? timeoutOperation = null,
+            Func<Exception, object>? errorHandler = null,
+            int? bindingTimeout = null,
+            int? waitForLockTimeout = null,
+            int? hardTimeout = null)
+        {
+            QueueItem queueItem = new QueueItem
+            {
+                Key = key,
+                BindOperationAsync = bindOperation,
+                TimeoutOperation = timeoutOperation,
+                ErrorHandler = errorHandler,
+                BindingTimeout = bindingTimeout,
+                WaitForLockTimeout = waitForLockTimeout,
+                HardTimeout = hardTimeout,
+            };
+
+            lock (this.bindingQueueLock)
+            {
+                this.bindingQueue.AddLast(queueItem);
+            }
+
+            Logger.Verbose($"Binding queue item {queueItem.Id} queued for key '{queueItem.Key}'");
+            this.itemQueuedEvent.Set();
+            return queueItem;
+        }
+
+        /// <summary>
         /// Checks if a particular binding context is connected or not
         /// </summary>
         /// <param name="key"></param>
@@ -156,7 +199,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 {
                     var bindingContext = new T();
                     this.BindingContextMap.TryAdd(key, bindingContext);
-                    this.BindingContextTasks.TryAdd(bindingContext, Task.Run(() => null));
+                    this.BindingContextTasks.TryAdd(bindingContext, Task.CompletedTask);
                 }
 
                 return this.BindingContextMap[key];
@@ -295,19 +338,69 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                             continue;
                         }
 
-                        IBindingContext bindingContext = GetOrCreateBindingContext(queueItem.Key);
-                        if (bindingContext == null)
+                        if (queueItem.Abandoned)
                         {
+                            // Nobody is waiting for this item any more, so running it would only
+                            // delay the items behind it.
+                            Logger.Verbose($"Binding queue item {queueItem.Id} was abandoned by its waiter after {queueItem.Lifetime.ElapsedMilliseconds} ms queued; skipping");
                             queueItem.ItemProcessed.Set();
                             continue;
                         }
 
-                        var bindingContextTask = this.BindingContextTasks[bindingContext];
+                        try
+                        {
+                            IBindingContext bindingContext;
+                            Task bindingContextTask;
 
-                        // Run in the binding context task in case this task has to wait for a previous binding operation
-                        this.BindingContextTasks[bindingContext] = bindingContextTask.ContinueWith(
-                            task => DispatchQueueItem(bindingContext, queueItem)
-                        , TaskContinuationOptions.RunContinuationsAsynchronously);
+                            // Context replacement/removal uses the same lock. Keep context lookup,
+                            // task-chain lookup, and chain replacement atomic so RemoveBindingContext
+                            // cannot delete the task entry between these steps and kill this consumer.
+                            lock (this.bindingContextLock)
+                            {
+                                bindingContext = GetOrCreateBindingContext(queueItem.Key);
+                                if (bindingContext == null)
+                                {
+                                    queueItem.ItemProcessed.Set();
+                                    continue;
+                                }
+
+                                if (!this.BindingContextTasks.TryGetValue(bindingContext, out bindingContextTask))
+                                {
+                                    // Recover a consistent chain if external test setup or an older
+                                    // lifecycle path supplied a context without its initial task.
+                                    bindingContextTask = Task.CompletedTask;
+                                }
+
+                                // Chain dispatches per context so that an item waits for the previous
+                                // item's dispatch, including its wait for the context's binding lock.
+                                this.BindingContextTasks[bindingContext] = bindingContextTask.ContinueWith(
+                                    task => DispatchQueueItemAsync(bindingContext, queueItem),
+                                    CancellationToken.None,
+                                    TaskContinuationOptions.RunContinuationsAsynchronously,
+                                    this.DispatchScheduler).Unwrap();
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            // A malformed item or lifecycle race must fail this item, not terminate
+                            // the dedicated consumer and strand every later queue item.
+                            Logger.Error($"Binding queue failed to schedule item {queueItem.Id}: {ex}");
+                            try
+                            {
+                                if (queueItem.ErrorHandler != null)
+                                {
+                                    queueItem.Result = queueItem.ErrorHandler(ex);
+                                }
+                            }
+                            catch (Exception errorHandlerException)
+                            {
+                                Logger.Error($"Binding queue error handler failed for item {queueItem.Id}: {errorHandlerException}");
+                            }
+                            finally
+                            {
+                                queueItem.ItemProcessed.Set();
+                            }
+                        }
 
                         // if a queue processing cancellation was requested then exit the loop
                         if (token.IsCancellationRequested)
@@ -331,8 +424,21 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             }
         }
 
-        private void DispatchQueueItem(IBindingContext bindingContext, QueueItem queueItem)
+        /// <summary>
+        /// Acquires the context's binding lock, starts the item's operation, and hands the item
+        /// to the timeout monitor. Completes once the operation has been started or the item has
+        /// been resolved without running, not when the operation finishes.
+        /// </summary>
+        private async Task DispatchQueueItemAsync(IBindingContext bindingContext, QueueItem queueItem)
         {
+            if (queueItem.Abandoned)
+            {
+                // The waiter gave up while this item sat behind earlier items for the same context.
+                Logger.Verbose($"Binding queue item {queueItem.Id} was abandoned by its waiter after {queueItem.Lifetime.ElapsedMilliseconds} ms; skipping dispatch");
+                queueItem.ItemProcessed.Set();
+                return;
+            }
+
             bool lockTaken = false;
             Stopwatch bindingLockStopwatch = Stopwatch.StartNew();
             try
@@ -343,8 +449,10 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 int waitForLockTimeoutInMs = queueItem.WaitForLockTimeout ?? 0;
                 Logger.Verbose($"Binding queue item {queueItem.Id} dispatch started after {queueItem.Lifetime.ElapsedMilliseconds} ms queued; lock wait timeout: {waitForLockTimeoutInMs} ms, slow threshold: {bindTimeoutInMs} ms, hard timeout: {hardTimeoutInMs} ms");
 
-                // handle the case a previous binding operation is still running
-                if (!bindingContext.BindingLock.WaitOne(waitForLockTimeoutInMs))
+                // Handle the case a previous binding operation is still running. The wait holds
+                // no thread: dispatch runs on the thread pool, and a blocked dispatch thread is
+                // one fewer thread for the operations that would release this lock.
+                if (!await bindingContext.BindingLock.WaitOneAsync(waitForLockTimeoutInMs))
                 {
                     try
                     {
@@ -379,15 +487,15 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 CancellationTokenSource cancelToken = new CancellationTokenSource();
 
                 // run the operation in a separate thread
-                var bindTask = Task.Run(() =>
+                var bindTask = Task.Factory.StartNew(async () =>
                 {
                     try
                     {
                         queueItem.WasExecuted = true;
                         Logger.Verbose($"Binding queue item {queueItem.Id} operation started at {queueItem.Lifetime.ElapsedMilliseconds} ms");
-                        result = queueItem.BindOperation(
-                                            bindingContext,
-                                            cancelToken.Token);
+                        result = queueItem.BindOperationAsync != null
+                            ? await queueItem.BindOperationAsync(bindingContext, cancelToken.Token).ConfigureAwait(false)
+                            : queueItem.BindOperation(bindingContext, cancelToken.Token);
                     }
                     catch (Exception ex)
                     {
@@ -416,82 +524,31 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                     {
                         Logger.Verbose($"Binding queue item {queueItem.Id} operation finished at {queueItem.Lifetime.ElapsedMilliseconds} ms; cancellation requested: {cancelToken.IsCancellationRequested}");
                     }
-                });
+                },
+                CancellationToken.None,
+                TaskCreationOptions.DenyChildAttach,
+                this.DispatchScheduler).Unwrap();
 
-                Task.Run(() =>
-                {
-                    try
-                    {
-                        int slowWaitInMs = Math.Min(bindTimeoutInMs, hardTimeoutInMs);
-
-                        // The first timeout is only a slow-operation threshold when a later hard timeout is set.
-                        if (bindTask.Wait(slowWaitInMs))
-                        {
-                            queueItem.Result = result;
-                        }
-                        else
-                        {
-                            if (slowWaitInMs == bindTimeoutInMs)
-                            {
-                                Logger.Warning($"Binding queue item {queueItem.Id} exceeded the {bindTimeoutInMs} ms slow-operation threshold at {queueItem.Lifetime.ElapsedMilliseconds} ms");
-                            }
-
-                            int remainingWaitInMs = hardTimeoutInMs - slowWaitInMs;
-                            if (remainingWaitInMs > 0 && bindTask.Wait(remainingWaitInMs))
-                            {
-                                queueItem.Result = result;
-                            }
-                            else
-                            {
-                                Logger.Warning($"Binding queue item {queueItem.Id} reached its {hardTimeoutInMs} ms hard timeout at {queueItem.Lifetime.ElapsedMilliseconds} ms");
-                                queueItem.TimedOut = true;
-
-                                // Keep this context unavailable until the old operation actually exits.
-                                bindTask.ContinueWith(
-                                    task =>
-                                    {
-                                        bindingContext.BindingLock.Set();
-                                        Logger.Verbose($"Binding queue item {queueItem.Id} released BindingLock after its timed-out operation ended; lock held for {bindingLockStopwatch.ElapsedMilliseconds} ms");
-                                    },
-                                    CancellationToken.None,
-                                    TaskContinuationOptions.ExecuteSynchronously,
-                                    TaskScheduler.Default);
-                                lockTaken = false;
-
-                                Logger.Verbose($"Binding queue item {queueItem.Id} requesting cancellation at {queueItem.Lifetime.ElapsedMilliseconds} ms");
-                                cancelToken.Cancel();
-                                if (queueItem.TimeoutOperation != null)
-                                {
-                                    queueItem.Result = queueItem.TimeoutOperation(bindingContext);
-                                }
-
-                                bindTask.ContinueWithOnFaulted(t => Logger.Error("Binding queue threw exception " + t.Exception.ToString()));
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.Error("Binding queue task completion threw exception " + ex.ToString());
-                    }
-                    finally
-                    {
-                        // set item processed to avoid deadlocks 
-                        if (lockTaken)
-                        {
-                            bindingContext.BindingLock.Set();
-                            Logger.Verbose($"Binding queue item {queueItem.Id} released BindingLock after holding it for {bindingLockStopwatch.ElapsedMilliseconds} ms");
-                        }
-                        Logger.Verbose($"Binding queue item {queueItem.Id} signalling ItemProcessed at {queueItem.Lifetime.ElapsedMilliseconds} ms; timed out: {queueItem.TimedOut}, executed: {queueItem.WasExecuted}");
-                        queueItem.ItemProcessed.Set();
-                    }
-                });
+                // From here on the async monitor owns the lock and the item's completion. It
+                // enforces the timeouts with timers rather than by blocking a thread, so timeouts
+                // still fire when every dispatch thread is busy.
+                _ = CompleteQueueItemAsync(
+                    bindingContext,
+                    queueItem,
+                    bindTask,
+                    cancelToken,
+                    bindTimeoutInMs,
+                    hardTimeoutInMs,
+                    bindingLockStopwatch,
+                    () => result);
+                lockTaken = false;
             }
             catch (Exception ex)
             {
                 // catch and log any exceptions raised in the binding calls
-                // set item processed to avoid deadlocks 
+                // set item processed to avoid deadlocks
                 Logger.Error("Binding queue threw exception " + ex.ToString());
-                // set item processed to avoid deadlocks 
+                // set item processed to avoid deadlocks
                 if (lockTaken)
                 {
                     bindingContext.BindingLock.Set();
@@ -503,29 +560,183 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         }
 
         /// <summary>
+        /// Waits for a dispatched binding operation, applying the slow-operation threshold and the
+        /// hard timeout, then releases the context's binding lock and signals the item.
+        /// </summary>
+        private async Task CompleteQueueItemAsync(
+            IBindingContext bindingContext,
+            QueueItem queueItem,
+            Task bindTask,
+            CancellationTokenSource cancelToken,
+            int bindTimeoutInMs,
+            int hardTimeoutInMs,
+            Stopwatch bindingLockStopwatch,
+            Func<object> getResult)
+        {
+            bool releaseLock = true;
+            try
+            {
+                int slowWaitInMs = Math.Min(bindTimeoutInMs, hardTimeoutInMs);
+
+                // The first timeout is only a slow-operation threshold when a later hard timeout is set.
+                if (await CompletesWithinAsync(bindTask, slowWaitInMs).ConfigureAwait(false))
+                {
+                    queueItem.Result = getResult();
+                }
+                else
+                {
+                    if (slowWaitInMs == bindTimeoutInMs)
+                    {
+                        Logger.Warning($"Binding queue item {queueItem.Id} exceeded the {bindTimeoutInMs} ms slow-operation threshold at {queueItem.Lifetime.ElapsedMilliseconds} ms");
+                    }
+
+                    int remainingWaitInMs = hardTimeoutInMs - slowWaitInMs;
+                    if (remainingWaitInMs > 0 && await CompletesWithinAsync(bindTask, remainingWaitInMs).ConfigureAwait(false))
+                    {
+                        queueItem.Result = getResult();
+                    }
+                    else
+                    {
+                        Logger.Warning($"Binding queue item {queueItem.Id} reached its {hardTimeoutInMs} ms hard timeout at {queueItem.Lifetime.ElapsedMilliseconds} ms");
+                        queueItem.TimedOut = true;
+
+                        // Keep this context unavailable until the old operation actually exits.
+                        _ = bindTask.ContinueWith(
+                            task =>
+                            {
+                                bindingContext.BindingLock.Set();
+                                Logger.Verbose($"Binding queue item {queueItem.Id} released BindingLock after its timed-out operation ended; lock held for {bindingLockStopwatch.ElapsedMilliseconds} ms");
+                            },
+                            CancellationToken.None,
+                            TaskContinuationOptions.ExecuteSynchronously,
+                            TaskScheduler.Default);
+                        releaseLock = false;
+
+                        Logger.Verbose($"Binding queue item {queueItem.Id} requesting cancellation at {queueItem.Lifetime.ElapsedMilliseconds} ms");
+                        cancelToken.Cancel();
+                        if (queueItem.TimeoutOperation != null)
+                        {
+                            queueItem.Result = queueItem.TimeoutOperation(bindingContext);
+                        }
+
+                        _ = bindTask.ContinueWithOnFaulted(t => Logger.Error("Binding queue threw exception " + t.Exception.ToString()));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Binding queue task completion threw exception " + ex.ToString());
+            }
+            finally
+            {
+                // set item processed to avoid deadlocks
+                if (releaseLock)
+                {
+                    bindingContext.BindingLock.Set();
+                    Logger.Verbose($"Binding queue item {queueItem.Id} released BindingLock after holding it for {bindingLockStopwatch.ElapsedMilliseconds} ms");
+                }
+                Logger.Verbose($"Binding queue item {queueItem.Id} signalling ItemProcessed at {queueItem.Lifetime.ElapsedMilliseconds} ms; timed out: {queueItem.TimedOut}, executed: {queueItem.WasExecuted}");
+                queueItem.ItemProcessed.Set();
+            }
+        }
+
+        /// <summary>
+        /// Waits up to <paramref name="millisecondsTimeout"/> for <paramref name="task"/> to
+        /// finish, using a timer rather than a blocked thread.
+        /// </summary>
+        private static async Task<bool> CompletesWithinAsync(Task task, int millisecondsTimeout)
+        {
+            if (task.IsCompleted)
+            {
+                return true;
+            }
+
+            if (millisecondsTimeout == Timeout.Infinite)
+            {
+                await task.ConfigureAwait(false);
+                return true;
+            }
+
+            if (millisecondsTimeout <= 0)
+            {
+                return false;
+            }
+
+            using var delayCancellation = new CancellationTokenSource();
+            Task delay = Task.Delay(millisecondsTimeout, delayCancellation.Token);
+            Task first = await Task.WhenAny(task, delay).ConfigureAwait(false);
+            if (first == task)
+            {
+                delayCancellation.Cancel();
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// Clear queued items
         /// </summary>
         public void ClearQueuedItems()
         {
+            QueueItem[] removedItems;
             lock (this.bindingQueueLock)
             {
-                if (this.bindingQueue.Count > 0)
-                {
-                    this.bindingQueue.Clear();
-                }
+                removedItems = this.bindingQueue.ToArray();
+                this.bindingQueue.Clear();
+            }
+
+            // Clearing a linked list is not completion. Release callers whose work was discarded;
+            // otherwise parameterless legacy waits can remain blocked forever.
+            foreach (QueueItem queueItem in removedItems)
+            {
+                Logger.Verbose($"Binding queue item {queueItem.Id} was removed before dispatch");
+                queueItem.Abandon();
             }
         }
 
         public void Dispose()
         {
+            if (this.disposed)
+            {
+                return;
+            }
+            this.disposed = true;
+
+            // Work still in the linked list has no consumer after disposal. Complete it before
+            // tearing down the wait handles so callers cannot remain stranded.
+            this.ClearQueuedItems();
+
+            bool processorStopped = true;
             if (this.processQueueCancelToken != null)
             {
-                this.processQueueCancelToken.Dispose();
+                this.processQueueCancelToken.Cancel();
+                try
+                {
+                    processorStopped = this.queueProcessorTask == null
+                        || this.queueProcessorTask.Wait(5_000);
+                }
+                catch (AggregateException ex)
+                {
+                    processorStopped = true;
+                    Logger.Error($"Binding queue processor faulted during disposal: {ex}");
+                }
+
+                if (processorStopped)
+                {
+                    this.processQueueCancelToken.Dispose();
+                }
             }
 
-            if (itemQueuedEvent != null)
+            if (processorStopped && itemQueuedEvent != null)
             {
                 itemQueuedEvent.Dispose();
+            }
+            else if (!processorStopped)
+            {
+                // A live processor may still be waiting on these handles. Leaving them allocated
+                // is safer than disposing under that thread; the processor logs make this visible.
+                Logger.Warning("Binding queue processor did not stop within 5000 ms during disposal.");
             }
 
             if (this.BindingContextMap != null)

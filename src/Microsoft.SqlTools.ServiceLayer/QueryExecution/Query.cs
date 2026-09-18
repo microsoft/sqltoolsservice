@@ -306,6 +306,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public bool HasCancelled { get; private set; }
 
         /// <summary>
+        /// Cancellation token shared with work that occurs after the query is accepted but before
+        /// batch execution starts, such as applying session options.
+        /// </summary>
+        internal CancellationToken CancellationToken => cancellationSource.Token;
+
+        /// <summary>
         /// if the query has errored out (before batch execution started)
         /// </summary>
         public bool HasErrored { get; private set; }

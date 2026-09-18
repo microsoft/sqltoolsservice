@@ -1671,15 +1671,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public async Task HandleClearPooledConnectionsRequest(object _, RequestContext<bool> requestContext)
         {
             Logger.Verbose("ClearPooledConnectionsRequest");
-            // Run a detached task to clear pools in backend.
-            await Task.Factory.StartNew(() => Task.Run(async () =>
-            {
-
-                SqlConnection.ClearAllPools();
-
-                Logger.Verbose("Cleared all pooled connections successfully.");
-                await requestContext.SendResult(true);
-            }));
+            await Task.Run(SqlConnection.ClearAllPools);
+            Logger.Verbose("Cleared all pooled connections successfully.");
+            await requestContext.SendResult(true);
         }
 
         public ConnectionDetails ParseConnectionString(string connectionString)
@@ -1753,7 +1747,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             RequestContext<bool> requestContext)
         {
             Logger.Verbose("ChangeDatabaseRequest");
-            await requestContext.SendResult(ChangeConnectionDatabaseContext(changeDatabaseParams.OwnerUri, changeDatabaseParams.NewDatabase, true));
+            bool changed = await ChangeConnectionDatabaseContextAsync(
+                changeDatabaseParams.OwnerUri,
+                changeDatabaseParams.NewDatabase,
+                force: true);
+            await requestContext.SendResult(changed);
         }
 
         /// <summary>
@@ -1762,6 +1760,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <param name="ownerUri">URI of the owner of the connection</param>
         /// <param name="newDatabaseName">Name of the database to change the connection to</param>
         public bool ChangeConnectionDatabaseContext(string ownerUri, string newDatabaseName, bool force = false)
+        {
+            return ChangeConnectionDatabaseContextAsync(ownerUri, newDatabaseName, force)
+                .GetAwaiter()
+                .GetResult();
+        }
+
+        private async Task<bool> ChangeConnectionDatabaseContextAsync(string ownerUri, string newDatabaseName, bool force)
         {
             ConnectionInfo info;
             if (TryFindConnection(ownerUri, out info))
@@ -1789,7 +1794,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                                 string azureToken = info.ConnectionDetails.AzureAccountToken;
                                 if (info.AzureTokenFetcher != null)
                                 {
-                                    azureToken = info.AzureTokenFetcher(info.AzureResourceUri).GetAwaiter().GetResult().token;
+                                    azureToken = (await info.AzureTokenFetcher(info.AzureResourceUri)).token;
                                 }
 
                                 // create a sql connection instance
@@ -1810,7 +1815,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     IConnectionSummary summary = info.ConnectionDetails;
                     parameters.Connection = summary.Clone();
                     parameters.OwnerUri = ownerUri;
-                    ServiceHost.SendEvent(ConnectionChangedNotification.Type, parameters);
+                    await ServiceHost.SendEvent(ConnectionChangedNotification.Type, parameters);
                     return true;
                 }
                 catch (Exception e)

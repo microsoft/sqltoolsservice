@@ -62,6 +62,40 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Workspace
         }
 
         [Test]
+        [Timeout(10_000)]
+        public async Task ConfigurationCallbackReceivesPreviousSettings()
+        {
+            var previousSettings = new SqlToolsSettings();
+            var newSettings = new SqlToolsSettings();
+            var workspaceService = new WorkspaceService<SqlToolsSettings>
+            {
+                Workspace = new Microsoft.SqlTools.LanguageService.Workspace.Workspace(),
+                CurrentSettings = previousSettings
+            };
+            SqlToolsSettings callbackNewSettings = null;
+            SqlToolsSettings callbackOldSettings = null;
+
+            workspaceService.RegisterConfigChangeCallback((newValue, oldValue, context) =>
+            {
+                callbackNewSettings = newValue;
+                callbackOldSettings = oldValue;
+                return Task.CompletedTask;
+            });
+
+            await workspaceService.HandleDidChangeConfigurationNotification(
+                new DidChangeConfigurationParams<SqlToolsSettings> { Settings = newSettings },
+                eventContext: null);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(callbackNewSettings, Is.SameAs(newSettings));
+                Assert.That(callbackOldSettings, Is.SameAs(previousSettings),
+                    "callbacks must receive the settings that were in effect before the change");
+                Assert.That(workspaceService.CurrentSettings, Is.SameAs(newSettings));
+            });
+        }
+
+        [Test]
         public async Task FileClosedNotOpen()
         {
             // Given:

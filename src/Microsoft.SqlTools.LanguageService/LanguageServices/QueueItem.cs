@@ -7,15 +7,24 @@
 using System;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.LanguageService.LanguageServices
 {
     /// <summary>
     /// Class that stores the state of a binding queue request item
-    /// </summary>    
+    /// </summary>
     public class QueueItem
     {
+        /// <summary>
+        /// Default allowance, in milliseconds, for the time an item may spend queued behind other
+        /// items on the same key before <see cref="WaitForCompletionAsync"/> gives up on it.
+        /// </summary>
+        public const int DefaultQueueWaitBudgetMs = 30_000;
+
         private static long nextId;
+
+        private int abandoned;
 
         /// <summary>
         /// QueueItem constructor
@@ -47,6 +56,12 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// Gets or sets the bind operation callback method
         /// </summary>
         public Func<IBindingContext, CancellationToken, object?> BindOperation { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets an asynchronous binding callback. An item uses either this callback or
+        /// <see cref="BindOperation"/>.
+        /// </summary>
+        internal Func<IBindingContext, CancellationToken, Task<object?>>? BindOperationAsync { get; set; }
 
         /// <summary>
         /// Gets or sets the timeout operation to call if the bind operation doesn't finish within timeout period
@@ -99,6 +114,98 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// Gets or sets the timeout for how long to wait for the binding lock
         /// </summary>
         public int? WaitForLockTimeout { get; set; }
+
+        /// <summary>
+        /// Gets whether the waiter gave up on this item before the queue processed it. The queue
+        /// drops abandoned items without running their operation, so a backlog left behind by
+        /// waiters that timed out drains immediately instead of being executed for nobody.
+        /// </summary>
+        public bool Abandoned => Volatile.Read(ref this.abandoned) != 0;
+
+        /// <summary>
+        /// Marks an item as no longer eligible to execute and releases every waiter. This is used
+        /// both when a caller's bounded wait expires and when the queue explicitly discards work.
+        /// </summary>
+        internal void Abandon()
+        {
+            Interlocked.Exchange(ref this.abandoned, 1);
+            this.ItemProcessed.Set();
+        }
+
+        /// <summary>
+        /// Waits for completion with the item's timeout budget when the caller must remain synchronous.
+        /// Prefer <see cref="WaitForCompletionAsync"/> in asynchronous callers.
+        /// </summary>
+        /// <returns>True if the queue processed the item, false if the wait timed out.</returns>
+        public bool WaitForCompletion(int queueWaitBudgetMs = DefaultQueueWaitBudgetMs)
+        {
+            bool completed = this.ItemProcessed.WaitOne(GetCompletionTimeout(queueWaitBudgetMs));
+            if (!completed)
+            {
+                this.Abandon();
+            }
+
+            return completed;
+        }
+
+        /// <summary>
+        /// Waits for the queue to process this item without occupying a thread.
+        /// </summary>
+        /// <remarks>
+        /// Callers must not block a thread pool thread on <see cref="ItemProcessed"/>. The queue
+        /// dispatches items on the thread pool, so a burst of blocked waiters can exhaust the pool
+        /// and leave nothing to signal them, which deadlocks the whole service. This method parks
+        /// only a registered wait, and it is bounded: the item's own timeouts plus
+        /// <paramref name="queueWaitBudgetMs"/> for time spent queued. On timeout the item is
+        /// marked <see cref="Abandoned"/> so the queue skips it.
+        /// </remarks>
+        /// <param name="queueWaitBudgetMs">
+        /// Allowance for time spent queued behind other items, or <see cref="Timeout.Infinite"/>
+        /// to wait without bound.
+        /// </param>
+        /// <returns>True if the queue processed the item, false if the wait timed out.</returns>
+        public async Task<bool> WaitForCompletionAsync(
+            int queueWaitBudgetMs = DefaultQueueWaitBudgetMs,
+            CancellationToken cancellationToken = default)
+        {
+            ManualResetEvent processed = this.ItemProcessed;
+            if (processed.WaitOne(0))
+            {
+                return true;
+            }
+
+            bool completed;
+            try
+            {
+                completed = await processed.WaitOneAsync(
+                    GetCompletionTimeout(queueWaitBudgetMs),
+                    cancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                this.Abandon();
+                throw;
+            }
+            if (!completed)
+            {
+                this.Abandon();
+            }
+
+            return completed;
+        }
+
+        private int GetCompletionTimeout(int queueWaitBudgetMs)
+        {
+            if (queueWaitBudgetMs == Timeout.Infinite)
+            {
+                return Timeout.Infinite;
+            }
+
+            long budget = (long)(this.WaitForLockTimeout ?? 0)
+                + (this.HardTimeout ?? this.BindingTimeout ?? ConnectedBindingQueue.DefaultBindingTimeout)
+                + queueWaitBudgetMs;
+            return (int)Math.Min(budget, int.MaxValue);
+        }
 
         /// <summary>
         /// Converts the result of the execution to type T

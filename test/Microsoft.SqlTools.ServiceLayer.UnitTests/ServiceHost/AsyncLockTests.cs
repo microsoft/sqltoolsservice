@@ -45,7 +45,22 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ServiceHost
             lockOne.Result.Dispose();
 
             Assert.AreEqual(TaskStatus.RanToCompletion, lockOne.Status);
+            Assert.That(async () => await lockTwo, Throws.InstanceOf<OperationCanceledException>());
             Assert.AreEqual(TaskStatus.Canceled, lockTwo.Status);
+        }
+
+        [Test]
+        public void AsyncLockRejectsPreCanceledAcquisition()
+        {
+            using var cts = new CancellationTokenSource();
+            cts.Cancel();
+            var asyncLock = new AsyncLock();
+
+            Task<IDisposable> canceledLock = asyncLock.LockAsync(cts.Token);
+
+            Assert.That(async () => await canceledLock, Throws.InstanceOf<OperationCanceledException>());
+            Assert.That(asyncLock.LockAsync().IsCompletedSuccessfully, Is.True,
+                "a canceled acquisition must not consume or release the semaphore");
         }
     }
 }
