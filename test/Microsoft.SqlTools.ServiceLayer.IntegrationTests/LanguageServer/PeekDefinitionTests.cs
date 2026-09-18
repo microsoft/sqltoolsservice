@@ -9,6 +9,7 @@ using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.LanguageService.LanguageServices;
+using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;
 using Microsoft.SqlTools.LanguageService.Scripting;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
@@ -798,7 +799,13 @@ GO";
             service.RemoveScriptParseInfo(OwnerUri);
             service.BindingQueue = bindingQueue;
             service.ConnectionServiceInstance = ConnectionService.Instance;
-            service.ServiceHostInstance = Hosting.ServiceHost.Instance;
+            var serviceHost = new Mock<ILanguageServiceHost>();
+            serviceHost
+                .Setup(host => host.SendEvent(
+                    IntelliSenseReadyNotification.Type,
+                    It.IsAny<IntelliSenseReadyParams>()))
+                .Returns(Task.CompletedTask);
+            service.ServiceHostInstance = serviceHost.Object;
             service.WorkspaceServiceInstance = WorkspaceService<SqlToolsSettings>.Instance;
             await service.UpdateLanguageServiceOnConnection(connectionResult.ConnectionInfo);
 

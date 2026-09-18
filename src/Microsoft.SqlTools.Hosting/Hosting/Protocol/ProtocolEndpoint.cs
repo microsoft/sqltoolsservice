@@ -32,7 +32,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         private readonly ConcurrentDictionary<MessageId, TaskCompletionSource<Message>> pendingRequests =
             new ConcurrentDictionary<MessageId, TaskCompletionSource<Message>>();
 
-        internal TimeSpan PendingRequestTimeout { get; set; } = TimeSpan.FromMinutes(2);
+        internal TimeSpan PendingRequestTimeout { get; set; } = TimeSpan.FromMinutes(10);
 
         internal int PendingRequestCount => this.pendingRequests.Count;
 
