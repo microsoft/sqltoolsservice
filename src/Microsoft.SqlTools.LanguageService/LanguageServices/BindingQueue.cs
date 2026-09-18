@@ -460,6 +460,11 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                         Logger.Verbose($"Binding queue item {queueItem.Id} operation finished at {queueItem.Lifetime.ElapsedMilliseconds} ms; cancellation requested: {cancelToken.IsCancellationRequested}");
                     }
                 });
+                _ = bindTask.ContinueWith(
+                    _ => cancelToken.Dispose(),
+                    CancellationToken.None,
+                    TaskContinuationOptions.ExecuteSynchronously,
+                    TaskScheduler.Default);
 
                 _ = Task.Run(async () =>
                 {
