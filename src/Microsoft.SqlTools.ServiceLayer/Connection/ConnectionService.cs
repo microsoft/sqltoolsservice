@@ -1753,11 +1753,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             RequestContext<bool> requestContext)
         {
             Logger.Verbose("ChangeDatabaseRequest");
-            bool changed = await ChangeConnectionDatabaseContextAsync(
-                changeDatabaseParams.OwnerUri,
-                changeDatabaseParams.NewDatabase,
-                force: true);
-            await requestContext.SendResult(changed);
+            await requestContext.SendResult(ChangeConnectionDatabaseContext(changeDatabaseParams.OwnerUri, changeDatabaseParams.NewDatabase, true));
         }
 
         /// <summary>
@@ -1766,13 +1762,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <param name="ownerUri">URI of the owner of the connection</param>
         /// <param name="newDatabaseName">Name of the database to change the connection to</param>
         public bool ChangeConnectionDatabaseContext(string ownerUri, string newDatabaseName, bool force = false)
-        {
-            return ChangeConnectionDatabaseContextAsync(ownerUri, newDatabaseName, force)
-                .GetAwaiter()
-                .GetResult();
-        }
-
-        private async Task<bool> ChangeConnectionDatabaseContextAsync(string ownerUri, string newDatabaseName, bool force)
         {
             ConnectionInfo info;
             if (TryFindConnection(ownerUri, out info))
@@ -1800,7 +1789,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                                 string azureToken = info.ConnectionDetails.AzureAccountToken;
                                 if (info.AzureTokenFetcher != null)
                                 {
-                                    azureToken = (await info.AzureTokenFetcher(info.AzureResourceUri)).token;
+                                    azureToken = info.AzureTokenFetcher(info.AzureResourceUri).GetAwaiter().GetResult().token;
                                 }
 
                                 // create a sql connection instance
@@ -1821,8 +1810,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     IConnectionSummary summary = info.ConnectionDetails;
                     parameters.Connection = summary.Clone();
                     parameters.OwnerUri = ownerUri;
-                    _ = ServiceHost.SendEvent(ConnectionChangedNotification.Type, parameters)
-                        .ContinueWithOnFaulted(null);
+                    ServiceHost.SendEvent(ConnectionChangedNotification.Type, parameters);
                     return true;
                 }
                 catch (Exception e)

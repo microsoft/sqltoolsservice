@@ -7,7 +7,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -290,7 +289,7 @@ namespace Microsoft.SqlTools.LanguageService.Workspace
                 Logger.Verbose(msg.ToString());
 
                 var handlers = TextDocChangeCallbacks.Select(t => t(changedFiles.ToArray(), eventContext));
-                return AwaitCallbacksAsync(nameof(HandleDidChangeTextDocumentNotification), handlers);
+                return Task.WhenAll(handlers);
             }
             catch (Exception ex)
             {
@@ -324,7 +323,7 @@ namespace Microsoft.SqlTools.LanguageService.Workspace
                 var textDocOpenTasks = TextDocOpenCallbacks.Select(
                     t => t(openParams.TextDocument.Uri, openedFile, eventContext));
 
-                await AwaitCallbacksAsync(nameof(HandleDidOpenTextDocumentNotification), textDocOpenTasks);
+                await Task.WhenAll(textDocOpenTasks);
             }
             catch (Exception ex)
             {
@@ -360,7 +359,7 @@ namespace Microsoft.SqlTools.LanguageService.Workspace
 
                 // Send out a notification to other services that have subscribed to this event
                 var textDocClosedTasks = TextDocCloseCallbacks.Select(t => t(closeParams.TextDocument.Uri, closedFile, eventContext));
-                await AwaitCallbacksAsync(nameof(HandleDidCloseTextDocumentNotification), textDocClosedTasks);
+                await Task.WhenAll(textDocClosedTasks);
             }
             catch (Exception ex)
             {
@@ -385,7 +384,7 @@ namespace Microsoft.SqlTools.LanguageService.Workspace
                 }
 
                 var handlers = TextDocSaveCallbacks.Select(t => t(saveParams.TextDocument.Uri, eventContext));
-                await AwaitCallbacksAsync(nameof(HandleDidSaveTextDocumentNotification), handlers);
+                await Task.WhenAll(handlers);
             }
             catch (Exception ex)
             {
@@ -409,7 +408,7 @@ namespace Microsoft.SqlTools.LanguageService.Workspace
                 // Propagate the changes to the event handlers
                 var configUpdateTasks = ConfigChangeCallbacks.Select(
                     t => t(configChangeParams.Settings, CurrentSettings, eventContext));
-                await AwaitCallbacksAsync(nameof(HandleDidChangeConfigurationNotification), configUpdateTasks);
+                await Task.WhenAll(configUpdateTasks);
             }
             catch (Exception ex)
             {
@@ -423,28 +422,6 @@ namespace Microsoft.SqlTools.LanguageService.Workspace
         #endregion
 
         #region Private Helpers
-
-        /// <summary>
-        /// Callbacks that take longer than this are logged, because they are holding the message
-        /// loop for that long.
-        /// </summary>
-        private const int SlowCallbackThresholdMs = 500;
-
-        /// <summary>
-        /// Awaits the callbacks for a workspace notification. The dispatcher awaits these handlers
-        /// inline on the message loop, so while a callback runs no other message is processed.
-        /// Callbacks must therefore only do bookkeeping and detach anything that can wait on I/O,
-        /// a lock, or another service; this warns when one does not.
-        /// </summary>
-        private static async Task AwaitCallbacksAsync(string notification, IEnumerable<Task> callbacks)
-        {
-            Stopwatch stopwatch = Stopwatch.StartNew();
-            await Task.WhenAll(callbacks);
-            if (stopwatch.ElapsedMilliseconds > SlowCallbackThresholdMs)
-            {
-                Logger.Warning($"{notification} callbacks held the message loop for {stopwatch.ElapsedMilliseconds} ms; workspace callbacks must detach slow work");
-            }
-        }
 
         /// <summary>
         /// Switch from 0-based offsets to 1 based offsets

@@ -41,7 +41,6 @@ namespace Microsoft.SqlTools.Hosting.Protocol
             new CancellationTokenSource();
 
         private SemaphoreSlim semaphore;
-
         #endregion
 
         #region Properties
@@ -91,10 +90,9 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
         public void Start()
         {
-            // The reader never waits on this semaphore: it must remain free to consume responses
-            // and cancellation messages needed by handlers already in progress.
-            int parallelLimit = Math.Max(1, this.ParallelMessageProcessingLimit);
-            semaphore = new SemaphoreSlim(parallelLimit, parallelLimit);
+            // Initialize semaphore for Parallel message processing using 10 initial requests.
+            var initialSemaphoreLimit = ParallelMessageProcessingLimit <= 10 ? ParallelMessageProcessingLimit : 10;
+            semaphore = new SemaphoreSlim(initialSemaphoreLimit, ParallelMessageProcessingLimit);
 
             // Start the main message loop thread.  The Task is
             // not explicitly awaited because it is running on
@@ -335,67 +333,33 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
             if (handlerToAwait != null)
             {
-                if (this.ParallelMessageProcessing && isParallelProcessingSupported)
+                try
                 {
-                    _ = Task.Run(() => this.RunParallelHandler(
-                        handlerToAwait,
-                        messageToDispatch,
-                        messageWriter,
-                        this.messageLoopCancellationToken.Token));
+                    if (this.ParallelMessageProcessing && isParallelProcessingSupported)
+                    {
+                        _ = Task.Run(async () =>
+                        {
+                            await handlerToAwait(messageToDispatch, messageWriter);
+                        });
+                    }
+                    else
+                    {
+                        await handlerToAwait(messageToDispatch, messageWriter);
+                    }
                 }
-                else
+                catch (TaskCanceledException e)
                 {
-                    await InvokeHandler(handlerToAwait, messageToDispatch, messageWriter);
+                    // Some tasks may be cancelled due to legitimate
+                    // timeouts so don't let those exceptions go higher.
+                    Logger.Verbose(string.Format("A TaskCanceledException occurred in the request handler: {0}", e.ToString()));
                 }
-            }
-        }
-
-        private async Task RunParallelHandler(
-            Func<Message, MessageWriter, Task> handler,
-            Message message,
-            MessageWriter messageWriter,
-            CancellationToken cancellationToken)
-        {
-            bool entered = false;
-            try
-            {
-                await this.semaphore.WaitAsync(cancellationToken);
-                entered = true;
-                await InvokeHandler(handler, message, messageWriter);
-            }
-            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-            {
-                Logger.Verbose("Parallel message handler was cancelled because the dispatcher is stopping.");
-            }
-            finally
-            {
-                if (entered)
+                catch (Exception e)
                 {
-                    this.semaphore.Release();
-                }
-            }
-        }
-
-        private static async Task InvokeHandler(
-            Func<Message, MessageWriter, Task> handler,
-            Message message,
-            MessageWriter messageWriter)
-        {
-            try
-            {
-                await handler(message, messageWriter);
-            }
-            catch (TaskCanceledException e)
-            {
-                Logger.Verbose(string.Format("A TaskCanceledException occurred in the request handler: {0}", e));
-            }
-            catch (Exception e)
-            {
-                if (!(e is AggregateException exception
-                    && exception.InnerExceptions.Count > 0
-                    && exception.InnerExceptions[0] is TaskCanceledException))
-                {
-                    Logger.Error(string.Format("An unexpected error occurred in the request handler: {0}", e));
+                    if (!(e is AggregateException exception && exception.InnerExceptions[0] is TaskCanceledException))
+                    {
+                        // Log the error but don't rethrow it to prevent any errors in the handler from crashing the service
+                        Logger.Error(string.Format("An unexpected error occurred in the request handler: {0}", e.ToString()));
+                    }
                 }
             }
         }

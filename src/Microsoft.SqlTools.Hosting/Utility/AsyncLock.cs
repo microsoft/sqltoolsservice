@@ -57,18 +57,21 @@ namespace Microsoft.SqlTools.Utility
         /// A CancellationToken which can be used to cancel the lock.
         /// </param>
         /// <returns></returns>
-        public async Task<IDisposable> LockAsync(CancellationToken cancellationToken)
+        public Task<IDisposable> LockAsync(CancellationToken cancellationToken)
         {
-            await lockSemaphore.WaitAsync(cancellationToken);
-            if (cancellationToken.IsCancellationRequested)
-            {
-                // Cancellation can race with a release. If the semaphore granted this waiter at
-                // the same moment the token was cancelled, return the permit before propagating
-                // cancellation so the lock cannot be lost.
-                lockSemaphore.Release();
-                cancellationToken.ThrowIfCancellationRequested();
-            }
-            return await this.lockReleaseTask;
+            Task waitTask = lockSemaphore.WaitAsync(cancellationToken);
+
+            return waitTask.IsCompleted ?
+                this.lockReleaseTask :
+                waitTask.ContinueWith(
+                    (t, releaser) =>
+                    {
+                        return (IDisposable)releaser;
+                    },
+                    this.lockReleaseTask.Result,
+                    cancellationToken,
+                    TaskContinuationOptions.ExecuteSynchronously,
+                    TaskScheduler.Default);
         }
 
         #endregion

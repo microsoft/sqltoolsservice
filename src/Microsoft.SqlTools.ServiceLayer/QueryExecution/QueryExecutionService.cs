@@ -802,63 +802,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
 
                 if (!sessionSettingsApplied)
                 {
-                    await ApplySessionQueryExecutionOptions(connInfo, newQuery.Settings, newQuery.CancellationToken);
+                    await ApplySessionQueryExecutionOptions(connInfo, newQuery.Settings);
                     this.QuerySessionSettingsApplied.AddOrUpdate(connInfo.OwnerUri, true, (key, oldValue) => true);
                 }
 
                 // Execute the query asynchronously
                 ExecuteAndCompleteQuery(executeParams.OwnerUri, newQuery, queryEventSender, querySuccessFunc, queryFailureFunc);
             }
-            catch (Exception e) when (newQuery.HasCancelled)
-            {
-                // Once the user has cancelled, whatever the pre-execution step throws is a
-                // consequence of that cancellation. SqlClient in particular reports a cancelled
-                // command as a SqlException rather than an OperationCanceledException, and the
-                // user should see "cancelled", not an error.
-                await CompleteCancelledQueryBeforeExecution(
-                    executeParams.OwnerUri,
-                    newQuery,
-                    queryEventSender,
-                    queryFailureFunc,
-                    e);
-            }
             catch (Exception e)
             {
                 await FailQueryBeforeExecution(executeParams.OwnerUri, newQuery, queryEventSender, queryFailureFunc, e);
-            }
-        }
-
-        /// <summary>
-        /// Completes a query cancelled after it was accepted but before batch execution started.
-        /// This mirrors the terminal notifications from cancellation during Query.Execute.
-        /// </summary>
-        private static async Task CompleteCancelledQueryBeforeExecution(string ownerUri, Query query,
-            IEventSender eventSender, Query.QueryAsyncErrorEventHandler queryFailureCallback,
-            Exception error)
-        {
-            Logger.Information($"Query:'{ownerUri}' was cancelled before execution started: {error.Message}");
-
-            try
-            {
-                await eventSender.SendEvent(MessageEvent.Type, new MessageParams
-                {
-                    OwnerUri = ownerUri,
-                    Message = new ResultMessage(SR.QueryServiceQueryCancelled, false, null)
-                });
-                await eventSender.SendEvent(QueryCompleteEvent.Type, new QueryCompleteParams
-                {
-                    OwnerUri = ownerUri,
-                    BatchSummaries = query.BatchSummaries,
-                    ServerConnectionId = query.ServerConnectionId,
-                });
-                if (queryFailureCallback != null)
-                {
-                    await queryFailureCallback(query, error);
-                }
-            }
-            catch (Exception e)
-            {
-                Logger.Error($"Failed to report cancellation of Query:'{ownerUri}': {e}");
             }
         }
 
@@ -1890,10 +1843,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             return mergedRanges;
         }
 
-        private async Task ApplySessionQueryExecutionOptions(ConnectionInfo connection,
-            QueryExecutionSettings settings, CancellationToken cancellationToken)
+        private async Task ApplySessionQueryExecutionOptions(ConnectionInfo connection, QueryExecutionSettings settings)
         {
-            cancellationToken.ThrowIfCancellationRequested();
             QuerySettingsHelper helper = new QuerySettingsHelper(settings);
 
             StringBuilder sqlBuilder = new StringBuilder(512);
@@ -1934,16 +1885,14 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                                         helper.SetImplicitTransactionString, helper.SetQuotedIdentifierString);
             }
 
-            DbConnection dbConnection = await ConnectionService
-                .GetOrOpenConnection(connection.OwnerUri, ConnectionType.Default)
-                .WaitAsync(cancellationToken);
+            DbConnection dbConnection = await ConnectionService.GetOrOpenConnection(connection.OwnerUri, ConnectionType.Default);
             ReliableSqlConnection reliableSqlConnection = dbConnection as ReliableSqlConnection;
             if (reliableSqlConnection != null)
             {
                 using (SqlCommand cmd = new SqlCommand(sqlBuilder.ToString(), reliableSqlConnection.GetUnderlyingConnection()))
                 {
                     cmd.CommandType = CommandType.Text;
-                    await cmd.ExecuteNonQueryAsync(cancellationToken);
+                    cmd.ExecuteNonQuery();
                 }
             }
         }

@@ -5,7 +5,6 @@
 
 using System;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.Utility
@@ -62,7 +61,7 @@ namespace Microsoft.SqlTools.Utility
         /// <returns>Task with exception handling on continuation</returns>
         public static Task ContinueWithOnFaulted(this Task antecedent, Func<Task, Task> continuationFunc)
         {
-            return antecedent.ContinueWith(async task =>
+            return antecedent.ContinueWith(task =>
             {
                 // If the task hasn't faulted or doesn't have an exception, skip processing
                 if (!task.IsFaulted || task.Exception == null)
@@ -75,17 +74,14 @@ namespace Microsoft.SqlTools.Utility
                 // Run the continuation task that was provided
                 try
                 {
-                    if (continuationFunc != null)
-                    {
-                        await continuationFunc(antecedent);
-                    }
+                    continuationFunc?.Invoke(antecedent).Wait();
                 }
                 catch (Exception e)
                 {
                     Logger.Error($"Exception in exception handling continuation: {e}");
                     Logger.Error(e.StackTrace);
                 }
-            }, CancellationToken.None, TaskContinuationOptions.None, TaskScheduler.Default).Unwrap();
+            });
         }
 
         private static void LogTaskExceptions(AggregateException exception)

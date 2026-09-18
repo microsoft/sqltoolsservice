@@ -9,7 +9,6 @@ using Microsoft.SqlServer.Management.SqlParser.Intellisense;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.LanguageService.LanguageServices;
-using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;
 using Microsoft.SqlTools.LanguageService.Scripting;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
@@ -219,7 +218,7 @@ GO";
         /// Test GetDefinition with a forced timeout. Expect a error result.
         /// </summary>
         [Test]
-        public async Task GetDefinitionTimeoutTest()
+        public void GetDefinitionTimeoutTest()
         {
             // Given a binding queue that will automatically time out
             var langSvc = new TSqlLanguageService();
@@ -269,7 +268,7 @@ GO";
 
             // Pass in null connection info to force doing a local parse since that hits the BindingQueue timeout
             // before we want it to (this is testing the timeout trying to fetch the definitions after the parse)
-            var result = await langSvc.GetDefinition(textDocument, scriptFile, null);
+            var result = langSvc.GetDefinition(textDocument, scriptFile, null);
 
             // Then I expect null locations and an error to be reported
             Assert.NotNull(result);
@@ -799,13 +798,7 @@ GO";
             service.RemoveScriptParseInfo(OwnerUri);
             service.BindingQueue = bindingQueue;
             service.ConnectionServiceInstance = ConnectionService.Instance;
-            var serviceHost = new Mock<ILanguageServiceHost>();
-            serviceHost
-                .Setup(host => host.SendEvent(
-                    IntelliSenseReadyNotification.Type,
-                    It.IsAny<IntelliSenseReadyParams>()))
-                .Returns(Task.CompletedTask);
-            service.ServiceHostInstance = serviceHost.Object;
+            service.ServiceHostInstance = Hosting.ServiceHost.Instance;
             service.WorkspaceServiceInstance = WorkspaceService<SqlToolsSettings>.Instance;
             await service.UpdateLanguageServiceOnConnection(connectionResult.ConnectionInfo);
 
@@ -815,7 +808,7 @@ GO";
             service.ScriptParseInfoMap.TryAdd(TestUri, scriptInfo);
 
             // When I call the language service
-            var fnResult = await service.GetDefinition(fnDocument, scriptFile, connInfo);
+            var fnResult = service.GetDefinition(fnDocument, scriptFile, connInfo);
             return fnResult;
         }
 

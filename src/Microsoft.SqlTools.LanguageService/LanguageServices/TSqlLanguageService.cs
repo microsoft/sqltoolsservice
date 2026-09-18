@@ -94,34 +94,11 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
         internal const int HoverTimeout = 500;
 
-        /// <summary>
-        /// Maximum number of files a diagnostics sweep analyzes concurrently. Each analysis is a
-        /// binding queue item, and an unbounded sweep over a large project queued thousands at
-        /// once, which starved the thread pool the queue depends on.
-        /// </summary>
-        internal const int MaxConcurrentDiagnostics = 4;
-
-        internal const int MaxConcurrentParsers = 4;
-
-        /// <summary>
-        /// How long a diagnostics analysis waits for the binding lock of a context that is busy
-        /// with an earlier analysis. Analyses of files in the same project share one context and
-        /// arrive together, so without a wait all but the first fail immediately. The wait covers
-        /// the throttle's worth of predecessors each running up to their hard timeout.
-        /// </summary>
-        internal const int DiagnosticsLockWaitTimeout = MaxConcurrentDiagnostics * ConnectedBindingQueue.BindingTimeout;
-
         internal const int OnConnectionWaitTimeout = 300 * OneSecond;
 
         internal const int PeekDefinitionTimeout = 10 * OneSecond;
 
         internal const int ExtensionLoadingTimeout = 10 * OneSecond;
-
-        internal int ParserTimeout { get; set; } = 10 * OneSecond;
-
-        internal SemaphoreSlim ParserThreadThrottle { get; set; } = new SemaphoreSlim(
-            MaxConcurrentParsers,
-            MaxConcurrentParsers);
 
         internal const int CompletionExtTimeout = 200;
 
@@ -170,12 +147,8 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             internal CancellationTokenSource CurrentCancellation { get; set; }
         }
 
-        // Debounce state for project IntelliSense model updates (one CTS per file URI). The lock
-        // makes "replace the entry and cancel the old one" and "remove my own entry and dispose"
-        // atomic with respect to each other, so a superseded task can never be cancelled after it
-        // has disposed its source, and a finishing task can never evict a newer entry.
+        // Debounce state for project IntelliSense model updates (one CTS per file URI).
         private readonly ConcurrentDictionary<string, CancellationTokenSource> _intelliSenseUpdateDebounce = new(StringComparer.OrdinalIgnoreCase);
-        private readonly object _intelliSenseUpdateDebounceLock = new object();
         private const int IntelliSenseUpdateDebounceMs = 500;
 
         // Serializes DacFx model mutations per project so that concurrent edits across multiple
@@ -267,16 +240,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             }
         }
 
-        private readonly object diagnosticsRunLock = new object();
-
-        /// <summary>
-        /// Active diagnostics runs keyed by document or project. A new run supersedes only work
-        /// for the same scope; unrelated files and projects remain independent.
-        /// </summary>
-        private readonly Dictionary<string, CancellationTokenSource> diagnosticsRuns =
-            new Dictionary<string, CancellationTokenSource>(StringComparer.OrdinalIgnoreCase);
-
-        private readonly SemaphoreSlim diagnosticsThrottle = new SemaphoreSlim(MaxConcurrentDiagnostics, MaxConcurrentDiagnostics);
+        private CancellationTokenSource? existingRequestCancellation;
 
         /// <summary>
         /// Gets or sets the current workspace service instance
@@ -719,7 +683,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             }
             else
             {
-                CompletionItem resolvedItem = await ResolveCompletionItem(completionItem);
+                CompletionItem resolvedItem = ResolveCompletionItem(completionItem);
                 await requestContext.SendResult(resolvedItem);
 
             }
@@ -740,7 +704,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 if (scriptFile != null)
                 {
                     isConnected = ConnectionServiceInstance.TryFindConnection(scriptFile.ClientUri, out connInfo);
-                    definitionResult = await GetDefinition(textDocumentPosition, scriptFile, connInfo);
+                    definitionResult = GetDefinition(textDocumentPosition, scriptFile, connInfo);
                 }
 
                 if (definitionResult != null && !definitionResult.IsErrorResult)
@@ -822,7 +786,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
                 if (scriptFile != null)
                 {
-                    Hover hover = await GetHoverItem(textDocumentPosition, scriptFile);
+                    Hover hover = GetHoverItem(textDocumentPosition, scriptFile);
                     await requestContext.SendResult(hover);
                     return;
                 }
@@ -883,18 +847,13 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 foreach (var file in changedFiles.GroupBy(f => f.ClientUri).Select(g => g.Last()))
                 {
                     if (TryGetProjectUriForSqlFile(file.ClientUri, out string projectUri))
-                        ScheduleIntelliSenseUpdate(
-                            file.ClientUri,
-                            projectUri,
-                            file.Contents,
-                            eventContext,
-                            IntelliSenseUpdateDebounceMs);
+                        ScheduleDebouncedIntelliSenseUpdate(file.ClientUri, projectUri, file.Contents, eventContext);
                 }
 
                 if (CurrentWorkspaceSettings.IsDiagnosticsEnabled)
                 {
                     // For project files, diagnostics are triggered AFTER the debounced model
-                    // update completes (in ScheduleIntelliSenseUpdate) so they reflect
+                    // update completes (in ScheduleDebouncedIntelliSenseUpdate) so they reflect
                     // the current model state. Running them here (before the model is updated)
                     // would produce stale results and interfere with the debounced diagnostic.
                     var nonProjectFiles = changedFiles
@@ -912,65 +871,45 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         }
 
         /// <summary>
-        /// Schedules a DacFx TSqlModel update for the given file. Updates from edits use a
-        /// debounce delay; saves use no delay. A newer update for the same URI supersedes the
-        /// previous one.
+        /// Schedules a debounced DacFx TSqlModel update for the given file.
+        /// Any previously pending update for the same URI is cancelled so that rapid
+        /// keystrokes collapse into a single model rebuild fired after
+        /// <see cref="IntelliSenseUpdateDebounceMs"/> of inactivity.
         /// </summary>
-        private void ScheduleIntelliSenseUpdate(string fileUri, string projectUri,
-            string sqlTextOverride, EventContext eventContext, int delayMilliseconds)
+        private void ScheduleDebouncedIntelliSenseUpdate(string fileUri, string projectUri, string contents, EventContext eventContext)
         {
             var newCts = new CancellationTokenSource();
-            lock (_intelliSenseUpdateDebounceLock)
+            if (_intelliSenseUpdateDebounce.TryRemove(fileUri, out var oldCts))
             {
-                if (_intelliSenseUpdateDebounce.TryRemove(fileUri, out var oldCts))
-                {
-                    // The old task disposes its source only under this lock, so an entry found
-                    // here is always still alive.
-                    oldCts.Cancel();
-                }
-                _intelliSenseUpdateDebounce[fileUri] = newCts;
+                oldCts.Cancel();
+                oldCts.Dispose();
             }
+            _intelliSenseUpdateDebounce[fileUri] = newCts;
 
             _ = Task.Run(async () =>
             {
                 try
                 {
-                    if (delayMilliseconds > 0)
-                    {
-                        await Task.Delay(delayMilliseconds, newCts.Token);
-                    }
+                    await Task.Delay(IntelliSenseUpdateDebounceMs, newCts.Token);
 
                     // Serialize model mutations for this project so concurrent edits across
                     // multiple files don't race when updating shared model/provider state.
                     AsyncLock projectLock = projectModelUpdateLocks.GetOrAdd(projectUri, _ => new AsyncLock());
-                    using (await projectLock.LockAsync(newCts.Token))
+                    using (await projectLock.LockAsync())
                     {
-                        newCts.Token.ThrowIfCancellationRequested();
                         await ProjectIntelliSenseService.UpdateProjectIntelliSenseAsync(
-                            projectUri, fileUri, deleted: false, sqlTextOverride: sqlTextOverride);
+                            projectUri, fileUri, deleted: false, sqlTextOverride: contents);
                     }
 
-                    // Re-run diagnostics on the open project files so squiggles clear/appear
+                    // Re-run diagnostics on all open project files so squiggles clear/appear
                     // immediately after a model change — not just on the next file save.
-                    // Only files the workspace already holds qualify: squiggles are only visible
-                    // in open editors, and GetFile would otherwise load every sibling from disk.
-                    // A project with thousands of files then turned each keystroke into thousands
-                    // of analyses, which is what starved the service in microsoft/vscode-mssql#22920.
                     if (CurrentWorkspaceSettings.IsDiagnosticsEnabled)
                     {
-                        var changedFile = CurrentWorkspace.ContainsFile(fileUri) ? CurrentWorkspace.GetFile(fileUri) : null;
-                        var siblingUris = ProjectIntelliSenseService.GetSiblingProjectFileUris(projectUri, fileUri);
-                        var filesToRefresh = siblingUris
-                            .Where(u => CurrentWorkspace.ContainsFile(u))
-                            .Select(u => CurrentWorkspace.GetFile(u))
-                            .Where(f => f != null)
-                            .ToList();
-                        if (changedFile != null)
-                            filesToRefresh.Insert(0, changedFile);
+                        List<ScriptFile> filesToRefresh = GetOpenProjectFilesToRefresh(projectUri, fileUri);
                         if (filesToRefresh.Count > 0)
                         {
                             newCts.Token.ThrowIfCancellationRequested();
-                            await RunScriptDiagnostics(filesToRefresh.ToArray(), eventContext, isSweep: true);
+                            await RunScriptDiagnostics(filesToRefresh.ToArray(), eventContext);
                         }
                     }
                 }
@@ -978,15 +917,13 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 catch (Exception ex) { Logger.Error($"IntelliSense model update failed for {fileUri}: {ex}"); }
                 finally
                 {
-                    lock (_intelliSenseUpdateDebounceLock)
+                    // Only remove and dispose if this task's CTS is still the current entry.
+                    // Using TryGetValue + ReferenceEquals avoids accidentally evicting a newer
+                    // CTS that a concurrent edit has already stored for the same file.
+                    if (_intelliSenseUpdateDebounce.TryGetValue(fileUri, out var currentCts)
+                        && ReferenceEquals(currentCts, newCts))
                     {
-                        // Remove exactly this task's entry, never a newer one that replaced it,
-                        // then dispose the source nobody else can reach any more.
-                        if (_intelliSenseUpdateDebounce.TryGetValue(fileUri, out var currentCts)
-                            && ReferenceEquals(currentCts, newCts))
-                        {
-                            _intelliSenseUpdateDebounce.TryRemove(fileUri, out _);
-                        }
+                        _intelliSenseUpdateDebounce.TryRemove(fileUri, out _);
                         newCts.Dispose();
                     }
                 }
@@ -1032,28 +969,82 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// <param name="uri"></param>
         /// <param name="eventContext"></param>
         /// <returns></returns>
-        public Task HandleDidSaveTextDocumentNotification(
+        public async Task HandleDidSaveTextDocumentNotification(
             string uri,
             EventContext eventContext)
         {
             try
             {
                 if (!TryGetProjectUriForSqlFile(uri, out string projectUri))
-                {
-                    return Task.CompletedTask;
-                }
+                    return;
 
-                // Saving must not hold the serialized workspace notification queue while DacFx
-                // mutates the project model. It also supersedes any pending debounced update for
-                // this file and uses the saved contents from disk.
-                ScheduleIntelliSenseUpdate(uri, projectUri, null, eventContext, delayMilliseconds: 0);
+                await ProjectIntelliSenseService.UpdateProjectIntelliSenseAsync(projectUri, uri, deleted: false);
+
+                // After the model update, re-run diagnostics on ALL open project files
+                // (including the saved file itself). This is necessary because:
+                // - The saved file's diagnostics may have been computed before the model update
+                //   (triggered by didChange), so its squiggles reflect stale _duplicates state.
+                // - Sibling files need refreshing too so their squiggles clear/appear immediately.
+                if (CurrentWorkspaceSettings.IsDiagnosticsEnabled)
+                {
+                    List<ScriptFile> filesToRefresh = GetOpenProjectFilesToRefresh(projectUri, uri);
+                    if (filesToRefresh.Count > 0)
+                        await RunScriptDiagnostics(filesToRefresh.ToArray(), eventContext);
+                }
             }
             catch (Exception ex)
             {
                 Logger.Error("Unknown error " + ex.ToString());
             }
+        }
 
-            return Task.CompletedTask;
+        /// <summary>
+        /// Returns the files of a project that are open in the editor, with the changed file first,
+        /// so their diagnostics can be refreshed after a project model update.
+        /// </summary>
+        /// <remarks>
+        /// Only documents the workspace already holds qualify. Squiggles are only visible in open
+        /// editors, and <c>Workspace.GetFile</c> loads a file from disk when it is not open,
+        /// so asking it for every sibling pulled the whole project into the workspace and analyzed
+        /// all of it after each edit. On a project with thousands of files that exhausted the thread
+        /// pool and hung the service (microsoft/vscode-mssql#22920).
+        /// Open documents are matched by normalized URI rather than looked up by sibling URI: the
+        /// workspace is keyed by the URI the client sent (VS Code escapes the drive colon as %3A)
+        /// while the project reports unescaped URIs, so a lookup misses the open document and
+        /// falls back to the copy on disk instead of the editor buffer.
+        /// </remarks>
+        private List<ScriptFile> GetOpenProjectFilesToRefresh(string projectUri, string changedFileUri)
+        {
+            string normalizedChangedUri = NormalizeUri(changedFileUri);
+            var siblingUris = new HashSet<string>(
+                ProjectIntelliSenseService.GetSiblingProjectFileUris(projectUri, changedFileUri).Select(NormalizeUri),
+                StringComparer.OrdinalIgnoreCase);
+
+            var filesToRefresh = new List<ScriptFile>();
+            var includedUris = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (ScriptFile openFile in CurrentWorkspace.GetOpenedFiles())
+            {
+                if (string.IsNullOrEmpty(openFile?.ClientUri))
+                {
+                    continue;
+                }
+
+                string openUri = NormalizeUri(openFile.ClientUri);
+                bool isChangedFile = string.Equals(openUri, normalizedChangedUri, StringComparison.OrdinalIgnoreCase);
+                if ((isChangedFile || siblingUris.Contains(openUri)) && includedUris.Add(openUri))
+                {
+                    if (isChangedFile)
+                    {
+                        filesToRefresh.Insert(0, openFile);
+                    }
+                    else
+                    {
+                        filesToRefresh.Add(openFile);
+                    }
+                }
+            }
+
+            return filesToRefresh;
         }
 
         /// <summary>
@@ -1134,7 +1125,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                     // Get the current ScriptInfo if one exists so we can lock it while we're rebuilding the cache
                     ScriptParseInfo scriptInfo = GetScriptParseInfo(connInfo.OwnerUri, createIfNotExists: false);
                     if (scriptInfo != null && scriptInfo.IsConnected &&
-                        await scriptInfo.BuildingMetadataLock.TryEnterAsync(TSqlLanguageService.OnConnectionWaitTimeout))
+                        Monitor.TryEnter(scriptInfo.BuildingMetadataLock, TSqlLanguageService.OnConnectionWaitTimeout))
                     {
                         try
                         {
@@ -1145,8 +1136,9 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                             }
                             finally
                             {
-                                // Release the document lock before rebuilding the connection metadata.
-                                scriptInfo.BuildingMetadataLock.Exit();
+                                // A Monitor is owned by the thread that entered it, so it must be
+                                // released before the asynchronous metadata rebuild can change threads.
+                                Monitor.Exit(scriptInfo.BuildingMetadataLock);
                             }
 
                             await UpdateLanguageServiceOnConnection(connInfo);
@@ -1218,7 +1210,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                     // otherwise rerun diagnostic analysis on all opened SQL files
                     else
                     {
-                        await RunScriptDiagnostics(CurrentWorkspace.GetOpenedFiles(), eventContext, isSweep: true);
+                        await RunScriptDiagnostics(CurrentWorkspace.GetOpenedFiles(), eventContext);
                     }
                 }
             }
@@ -1368,242 +1360,164 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// </summary>
         /// <param name="scriptFile">The current document and its SQL text.</param>
         /// <param name="connInfo">Connection information used for metadata binding.</param>
-        /// <param name="waitForLockTimeout">
-        /// How long, in milliseconds, the queued parse may wait for the binding context's lock when
-        /// an earlier operation on the same context is still running. Zero fails immediately.
-        /// </param>
         /// <returns>The ParseResult instance returned from SQL Parser</returns>
-        public async Task<ParseResult> ParseAndBind(
-            ScriptFile scriptFile,
-            ConnectionInfoBase connInfo,
-            int waitForLockTimeout = 0,
-            CancellationToken cancellationToken = default)
+        public Task<ParseResult> ParseAndBind(ScriptFile scriptFile, ConnectionInfoBase connInfo)
         {
             Logger.Verbose($"ParseAndBind - {scriptFile}");
             // get or create the current parse info object
             ScriptParseInfo parseInfo = GetScriptParseInfo(scriptFile.ClientUri, createIfNotExists: true);
 
-            // Nothing in here may block a thread pool thread. A diagnostics sweep calls this once
-            // per file, and the binding queue that completes the work dispatches on the same pool,
-            // so blocked waiters here can leave the queue with no thread to signal them. That is
-            // the deadlock behind microsoft/vscode-mssql#22920.
-            if (await parseInfo.BuildingMetadataLock.TryEnterAsync(
-                ConnectedBindingQueue.BindingTimeout,
-                cancellationToken))
+            return Task.Run(() =>
             {
-                try
+                if (Monitor.TryEnter(parseInfo.BuildingMetadataLock, ConnectedBindingQueue.BindingTimeout))
                 {
-                    // Files with a binding context of LiveConnection or Project use the binding queue.
-                    // BindingContextKind.None means there is no binding context available.
-                    // A ConnectionKey is still required because binding operations are queued through it.
-                    bool hasBindingContext = (parseInfo.IsConnected || parseInfo.IsProject) && parseInfo.ConnectionKey != null;
-
-                    if (!hasBindingContext)
+                    try
                     {
-                        (bool parsed, ParseResult syntaxOnlyParseResult) = await TryIncrementalParseAsync(
-                            scriptFile.Contents,
-                            parseInfo.ParseResult,
-                            GetParseOptionsForDocument(scriptFile.ClientUri, this.DefaultParseOptions),
-                            cancellationToken);
-                        if (parsed)
+                        // Files with a binding context of LiveConnection or Project use the binding queue.
+                        // BindingContextKind.None means there is no binding context available.
+                        // A ConnectionKey is still required because binding operations are queued through it.
+                        bool hasBindingContext = (parseInfo.IsConnected || parseInfo.IsProject) && parseInfo.ConnectionKey != null;
+
+                        if (!hasBindingContext)
                         {
-                            parseInfo.ParseResult = syntaxOnlyParseResult;
-                            Logger.Verbose($"ParseAndBind: parsed '{scriptFile.ClientUri}' without a binding context (syntax-only, no metadata binding)");
+                            if (TryIncrementalParse(
+                                scriptFile.Contents,
+                                parseInfo.ParseResult,
+                                GetParseOptionsForDocument(scriptFile.ClientUri, this.DefaultParseOptions),
+                                out ParseResult syntaxOnlyParseResult))
+                            {
+                                parseInfo.ParseResult = syntaxOnlyParseResult;
+                                Logger.Verbose($"ParseAndBind: parsed '{scriptFile.ClientUri}' without a binding context (syntax-only, no metadata binding)");
+                            }
+                            else
+                            {
+                                parseInfo.ParseResult = null;
+                            }
                         }
                         else
                         {
-                            parseInfo.ParseResult = null;
-                        }
-                    }
-                    else
-                    {
-                        QueueItem queueItem = this.BindingQueue.QueueBindingOperationAsync(
-                            key: parseInfo.ConnectionKey,
-                            bindingTimeout: ConnectedBindingQueue.BindingTimeout,
-                            waitForLockTimeout: waitForLockTimeout,
-                            bindOperation: async (bindingContext, cancelToken) =>
-                            {
-                                try
+                            QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
+                                key: parseInfo.ConnectionKey,
+                                bindingTimeout: ConnectedBindingQueue.BindingTimeout,
+                                bindOperation: (bindingContext, cancelToken) =>
                                 {
-                                    (bool parsed, ParseResult parseResult) = await TryIncrementalParseAsync(
-                                        scriptFile.Contents,
-                                        parseInfo.ParseResult,
-                                        GetParseOptionsForDocument(scriptFile.ClientUri, bindingContext.ParseOptions),
-                                        cancelToken);
-                                    if (!parsed || cancelToken.IsCancellationRequested)
+                                    try
                                     {
-                                        if (!cancelToken.IsCancellationRequested)
+                                        if (!TryIncrementalParse(
+                                            scriptFile.Contents,
+                                            parseInfo.ParseResult,
+                                            GetParseOptionsForDocument(scriptFile.ClientUri, bindingContext.ParseOptions),
+                                            out ParseResult parseResult))
                                         {
                                             parseInfo.ParseResult = null;
+                                            return null;
                                         }
-                                        return null;
+
+                                        parseInfo.ParseResult = parseResult;
+
+                                        List<ParseResult> parseResults = new List<ParseResult>();
+                                        parseResults.Add(parseResult);
+                                        if ((bindingContext.IsConnected || (bindingContext is ConnectedBindingContext cbc2 && cbc2.IsProjectContext)) && bindingContext.Binder != null)
+                                        {
+                                            string dbName = connInfo?.ConnectionDetails?.DatabaseName
+                                                            ?? parseInfo.ProjectDatabaseName;
+                                            bindingContext.Binder.Bind(
+                                                parseResults,
+                                                dbName,
+                                                BindMode.Batch);
+                                            Logger.Verbose($"ParseAndBind: bound parse result for '{scriptFile.ClientUri}' against database '{dbName}' using connection key '{parseInfo.ConnectionKey}'");
+                                        }
                                     }
-
-                                    parseInfo.ParseResult = parseResult;
-
-                                    List<ParseResult> parseResults = new List<ParseResult>();
-                                    parseResults.Add(parseResult);
-                                    if ((bindingContext.IsConnected || (bindingContext is ConnectedBindingContext cbc2 && cbc2.IsProjectContext)) && bindingContext.Binder != null)
+                                    catch (ConnectionException ex)
                                     {
-                                        string dbName = connInfo?.ConnectionDetails?.DatabaseName
-                                                        ?? parseInfo.ProjectDatabaseName;
-                                        bindingContext.Binder.Bind(
-                                            parseResults,
-                                            dbName,
-                                            BindMode.Batch);
-                                        Logger.Verbose($"ParseAndBind: bound parse result for '{scriptFile.ClientUri}' against database '{dbName}' using connection key '{parseInfo.ConnectionKey}'");
+                                        // Recoverable: the parse result is still returned; only metadata binding was skipped.
+                                        Logger.Warning($"ParseAndBind: connection error while binding '{scriptFile.ClientUri}': {ex}");
                                     }
-                                }
-                                catch (ConnectionException ex)
-                                {
-                                    // Recoverable: the parse result is still returned; only metadata binding was skipped.
-                                    Logger.Warning($"ParseAndBind: connection error while binding '{scriptFile.ClientUri}': {ex}");
-                                }
-                                catch (SqlParserInternalBinderError ex)
-                                {
-                                    // Recoverable: the parse result is still returned; only metadata binding was skipped.
-                                    Logger.Warning($"ParseAndBind: internal binder error while binding '{scriptFile.ClientUri}': {ex}");
-                                }
-                                catch (Exception ex)
-                                {
-                                    Logger.Error($"ParseAndBind: unexpected error while parsing/binding '{scriptFile.ClientUri}': {ex}");
-                                }
+                                    catch (SqlParserInternalBinderError ex)
+                                    {
+                                        // Recoverable: the parse result is still returned; only metadata binding was skipped.
+                                        Logger.Warning($"ParseAndBind: internal binder error while binding '{scriptFile.ClientUri}': {ex}");
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Logger.Error($"ParseAndBind: unexpected error while parsing/binding '{scriptFile.ClientUri}': {ex}");
+                                    }
 
+                                    return null;
+                                });
+
+                            queueItem.ItemProcessed.WaitOne();
+                            if (!queueItem.WasExecuted || queueItem.TimedOut)
+                            {
+                                Logger.Verbose($"ParseAndBind: binding queue did not complete the parse for '{scriptFile.ClientUri}'");
                                 return null;
-                            });
-
-                        if (!await queueItem.WaitForCompletionAsync(cancellationToken: cancellationToken)
-                            || !queueItem.WasExecuted
-                            || queueItem.TimedOut)
-                        {
-                            Logger.Verbose($"ParseAndBind: binding queue did not complete the parse for '{scriptFile.ClientUri}'");
-                            return null;
+                            }
                         }
                     }
+                    catch (Exception ex)
+                    {
+                        // reset the parse result to do a full parse next time
+                        parseInfo.ParseResult = null;
+                        Logger.Error($"ParseAndBind: unexpected error parsing '{scriptFile.ClientUri}': {ex}");
+                    }
+                    finally
+                    {
+                        Monitor.Exit(parseInfo.BuildingMetadataLock);
+                    }
                 }
-                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+                else
                 {
+                    Logger.Warning($"ParseAndBind: timed out waiting for the binding metadata lock for '{scriptFile.ClientUri}'");
                     return null;
                 }
-                catch (Exception ex)
-                {
-                    // reset the parse result to do a full parse next time
-                    parseInfo.ParseResult = null;
-                    Logger.Error($"ParseAndBind: unexpected error parsing '{scriptFile.ClientUri}': {ex}");
-                }
-                finally
-                {
-                    parseInfo.BuildingMetadataLock.Exit();
-                }
-            }
-            else
-            {
-                Logger.Warning($"ParseAndBind: timed out waiting for the binding metadata lock for '{scriptFile.ClientUri}'");
-                return null;
-            }
 
-            return parseInfo.ParseResult;
+                return parseInfo.ParseResult;
+            });
         }
 
         /// <summary>
         /// Runs parse on a separate thread to avoid blocking and crashing the main thread if the parser
         /// hangs or crashes.
         /// </summary>
-        private async Task<(bool Success, ParseResult ParseResult)> TryIncrementalParseAsync(
+        private bool TryIncrementalParse(
             string sqlText,
             ParseResult previousParseResult,
             ParseOptions parseOptions,
-            CancellationToken cancellationToken = default)
+            out ParseResult parseResult)
         {
-            bool parserSlotAcquired;
-            try
-            {
-                parserSlotAcquired = await this.ParserThreadThrottle.WaitAsync(
-                    this.ParserTimeout,
-                    cancellationToken);
-            }
-            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-            {
-                return (false, null);
-            }
+            ParseResult incrementalParseResult = null;
+            Exception parseException = null;
 
-            if (!parserSlotAcquired)
-            {
-                Logger.Warning($"No parser thread slot became available within {this.ParserTimeout} ms.");
-                return (false, null);
-            }
-
-            var completion = new TaskCompletionSource<(bool, ParseResult)>(
-                TaskCreationOptions.RunContinuationsAsynchronously);
-
-            ThreadStart parseOperation = () =>
+            Thread parseThread = this.CreateParseThread(() =>
             {
                 try
                 {
-                    ParseResult incrementalParseResult = this.IncrementalParse(
-                        sqlText,
-                        previousParseResult,
-                        parseOptions);
-                    if (incrementalParseResult == null)
-                    {
-                        Logger.Warning("Parser returned a null ParseResult.");
-                        completion.TrySetResult((false, null));
-                    }
-                    else
-                    {
-                        completion.TrySetResult((true, incrementalParseResult));
-                    }
+                    incrementalParseResult = this.IncrementalParse(sqlText, previousParseResult, parseOptions);
                 }
                 catch (Exception ex)
                 {
-                    Logger.Warning($"An unexpected error occurred while parsing: {ex}");
-                    completion.TrySetResult((false, null));
+                    parseException = ex;
                 }
-                finally
-                {
-                    this.ParserThreadThrottle.Release();
-                }
-            };
+            });
 
-            try
+            parseThread.Start();
+            parseThread.Join();
+            parseResult = incrementalParseResult;
+
+            if (parseException != null)
             {
-                Thread parseThread = this.CreateParseThread(parseOperation);
-                parseThread.Start();
-            }
-            catch (Exception ex)
-            {
-                Logger.Warning($"Failed to start parser thread: {ex}");
-                this.ParserThreadThrottle.Release();
-                completion.TrySetResult((false, null));
+                // Recoverable: caller resets ParseResult and performs a full parse on the next pass.
+                Logger.Warning($"An unexpected error occurred while parsing: {parseException}");
+                return false;
             }
 
-            using var timeoutCancellation = new CancellationTokenSource();
-            Task timeoutTask = Task.Delay(this.ParserTimeout, timeoutCancellation.Token);
-            Task cancellationTask = cancellationToken.CanBeCanceled
-                ? Task.Delay(Timeout.Infinite, cancellationToken)
-                : Task.Delay(Timeout.Infinite);
-            Task finishedTask = await Task.WhenAny(
-                completion.Task,
-                timeoutTask,
-                cancellationTask);
-
-            if (finishedTask == completion.Task)
+            if (incrementalParseResult == null)
             {
-                timeoutCancellation.Cancel();
-                return await completion.Task;
+                Logger.Warning("Parser returned a null ParseResult.");
+                return false;
             }
 
-            timeoutCancellation.Cancel();
-            if (finishedTask == cancellationTask)
-            {
-                Logger.Verbose("Parser completion was ignored because its binding operation was cancelled.");
-            }
-            else
-            {
-                Logger.Warning($"Parser did not complete within {this.ParserTimeout} ms.");
-            }
-
-            return (false, null);
+            return true;
         }
 
         internal virtual ParseResult IncrementalParse(
@@ -1659,7 +1573,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (!parseInfo.BuildingMetadataLock.TryEnter(ConnectedBindingQueue.BindingTimeout))
+            if (!Monitor.TryEnter(parseInfo.BuildingMetadataLock, ConnectedBindingQueue.BindingTimeout))
             {
                 return null;
             }
@@ -1688,7 +1602,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             }
             finally
             {
-                parseInfo.BuildingMetadataLock.Exit();
+                Monitor.Exit(parseInfo.BuildingMetadataLock);
             }
         }
 
@@ -1721,9 +1635,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             // Start task asynchronously without blocking main thread - this is by design.
             // Explanation: STS message queues are single-threaded queues, which should be unblocked as soon as possible.
             // All Long-running tasks should be performed in a non-blocking background task, and results should be sent when ready.
-            _ = Task.Run(() => UpdateLanguageServiceOnConnection(info))
-                .ContinueWithOnFaulted(task =>
-                    Logger.Error($"UpdateLanguageServiceOnConnection failed for '{info.OwnerUri}': {task.Exception}"));
+            Task.Factory.StartNew(() => UpdateLanguageServiceOnConnection(info));
             return Task.CompletedTask;
         }
 
@@ -1749,7 +1661,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 return;
             }
 
-            if (await scriptInfo.BuildingMetadataLock.TryEnterAsync(TSqlLanguageService.OnConnectionWaitTimeout))
+            if (Monitor.TryEnter(scriptInfo.BuildingMetadataLock, TSqlLanguageService.OnConnectionWaitTimeout))
             {
                 try
                 {
@@ -1767,15 +1679,14 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 {
                     // Set Metadata Build event to Signal state.
                     // (Tell Language Service that I am ready with Metadata Provider Object)
-                    scriptInfo.BuildingMetadataLock.Exit();
+                    Monitor.Exit(scriptInfo.BuildingMetadataLock);
                 }
             }
-            await PrepopulateCommonMetadata(info, scriptInfo, this.BindingQueue);
-
-            // Send a notification to signal that autocomplete is ready
-            await ServiceHostInstance.SendEvent(
-                IntelliSenseReadyNotification.Type,
-                new IntelliSenseReadyParams() { OwnerUri = info.OwnerUri });
+            await PrepopulateCommonMetadata(info, scriptInfo, this.BindingQueue).ContinueWith(async _ =>
+            {
+                // Send a notification to signal that autocomplete is ready
+                await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = info.OwnerUri });
+            });
         }
 
         /// <summary>
@@ -1799,7 +1710,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
                 // Stamp the .sqlproj URI itself
                 ScriptParseInfo scriptInfo = GetScriptParseInfo(projectUri, createIfNotExists: true);
-                if (await scriptInfo.BuildingMetadataLock.TryEnterAsync(TSqlLanguageService.OnConnectionWaitTimeout))
+                if (Monitor.TryEnter(scriptInfo.BuildingMetadataLock, TSqlLanguageService.OnConnectionWaitTimeout))
                 {
                     try
                     {
@@ -1809,7 +1720,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                     }
                     finally
                     {
-                        scriptInfo.BuildingMetadataLock.Exit();
+                        Monitor.Exit(scriptInfo.BuildingMetadataLock);
                     }
                 }
 
@@ -1838,7 +1749,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             foreach (string fileUri in fileUris)
             {
                 ScriptParseInfo scriptInfo = GetScriptParseInfo(fileUri, createIfNotExists: true);
-                if (scriptInfo.BuildingMetadataLock.TryEnter(TSqlLanguageService.OnConnectionWaitTimeout))
+                if (Monitor.TryEnter(scriptInfo.BuildingMetadataLock, TSqlLanguageService.OnConnectionWaitTimeout))
                 {
                     try
                     {
@@ -1848,7 +1759,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                     }
                     finally
                     {
-                        scriptInfo.BuildingMetadataLock.Exit();
+                        Monitor.Exit(scriptInfo.BuildingMetadataLock);
                     }
                 }
             }
@@ -1896,71 +1807,73 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                     return;
                 }
 
-                await ParseAndBind(scriptFile, info);
-                if (await scriptInfo.BuildingMetadataLock.TryEnterAsync(TSqlLanguageService.OnConnectionWaitTimeout))
+                await ParseAndBind(scriptFile, info).ContinueWith(t =>
                 {
-                    try
+                    if (Monitor.TryEnter(scriptInfo.BuildingMetadataLock, TSqlLanguageService.OnConnectionWaitTimeout))
                     {
-                        QueueItem queueItem = bindingQueue.QueueBindingOperation(
-                            key: scriptInfo.ConnectionKey,
-                            bindingTimeout: PrepopulateBindTimeout,
-                            waitForLockTimeout: PrepopulateBindTimeout,
-                            bindOperation: (bindingContext, cancelToken) =>
-                            {
-                                // parse a simple statement that returns common metadata
-                                ParseResult parseResult = Parser.Parse(
-                                    "select ",
-                                    bindingContext.ParseOptions);
-                                if (bindingContext.IsConnected && bindingContext.Binder != null)
+                        try
+                        {
+                            QueueItem queueItem = bindingQueue.QueueBindingOperation(
+                                key: scriptInfo.ConnectionKey,
+                                bindingTimeout: PrepopulateBindTimeout,
+                                waitForLockTimeout: PrepopulateBindTimeout,
+                                bindOperation: (bindingContext, cancelToken) =>
                                 {
-                                    List<ParseResult> parseResults = new List<ParseResult>();
-                                    parseResults.Add(parseResult);
-                                    bindingContext.Binder.Bind(
-                                        parseResults,
-                                        info.ConnectionDetails.DatabaseName,
-                                        BindMode.Batch);
-
-                                    // get the completion list from SQL Parser
-                                    var suggestions = Resolver.FindCompletions(
-                                        parseResult, 1, 8,
-                                        bindingContext.MetadataDisplayInfoProvider);
-
-                                    // this forces lazy evaluation of the suggestion metadata
-                                    AutoCompleteHelper.ConvertDeclarationsToCompletionItems(suggestions, 1, 8, 8);
-
-                                    parseResult = Parser.Parse(
-                                        "exec ",
+                                    // parse a simple statement that returns common metadata
+                                    ParseResult parseResult = Parser.Parse(
+                                        "select ",
                                         bindingContext.ParseOptions);
+                                    if (bindingContext.IsConnected && bindingContext.Binder != null)
+                                    {
+                                        List<ParseResult> parseResults = new List<ParseResult>();
+                                        parseResults.Add(parseResult);
+                                        bindingContext.Binder.Bind(
+                                            parseResults,
+                                            info.ConnectionDetails.DatabaseName,
+                                            BindMode.Batch);
 
-                                    parseResults = new List<ParseResult>();
-                                    parseResults.Add(parseResult);
-                                    bindingContext.Binder.Bind(
-                                        parseResults,
-                                        info.ConnectionDetails.DatabaseName,
-                                        BindMode.Batch);
+                                        // get the completion list from SQL Parser
+                                        var suggestions = Resolver.FindCompletions(
+                                            parseResult, 1, 8,
+                                            bindingContext.MetadataDisplayInfoProvider);
 
-                                    // get the completion list from SQL Parser
-                                    suggestions = Resolver.FindCompletions(
-                                        parseResult, 1, 6,
-                                        bindingContext.MetadataDisplayInfoProvider);
+                                        // this forces lazy evaluation of the suggestion metadata
+                                        AutoCompleteHelper.ConvertDeclarationsToCompletionItems(suggestions, 1, 8, 8);
 
-                                    // this forces lazy evaluation of the suggestion metadata
-                                    AutoCompleteHelper.ConvertDeclarationsToCompletionItems(suggestions, 1, 6, 6);
-                                }
-                                return null;
-                            });
+                                        parseResult = Parser.Parse(
+                                            "exec ",
+                                            bindingContext.ParseOptions);
 
-                        await queueItem.WaitForCompletionAsync();
+                                        parseResults = new List<ParseResult>();
+                                        parseResults.Add(parseResult);
+                                        bindingContext.Binder.Bind(
+                                            parseResults,
+                                            info.ConnectionDetails.DatabaseName,
+                                            BindMode.Batch);
+
+                                        // get the completion list from SQL Parser
+                                        suggestions = Resolver.FindCompletions(
+                                            parseResult, 1, 6,
+                                            bindingContext.MetadataDisplayInfoProvider);
+
+                                        // this forces lazy evaluation of the suggestion metadata
+                                        AutoCompleteHelper.ConvertDeclarationsToCompletionItems(suggestions, 1, 6, 6);
+                                    }
+                                    return null;
+                                });
+
+                            queueItem.ItemProcessed.WaitOne();
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Error("Exception in PrepopulateCommonMetadata " + ex.ToString());
+                        }
+                        finally
+                        {
+                            Monitor.Exit(scriptInfo.BuildingMetadataLock);
+                        }
                     }
-                    catch (Exception ex)
-                    {
-                        Logger.Error("Exception in PrepopulateCommonMetadata " + ex.ToString());
-                    }
-                    finally
-                    {
-                        scriptInfo.BuildingMetadataLock.Exit();
-                    }
-                }
+                });
             }
         }
 
@@ -2017,12 +1930,12 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// Resolves the details and documentation for a completion item
         /// </summary>
         /// <param name="completionItem"></param>
-        internal virtual async Task<CompletionItem> ResolveCompletionItem(CompletionItem completionItem)
+        internal virtual CompletionItem ResolveCompletionItem(CompletionItem completionItem)
         {
             var scriptParseInfo = currentCompletionParseInfo;
             if (scriptParseInfo != null && scriptParseInfo.CurrentSuggestions != null)
             {
-                if (scriptParseInfo.BuildingMetadataLock.TryEnter())
+                if (Monitor.TryEnter(scriptParseInfo.BuildingMetadataLock))
                 {
                     try
                     {
@@ -2043,7 +1956,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                                 return completionItem;
                             });
 
-                        await queueItem.WaitForCompletionAsync();
+                        queueItem.ItemProcessed.WaitOne();
                     }
                     catch (Exception ex)
                     {
@@ -2053,7 +1966,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                     }
                     finally
                     {
-                        scriptParseInfo.BuildingMetadataLock.Exit();
+                        Monitor.Exit(scriptParseInfo.BuildingMetadataLock);
                     }
                 }
             }
@@ -2073,7 +1986,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// <param name="scriptFile"></param>
         /// <param name="tokenText"></param>
         /// <returns> Returns the result of the task as a DefinitionResult </returns>
-        private async Task<DefinitionResult> QueueTask(TextDocumentPosition textDocumentPosition, ScriptParseInfo scriptParseInfo,
+        private DefinitionResult QueueTask(TextDocumentPosition textDocumentPosition, ScriptParseInfo scriptParseInfo,
                                             ConnectionInfoBase connInfo, ScriptFile scriptFile, string tokenText)
         {
             // Queue the task with the binding queue
@@ -2129,7 +2042,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 });
 
             // wait for the queue item
-            await queueItem.WaitForCompletionAsync();
+            queueItem.ItemProcessed.WaitOne();
             var result = queueItem.GetResultAsT<DefinitionResult>();
             return result;
         }
@@ -2154,22 +2067,18 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// Returns <c>null</c> when IntelliSense is disabled, the file is not found, or it is not a
         /// project file.  Returns an empty array when the symbol could not be resolved.
         /// </summary>
-        private sealed class ProjectSymbolLocationsResult
+        /// <param name="qualifiedNameOut">The resolved schema-qualified name (e.g. "dbo.Customers") used for refactorlog lookup; null on failure.</param>
+        /// <param name="providerOut">The <see cref="TSqlModelMetadataProvider"/> resolved for the project; null on failure.</param>
+        /// <param name="tokenTextOut">The bare (unbracketed) token text at the cursor; null on failure.</param>
+        internal Location[] FindProjectSymbolLocations(
+            string fileUri, int line0, int col0,
+            out string qualifiedNameOut,
+            out TSqlModelMetadataProvider providerOut,
+            out string tokenTextOut)
         {
-            internal Location[] Locations { get; set; }
-
-            internal string QualifiedName { get; set; }
-
-            internal TSqlModelMetadataProvider Provider { get; set; }
-
-            internal string TokenText { get; set; }
-        }
-
-        private async Task<ProjectSymbolLocationsResult> FindProjectSymbolLocationsCoreAsync(
-            string fileUri,
-            int line0,
-            int col0)
-        {
+            qualifiedNameOut = null;
+            providerOut = null;
+            tokenTextOut = null;
 
             if (ShouldSkipIntellisense(fileUri))
                 return null;
@@ -2184,7 +2093,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
             if (RequiresReparse(scriptParseInfo, scriptFile))
             {
-                scriptParseInfo.ParseResult = await ParseAndBind(scriptFile, null);
+                scriptParseInfo.ParseResult = ParseAndBind(scriptFile, null).GetAwaiter().GetResult();
             }
 
             // Resolve the project URI from the context key so we can access the provider directly.
@@ -2199,13 +2108,13 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 !this.BindingQueue.BindingContextMap.TryGetValue(contextKey, out var bindCtx) ||
                 bindCtx is not ConnectedBindingContext connBindCtx ||
                 connBindCtx.MetadataProvider is not TSqlModelMetadataProvider provider)
-                return new ProjectSymbolLocationsResult { Locations = Array.Empty<Location>() };
+                return Array.Empty<Location>();
 
             // Step 1+2: resolve the clicked name (and any schema-qualified prefix) from the editor
             // buffer using the ScriptDom token stream.
             if (!RenameScriptDomHelper.TryResolveCursorName(scriptFile.Contents, line0, col0, out string tokenText, out string qualifiedName)
                 || string.IsNullOrWhiteSpace(tokenText))
-                return new ProjectSymbolLocationsResult { Locations = Array.Empty<Location>() };
+                return Array.Empty<Location>();
 
             // Normalize schema-qualified names: strip leading db-prefix segments until
             // the model recognises the name (handles 3-part names like MyDb.dbo.Customers → dbo.Customers).
@@ -2239,7 +2148,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             catch (Exception ex)
             {
                 Logger.Error($"FindProjectSymbolLocations: GetDefiningFilePath failed: {ex}");
-                return new ProjectSymbolLocationsResult { Locations = Array.Empty<Location>() };
+                return Array.Empty<Location>();
             }
 
             // Only add files if we can successfully get ALL references.
@@ -2257,7 +2166,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 catch (Exception ex)
                 {
                     Logger.Error($"FindProjectSymbolLocations: GetReferencingFilePaths failed: {ex}");
-                    return new ProjectSymbolLocationsResult { Locations = Array.Empty<Location>() };
+                    return Array.Empty<Location>();
                 }
             }
 
@@ -2268,18 +2177,15 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 catch (Exception ex) { Logger.Verbose($"FindProjectSymbolLocations: error scanning '{filePath}': {ex.Message}"); }
             }
 
-            return new ProjectSymbolLocationsResult
-            {
-                Locations = results.ToArray(),
-                QualifiedName = qualifiedName,
-                Provider = provider,
-                TokenText = tokenText,
-            };
+            qualifiedNameOut = qualifiedName;
+            providerOut = provider;
+            tokenTextOut = tokenText;
+            return results.ToArray();
         }
 
         // Overload for callers that only need the locations (references handler, tests).
-        internal async Task<Location[]> FindProjectSymbolLocations(string fileUri, int line0, int col0)
-            => (await FindProjectSymbolLocationsCoreAsync(fileUri, line0, col0))?.Locations;
+        internal Location[] FindProjectSymbolLocations(string fileUri, int line0, int col0)
+            => FindProjectSymbolLocations(fileUri, line0, col0, out _, out _, out _);
 
         /// <summary>
         /// Handles LSP <c>textDocument/references</c> — returns all locations where the SQL object
@@ -2288,7 +2194,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// </summary>
         internal async Task HandleReferencesRequest(ReferencesParams referencesParams, RequestContext<Location[]> requestContext)
         {
-            var locations = await FindProjectSymbolLocations(
+            var locations = FindProjectSymbolLocations(
                 referencesParams.TextDocument.Uri,
                 referencesParams.Position.Line,
                 referencesParams.Position.Character);
@@ -2366,14 +2272,13 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 return;
             }
 
-            ProjectSymbolLocationsResult resolution = await FindProjectSymbolLocationsCoreAsync(
+            var locations = FindProjectSymbolLocations(
                 renameParams.TextDocument.Uri,
                 renameParams.Position.Line,
-                renameParams.Position.Character);
-            Location[] locations = resolution?.Locations;
-            string qualifiedName = resolution?.QualifiedName;
-            TSqlModelMetadataProvider provider = resolution?.Provider;
-            string tokenText = resolution?.TokenText;
+                renameParams.Position.Character,
+                out string qualifiedName,
+                out TSqlModelMetadataProvider provider,
+                out string tokenText);
 
             if (locations == null)
             {
@@ -2487,14 +2392,13 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             SqlMoveToSchemaParams moveParams,
             RequestContext<SqlMoveToSchemaResponse> requestContext)
         {
-            ProjectSymbolLocationsResult resolution = await FindProjectSymbolLocationsCoreAsync(
+            var locations = FindProjectSymbolLocations(
                 moveParams.TextDocument.Uri,
                 moveParams.Position.Line,
-                moveParams.Position.Character);
-            Location[] locations = resolution?.Locations;
-            string qualifiedName = resolution?.QualifiedName;
-            TSqlModelMetadataProvider provider = resolution?.Provider;
-            string tokenText = resolution?.TokenText;
+                moveParams.Position.Character,
+                out string qualifiedName,
+                out TSqlModelMetadataProvider provider,
+                out string tokenText);
 
             if (locations == null || locations.Length == 0 || provider == null || qualifiedName == null)
             {
@@ -2690,7 +2594,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
         #endregion
 
-        private async Task<DefinitionResult> GetDefinitionFromTokenList(TextDocumentPosition textDocumentPosition, List<Token> tokenList,
+        private DefinitionResult GetDefinitionFromTokenList(TextDocumentPosition textDocumentPosition, List<Token> tokenList,
                 ScriptParseInfo scriptParseInfo, ScriptFile scriptFile, ConnectionInfoBase connInfo)
         {
 
@@ -2703,11 +2607,11 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 string tokenText = TextUtilities.RemoveSquareBracketSyntax(token.Text);
                 textDocumentPosition.Position.Line = token.StartLocation.LineNumber;
                 textDocumentPosition.Position.Character = token.StartLocation.ColumnNumber;
-                if (scriptParseInfo.BuildingMetadataLock.TryEnter())
+                if (Monitor.TryEnter(scriptParseInfo.BuildingMetadataLock))
                 {
                     try
                     {
-                        var result = await QueueTask(textDocumentPosition, scriptParseInfo, connInfo, scriptFile, tokenText);
+                        var result = QueueTask(textDocumentPosition, scriptParseInfo, connInfo, scriptFile, tokenText);
                         lastResult = result;
                         if (!result.IsErrorResult)
                         {
@@ -2727,7 +2631,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                     }
                     finally
                     {
-                        scriptParseInfo.BuildingMetadataLock.Exit();
+                        Monitor.Exit(scriptParseInfo.BuildingMetadataLock);
                     }
                 }
                 else
@@ -2745,7 +2649,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// <param name="scriptFile"></param>
         /// <param name="connInfo"></param>
         /// <returns> Location with the URI of the script file</returns>
-        internal virtual async Task<DefinitionResult> GetDefinition(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile, ConnectionInfoBase connInfo)
+        internal virtual DefinitionResult GetDefinition(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile, ConnectionInfoBase connInfo)
         {
             // Parse sql
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(scriptFile.ClientUri);
@@ -2757,12 +2661,12 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             // Project file: route directly to the offline engine — no token peeling, raw position only.
             if (scriptParseInfo.IsProject)
             {
-                scriptParseInfo.ParseResult = await ParseAndBind(scriptFile, null);
-                return await QueueProjectTask(textDocumentPosition, scriptParseInfo);
+                scriptParseInfo.ParseResult = ParseAndBind(scriptFile, null).GetAwaiter().GetResult();
+                return QueueProjectTask(textDocumentPosition, scriptParseInfo);
             }
             if (RequiresReparse(scriptParseInfo, scriptFile))
             {
-                scriptParseInfo.ParseResult = await ParseAndBind(scriptFile, connInfo);
+                scriptParseInfo.ParseResult = ParseAndBind(scriptFile, connInfo).GetAwaiter().GetResult();
             }
 
             // Get token from selected text
@@ -2779,7 +2683,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 //try children tokens first
                 Stack<Token> childrenTokens = selectedToken.Item1;
                 List<Token> tokenList = childrenTokens.ToList();
-                DefinitionResult childrenResult = await GetDefinitionFromTokenList(textDocumentPosition, tokenList, scriptParseInfo, scriptFile, connInfo);
+                DefinitionResult childrenResult = GetDefinitionFromTokenList(textDocumentPosition, tokenList, scriptParseInfo, scriptFile, connInfo);
 
                 // if the children peak definition returned null then
                 // try the parents
@@ -2787,7 +2691,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 {
                     Queue<Token> parentTokens = selectedToken.Item2;
                     tokenList = parentTokens.ToList();
-                    DefinitionResult parentResult = await GetDefinitionFromTokenList(textDocumentPosition, tokenList, scriptParseInfo, scriptFile, connInfo);
+                    DefinitionResult parentResult = GetDefinitionFromTokenList(textDocumentPosition, tokenList, scriptParseInfo, scriptFile, connInfo);
                     return (parentResult == null) ? null : parentResult;
                 }
                 else
@@ -2810,7 +2714,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// <summary>
         /// Queues a Go-to-Definition operation for a SQL project file via the project binding context.
         /// </summary>
-        private async Task<DefinitionResult> QueueProjectTask(
+        private DefinitionResult QueueProjectTask(
             TextDocumentPosition textDocumentPosition,
             ScriptParseInfo scriptParseInfo)
         {
@@ -2899,7 +2803,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                     Locations = null
                 });
 
-            await queueItem.WaitForCompletionAsync();
+            queueItem.ItemProcessed.WaitOne();
             return queueItem.GetResultAsT<DefinitionResult>();
         }
 
@@ -3029,7 +2933,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// </summary>
         /// <param name="textDocumentPosition"></param>
         /// <param name="scriptFile"></param>
-        internal virtual async Task<Hover> GetHoverItem(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile)
+        internal virtual Hover GetHoverItem(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile)
         {
             int startLine = textDocumentPosition.Position.Line;
             int startColumn = TextUtilities.PositionOfPrevDelimeter(
@@ -3041,7 +2945,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(scriptFile.ClientUri);
             if (scriptParseInfo != null && scriptParseInfo.ParseResult != null)
             {
-                if (scriptParseInfo.BuildingMetadataLock.TryEnter())
+                if (Monitor.TryEnter(scriptParseInfo.BuildingMetadataLock))
                 {
                     try
                     {
@@ -3065,12 +2969,12 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                                         endColumn);
                             });
 
-                        await queueItem.WaitForCompletionAsync();
+                        queueItem.ItemProcessed.WaitOne();
                         return queueItem.GetResultAsT<Hover>();
                     }
                     finally
                     {
-                        scriptParseInfo.BuildingMetadataLock.Exit();
+                        Monitor.Exit(scriptParseInfo.BuildingMetadataLock);
                     }
                 }
             }
@@ -3114,7 +3018,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
             if (scriptParseInfo.ParseResult != null)
             {
-                if (scriptParseInfo.BuildingMetadataLock.TryEnter())
+                if (Monitor.TryEnter(scriptParseInfo.BuildingMetadataLock))
                 {
                     try
                     {
@@ -3150,7 +3054,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                                     return null;
                                 }
                             });
-                        await queueItem.WaitForCompletionAsync();
+                        queueItem.ItemProcessed.WaitOne();
                         Logger.Verbose($"GetSignatureHelp - Got result {queueItem.Result}");
                         return queueItem.GetResultAsT<SignatureHelp>();
                     }
@@ -3160,7 +3064,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                     }
                     finally
                     {
-                        scriptParseInfo.BuildingMetadataLock.Exit();
+                        Monitor.Exit(scriptParseInfo.BuildingMetadataLock);
                     }
                 }
             }
@@ -3241,7 +3145,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
             ScriptDocumentInfo scriptDocumentInfo;
             Stopwatch buildingMetadataLockStopwatch = Stopwatch.StartNew();
-            if (!await scriptParseInfo.BuildingMetadataLock.TryEnterAsync(ConnectedBindingQueue.BindingTimeout))
+            if (!Monitor.TryEnter(scriptParseInfo.BuildingMetadataLock, ConnectedBindingQueue.BindingTimeout))
             {
                 Logger.Warning($"Completion for '{scriptFile.ClientUri}' timed out after {buildingMetadataLockStopwatch.ElapsedMilliseconds} ms waiting for BuildingMetadataLock");
                 return null;
@@ -3261,7 +3165,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             }
             finally
             {
-                scriptParseInfo.BuildingMetadataLock.Exit();
+                Monitor.Exit(scriptParseInfo.BuildingMetadataLock);
                 Logger.Verbose($"Completion for '{scriptFile.ClientUri}' released BuildingMetadataLock after holding it for {buildingMetadataLockStopwatch.ElapsedMilliseconds} ms");
             }
 
@@ -3275,11 +3179,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 return resultCompletionItems;
             }
 
-            AutoCompletionResult result = await completionService.CreateCompletions(
-                connInfo,
-                scriptDocumentInfo,
-                useLowerCaseSuggestions,
-                cancellationToken);
+            AutoCompletionResult result = completionService.CreateCompletions(connInfo, scriptDocumentInfo, useLowerCaseSuggestions);
             if (result == null)
             {
                 Logger.Verbose($"Stopping completion for {scriptFile.ClientUri} because the binding operation timed out");
@@ -3452,29 +3352,15 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// Gets a list of semantic diagnostic marks for the provided script file
         /// </summary>
         /// <param name="scriptFile"></param>
-        internal async Task<ScriptFileMarker[]> GetSemanticMarkers(
-            ScriptFile scriptFile,
-            CancellationToken cancellationToken = default)
+        internal async Task<ScriptFileMarker[]> GetSemanticMarkers(ScriptFile scriptFile)
         {
             ConnectionInfoBase connInfo;
             ConnectionServiceInstance.TryFindConnection(
                 scriptFile.ClientUri,
                 out connInfo);
-            var parseResult = await ParseAndBind(
-                scriptFile,
-                connInfo,
-                DiagnosticsLockWaitTimeout,
-                cancellationToken);
+            var parseResult = await ParseAndBind(scriptFile, connInfo);
 
             _ = CheckForNonTSqlLanguage(scriptFile.ClientUri, parseResult);
-
-            if (parseResult == null)
-            {
-                // The parse did not complete (lock or queue timeout), so there is nothing new to
-                // report. Returning null keeps the diagnostics the editor already shows instead
-                // of clearing them.
-                return null;
-            }
 
             // For project files the binder fires spurious "already exists" bind errors because
             // every DDL object in the edited file is also pre-loaded into the TSqlModel (own-
@@ -3545,11 +3431,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// </summary>
         /// <param name="filesToAnalyze"></param>
         /// <param name="eventContext"></param>
-        /// <param name="isSweep">
-        /// True for a refresh of several documents after a model or settings change. Sweeps and
-        /// single-document runs each supersede only the previous run of their own kind.
-        /// </param>
-        private Task RunScriptDiagnostics(ScriptFile[] filesToAnalyze, EventContext eventContext, bool isSweep = false)
+        private Task RunScriptDiagnostics(ScriptFile[] filesToAnalyze, EventContext eventContext)
         {
             if (!CurrentWorkspaceSettings.IsDiagnosticsEnabled)
             {
@@ -3557,87 +3439,55 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 return Task.FromResult(true);
             }
 
-            string scope = GetDiagnosticsScope(filesToAnalyze, isSweep);
-            var cancellation = new CancellationTokenSource();
-            lock (this.diagnosticsRunLock)
+            // If there's an existing task, attempt to cancel it
+            try
             {
-                if (this.diagnosticsRuns.TryGetValue(scope, out CancellationTokenSource previousRun))
+                if (existingRequestCancellation != null)
                 {
-                    // The previous worker owns disposal. Cancel while holding the ownership lock so
-                    // it cannot remove and dispose its source between lookup and cancellation.
-                    previousRun.Cancel();
+                    // Try to cancel the request
+                    existingRequestCancellation.Cancel();
+
+                    // If cancellation didn't throw an exception,
+                    // clean up the existing token
+                    existingRequestCancellation.Dispose();
+                    existingRequestCancellation = null;
                 }
-                this.diagnosticsRuns[scope] = cancellation;
+            }
+            catch (Exception e)
+            {
+                Logger.Error(string.Format("Exception while cancelling analysis task:\n\n{0}", e.ToString()));
+
+                TaskCompletionSource<bool> cancelTask = new TaskCompletionSource<bool>();
+                cancelTask.SetCanceled();
+                return cancelTask.Task;
             }
 
+            // Create a fresh cancellation token and then start the task.
+            // We create this on a different TaskScheduler so that we
+            // don't block the main message loop thread.
+            existingRequestCancellation = new CancellationTokenSource();
+            // Capture this request's token now. The task below starts later, and by then a newer
+            // request may have replaced the field, which would leave this request holding the
+            // newer token and unable to tell that it has been superseded.
+            CancellationToken cancellationToken = existingRequestCancellation.Token;
             // Large scripts take much longer to parse, so debounce them longer: only refresh after the user has
             // truly stopped typing, so resuming after a brief pause doesn't collide with an in-flight parse.
             int diagnosticParseDelay = CurrentWorkspaceSettings.IsLargeScriptOptimizationEnabled
                 && filesToAnalyze.Any(f => (f?.Contents?.Length ?? 0) > LargeScriptCompletionThresholdChars)
                 ? LargeScriptDiagnosticParseDelay
                 : DiagnosticParseDelay;
-            this.DelayedDiagnosticsTask = RunDiagnosticsWorkerAsync(
-                scope,
-                cancellation,
-                diagnosticParseDelay,
-                filesToAnalyze,
-                eventContext);
+            Task.Factory.StartNew(
+                () =>
+                    this.DelayedDiagnosticsTask = DelayThenInvokeDiagnostics(
+                        diagnosticParseDelay,
+                        filesToAnalyze,
+                        eventContext,
+                        cancellationToken),
+                CancellationToken.None,
+                TaskCreationOptions.None,
+                TaskScheduler.Default);
 
             return Task.FromResult(true);
-        }
-
-        private string GetDiagnosticsScope(ScriptFile[] filesToAnalyze, bool isSweep)
-        {
-            string firstUri = filesToAnalyze?.FirstOrDefault()?.ClientUri ?? string.Empty;
-            if (!isSweep)
-            {
-                return $"document:{NormalizeUri(firstUri)}";
-            }
-
-            if (!string.IsNullOrEmpty(firstUri)
-                && TryGetProjectUriForSqlFile(firstUri, out string projectUri))
-            {
-                return $"project:{NormalizeUri(projectUri)}";
-            }
-
-            return "workspace-sweep";
-        }
-
-        private async Task RunDiagnosticsWorkerAsync(
-            string scope,
-            CancellationTokenSource cancellation,
-            int delayMilliseconds,
-            ScriptFile[] filesToAnalyze,
-            EventContext eventContext)
-        {
-            try
-            {
-                await DelayThenInvokeDiagnostics(
-                    delayMilliseconds,
-                    filesToAnalyze,
-                    eventContext,
-                    cancellation.Token);
-            }
-            catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
-            {
-                // Superseded by a newer run for the same document/project.
-            }
-            catch (Exception ex)
-            {
-                Logger.Error($"Diagnostics run for '{scope}' failed: {ex}");
-            }
-            finally
-            {
-                lock (this.diagnosticsRunLock)
-                {
-                    if (this.diagnosticsRuns.TryGetValue(scope, out CancellationTokenSource current)
-                        && ReferenceEquals(current, cancellation))
-                    {
-                        this.diagnosticsRuns.Remove(scope);
-                    }
-                    cancellation.Dispose();
-                }
-            }
         }
 
         /// <summary>
@@ -3653,8 +3503,6 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             EventContext eventContext,
             CancellationToken cancellationToken)
         {
-            var activeAnalyses = new List<Task>();
-
             // First of all, wait for the desired delay period before
             // analyzing the provided list of files
             try
@@ -3667,98 +3515,72 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 return;
             }
 
-            // Once the delay has passed the sweep starts, but it checks for cancellation before
-            // each file: a newer diagnostics request supersedes this one, and the files it still
-            // covers are analyzed by that request instead of twice.
+            // If we've made it past the delay period then the first file is
+            // analyzed and published regardless of the cancellation token.
+            // This could happen when the user stops typing for long enough
+            // that the delay period ends but then starts typing while analysis
+            // is going on.  It makes sense to send back the results from the
+            // first delay period while the second one is ticking away.
+            //
+            // Any further files are analyzed one at a time, and only while this
+            // request is still the newest one. Each analysis occupies a thread
+            // pool thread until the binding queue has processed it, and the
+            // queue dispatches on that same pool. Starting every file at once
+            // let a refresh of many files take every pool thread, leaving none
+            // for the queue to release them with, which hung the whole service
+            // (microsoft/vscode-mssql#22920). Files that share a binding context
+            // gained nothing from the concurrency anyway: they do not wait for
+            // the context's lock, so all but the first lost the race for it and
+            // had their diagnostics cleared instead of refreshed.
+            bool analysisStarted = false;
 
             // Get the requested files
-            try
+            foreach (ScriptFile scriptFile in filesToAnalyze)
             {
-                foreach (ScriptFile scriptFile in filesToAnalyze)
+                if (analysisStarted && cancellationToken.IsCancellationRequested)
                 {
-                    if (cancellationToken.IsCancellationRequested)
-                    {
-                        Logger.Verbose("Diagnostics sweep superseded; skipping the remaining files");
-                        return;
-                    }
-
-                    try
-                    {
-                        if (IsPreviewWindow(scriptFile))
-                        {
-                            continue;
-                        }
-                        else if (ShouldSkipNonMssqlFile(scriptFile.ClientUri))
-                        {
-                            // Clear out any existing markers in case file type was changed
-                            await DiagnosticsHelper.ClearScriptDiagnostics(scriptFile.ClientUri, eventContext);
-                            continue;
-                        }
-
-                        Logger.Verbose("Analyzing script file: " + scriptFile.FilePath);
-
-                        // Keep the worker alive until every analysis it started has completed. This
-                        // makes cancellation ownership cover publication as well as queue admission.
-                        await this.diagnosticsThrottle.WaitAsync(cancellationToken);
-                        activeAnalyses.Add(PublishSemanticMarkersAndReleaseThrottleAsync(
-                            scriptFile,
-                            eventContext,
-                            cancellationToken));
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        Logger.Verbose($"Diagnostics sweep superseded before analyzing {scriptFile.FilePath}");
-                        return;
-                    }
-                    catch (Exception e)
-                    {
-                        // If any errors occur while starting up the analyze task for a script file then just log it and move on so
-                        // we at least try to analyze the other files
-                        Logger.Error($"Error while starting to analyze script file {scriptFile.FilePath}: {e}");
-                    }
+                    Logger.Verbose("Diagnostics request superseded by a newer one; skipping the remaining files");
+                    return;
                 }
-            }
-            finally
-            {
-                await Task.WhenAll(activeAnalyses);
-            }
-        }
 
-        private async Task PublishSemanticMarkersAndReleaseThrottleAsync(
-            ScriptFile scriptFile,
-            EventContext eventContext,
-            CancellationToken cancellationToken)
-        {
-            try
-            {
-                await PublishSemanticMarkersAsync(
-                    scriptFile,
-                    GetSemanticMarkers(scriptFile, cancellationToken),
-                    eventContext,
-                    cancellationToken);
-            }
-            finally
-            {
-                this.diagnosticsThrottle.Release();
+                try
+                {
+                    if (IsPreviewWindow(scriptFile))
+                    {
+                        continue;
+                    }
+                    else if (ShouldSkipNonMssqlFile(scriptFile.ClientUri))
+                    {
+                        // Clear out any existing markers in case file type was changed
+                        await DiagnosticsHelper.ClearScriptDiagnostics(scriptFile.ClientUri, eventContext);
+                        continue;
+                    }
+
+                    Logger.Verbose("Analyzing script file: " + scriptFile.FilePath);
+                    analysisStarted = true;
+
+                    // Waiting here does not hold up the message loop: RunScriptDiagnostics starts this
+                    // method on the thread pool, so STS message queues are unblocked before analysis begins.
+                    await PublishSemanticMarkersAsync(scriptFile, GetSemanticMarkers(scriptFile), eventContext);
+                }
+                catch (Exception e)
+                {
+                    // If any errors occur while analyzing a script file then just log it and move on so
+                    // we at least try to analyze the other files
+                    Logger.Error($"Error while analyzing script file {scriptFile.FilePath}: {e}");
+                }
+
             }
         }
 
         internal async Task PublishSemanticMarkersAsync(
             ScriptFile scriptFile,
             Task<ScriptFileMarker[]> semanticMarkersTask,
-            EventContext eventContext,
-            CancellationToken cancellationToken = default)
+            EventContext eventContext)
         {
             try
             {
                 ScriptFileMarker[] semanticMarkers = await semanticMarkersTask;
-                cancellationToken.ThrowIfCancellationRequested();
-                if (semanticMarkers == null)
-                {
-                    Logger.Verbose($"Analysis of script file did not complete, keeping current diagnostics: {scriptFile.FilePath}");
-                    return;
-                }
-
                 Logger.Verbose($"Analysis complete for script file: {scriptFile.FilePath}");
 
                 // Serialize the final flavor check and publish with flavor changes so completed analysis cannot
@@ -3767,16 +3589,11 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                     scriptFile.ClientUri,
                     async () =>
                     {
-                        cancellationToken.ThrowIfCancellationRequested();
                         if (!ShouldSkipNonMssqlFile(scriptFile.ClientUri))
                         {
                             await DiagnosticsHelper.PublishScriptDiagnostics(scriptFile, semanticMarkers, eventContext);
                         }
                     });
-            }
-            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-            {
-                Logger.Verbose($"Analysis superseded before publishing diagnostics: {scriptFile.FilePath}");
             }
             catch (Exception ex)
             {
@@ -4028,22 +3845,6 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
         public void Dispose()
         {
-            lock (this._intelliSenseUpdateDebounceLock)
-            {
-                foreach (CancellationTokenSource cancellation in this._intelliSenseUpdateDebounce.Values)
-                {
-                    cancellation.Cancel();
-                }
-            }
-
-            lock (this.diagnosticsRunLock)
-            {
-                foreach (CancellationTokenSource cancellation in this.diagnosticsRuns.Values)
-                {
-                    cancellation.Cancel();
-                }
-            }
-
             if (bindingQueue != null)
             {
                 bindingQueue.Dispose();

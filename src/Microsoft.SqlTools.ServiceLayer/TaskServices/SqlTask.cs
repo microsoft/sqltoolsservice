@@ -112,20 +112,26 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         public async Task RunAsync()
         {
             TaskStatus = SqlTaskStatus.InProgress;
-            try
+            await RunAndCancel().ContinueWith(task =>
             {
-                TaskResult taskResult = await RunAndCancel();
-                TaskStatus = taskResult.TaskStatus;
-            }
-            catch (OperationCanceledException)
-            {
-                TaskStatus = SqlTaskStatus.Canceled;
-            }
-            catch (Exception ex)
-            {
-                TaskStatus = SqlTaskStatus.Failed;
-                AddMessage(ex.Message);
-            }
+                if (task.IsCompleted && !task.IsCanceled && !task.IsFaulted)
+                {
+                    TaskResult taskResult = task.Result;
+                    TaskStatus = taskResult.TaskStatus;
+                }
+                else if (task.IsCanceled)
+                {
+                    TaskStatus = SqlTaskStatus.Canceled;
+                }
+                else if (task.IsFaulted)
+                {
+                    TaskStatus = SqlTaskStatus.Failed;
+                    if (task.Exception != null)
+                    {
+                        AddMessage(task.Exception.Message);
+                    }
+                }
+            });
         }
 
         /// <summary>
@@ -144,20 +150,18 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
 
             try
             {
-                using (CancellationTokenSource cancellationWatcherStop = new CancellationTokenSource())
+                using (AutoResetEvent onCompletedEvent = new AutoResetEvent(initialState: false))
                 {
                     if (TaskToCancel != null)
                     {
-                        Task<TaskResult> cancelTask = CancelTaskAsync(
-                            TokenSource.Token,
-                            cancellationWatcherStop.Token);
+                        Task<TaskResult> cancelTask = Task.Run(() => CancelTaskAsync(TokenSource.Token, onCompletedEvent));
 
                         completedTask = await Task.WhenAny(performTask, cancelTask);
 
+                        // Release the cancelTask
                         if (completedTask == performTask)
                         {
-                            cancellationWatcherStop.Cancel();
-                            await cancelTask;
+                            onCompletedEvent.Set();
                         }
                     }
                     else
@@ -165,10 +169,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
                         completedTask = await Task.WhenAny(performTask);
                     }
 
-                    taskResult = await completedTask;
-                    AddMessage(
-                        taskResult.TaskStatus == SqlTaskStatus.Failed ? taskResult.ErrorMessage : SR.TaskCompleted,
-                        taskResult.TaskStatus);
+                    AddMessage(completedTask.Result.TaskStatus == SqlTaskStatus.Failed ? completedTask.Result.ErrorMessage : SR.TaskCompleted,
+                                       completedTask.Result.TaskStatus);
+                    taskResult = completedTask.Result;
                 }
             }
             catch (OperationCanceledException)
@@ -195,24 +198,20 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         /// </summary>
         /// <param name="backupOperation"></param>
         /// <param name="token"></param>
-        /// <param name="watcherStopToken"></param>
+        /// <param name="onCompletedEvent"></param>
         /// <returns></returns>
-        private async Task<TaskResult> CancelTaskAsync(
-            CancellationToken token,
-            CancellationToken watcherStopToken)
+        private async Task<TaskResult> CancelTaskAsync(CancellationToken token, AutoResetEvent onCompletedEvent)
         {
-            TaskResult result = new TaskResult();
-            using (CancellationTokenSource linkedSource = CancellationTokenSource.CreateLinkedTokenSource(token, watcherStopToken))
-            {
-                try
-                {
-                    await Task.Delay(Timeout.Infinite, linkedSource.Token);
-                }
-                catch (OperationCanceledException) when (linkedSource.IsCancellationRequested)
-                {
-                }
-            }
+            // Create a task for backup cancellation request
 
+            TaskResult result = new TaskResult();
+            WaitHandle[] waitHandles = new WaitHandle[2]
+            {
+                    onCompletedEvent,
+                    token.WaitHandle
+            };
+
+            WaitHandle.WaitAny(waitHandles);
             try
             {
                 if (token.IsCancellationRequested)
