@@ -218,7 +218,7 @@ GO";
         /// Test GetDefinition with a forced timeout. Expect a error result.
         /// </summary>
         [Test]
-        public void GetDefinitionTimeoutTest()
+        public async Task GetDefinitionTimeoutTest()
         {
             // Given a binding queue that will automatically time out
             var langSvc = new TSqlLanguageService();
@@ -268,7 +268,7 @@ GO";
 
             // Pass in null connection info to force doing a local parse since that hits the BindingQueue timeout
             // before we want it to (this is testing the timeout trying to fetch the definitions after the parse)
-            var result = langSvc.GetDefinition(textDocument, scriptFile, null);
+            var result = await langSvc.GetDefinition(textDocument, scriptFile, null);
 
             // Then I expect null locations and an error to be reported
             Assert.NotNull(result);
@@ -808,7 +808,7 @@ GO";
             service.ScriptParseInfoMap.TryAdd(TestUri, scriptInfo);
 
             // When I call the language service
-            var fnResult = service.GetDefinition(fnDocument, scriptFile, connInfo);
+            var fnResult = await service.GetDefinition(fnDocument, scriptFile, connInfo);
             return fnResult;
         }
 

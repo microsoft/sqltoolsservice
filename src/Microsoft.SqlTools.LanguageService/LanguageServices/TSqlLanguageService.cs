@@ -683,7 +683,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             }
             else
             {
-                CompletionItem resolvedItem = ResolveCompletionItem(completionItem);
+                CompletionItem resolvedItem = await ResolveCompletionItem(completionItem);
                 await requestContext.SendResult(resolvedItem);
 
             }
@@ -704,7 +704,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 if (scriptFile != null)
                 {
                     isConnected = ConnectionServiceInstance.TryFindConnection(scriptFile.ClientUri, out connInfo);
-                    definitionResult = GetDefinition(textDocumentPosition, scriptFile, connInfo);
+                    definitionResult = await GetDefinition(textDocumentPosition, scriptFile, connInfo);
                 }
 
                 if (definitionResult != null && !definitionResult.IsErrorResult)
@@ -786,7 +786,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
                 if (scriptFile != null)
                 {
-                    Hover hover = GetHoverItem(textDocumentPosition, scriptFile);
+                    Hover hover = await GetHoverItem(textDocumentPosition, scriptFile);
                     await requestContext.SendResult(hover);
                     return;
                 }
@@ -1115,7 +1115,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                     // Get the current ScriptInfo if one exists so we can lock it while we're rebuilding the cache
                     ScriptParseInfo scriptInfo = GetScriptParseInfo(connInfo.OwnerUri, createIfNotExists: false);
                     if (scriptInfo != null && scriptInfo.IsConnected &&
-                        Monitor.TryEnter(scriptInfo.BuildingMetadataLock, TSqlLanguageService.OnConnectionWaitTimeout))
+                        await scriptInfo.BuildingMetadataLock.TryEnterAsync(TSqlLanguageService.OnConnectionWaitTimeout))
                     {
                         try
                         {
@@ -1128,7 +1128,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                             {
                                 // A Monitor is owned by the thread that entered it, so it must be
                                 // released before the asynchronous metadata rebuild can change threads.
-                                Monitor.Exit(scriptInfo.BuildingMetadataLock);
+                                scriptInfo.BuildingMetadataLock.Exit();
                             }
 
                             await UpdateLanguageServiceOnConnection(connInfo);
@@ -1357,9 +1357,9 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             // get or create the current parse info object
             ScriptParseInfo parseInfo = GetScriptParseInfo(scriptFile.ClientUri, createIfNotExists: true);
 
-            return Task.Run(() =>
+            return Task.Run(async () =>
             {
-                if (Monitor.TryEnter(parseInfo.BuildingMetadataLock, ConnectedBindingQueue.BindingTimeout))
+                if (await parseInfo.BuildingMetadataLock.TryEnterAsync(ConnectedBindingQueue.BindingTimeout))
                 {
                     try
                     {
@@ -1370,11 +1370,11 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
                         if (!hasBindingContext)
                         {
-                            if (TryIncrementalParse(
+                            ParseResult syntaxOnlyParseResult = await TryIncrementalParseAsync(
                                 scriptFile.Contents,
                                 parseInfo.ParseResult,
-                                GetParseOptionsForDocument(scriptFile.ClientUri, this.DefaultParseOptions),
-                                out ParseResult syntaxOnlyParseResult))
+                                GetParseOptionsForDocument(scriptFile.ClientUri, this.DefaultParseOptions));
+                            if (syntaxOnlyParseResult != null)
                             {
                                 parseInfo.ParseResult = syntaxOnlyParseResult;
                                 Logger.Verbose($"ParseAndBind: parsed '{scriptFile.ClientUri}' without a binding context (syntax-only, no metadata binding)");
@@ -1386,18 +1386,18 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                         }
                         else
                         {
-                            QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
+                            QueueItem queueItem = this.BindingQueue.QueueBindingOperationAsync(
                                 key: parseInfo.ConnectionKey,
                                 bindingTimeout: ConnectedBindingQueue.BindingTimeout,
-                                bindOperation: (bindingContext, cancelToken) =>
+                                bindOperation: async (bindingContext, cancelToken) =>
                                 {
                                     try
                                     {
-                                        if (!TryIncrementalParse(
+                                        ParseResult parseResult = await TryIncrementalParseAsync(
                                             scriptFile.Contents,
                                             parseInfo.ParseResult,
-                                            GetParseOptionsForDocument(scriptFile.ClientUri, bindingContext.ParseOptions),
-                                            out ParseResult parseResult))
+                                            GetParseOptionsForDocument(scriptFile.ClientUri, bindingContext.ParseOptions));
+                                        if (parseResult == null)
                                         {
                                             parseInfo.ParseResult = null;
                                             return null;
@@ -1436,7 +1436,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                                     return null;
                                 });
 
-                            queueItem.ItemProcessed.WaitOne();
+                            await queueItem.WaitForCompletionAsync();
                             if (!queueItem.WasExecuted || queueItem.TimedOut)
                             {
                                 Logger.Verbose($"ParseAndBind: binding queue did not complete the parse for '{scriptFile.ClientUri}'");
@@ -1452,7 +1452,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                     }
                     finally
                     {
-                        Monitor.Exit(parseInfo.BuildingMetadataLock);
+                        parseInfo.BuildingMetadataLock.Exit();
                     }
                 }
                 else
@@ -1469,45 +1469,44 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// Runs parse on a separate thread to avoid blocking and crashing the main thread if the parser
         /// hangs or crashes.
         /// </summary>
-        private bool TryIncrementalParse(
+        /// <returns>The parse result, or null if the parse failed.</returns>
+        private async Task<ParseResult> TryIncrementalParseAsync(
             string sqlText,
             ParseResult previousParseResult,
-            ParseOptions parseOptions,
-            out ParseResult parseResult)
+            ParseOptions parseOptions)
         {
-            ParseResult incrementalParseResult = null;
-            Exception parseException = null;
+            var completion = new TaskCompletionSource<ParseResult>(TaskCreationOptions.RunContinuationsAsynchronously);
 
             Thread parseThread = this.CreateParseThread(() =>
             {
                 try
                 {
-                    incrementalParseResult = this.IncrementalParse(sqlText, previousParseResult, parseOptions);
+                    completion.SetResult(this.IncrementalParse(sqlText, previousParseResult, parseOptions));
                 }
                 catch (Exception ex)
                 {
-                    parseException = ex;
+                    completion.SetException(ex);
                 }
             });
 
             parseThread.Start();
-            parseThread.Join();
-            parseResult = incrementalParseResult;
 
-            if (parseException != null)
+            try
+            {
+                ParseResult incrementalParseResult = await completion.Task;
+                if (incrementalParseResult == null)
+                {
+                    Logger.Warning("Parser returned a null ParseResult.");
+                }
+
+                return incrementalParseResult;
+            }
+            catch (Exception parseException)
             {
                 // Recoverable: caller resets ParseResult and performs a full parse on the next pass.
                 Logger.Warning($"An unexpected error occurred while parsing: {parseException}");
-                return false;
+                return null;
             }
-
-            if (incrementalParseResult == null)
-            {
-                Logger.Warning("Parser returned a null ParseResult.");
-                return false;
-            }
-
-            return true;
         }
 
         internal virtual ParseResult IncrementalParse(
@@ -1563,7 +1562,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (!Monitor.TryEnter(parseInfo.BuildingMetadataLock, ConnectedBindingQueue.BindingTimeout))
+            if (!await parseInfo.BuildingMetadataLock.TryEnterAsync(ConnectedBindingQueue.BindingTimeout))
             {
                 return null;
             }
@@ -1592,7 +1591,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             }
             finally
             {
-                Monitor.Exit(parseInfo.BuildingMetadataLock);
+                parseInfo.BuildingMetadataLock.Exit();
             }
         }
 
@@ -1651,7 +1650,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 return;
             }
 
-            if (Monitor.TryEnter(scriptInfo.BuildingMetadataLock, TSqlLanguageService.OnConnectionWaitTimeout))
+            if (await scriptInfo.BuildingMetadataLock.TryEnterAsync(TSqlLanguageService.OnConnectionWaitTimeout))
             {
                 try
                 {
@@ -1669,7 +1668,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 {
                     // Set Metadata Build event to Signal state.
                     // (Tell Language Service that I am ready with Metadata Provider Object)
-                    Monitor.Exit(scriptInfo.BuildingMetadataLock);
+                    scriptInfo.BuildingMetadataLock.Exit();
                 }
             }
             await PrepopulateCommonMetadata(info, scriptInfo, this.BindingQueue).ContinueWith(async _ =>
@@ -1700,7 +1699,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
                 // Stamp the .sqlproj URI itself
                 ScriptParseInfo scriptInfo = GetScriptParseInfo(projectUri, createIfNotExists: true);
-                if (Monitor.TryEnter(scriptInfo.BuildingMetadataLock, TSqlLanguageService.OnConnectionWaitTimeout))
+                if (await scriptInfo.BuildingMetadataLock.TryEnterAsync(TSqlLanguageService.OnConnectionWaitTimeout))
                 {
                     try
                     {
@@ -1710,7 +1709,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                     }
                     finally
                     {
-                        Monitor.Exit(scriptInfo.BuildingMetadataLock);
+                        scriptInfo.BuildingMetadataLock.Exit();
                     }
                 }
 
@@ -1739,7 +1738,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             foreach (string fileUri in fileUris)
             {
                 ScriptParseInfo scriptInfo = GetScriptParseInfo(fileUri, createIfNotExists: true);
-                if (Monitor.TryEnter(scriptInfo.BuildingMetadataLock, TSqlLanguageService.OnConnectionWaitTimeout))
+                if (scriptInfo.BuildingMetadataLock.TryEnter(TSqlLanguageService.OnConnectionWaitTimeout))
                 {
                     try
                     {
@@ -1749,7 +1748,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                     }
                     finally
                     {
-                        Monitor.Exit(scriptInfo.BuildingMetadataLock);
+                        scriptInfo.BuildingMetadataLock.Exit();
                     }
                 }
             }
@@ -1797,9 +1796,9 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                     return;
                 }
 
-                await ParseAndBind(scriptFile, info).ContinueWith(t =>
+                await ParseAndBind(scriptFile, info).ContinueWith(async t =>
                 {
-                    if (Monitor.TryEnter(scriptInfo.BuildingMetadataLock, TSqlLanguageService.OnConnectionWaitTimeout))
+                    if (await scriptInfo.BuildingMetadataLock.TryEnterAsync(TSqlLanguageService.OnConnectionWaitTimeout))
                     {
                         try
                         {
@@ -1852,7 +1851,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                                     return null;
                                 });
 
-                            queueItem.ItemProcessed.WaitOne();
+                            await queueItem.WaitForCompletionAsync();
                         }
                         catch (Exception ex)
                         {
@@ -1860,10 +1859,10 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                         }
                         finally
                         {
-                            Monitor.Exit(scriptInfo.BuildingMetadataLock);
+                            scriptInfo.BuildingMetadataLock.Exit();
                         }
                     }
-                });
+                }).Unwrap();
             }
         }
 
@@ -1920,12 +1919,12 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// Resolves the details and documentation for a completion item
         /// </summary>
         /// <param name="completionItem"></param>
-        internal virtual CompletionItem ResolveCompletionItem(CompletionItem completionItem)
+        internal virtual async Task<CompletionItem> ResolveCompletionItem(CompletionItem completionItem)
         {
             var scriptParseInfo = currentCompletionParseInfo;
             if (scriptParseInfo != null && scriptParseInfo.CurrentSuggestions != null)
             {
-                if (Monitor.TryEnter(scriptParseInfo.BuildingMetadataLock))
+                if (scriptParseInfo.BuildingMetadataLock.TryEnter())
                 {
                     try
                     {
@@ -1946,7 +1945,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                                 return completionItem;
                             });
 
-                        queueItem.ItemProcessed.WaitOne();
+                        await queueItem.WaitForCompletionAsync();
                     }
                     catch (Exception ex)
                     {
@@ -1956,7 +1955,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                     }
                     finally
                     {
-                        Monitor.Exit(scriptParseInfo.BuildingMetadataLock);
+                        scriptParseInfo.BuildingMetadataLock.Exit();
                     }
                 }
             }
@@ -1976,7 +1975,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// <param name="scriptFile"></param>
         /// <param name="tokenText"></param>
         /// <returns> Returns the result of the task as a DefinitionResult </returns>
-        private DefinitionResult QueueTask(TextDocumentPosition textDocumentPosition, ScriptParseInfo scriptParseInfo,
+        private async Task<DefinitionResult> QueueTask(TextDocumentPosition textDocumentPosition, ScriptParseInfo scriptParseInfo,
                                             ConnectionInfoBase connInfo, ScriptFile scriptFile, string tokenText)
         {
             // Queue the task with the binding queue
@@ -2032,7 +2031,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 });
 
             // wait for the queue item
-            queueItem.ItemProcessed.WaitOne();
+            await queueItem.WaitForCompletionAsync();
             var result = queueItem.GetResultAsT<DefinitionResult>();
             return result;
         }
@@ -2080,11 +2079,6 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(scriptFile.ClientUri);
             if (scriptParseInfo == null || !scriptParseInfo.IsProject)
                 return null;
-
-            if (RequiresReparse(scriptParseInfo, scriptFile))
-            {
-                scriptParseInfo.ParseResult = ParseAndBind(scriptFile, null).GetAwaiter().GetResult();
-            }
 
             // Resolve the project URI from the context key so we can access the provider directly.
             // Going through the binding queue would cause empty results when a concurrent save
@@ -2178,12 +2172,33 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             => FindProjectSymbolLocations(fileUri, line0, col0, out _, out _, out _);
 
         /// <summary>
+        /// Reparses a project file if it changed since its last parse. Call before
+        /// <see cref="FindProjectSymbolLocations(string, int, int)"/>, which reads the parse result.
+        /// </summary>
+        private async Task ReparseProjectFileIfRequired(string fileUri)
+        {
+            if (ShouldSkipIntellisense(fileUri))
+                return;
+
+            var scriptFile = CurrentWorkspace.GetFile(fileUri);
+            if (scriptFile == null)
+                return;
+
+            ScriptParseInfo scriptParseInfo = GetScriptParseInfo(scriptFile.ClientUri);
+            if (scriptParseInfo != null && scriptParseInfo.IsProject && RequiresReparse(scriptParseInfo, scriptFile))
+            {
+                scriptParseInfo.ParseResult = await ParseAndBind(scriptFile, null);
+            }
+        }
+
+        /// <summary>
         /// Handles LSP <c>textDocument/references</c> — returns all locations where the SQL object
         /// under the cursor is referenced across the project.  Only supported for project files
         /// (offline model); returns an empty result for connected-only scripts.
         /// </summary>
         internal async Task HandleReferencesRequest(ReferencesParams referencesParams, RequestContext<Location[]> requestContext)
         {
+            await ReparseProjectFileIfRequired(referencesParams.TextDocument.Uri);
             var locations = FindProjectSymbolLocations(
                 referencesParams.TextDocument.Uri,
                 referencesParams.Position.Line,
@@ -2262,6 +2277,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 return;
             }
 
+            await ReparseProjectFileIfRequired(renameParams.TextDocument.Uri);
             var locations = FindProjectSymbolLocations(
                 renameParams.TextDocument.Uri,
                 renameParams.Position.Line,
@@ -2382,6 +2398,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             SqlMoveToSchemaParams moveParams,
             RequestContext<SqlMoveToSchemaResponse> requestContext)
         {
+            await ReparseProjectFileIfRequired(moveParams.TextDocument.Uri);
             var locations = FindProjectSymbolLocations(
                 moveParams.TextDocument.Uri,
                 moveParams.Position.Line,
@@ -2584,7 +2601,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
         #endregion
 
-        private DefinitionResult GetDefinitionFromTokenList(TextDocumentPosition textDocumentPosition, List<Token> tokenList,
+        private async Task<DefinitionResult> GetDefinitionFromTokenList(TextDocumentPosition textDocumentPosition, List<Token> tokenList,
                 ScriptParseInfo scriptParseInfo, ScriptFile scriptFile, ConnectionInfoBase connInfo)
         {
 
@@ -2597,11 +2614,11 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 string tokenText = TextUtilities.RemoveSquareBracketSyntax(token.Text);
                 textDocumentPosition.Position.Line = token.StartLocation.LineNumber;
                 textDocumentPosition.Position.Character = token.StartLocation.ColumnNumber;
-                if (Monitor.TryEnter(scriptParseInfo.BuildingMetadataLock))
+                if (scriptParseInfo.BuildingMetadataLock.TryEnter())
                 {
                     try
                     {
-                        var result = QueueTask(textDocumentPosition, scriptParseInfo, connInfo, scriptFile, tokenText);
+                        var result = await QueueTask(textDocumentPosition, scriptParseInfo, connInfo, scriptFile, tokenText);
                         lastResult = result;
                         if (!result.IsErrorResult)
                         {
@@ -2621,7 +2638,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                     }
                     finally
                     {
-                        Monitor.Exit(scriptParseInfo.BuildingMetadataLock);
+                        scriptParseInfo.BuildingMetadataLock.Exit();
                     }
                 }
                 else
@@ -2639,7 +2656,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// <param name="scriptFile"></param>
         /// <param name="connInfo"></param>
         /// <returns> Location with the URI of the script file</returns>
-        internal virtual DefinitionResult GetDefinition(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile, ConnectionInfoBase connInfo)
+        internal virtual async Task<DefinitionResult> GetDefinition(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile, ConnectionInfoBase connInfo)
         {
             // Parse sql
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(scriptFile.ClientUri);
@@ -2651,12 +2668,12 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             // Project file: route directly to the offline engine — no token peeling, raw position only.
             if (scriptParseInfo.IsProject)
             {
-                scriptParseInfo.ParseResult = ParseAndBind(scriptFile, null).GetAwaiter().GetResult();
-                return QueueProjectTask(textDocumentPosition, scriptParseInfo);
+                scriptParseInfo.ParseResult = await ParseAndBind(scriptFile, null);
+                return await QueueProjectTask(textDocumentPosition, scriptParseInfo);
             }
             if (RequiresReparse(scriptParseInfo, scriptFile))
             {
-                scriptParseInfo.ParseResult = ParseAndBind(scriptFile, connInfo).GetAwaiter().GetResult();
+                scriptParseInfo.ParseResult = await ParseAndBind(scriptFile, connInfo);
             }
 
             // Get token from selected text
@@ -2673,7 +2690,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 //try children tokens first
                 Stack<Token> childrenTokens = selectedToken.Item1;
                 List<Token> tokenList = childrenTokens.ToList();
-                DefinitionResult childrenResult = GetDefinitionFromTokenList(textDocumentPosition, tokenList, scriptParseInfo, scriptFile, connInfo);
+                DefinitionResult childrenResult = await GetDefinitionFromTokenList(textDocumentPosition, tokenList, scriptParseInfo, scriptFile, connInfo);
 
                 // if the children peak definition returned null then
                 // try the parents
@@ -2681,7 +2698,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 {
                     Queue<Token> parentTokens = selectedToken.Item2;
                     tokenList = parentTokens.ToList();
-                    DefinitionResult parentResult = GetDefinitionFromTokenList(textDocumentPosition, tokenList, scriptParseInfo, scriptFile, connInfo);
+                    DefinitionResult parentResult = await GetDefinitionFromTokenList(textDocumentPosition, tokenList, scriptParseInfo, scriptFile, connInfo);
                     return (parentResult == null) ? null : parentResult;
                 }
                 else
@@ -2704,7 +2721,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// <summary>
         /// Queues a Go-to-Definition operation for a SQL project file via the project binding context.
         /// </summary>
-        private DefinitionResult QueueProjectTask(
+        private async Task<DefinitionResult> QueueProjectTask(
             TextDocumentPosition textDocumentPosition,
             ScriptParseInfo scriptParseInfo)
         {
@@ -2793,7 +2810,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                     Locations = null
                 });
 
-            queueItem.ItemProcessed.WaitOne();
+            await queueItem.WaitForCompletionAsync();
             return queueItem.GetResultAsT<DefinitionResult>();
         }
 
@@ -2923,7 +2940,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// </summary>
         /// <param name="textDocumentPosition"></param>
         /// <param name="scriptFile"></param>
-        internal virtual Hover GetHoverItem(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile)
+        internal virtual async Task<Hover> GetHoverItem(TextDocumentPosition textDocumentPosition, ScriptFile scriptFile)
         {
             int startLine = textDocumentPosition.Position.Line;
             int startColumn = TextUtilities.PositionOfPrevDelimeter(
@@ -2935,7 +2952,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             ScriptParseInfo scriptParseInfo = GetScriptParseInfo(scriptFile.ClientUri);
             if (scriptParseInfo != null && scriptParseInfo.ParseResult != null)
             {
-                if (Monitor.TryEnter(scriptParseInfo.BuildingMetadataLock))
+                if (scriptParseInfo.BuildingMetadataLock.TryEnter())
                 {
                     try
                     {
@@ -2959,12 +2976,12 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                                         endColumn);
                             });
 
-                        queueItem.ItemProcessed.WaitOne();
+                        await queueItem.WaitForCompletionAsync();
                         return queueItem.GetResultAsT<Hover>();
                     }
                     finally
                     {
-                        Monitor.Exit(scriptParseInfo.BuildingMetadataLock);
+                        scriptParseInfo.BuildingMetadataLock.Exit();
                     }
                 }
             }
@@ -3008,7 +3025,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
             if (scriptParseInfo.ParseResult != null)
             {
-                if (Monitor.TryEnter(scriptParseInfo.BuildingMetadataLock))
+                if (scriptParseInfo.BuildingMetadataLock.TryEnter())
                 {
                     try
                     {
@@ -3044,7 +3061,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                                     return null;
                                 }
                             });
-                        queueItem.ItemProcessed.WaitOne();
+                        await queueItem.WaitForCompletionAsync();
                         Logger.Verbose($"GetSignatureHelp - Got result {queueItem.Result}");
                         return queueItem.GetResultAsT<SignatureHelp>();
                     }
@@ -3054,7 +3071,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                     }
                     finally
                     {
-                        Monitor.Exit(scriptParseInfo.BuildingMetadataLock);
+                        scriptParseInfo.BuildingMetadataLock.Exit();
                     }
                 }
             }
@@ -3135,7 +3152,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
             ScriptDocumentInfo scriptDocumentInfo;
             Stopwatch buildingMetadataLockStopwatch = Stopwatch.StartNew();
-            if (!Monitor.TryEnter(scriptParseInfo.BuildingMetadataLock, ConnectedBindingQueue.BindingTimeout))
+            if (!await scriptParseInfo.BuildingMetadataLock.TryEnterAsync(ConnectedBindingQueue.BindingTimeout))
             {
                 Logger.Warning($"Completion for '{scriptFile.ClientUri}' timed out after {buildingMetadataLockStopwatch.ElapsedMilliseconds} ms waiting for BuildingMetadataLock");
                 return null;
@@ -3155,7 +3172,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             }
             finally
             {
-                Monitor.Exit(scriptParseInfo.BuildingMetadataLock);
+                scriptParseInfo.BuildingMetadataLock.Exit();
                 Logger.Verbose($"Completion for '{scriptFile.ClientUri}' released BuildingMetadataLock after holding it for {buildingMetadataLockStopwatch.ElapsedMilliseconds} ms");
             }
 
@@ -3169,7 +3186,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 return resultCompletionItems;
             }
 
-            AutoCompletionResult result = completionService.CreateCompletions(connInfo, scriptDocumentInfo, useLowerCaseSuggestions);
+            AutoCompletionResult result = await completionService.CreateCompletions(connInfo, scriptDocumentInfo, useLowerCaseSuggestions);
             if (result == null)
             {
                 Logger.Verbose($"Stopping completion for {scriptFile.ClientUri} because the binding operation timed out");

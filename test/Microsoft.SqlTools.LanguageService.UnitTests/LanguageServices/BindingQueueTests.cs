@@ -116,6 +116,58 @@ namespace Microsoft.SqlTools.LanguageService.UnitTests.LanguageServices
         }
 
         /// <summary>
+        /// Items that are in flight do not each hold a thread while the queue watches their timeout.
+        /// </summary>
+        [Test]
+        [Timeout(60_000)]
+        public void InFlightItemsDoNotHoldThreads()
+        {
+            InitializeTestSettings();
+
+            // Cap the pool well below the number of items, so they can only all be in flight
+            // at once if none of them holds a thread.
+            ThreadPool.GetMinThreads(out int minWorkerThreads, out _);
+            ThreadPool.GetMaxThreads(out int maxWorkerThreads, out int maxIoThreads);
+            int cappedWorkerThreads = minWorkerThreads + 4;
+            int itemCount = cappedWorkerThreads * 4;
+            int operationsStarted = 0;
+            var releaseOperations = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var items = new System.Collections.Generic.List<QueueItem>();
+
+            Assert.That(ThreadPool.SetMaxThreads(cappedWorkerThreads, maxIoThreads), Is.True);
+            try
+            {
+                for (int i = 0; i < itemCount; i++)
+                {
+                    items.Add(this.bindingQueue.QueueBindingOperationAsync(
+                        key: "testkey" + i,
+                        bindingTimeout: 30_000,
+                        bindOperation: async (context, cancelToken) =>
+                        {
+                            Interlocked.Increment(ref operationsStarted);
+                            return await releaseOperations.Task;
+                        }));
+                }
+
+                Assert.That(SpinWait.SpinUntil(() => Volatile.Read(ref operationsStarted) == itemCount, 10_000), Is.True,
+                    "every item is in flight at once");
+
+                releaseOperations.SetResult(null);
+                foreach (QueueItem item in items)
+                {
+                    Assert.That(item.ItemProcessed.WaitOne(20_000), Is.True);
+                    Assert.That(item.TimedOut, Is.False);
+                }
+            }
+            finally
+            {
+                releaseOperations.TrySetResult(null);
+                ThreadPool.SetMaxThreads(maxWorkerThreads, maxIoThreads);
+                this.bindingQueue.StopQueueProcessor(15000);
+            }
+        }
+
+        /// <summary>
         /// Queues a single task
         /// </summary>
         [Test]

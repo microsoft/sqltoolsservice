@@ -292,9 +292,9 @@ END
             var itemQueued = new SemaphoreSlim(0);
             var stalledQueue = new Mock<ConnectedBindingQueue>();
             stalledQueue
-                .Setup(q => q.QueueBindingOperation(
+                .Setup(q => q.QueueBindingOperationAsync(
                     It.IsAny<string>(),
-                    It.IsAny<Func<IBindingContext, CancellationToken, object>>(),
+                    It.IsAny<Func<IBindingContext, CancellationToken, Task<object>>>(),
                     It.IsAny<Func<IBindingContext, object>>(),
                     It.IsAny<Func<Exception, object>>(),
                     It.IsAny<int?>(),
@@ -384,10 +384,80 @@ END
         }
 
         /// <summary>
+        /// ParseAndBind calls waiting on the binding queue do not each hold a thread.
+        /// </summary>
+        [Test]
+        [Timeout(90_000)]
+        public void ParseAndBindDoesNotHoldAThreadWhileWaitingForTheBindingQueue()
+        {
+            // Cap the pool well below the number of calls, so the calls can only all reach the
+            // queue if waiting does not take a thread each.
+            ThreadPool.GetMinThreads(out int minWorkerThreads, out _);
+            ThreadPool.GetMaxThreads(out int maxWorkerThreads, out int maxIoThreads);
+            int cappedWorkerThreads = minWorkerThreads + 4;
+            int callCount = cappedWorkerThreads * 4;
+            string tablesDir = Path.Combine(Path.GetDirectoryName(_projectPath), "Tables");
+            var files = new List<ScriptFile>();
+            var uris = new List<string>();
+            for (int i = 0; i < callCount; i++)
+            {
+                string uri = new Uri(Path.Combine(tablesDir, $"Waiting{i}.sql")).AbsoluteUri;
+                files.Add(_workspaceService.Workspace.GetFileBuffer(uri, $"CREATE TABLE dbo.Waiting{i} (Id INT);"));
+                uris.Add(uri);
+            }
+            _langService.InitializeProjectFileContexts(uris, _contextKey, "LanguageServiceTestProject");
+
+            var queuedItems = new ConcurrentQueue<QueueItem>();
+            var stalledQueue = new Mock<ConnectedBindingQueue>();
+            stalledQueue
+                .Setup(q => q.QueueBindingOperationAsync(
+                    It.IsAny<string>(),
+                    It.IsAny<Func<IBindingContext, CancellationToken, Task<object>>>(),
+                    It.IsAny<Func<IBindingContext, object>>(),
+                    It.IsAny<Func<Exception, object>>(),
+                    It.IsAny<int?>(),
+                    It.IsAny<int?>(),
+                    It.IsAny<int?>()))
+                .Returns(() =>
+                {
+                    var item = new QueueItem();
+                    queuedItems.Enqueue(item);
+                    return item;
+                });
+            ConnectedBindingQueue realQueue = _langService.BindingQueue;
+            _langService.BindingQueue = stalledQueue.Object;
+
+            Assert.That(ThreadPool.SetMaxThreads(cappedWorkerThreads, maxIoThreads), Is.True);
+            try
+            {
+                List<Task<ParseResult>> calls = files.Select(f => _langService.ParseAndBind(f, null)).ToList();
+
+                Assert.That(SpinWait.SpinUntil(() => queuedItems.Count == callCount, 10_000), Is.True,
+                    "every call reaches the queue without needing a thread of its own");
+
+                foreach (QueueItem item in queuedItems)
+                {
+                    item.ItemProcessed.Set();
+                }
+                Assert.That(((IAsyncResult)Task.WhenAll(calls)).AsyncWaitHandle.WaitOne(30_000), Is.True,
+                    "the calls complete once the queue processes their items");
+            }
+            finally
+            {
+                foreach (QueueItem item in queuedItems)
+                {
+                    item.ItemProcessed.Set();
+                }
+                ThreadPool.SetMaxThreads(maxWorkerThreads, maxIoThreads);
+                _langService.BindingQueue = realQueue;
+            }
+        }
+
+        /// <summary>
         /// Test Go to Definition from a stored procedure to a table it references
         /// </summary>
         [Test]
-        public void GoToDefinition_FindsTableDefinitionFromStoredProcedure()
+        public async Task GoToDefinition_FindsTableDefinitionFromStoredProcedure()
         {
             // Arrange: Set up the stored procedure file context
             string projectDir = Path.GetDirectoryName(_projectPath);
@@ -423,7 +493,7 @@ END
             };
 
             // Act: Request definition
-            DefinitionResult result = _langService.GetDefinition(textPosition, scriptFile, connInfo: null);
+            DefinitionResult result = await _langService.GetDefinition(textPosition, scriptFile, connInfo: null);
 
             // Assert: Should find the table definition
             Assert.IsNotNull(result, "Definition result should not be null");
@@ -491,7 +561,7 @@ END
         /// otherwise the source index lookup fails because the key is "SwaggerPetstore.Models.Get0ItemsItem".
         /// </summary>
         [Test]
-        public void GoToDefinition_FindsTableDefinitionWithDottedSchemaName()
+        public async Task GoToDefinition_FindsTableDefinitionWithDottedSchemaName()
         {
             // Arrange: Create a fresh project with a dotted schema and a table in that schema
             string projectPath = ProjectUtils.CreateTestProject("DottedSchemaProject");
@@ -568,7 +638,7 @@ END
                 };
 
                 // Act
-                DefinitionResult result = langService.GetDefinition(textPosition, scriptFile, connInfo: null);
+                DefinitionResult result = await langService.GetDefinition(textPosition, scriptFile, connInfo: null);
 
                 // Assert: Must succeed and point to Get0ItemsItem.sql
                 Assert.IsNotNull(result, "Definition result should not be null");
@@ -626,7 +696,7 @@ END
         /// Exercises Resolver.GetQuickInfo → bound ParseResult.
         /// </summary>
         [Test]
-        public void Hover_ReturnsTableTooltip()
+        public async Task Hover_ReturnsTableTooltip()
         {
             // Arrange
             string queryUri = "file:///test_hover.sql";
@@ -646,7 +716,7 @@ END
             };
 
             // Act
-            var hover = _langService.GetHoverItem(position, scriptFile);
+            var hover = await _langService.GetHoverItem(position, scriptFile);
 
             // Assert: hover tooltip should mention "table" and "Customers"
             Assert.IsNotNull(hover, "Hover result should not be null");
@@ -664,7 +734,7 @@ END
         /// GetProperty&lt;bool&gt;(Column.Nullable) instead of the old hardcoded stubs.
         /// </summary>
         [Test]
-        public void Hover_ColumnTooltip_ShowsDataTypeAndNullability()
+        public async Task Hover_ColumnTooltip_ShowsDataTypeAndNullability()
         {
             // "CustomerId INT PRIMARY KEY" — NOT NULL (primary key implies non-nullable)
             // "Email NVARCHAR(255)"        — nullable (no NOT NULL constraint)
@@ -680,7 +750,7 @@ END
                 TextDocument = new TextDocumentIdentifier { Uri = queryUri },
                 Position = new Position { Line = 0, Character = 8 }  // inside "CustomerId"
             };
-            var hoverCustomerId = _langService.GetHoverItem(posCustomerId, scriptFile);
+            var hoverCustomerId = await _langService.GetHoverItem(posCustomerId, scriptFile);
             Assert.IsNotNull(hoverCustomerId, "Hover result should not be null for CustomerId");
             Assert.IsNotNull(hoverCustomerId.Contents, "Hover contents should not be null for CustomerId");
             string textCustomerId = hoverCustomerId.Contents.Value;
@@ -695,7 +765,7 @@ END
                 TextDocument = new TextDocumentIdentifier { Uri = queryUri },
                 Position = new Position { Line = 0, Character = 20 }  // inside "Email"
             };
-            var hoverEmail = _langService.GetHoverItem(posEmail, scriptFile);
+            var hoverEmail = await _langService.GetHoverItem(posEmail, scriptFile);
             Assert.IsNotNull(hoverEmail, "Hover result should not be null for Email");
             Assert.IsNotNull(hoverEmail.Contents, "Hover contents should not be null for Email");
             string textEmail = hoverEmail.Contents.Value;
@@ -712,7 +782,7 @@ END
         /// it now returns null so the binder can continue resolving.
         /// </summary>
         [Test]
-        public void GoToDefinition_SchemaQualifiedName_ResolvesToCorrectFileAndLine()
+        public async Task GoToDefinition_SchemaQualifiedName_ResolvesToCorrectFileAndLine()
         {
             // Arrange: cursor on "Customers" in "SELECT * FROM dbo.Customers" (line 0, char 22)
             string queryUri = "file:///test_schemaqualified.sql";
@@ -726,7 +796,7 @@ END
             };
 
             // Act
-            DefinitionResult result = _langService.GetDefinition(position, scriptFile, connInfo: null);
+            DefinitionResult result = await _langService.GetDefinition(position, scriptFile, connInfo: null);
 
             // Assert: resolves to Customers.sql at a valid line
             Assert.IsNotNull(result, "Definition result should not be null");
@@ -818,7 +888,7 @@ END
             "    CONSTRAINT FK_Orders_Customers FOREIGN KEY (CustomerId) REFERENCES [dbo].[Customers]([CustomerId])",
             80,
             TestName = "GoToDefinition_ForeignKeyReferences_BracketedIdentifiers")]
-        public void GoToDefinition_ForeignKeyReferences_UsesTokenWalk(string constraintLine, int cursorColumn)
+        public async Task GoToDefinition_ForeignKeyReferences_UsesTokenWalk(string constraintLine, int cursorColumn)
         {
             string queryContent =
                 "CREATE TABLE dbo.Orders (\n" +
@@ -837,7 +907,7 @@ END
                 Position = new Position { Line = 3, Character = cursorColumn }
             };
 
-            DefinitionResult result = _langService.GetDefinition(position, scriptFile, connInfo: null);
+            DefinitionResult result = await _langService.GetDefinition(position, scriptFile, connInfo: null);
 
             Assert.IsNotNull(result, "Definition result should not be null");
             Assert.IsFalse(result.IsErrorResult,
