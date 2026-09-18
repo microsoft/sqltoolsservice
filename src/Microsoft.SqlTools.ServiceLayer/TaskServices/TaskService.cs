@@ -111,97 +111,69 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
 
         private async void OnTaskAdded(object sender, TaskEventArgs<SqlTask> e)
         {
-            try
+            SqlTask sqlTask = e.TaskData;
+            if (sqlTask != null)
             {
-                SqlTask sqlTask = e.TaskData;
-                if (sqlTask != null)
-                {
-                    TaskInfo taskInfo = sqlTask.ToTaskInfo();
-                    sqlTask.ScriptAdded += OnTaskScriptAdded;
-                    sqlTask.MessageAdded += OnTaskMessageAdded;
-                    sqlTask.StatusChanged += OnTaskStatusChanged;
-                    await serviceHost.SendEvent(TaskCreatedNotification.Type, taskInfo);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Error($"Failed to publish task-created notification: {ex}");
+                TaskInfo taskInfo = sqlTask.ToTaskInfo();
+                sqlTask.ScriptAdded += OnTaskScriptAdded;
+                sqlTask.MessageAdded += OnTaskMessageAdded;
+                sqlTask.StatusChanged += OnTaskStatusChanged;
+                await serviceHost.SendEvent(TaskCreatedNotification.Type, taskInfo);
             }
         }
 
         private async void OnTaskStatusChanged(object sender, TaskEventArgs<SqlTaskStatus> e)
         {
-            try
+            SqlTask sqlTask = e.SqlTask;
+            if (sqlTask != null)
             {
-                SqlTask sqlTask = e.SqlTask;
-                if (sqlTask != null)
+                TaskProgressInfo progressInfo = new TaskProgressInfo
                 {
-                    TaskProgressInfo progressInfo = new TaskProgressInfo
-                    {
-                        TaskId = sqlTask.TaskId.ToString(),
-                        Status = e.TaskData,
-                        PercentComplete = sqlTask.PercentComplete,
-                        ProgressMessage = sqlTask.ProgressMessage
-                    };
+                    TaskId = sqlTask.TaskId.ToString(),
+                    Status = e.TaskData,
+                    PercentComplete = sqlTask.PercentComplete,
+                    ProgressMessage = sqlTask.ProgressMessage
+                };
 
-                    if (sqlTask.IsCompleted)
-                    {
-                        progressInfo.Duration = sqlTask.Duration;
-                    }
-                    await serviceHost.SendEvent(TaskStatusChangedNotification.Type, progressInfo);
+                if (sqlTask.IsCompleted)
+                {
+                    progressInfo.Duration = sqlTask.Duration;
                 }
-            }
-            catch (Exception ex)
-            {
-                Logger.Error($"Failed to publish task-status notification: {ex}");
+                await serviceHost.SendEvent(TaskStatusChangedNotification.Type, progressInfo);
             }
         }
         
         private async void OnTaskScriptAdded(object sender, TaskEventArgs<TaskScript> e)
         {
-            try
+            SqlTask sqlTask = e.SqlTask;
+            if (sqlTask != null)
             {
-                SqlTask sqlTask = e.SqlTask;
-                if (sqlTask != null)
+                TaskProgressInfo progressInfo = new TaskProgressInfo
                 {
-                    TaskProgressInfo progressInfo = new TaskProgressInfo
-                    {
-                        TaskId = sqlTask.TaskId.ToString(),
-                        Status = e.TaskData.Status,
-                        Script = e.TaskData.Script,
-                        Message = e.TaskData.ErrorMessage,
-                    };
+                    TaskId = sqlTask.TaskId.ToString(),
+                    Status = e.TaskData.Status,
+                    Script = e.TaskData.Script,
+                    Message = e.TaskData.ErrorMessage,
+                };
 
-                    await serviceHost.SendEvent(TaskStatusChangedNotification.Type, progressInfo);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Error($"Failed to publish task-script notification: {ex}");
+                await serviceHost.SendEvent(TaskStatusChangedNotification.Type, progressInfo);
             }
         }
 
         private async void OnTaskMessageAdded(object sender, TaskEventArgs<TaskMessage> e)
         {
-            try
+            SqlTask sqlTask = e.SqlTask;
+            if (sqlTask != null)
             {
-                SqlTask sqlTask = e.SqlTask;
-                if (sqlTask != null)
+                TaskProgressInfo progressInfo = new TaskProgressInfo
                 {
-                    TaskProgressInfo progressInfo = new TaskProgressInfo
-                    {
-                        TaskId = sqlTask.TaskId.ToString(),
-                        Message = e.TaskData.Description,
-                        Status = sqlTask.TaskStatus,
-                        PercentComplete = sqlTask.PercentComplete,
-                        ProgressMessage = sqlTask.ProgressMessage
-                    };
-                    await serviceHost.SendEvent(TaskStatusChangedNotification.Type, progressInfo);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Error($"Failed to publish task-message notification: {ex}");
+                    TaskId = sqlTask.TaskId.ToString(),
+                    Message = e.TaskData.Description,
+                    Status = sqlTask.TaskStatus,
+                    PercentComplete = sqlTask.PercentComplete,
+                    ProgressMessage = sqlTask.ProgressMessage
+                };
+                await serviceHost.SendEvent(TaskStatusChangedNotification.Type, progressInfo);
             }
         }
 

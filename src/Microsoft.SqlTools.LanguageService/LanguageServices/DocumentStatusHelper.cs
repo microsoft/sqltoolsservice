@@ -5,7 +5,6 @@
 
 #nullable disable
 
-using System;
 using System.Threading.Tasks;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;
@@ -27,7 +26,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// </summary>
         public static void SendStatusChange<T>(RequestContext<T> requestContext, TextDocumentPosition textDocumentPosition, string status)
         {
-            _ = SendNotificationSafely(async () =>
+            Task.Factory.StartNew(async () =>
             {
                 if (requestContext != null)
                 {
@@ -48,7 +47,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         {
             Validate.IsNotNull(nameof(requestContext), requestContext);
             Validate.IsNotNullOrWhitespaceString(nameof(telemetryEvent), telemetryEvent);
-            _ = SendNotificationSafely(async () =>
+            Task.Factory.StartNew(async () =>
             {
                 await requestContext.SendEvent(TelemetryNotification.Type, new TelemetryParams()
                 {
@@ -68,25 +67,13 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             Validate.IsNotNull(nameof(requestContext), requestContext);
             Validate.IsNotNull(nameof(telemetryProps), telemetryProps);
             Validate.IsNotNullOrWhitespaceString("telemetryProps.EventName", telemetryProps.EventName);
-            _ = SendNotificationSafely(async () =>
+            Task.Factory.StartNew(async () =>
             {
                 await requestContext.SendEvent(TelemetryNotification.Type, new TelemetryParams()
                 {
                     Params = telemetryProps
                 });
             });
-        }
-
-        private static async Task SendNotificationSafely(Func<Task> sendNotification)
-        {
-            try
-            {
-                await sendNotification();
-            }
-            catch (System.Exception ex)
-            {
-                Logger.Error($"Failed to send document status or telemetry notification: {ex}");
-            }
         }
     }
 }

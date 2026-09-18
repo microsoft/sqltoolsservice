@@ -679,16 +679,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="args">Arguments from the event</param>
         private async void ServerMessageHandler(object sender, SqlInfoMessageEventArgs args)
         {
-            try
+            foreach (SqlError error in args.Errors)
             {
-                foreach (SqlError error in args.Errors)
-                {
-                    await HandleSqlErrorMessage(error.Number, error.Class, error.State, error.LineNumber, error.Procedure, error.Message);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Error($"Failed to handle SQL server message for batch {Id}: {ex}");
+                await HandleSqlErrorMessage(error.Number, error.Class, error.State, error.LineNumber, error.Procedure, error.Message);
             }
         }
 

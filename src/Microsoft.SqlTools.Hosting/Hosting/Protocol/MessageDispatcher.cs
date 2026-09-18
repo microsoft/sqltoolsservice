@@ -321,13 +321,9 @@ namespace Microsoft.SqlTools.Hosting.Protocol
             }
             else if (messageToDispatch.MessageType == MessageType.Response)
             {
-                try
+                if (this.responseHandler != null)
                 {
-                    this.responseHandler?.Invoke(messageToDispatch);
-                }
-                catch (Exception e)
-                {
-                    Logger.Error(string.Format("An unexpected error occurred in the response handler: {0}", e));
+                    this.responseHandler(messageToDispatch);
                 }
             }
             else if (messageToDispatch.MessageType == MessageType.Event)

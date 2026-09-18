@@ -4,7 +4,6 @@
 //
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
@@ -29,12 +28,8 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         private TaskCompletionSource<bool> endpointExitedTask;
         private SynchronizationContext originalSynchronizationContext;
 
-        private readonly ConcurrentDictionary<MessageId, TaskCompletionSource<Message>> pendingRequests =
-            new ConcurrentDictionary<MessageId, TaskCompletionSource<Message>>();
-
-        internal TimeSpan PendingRequestTimeout { get; set; } = TimeSpan.FromMinutes(10);
-
-        internal int PendingRequestCount => this.pendingRequests.Count;
+        private Dictionary<MessageId, TaskCompletionSource<Message>> pendingRequests =
+            new Dictionary<MessageId, TaskCompletionSource<Message>>();
 
         /// <summary>
         /// When true, SendEvent will ignore exceptions and write them
@@ -147,14 +142,6 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 this.MessageDispatcher.Stop();
                 this.protocolChannel.Stop();
 
-                foreach (KeyValuePair<MessageId, TaskCompletionSource<Message>> request in this.pendingRequests)
-                {
-                    if (this.pendingRequests.TryRemove(request.Key, out TaskCompletionSource<Message> completion))
-                    {
-                        completion.TrySetCanceled();
-                    }
-                }
-
                 // Notify anyone waiting for exit
                 if (this.endpointExitedTask != null)
                 {
@@ -190,53 +177,27 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 throw new InvalidOperationException("SendRequest called when ProtocolChannel was not yet connected");
             }
 
-            MessageId requestId = new MessageId(Interlocked.Increment(ref this.currentMessageId));
+            this.currentMessageId++;
+            MessageId requestId = new MessageId(this.currentMessageId);
 
             TaskCompletionSource<Message> responseTask = null;
 
             if (waitForResponse)
             {
-                responseTask = new TaskCompletionSource<Message>(
-                    TaskCreationOptions.RunContinuationsAsynchronously);
-                if (!this.pendingRequests.TryAdd(requestId, responseTask))
-                {
-                    throw new InvalidOperationException($"A request with id '{requestId}' is already pending.");
-                }
+                responseTask = new TaskCompletionSource<Message>();
+                this.pendingRequests.Add(
+                    requestId,
+                    responseTask);
             }
 
-            try
-            {
-                await this.protocolChannel.MessageWriter.WriteRequest<TParams, TResult>(
-                    requestType,
-                    requestParams,
-                    requestId);
-            }
-            catch
-            {
-                if (responseTask != null)
-                {
-                    this.pendingRequests.TryRemove(requestId, out _);
-                }
-                throw;
-            }
+            await this.protocolChannel.MessageWriter.WriteRequest<TParams, TResult>(
+                requestType,
+                requestParams,
+                requestId);
 
             if (responseTask != null)
             {
-                using var timeoutCancellation = new CancellationTokenSource();
-                Task timeoutTask = Task.Delay(this.PendingRequestTimeout, timeoutCancellation.Token);
-                Task first = await Task.WhenAny(responseTask.Task, timeoutTask);
-                if (first != responseTask.Task
-                    && this.pendingRequests.TryRemove(requestId, out TaskCompletionSource<Message> timedOutRequest))
-                {
-                    timedOutRequest.TrySetException(new TimeoutException(
-                        $"Timed out waiting for response to '{requestType.MethodName}' after {this.PendingRequestTimeout}."));
-                }
-                else
-                {
-                    timeoutCancellation.Cancel();
-                }
-
-                Message responseMessage = await responseTask.Task;
+                var responseMessage = await responseTask.Task;
 
                 return
                     responseMessage.Contents != null ?
@@ -274,43 +235,17 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
                 if (!this.MessageDispatcher.InMessageLoopThread)
                 {
-                    TaskCompletionSource<bool> writeTask = new TaskCompletionSource<bool>(
-                        TaskCreationOptions.RunContinuationsAsynchronously);
+                    TaskCompletionSource<bool> writeTask = new TaskCompletionSource<bool>();
 
-                    async void WriteEventOnDispatcher(object obj)
-                    {
-                        try
+                    this.MessageDispatcher.SynchronizationContext.Post(
+                        async (obj) =>
                         {
                             await this.protocolChannel.MessageWriter.WriteEvent(
                                 eventType,
                                 eventParams);
 
-                            writeTask.TrySetResult(true);
-                        }
-                        catch (Exception ex)
-                        {
-                            writeTask.TrySetException(ex);
-                        }
-                    }
-
-                    bool posted;
-                    if (this.MessageDispatcher.SynchronizationContext is ThreadSynchronizationContext threadContext)
-                    {
-                        posted = threadContext.TryPost(WriteEventOnDispatcher, null);
-                    }
-                    else
-                    {
-                        this.MessageDispatcher.SynchronizationContext.Post(
-                            WriteEventOnDispatcher,
-                            null);
-                        posted = true;
-                    }
-
-                    if (!posted)
-                    {
-                        writeTask.TrySetException(new InvalidOperationException(
-                            "Cannot send an event because the message dispatcher is stopping."));
-                    }
+                            writeTask.SetResult(true);
+                        }, null);
 
                     return writeTask.Task;
                 }
@@ -388,11 +323,12 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
         private void HandleResponse(Message responseMessage)
         {
-            if (this.pendingRequests.TryRemove(
-                responseMessage.Id,
-                out TaskCompletionSource<Message> pendingRequestTask))
+            TaskCompletionSource<Message> pendingRequestTask = null;
+
+            if (this.pendingRequests.TryGetValue(responseMessage.Id, out pendingRequestTask))
             {
-                pendingRequestTask.TrySetResult(responseMessage);
+                pendingRequestTask.SetResult(responseMessage);
+                this.pendingRequests.Remove(responseMessage.Id);
             }
         }
 

@@ -17,7 +17,6 @@ using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
 using Microsoft.SqlTools.LanguageService.Connection.Contracts;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer;
 using Microsoft.SqlTools.ServiceLayer.ObjectExplorer.Contracts;
-using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.SqlCore.ObjectExplorer.Nodes;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Moq;
@@ -77,80 +76,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             await service.HandleCreateSessionRequest(null, contextMock.Object);
             VerifyErrorSent(contextMock);
             Assert.True(((string)errorResponse).Contains("ArgumentNullException"));
-        }
-
-        [TestCase(false, false)]
-        [TestCase(true, false)]
-        [TestCase(true, true)]
-        public async Task CreateSessionAwaitsBindingAndReportsFailureOnce(bool timedOut, bool outerTimeout)
-        {
-            details.PersistSecurityInfo = true;
-            string uri = ObjectExplorerService.GenerateUri(details);
-            var item = new QueueItem { TimedOut = timedOut };
-            var queueMock = new Mock<ConnectedBindingQueue>(false);
-            queueMock.Setup(q => q.AddConnectionContext(It.IsAny<Microsoft.SqlTools.LanguageService.LanguageServices.ConnectionInfoBase>(), It.IsAny<string>(), It.IsAny<bool>()))
-                .Returns(connectionInfo.ConnectionContextKey);
-            queueMock.Setup(q => q.QueueBindingOperation(
-                It.IsAny<string>(),
-                It.IsAny<Func<IBindingContext, CancellationToken, object>>(),
-                It.IsAny<Func<IBindingContext, object>>(),
-                It.IsAny<Func<Exception, object>>(),
-                It.IsAny<int?>(), It.IsAny<int?>(), It.IsAny<int?>()))
-                .Returns(item);
-            service.ConnectedBindingQueue = queueMock.Object;
-            connectionServiceMock.Setup(c => c.Connect(It.IsAny<ConnectParams>()))
-                .ReturnsAsync(GetCompleteParamsForConnection(uri, details));
-            connectionServiceMock.Setup(c => c.TryFindConnection(uri, out connectionInfo)).Returns(true);
-            var failureReceived = new TaskCompletionSource<SessionCreatedParameters>(TaskCreationOptions.RunContinuationsAsynchronously);
-            serviceHostMock.AddEventHandling(CreateSessionCompleteNotification.Type, (type, result) => failureReceived.TrySetResult(result));
-            if (outerTimeout)
-            {
-                var settings = new SqlToolsSettings
-                {
-                    SqlTools = new SqlToolsSettingsValues(false)
-                    {
-                        ObjectExplorer = new ObjectExplorerSettings { CreateSessionTimeout = 0 }
-                    }
-                };
-                await service.HandleDidChangeConfigurationNotification(settings, null, null);
-            }
-            var requestContext = RequestContextMocks.Create<CreateSessionResponse>(null).AddErrorHandling(null);
-            try
-            {
-                await service.HandleCreateSessionRequest(details, requestContext.Object).WaitAsync(TimeSpan.FromSeconds(5));
-                Assert.That(service.CreateSessionTask.IsCompleted, Is.False, "Session creation must yield while the queue item is pending.");
-                if (outerTimeout)
-                {
-                    // Let the outer timer notify the client before the binding queue completes.
-                    await failureReceived.Task.WaitAsync(TimeSpan.FromSeconds(5));
-                }
-                item.ItemProcessed.Set();
-                await service.CreateSessionTask.WaitAsync(TimeSpan.FromSeconds(5));
-
-                SessionCreatedParameters failure = await failureReceived.Task.WaitAsync(TimeSpan.FromSeconds(5));
-                Assert.That(failure.Success, Is.False);
-                if (outerTimeout)
-                {
-                    Assert.That(failure.ErrorCode, Is.EqualTo(ObjectExplorerErrorCodes.CreateSessionTimeout));
-                }
-                else
-                {
-                    Assert.That(failure.ErrorMessage, Does.Contain(timedOut ? "Timed out" : "did not create"));
-                }
-                Assert.That(service.SessionIds, Does.Not.Contain(uri));
-                serviceHostMock.Verify(x => x.SendEvent(CreateSessionCompleteNotification.Type,
-                    It.IsAny<SessionCreatedParameters>()), Times.Once());
-            }
-            finally
-            {
-                item.ItemProcessed.Set();
-                if (service.CreateSessionTask?.IsCompleted == true)
-                {
-                    item.ItemProcessed.Dispose();
-                }
-                queueMock.Object.StopQueueProcessor(5_000);
-                queueMock.Object.Dispose();
-            }
         }
 
         [Test]

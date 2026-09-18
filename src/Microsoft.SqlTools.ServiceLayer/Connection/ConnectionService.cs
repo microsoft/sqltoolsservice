@@ -1671,9 +1671,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public async Task HandleClearPooledConnectionsRequest(object _, RequestContext<bool> requestContext)
         {
             Logger.Verbose("ClearPooledConnectionsRequest");
-            await Task.Run(SqlConnection.ClearAllPools);
-            Logger.Verbose("Cleared all pooled connections successfully.");
-            await requestContext.SendResult(true);
+            // Run a detached task to clear pools in backend.
+            await Task.Factory.StartNew(() => Task.Run(async () =>
+            {
+
+                SqlConnection.ClearAllPools();
+
+                Logger.Verbose("Cleared all pooled connections successfully.");
+                await requestContext.SendResult(true);
+            }));
         }
 
         public ConnectionDetails ParseConnectionString(string connectionString)
@@ -1815,7 +1821,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     IConnectionSummary summary = info.ConnectionDetails;
                     parameters.Connection = summary.Clone();
                     parameters.OwnerUri = ownerUri;
-                    await ServiceHost.SendEvent(ConnectionChangedNotification.Type, parameters);
+                    _ = ServiceHost.SendEvent(ConnectionChangedNotification.Type, parameters);
                     return true;
                 }
                 catch (Exception e)

@@ -67,16 +67,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
             }
         }
 
-        private sealed class FailingOutputStream : MemoryStream
-        {
-            public override Task WriteAsync(
-                byte[] buffer,
-                int offset,
-                int count,
-                CancellationToken cancellationToken)
-                => Task.FromException(new IOException("Injected output failure"));
-        }
-
         private static TaskCompletionSource<bool> NewSignal()
             => new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
@@ -189,61 +179,5 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Messaging
             }
         }
 
-        [Test]
-        [Timeout(10_000)]
-        public async Task SendEventPropagatesPostedWriteFailureToCaller()
-        {
-            var channel = new TestChannel { Output = new FailingOutputStream() };
-            var endpoint = new ProtocolEndpoint(channel, MessageProtocolType.LanguageServer);
-            endpoint.Initialize();
-            var dispatcherReady = NewSignal();
-            endpoint.SetRequestHandler(
-                RequestType<int, int>.Create("test/dispatcher-ready"),
-                (_, _) =>
-                {
-                    dispatcherReady.TrySetResult(true);
-                    return Task.CompletedTask;
-                });
-
-            try
-            {
-                endpoint.MessageDispatcher.Start();
-                channel.Input.Messages.Writer.TryWrite(
-                    Message.Request(1, "test/dispatcher-ready", null));
-                await dispatcherReady.Task.WaitAsync(TimeSpan.FromSeconds(2));
-
-                Task send = endpoint.SendEvent(EventType<int>.Create("test/failing-event"), 1);
-                Assert.That(
-                    async () => await send.WaitAsync(TimeSpan.FromSeconds(2)),
-                    Throws.TypeOf<IOException>());
-            }
-            finally
-            {
-                endpoint.MessageDispatcher.Stop();
-                channel.Stop();
-            }
-        }
-
-        [Test]
-        [Timeout(10_000)]
-        public void OutboundRequestTimeoutRemovesPendingRequest()
-        {
-            var channel = new TestChannel();
-            var endpoint = new ProtocolEndpoint(channel, MessageProtocolType.LanguageServer)
-            {
-                PendingRequestTimeout = TimeSpan.FromMilliseconds(100),
-            };
-            endpoint.Initialize();
-
-            Task<int> request = endpoint.SendRequest(
-                RequestType<int, int>.Create("test/no-response"),
-                1,
-                waitForResponse: true);
-
-            Assert.That(async () => await request, Throws.TypeOf<TimeoutException>());
-            Assert.That(endpoint.PendingRequestCount, Is.Zero,
-                "a timed-out response must not remain in the pending-request registry");
-            channel.Stop();
-        }
     }
 }

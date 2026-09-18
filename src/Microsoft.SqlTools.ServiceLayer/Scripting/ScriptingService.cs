@@ -97,7 +97,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         /// <summary>
         /// Handles request to start the scripting operation
         /// </summary>
-        public async Task HandleScriptExecuteRequest(ScriptingParams parameters, RequestContext<ScriptingResult> requestContext)
+        public Task HandleScriptExecuteRequest(ScriptingParams parameters, RequestContext<ScriptingResult> requestContext)
         {
             SmoScriptingOperation operation = null;
             // if a connection string wasn't provided as a parameter then
@@ -122,7 +122,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                         if (connInfo.AzureTokenFetcher != null)
                         {
                             scriptingServerConnection = ConnectionServiceInstance.OpenServerConnectionInternal(connInfo);
-                            (accessToken, _) = await connInfo.AzureTokenFetcher(connInfo.AzureResourceUri);
+                            (accessToken, _) = connInfo.AzureTokenFetcher(connInfo.AzureResourceUri).GetAwaiter().GetResult();
                         }
                         else
                         {
@@ -150,10 +150,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
                     : new ScriptAsScriptingOperation(parameters, accessToken);
             }
 
-            operation.PlanNotification += async (sender, e) =>
-                await SendScriptingNotification(requestContext, ScriptingPlanNotificationEvent.Type, e);
-            operation.ProgressNotification += async (sender, e) =>
-                await SendScriptingNotification(requestContext, ScriptingProgressNotificationEvent.Type, e);
+            operation.PlanNotification += (sender, e) => requestContext.SendEvent(ScriptingPlanNotificationEvent.Type, e).Wait();
+            operation.ProgressNotification += (sender, e) => requestContext.SendEvent(ScriptingProgressNotificationEvent.Type, e).Wait();
             operation.CompleteNotification += (sender, e) => this.SendScriptingCompleteEvent(requestContext, ScriptingCompleteEvent.Type, e, operation, parameters);
 
             RunTask(requestContext, operation);
@@ -161,8 +159,10 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
             // If ReturnScriptAsynchronously is enabled, return operation ID immediately
             if (parameters.ReturnScriptAsynchronously)
             {
-                await requestContext.SendResult(new ScriptingResult { OperationId = operation.OperationId });
+                return requestContext.SendResult(new ScriptingResult { OperationId = operation.OperationId });
             }
+
+            return Task.CompletedTask;
         }
 
         private bool ShouldCreateScriptAsOperation(ScriptingParams parameters)
@@ -204,49 +204,27 @@ namespace Microsoft.SqlTools.ServiceLayer.Scripting
         private async void SendScriptingCompleteEvent<TParams>(RequestContext<ScriptingResult> requestContext, EventType<TParams> eventType, TParams parameters,
                                                                SmoScriptingOperation operation, ScriptingParams scriptingParams)
         {
-            try
+            // If ReturnScriptAsynchronously is enabled, include script in the complete event
+            if (scriptingParams.ReturnScriptAsynchronously && parameters is ScriptingCompleteParams completeParams)
             {
-                // If ReturnScriptAsynchronously is enabled, include script in the complete event
-                if (scriptingParams.ReturnScriptAsynchronously && parameters is ScriptingCompleteParams completeParams)
-                {
-                    completeParams.Script = operation.ScriptText;
-                    await requestContext.SendEvent(eventType, parameters);
-                    return;
-                }
-
+                completeParams.Script = operation.ScriptText;
                 await requestContext.SendEvent(eventType, parameters);
+                return;
+            }
 
-                switch (scriptingParams.ScriptDestination)
-                {
-                    case "ToEditor":
-                        await requestContext.SendResult(new ScriptingResult { OperationId = operation.OperationId, Script = operation.ScriptText });
-                        break;
-                    case "ToSingleFile":
-                        await requestContext.SendResult(new ScriptingResult { OperationId = operation.OperationId });
-                        break;
-                    default:
-                        await requestContext.SendError(string.Format("Operation {0} failed", operation.ToString()));
-                        break;
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Error($"Failed to send completion for scripting operation {operation.OperationId}: {ex}");
-            }
-        }
+            await requestContext.SendEvent(eventType, parameters);
 
-        private static async Task SendScriptingNotification<TParams>(
-            RequestContext<ScriptingResult> requestContext,
-            EventType<TParams> eventType,
-            TParams parameters)
-        {
-            try
+            switch (scriptingParams.ScriptDestination)
             {
-                await requestContext.SendEvent(eventType, parameters);
-            }
-            catch (Exception ex)
-            {
-                Logger.Error($"Failed to send scripting notification: {ex}");
+                case "ToEditor":
+                    await requestContext.SendResult(new ScriptingResult { OperationId = operation.OperationId, Script = operation.ScriptText });
+                    break;
+                case "ToSingleFile":
+                    await requestContext.SendResult(new ScriptingResult { OperationId = operation.OperationId });
+                    break;
+                default:
+                    await requestContext.SendError(string.Format("Operation {0} failed", operation.ToString()));
+                    break;
             }
         }
 

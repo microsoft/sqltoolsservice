@@ -379,7 +379,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             if (!sessionMap.TryGetValue(uri, out session))
             {
                 // Establish a connection to the specified server/database
-                session = await DoCreateSession(connectionDetails, uri, cancellationToken);
+                session = await DoCreateSession(connectionDetails, uri);
             }
 
             SessionCreatedParameters response;
@@ -553,19 +553,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                         return response;
                     });
                 Logger.Verbose($"Queuing binding operation for {nodePath}");
-                bool completed = await queueItem.WaitForCompletionAsync();
+                await queueItem.WaitForCompletionAsync();
                 Logger.Verbose($"Done with binding operation for {nodePath}");
 
                 ExpandResponse queuedResponse = queueItem.GetResultAsT<ExpandResponse>();
-                if (!completed)
-                {
-                    return CreateExpandFailureResponse(
-                        session,
-                        nodePath,
-                        $"Timed out waiting to expand the Object Explorer node: {nodePath}",
-                        ObjectExplorerErrorCodes.ExpandTimeout);
-                }
-
                 if (queuedResponse == null)
                 {
                     Logger.Error($"Binding operation produced no result for {nodePath}");
@@ -622,15 +613,11 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
         /// Establishes a new session and stores its information
         /// </summary>
         /// <returns><see cref="ObjectExplorerSession"/> object if successful, null if unsuccessful</returns>
-        internal Task<ObjectExplorerSession> DoCreateSession(ConnectionDetails connectionDetails, string uri)
-        {
-            return DoCreateSession(connectionDetails, uri, CancellationToken.None);
-        }
-
-        private async Task<ObjectExplorerSession> DoCreateSession(ConnectionDetails connectionDetails, string uri, CancellationToken cancellationToken)
+        internal async Task<ObjectExplorerSession> DoCreateSession(ConnectionDetails connectionDetails, string uri)
         {
             try
             {
+                ObjectExplorerSession session = null;
                 connectionDetails.PersistSecurityInfo = true;
                 ConnectParams connectParams = new ConnectParams() { OwnerUri = uri, Connection = connectionDetails, Type = Connection.ConnectionType.ObjectExplorer };
                 bool isDefaultOrSystemDatabase = DatabaseUtils.IsSystemDatabaseConnection(connectionDetails.DatabaseName) || string.IsNullOrWhiteSpace(connectionDetails.DatabaseDisplayName);
@@ -655,38 +642,27 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                            waitForLockTimeout: timeout,
                            bindOperation: (bindingContext, cancelToken) =>
                            {
-                               var session = ObjectExplorerSession.CreateSession(connectionResult, bindingContext.ServerConnection, isDefaultOrSystemDatabase, serviceProvider, () =>
+                               session = ObjectExplorerSession.CreateSession(connectionResult, bindingContext.ServerConnection, isDefaultOrSystemDatabase, serviceProvider, () =>
             {
                 return WorkspaceService<SqlToolsSettings>.Instance.CurrentSettings.SqlTools.ObjectExplorer.GroupBySchema;
             });
                                session.ConnectionInfo = connectionInfo;
 
+                               sessionMap.AddOrUpdate(uri, session, (key, oldSession) => session);
                                return session;
                            });
 
-                bool completed = await queueItem.WaitForCompletionAsync();
-                if (cancellationToken.IsCancellationRequested)
+                queueItem.ItemProcessed.WaitOne();
+                if (queueItem.GetResultAsT<ObjectExplorerSession>() != null)
                 {
-                    // The outer session timeout already notified the client.
-                    return null;
+                    session = queueItem.GetResultAsT<ObjectExplorerSession>();
                 }
-                if (!completed || queueItem.TimedOut)
-                {
-                    throw new TimeoutException("Timed out waiting to create the Object Explorer session.");
-                }
-
-                ObjectExplorerSession session = queueItem.GetResultAsT<ObjectExplorerSession>()
-                    ?? throw new InvalidOperationException("The binding queue did not create the Object Explorer session.");
-                sessionMap.AddOrUpdate(uri, session, (key, oldSession) => session);
                 return session;
             }
             catch (Exception ex)
             {
                 int? errorCode = ex is SqlException sqlEx ? sqlEx.ErrorCode : null;
-                if (!cancellationToken.IsCancellationRequested)
-                {
-                    await SendSessionFailedNotification(uri, ex.Message, errorCode);
-                }
+                await SendSessionFailedNotification(uri, ex.Message, errorCode);
                 return null;
             }
         }
@@ -903,17 +879,10 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
 
         private async void OnUnhandledException(string queueKey, Exception ex)
         {
-            try
+            string sessionUri = LookupUriFromQueueKey(queueKey);
+            if (!string.IsNullOrWhiteSpace(sessionUri))
             {
-                string sessionUri = LookupUriFromQueueKey(queueKey);
-                if (!string.IsNullOrWhiteSpace(sessionUri))
-                {
-                    await SendSessionDisconnectedNotification(uri: sessionUri, success: false, errorMessage: ex.ToString());
-                }
-            }
-            catch (Exception notificationException)
-            {
-                Logger.Error($"Failed to report Object Explorer binding exception for key '{queueKey}': {notificationException}. Original exception: {ex}");
+                await SendSessionDisconnectedNotification(uri: sessionUri, success: false, errorMessage: ex.ToString());
             }
         }
 

@@ -405,11 +405,10 @@ namespace Microsoft.SqlTools.LanguageService.Workspace
             {
                 Logger.Verbose("HandleDidChangeConfigurationNotification");
 
-                TConfig oldSettings = this.CurrentSettings;
                 this.CurrentSettings = configChangeParams.Settings;
                 // Propagate the changes to the event handlers
                 var configUpdateTasks = ConfigChangeCallbacks.Select(
-                    t => t(configChangeParams.Settings, oldSettings, eventContext));
+                    t => t(configChangeParams.Settings, CurrentSettings, eventContext));
                 await AwaitCallbacksAsync(nameof(HandleDidChangeConfigurationNotification), configUpdateTasks);
             }
             catch (Exception ex)

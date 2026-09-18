@@ -8,6 +8,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.Hosting.Protocol;
@@ -126,16 +127,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Metadata
         internal static Task HandleGetServerContextualizationRequest(GetServerContextualizationParams contextualizationParams,
             RequestContext<GetServerContextualizationResult> requestContext)
         {
-            // Contextualization scripts a whole database through SMO and can run for a long time.
-            // Awaiting it here would hold the serial dispatch chain, so let it run detached and
-            // unrelated messages (cancellations, document notifications) keep being serviced. The
-            // result is still observed, so a failure is logged and reported to the caller instead
-            // of being silently dropped.
-            Func<Task, Task> reportFailure = faulted =>
-                requestContext.SendError(faulted.Exception.GetBaseException());
-
-            _ = Task.Run(() => GetServerContextualization(contextualizationParams, requestContext))
-                .ContinueWithOnFaulted(reportFailure);
+            _ = Task.Factory.StartNew(async () =>
+            {
+                await GetServerContextualization(contextualizationParams, requestContext);
+            },
+            CancellationToken.None,
+            TaskCreationOptions.None,
+            TaskScheduler.Default);
 
             return Task.CompletedTask;
         }
