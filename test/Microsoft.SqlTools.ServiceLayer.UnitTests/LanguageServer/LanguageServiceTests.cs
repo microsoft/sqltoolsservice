@@ -605,6 +605,68 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 
         [Test]
         [Timeout(10_000)]
+        public async Task CancelledParseAndBindPreservesLastSuccessfulParse()
+        {
+            var service = new TestLanguageService();
+            var bindingQueue = new ConnectedBindingQueue(false);
+            service.BindingQueue = bindingQueue;
+
+            var scriptFile = new ScriptFile();
+            scriptFile.SetFileContents("SELECT 2");
+            var parseOptions = new ParseOptions(
+                batchSeparator: TSqlLanguageService.DefaultBatchSeperator,
+                isQuotedIdentifierSet: true,
+                compatibilityLevel: DatabaseCompatibilityLevel.Current,
+                transactSqlVersion: TransactSqlVersion.Current);
+            ParseResult oldResult = Parser.IncrementalParse("SELECT 1", null, parseOptions);
+            var parseInfo = new ScriptParseInfo
+            {
+                BindingContextKind = BindingContextKindEnum.LiveConnection,
+                ConnectionKey = "cancelled-parser-context",
+                ParseResult = oldResult,
+            };
+            service.AddOrUpdateScriptParseInfo(scriptFile.ClientUri, parseInfo);
+
+            var bindingContext = new ConnectedBindingContext { IsConnected = false };
+            bindingQueue.BindingContextMap.TryAdd(parseInfo.ConnectionKey, bindingContext);
+            bindingQueue.BindingContextTasks.TryAdd(bindingContext, Task.CompletedTask);
+
+            using var parserStarted = new ManualResetEventSlim(false);
+            using var releaseParser = new ManualResetEventSlim(false);
+            using var cancellation = new CancellationTokenSource();
+            service.IncrementalParseOverride = (sqlText, previousParseResult, options) =>
+            {
+                parserStarted.Set();
+                releaseParser.Wait();
+                return Parser.IncrementalParse(sqlText, previousParseResult, options);
+            };
+
+            Task<ParseResult> parseTask = service.ParseAndBind(
+                scriptFile,
+                TestObjects.GetTestConnectionInfo(),
+                cancellationToken: cancellation.Token);
+
+            try
+            {
+                Assert.That(parserStarted.Wait(TimeSpan.FromSeconds(2)), Is.True);
+                cancellation.Cancel();
+
+                Assert.That(await parseTask.WaitAsync(TimeSpan.FromSeconds(2)), Is.Null);
+                Assert.That(parseInfo.ParseResult, Is.SameAs(oldResult),
+                    "expected cancellation must preserve the last successful parse result");
+            }
+            finally
+            {
+                releaseParser.Set();
+                Assert.That(bindingContext.BindingLock.WaitOne(TimeSpan.FromSeconds(2)), Is.True);
+                bindingContext.BindingLock.Set();
+                bindingQueue.StopQueueProcessor(2_000);
+                bindingQueue.Dispose();
+            }
+        }
+
+        [Test]
+        [Timeout(10_000)]
         public async Task SyntaxOnlyParserWaitIsBounded()
         {
             var service = new TestLanguageService { ParserTimeout = 100 };

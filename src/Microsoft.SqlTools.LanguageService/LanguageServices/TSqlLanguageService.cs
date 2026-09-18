@@ -1482,6 +1482,10 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                         }
                     }
                 }
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+                {
+                    return null;
+                }
                 catch (Exception ex)
                 {
                     // reset the parse result to do a full parse next time
