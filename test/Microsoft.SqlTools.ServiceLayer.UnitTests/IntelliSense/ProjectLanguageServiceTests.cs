@@ -6,8 +6,11 @@
 #nullable disable
 
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Microsoft.SqlServer.Dac.Model;
@@ -24,6 +27,7 @@ using Microsoft.SqlTools.ServiceLayer.UnitTests.SqlProjects;
 using Microsoft.SqlTools.LanguageService.Workspace;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using Microsoft.SqlTools.Hosting.Protocol;
+using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 using Microsoft.SqlTools.SqlCore.IntelliSense;
 using Moq;
 using NUnit.Framework;
@@ -178,10 +182,282 @@ END
         }
 
         /// <summary>
+        /// VS Code percent-encodes the drive colon in the URIs it sends (file:///c%3A/...), while
+        /// the project reports its files with unescaped URIs (file:///C:/...).
+        /// </summary>
+        private static string ToClientUri(string uri)
+        {
+            const string prefix = "file:///";
+            int colon = uri.IndexOf(':', prefix.Length);
+            return uri.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) && colon == prefix.Length + 1
+                ? uri.Substring(0, colon) + "%3A" + uri.Substring(colon + 1)
+                : uri;
+        }
+
+        /// <summary>
+        /// A project model update re-analyzes only the project files open in the editor.
+        /// </summary>
+        [Test]
+        [Timeout(30_000)]
+        public async Task ModelUpdateRefreshesDiagnosticsOnlyForOpenProjectFiles()
+        {
+            const int siblingCount = 200;
+            const int openSiblingCount = 2;
+            string tablesDir = Path.Combine(Path.GetDirectoryName(_projectPath), "Tables");
+            Directory.CreateDirectory(tablesDir);
+
+            // The project's URI-string exclusion misses the edited file's escaped client URI.
+            var projectFileUris = new List<string>();
+            for (int i = 0; i < siblingCount; i++)
+            {
+                string path = Path.Combine(tablesDir, $"Sibling{i}.sql");
+                File.WriteAllText(path, $"CREATE TABLE dbo.Sibling{i} (Id INT);");
+                projectFileUris.Add(new Uri(path).AbsoluteUri);
+            }
+            string editedPath = Path.Combine(tablesDir, "Edited.sql");
+            File.WriteAllText(editedPath, "CREATE TABLE dbo.Edited (Id INT);");
+            projectFileUris.Add(new Uri(editedPath).AbsoluteUri);
+
+            // The editor has the edited file and two of its siblings open.
+            string editedClientUri = ToClientUri(new Uri(editedPath).AbsoluteUri);
+            var openClientUris = projectFileUris.Take(openSiblingCount).Select(ToClientUri).Append(editedClientUri).ToList();
+            foreach (string clientUri in openClientUris)
+            {
+                _workspaceService.Workspace.GetFileBuffer(clientUri, "CREATE TABLE dbo.OpenInEditor (Id INT);");
+            }
+            _langService.InitializeProjectFileContexts(openClientUris, _contextKey, "LanguageServiceTestProject");
+            int openFilesBefore = _workspaceService.Workspace.GetOpenedFiles().Length;
+
+            var projectIntelliSense = new Mock<IProjectIntelliSenseService>();
+            projectIntelliSense
+                .Setup(p => p.UpdateProjectIntelliSenseAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()))
+                .Returns(Task.CompletedTask);
+            projectIntelliSense
+                .Setup(p => p.GetSiblingProjectFileUris(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(projectFileUris);
+            _langService.ProjectIntelliSenseService = projectIntelliSense.Object;
+
+            var publishedUris = new ConcurrentQueue<string>();
+            var published = new SemaphoreSlim(0);
+            var eventContext = new Mock<EventContext>();
+            eventContext
+                .Setup(c => c.SendEvent(PublishDiagnosticsNotification.Type, It.IsAny<PublishDiagnosticsNotification>()))
+                .Callback((EventType<PublishDiagnosticsNotification> _, PublishDiagnosticsNotification notification) =>
+                {
+                    publishedUris.Enqueue(notification.Uri);
+                    published.Release();
+                })
+                .Returns(Task.CompletedTask);
+
+            await _langService.HandleDidSaveTextDocumentNotification(editedClientUri, eventContext.Object);
+
+            for (int i = 0; i < openClientUris.Count; i++)
+            {
+                Assert.That(await published.WaitAsync(10_000), Is.True,
+                    "diagnostics for every open project file are refreshed after the model update");
+            }
+            await _langService.DelayedDiagnosticsTask;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(_workspaceService.Workspace.GetOpenedFiles().Length, Is.EqualTo(openFilesBefore),
+                    "the refresh must not load unopened project files from disk");
+                Assert.That(publishedUris, Is.EquivalentTo(openClientUris),
+                    "exactly the open documents are analyzed, once each, under the URI the client knows them by");
+                Assert.That(publishedUris.First(), Is.EqualTo(editedClientUri),
+                    "the edited file is refreshed first");
+            });
+        }
+
+        /// <summary>
+        /// A multi-file refresh analyzes one file at a time and stops once superseded.
+        /// </summary>
+        [Test]
+        [Timeout(30_000)]
+        public async Task DiagnosticsRefreshAnalyzesOneFileAtATimeAndStopsWhenSuperseded()
+        {
+            string tablesDir = Path.Combine(Path.GetDirectoryName(_projectPath), "Tables");
+            var files = new List<ScriptFile>();
+            var uris = new List<string>();
+            for (int i = 0; i < 4; i++)
+            {
+                string uri = new Uri(Path.Combine(tablesDir, $"Refresh{i}.sql")).AbsoluteUri;
+                files.Add(_workspaceService.Workspace.GetFileBuffer(uri, $"CREATE TABLE dbo.Refresh{i} (Id INT);"));
+                uris.Add(uri);
+            }
+            _langService.InitializeProjectFileContexts(uris, _contextKey, "LanguageServiceTestProject");
+
+            // A binding queue that accepts items but does not process them until told to.
+            var queuedItems = new ConcurrentQueue<QueueItem>();
+            var itemQueued = new SemaphoreSlim(0);
+            var stalledQueue = new Mock<ConnectedBindingQueue>();
+            stalledQueue
+                .Setup(q => q.QueueBindingOperationAsync(
+                    It.IsAny<string>(),
+                    It.IsAny<Func<IBindingContext, CancellationToken, Task<object>>>(),
+                    It.IsAny<Func<IBindingContext, object>>(),
+                    It.IsAny<Func<Exception, object>>(),
+                    It.IsAny<int?>(),
+                    It.IsAny<int?>(),
+                    It.IsAny<int?>()))
+                .Returns(() =>
+                {
+                    var item = new QueueItem();
+                    queuedItems.Enqueue(item);
+                    itemQueued.Release();
+                    return item;
+                });
+            ConnectedBindingQueue realQueue = _langService.BindingQueue;
+            _langService.BindingQueue = stalledQueue.Object;
+
+            var eventContext = new Mock<EventContext>();
+            eventContext
+                .Setup(c => c.SendEvent(PublishDiagnosticsNotification.Type, It.IsAny<PublishDiagnosticsNotification>()))
+                .Returns(Task.CompletedTask);
+
+            using var supersede = new CancellationTokenSource();
+            try
+            {
+                Task refresh = _langService.DelayThenInvokeDiagnostics(0, files.ToArray(), eventContext.Object, supersede.Token);
+
+                Assert.That(await itemQueued.WaitAsync(10_000), Is.True, "the first file is analyzed");
+                await Task.Delay(500);
+                Assert.Multiple(() =>
+                {
+                    Assert.That(queuedItems.Count, Is.EqualTo(1),
+                        "the next file is not started while the first is still being analyzed");
+                    Assert.That(refresh.IsCompleted, Is.False);
+                });
+
+                supersede.Cancel();
+                foreach (QueueItem item in queuedItems)
+                {
+                    item.ItemProcessed.Set();
+                }
+
+                Assert.That(await Task.WhenAny(refresh, Task.Delay(10_000)), Is.SameAs(refresh),
+                    "a superseded refresh ends once the file in progress is done");
+                Assert.That(queuedItems.Count, Is.EqualTo(1),
+                    "the remaining files are left to the request that superseded this one");
+            }
+            finally
+            {
+                foreach (QueueItem item in queuedItems)
+                {
+                    item.ItemProcessed.Set();
+                }
+                _langService.BindingQueue = realQueue;
+            }
+        }
+
+        /// <summary>
+        /// Every file of a refresh reports its errors; none loses the binding lock race.
+        /// </summary>
+        [Test]
+        [Timeout(30_000)]
+        public async Task DiagnosticsRefreshReportsErrorsForEveryProjectFile()
+        {
+            string tablesDir = Path.Combine(Path.GetDirectoryName(_projectPath), "Tables");
+            var files = new List<ScriptFile>();
+            var uris = new List<string>();
+            for (int i = 0; i < 8; i++)
+            {
+                string uri = new Uri(Path.Combine(tablesDir, $"Broken{i}.sql")).AbsoluteUri;
+                files.Add(_workspaceService.Workspace.GetFileBuffer(uri, $"CREATE TABLE dbo.Broken{i} (Id INT"));
+                uris.Add(uri);
+            }
+            _langService.InitializeProjectFileContexts(uris, _contextKey, "LanguageServiceTestProject");
+
+            var diagnosticCounts = new ConcurrentDictionary<string, int>();
+            var eventContext = new Mock<EventContext>();
+            eventContext
+                .Setup(c => c.SendEvent(PublishDiagnosticsNotification.Type, It.IsAny<PublishDiagnosticsNotification>()))
+                .Callback((EventType<PublishDiagnosticsNotification> _, PublishDiagnosticsNotification notification) =>
+                    diagnosticCounts[notification.Uri] = notification.Diagnostics?.Length ?? 0)
+                .Returns(Task.CompletedTask);
+
+            await _langService.DelayThenInvokeDiagnostics(0, files.ToArray(), eventContext.Object, CancellationToken.None);
+
+            Assert.That(diagnosticCounts.Keys, Is.EquivalentTo(uris), "every file is analyzed");
+            Assert.That(diagnosticCounts.Where(kv => kv.Value == 0).Select(kv => kv.Key), Is.Empty,
+                "every file reports its syntax error");
+        }
+
+        /// <summary>
+        /// ParseAndBind calls waiting on the binding queue do not each hold a thread.
+        /// </summary>
+        [Test]
+        [Timeout(90_000)]
+        public void ParseAndBindDoesNotHoldAThreadWhileWaitingForTheBindingQueue()
+        {
+            // Cap the pool well below the number of calls, so the calls can only all reach the
+            // queue if waiting does not take a thread each.
+            ThreadPool.GetMinThreads(out int minWorkerThreads, out _);
+            ThreadPool.GetMaxThreads(out int maxWorkerThreads, out int maxIoThreads);
+            int cappedWorkerThreads = minWorkerThreads + 4;
+            int callCount = cappedWorkerThreads * 4;
+            string tablesDir = Path.Combine(Path.GetDirectoryName(_projectPath), "Tables");
+            var files = new List<ScriptFile>();
+            var uris = new List<string>();
+            for (int i = 0; i < callCount; i++)
+            {
+                string uri = new Uri(Path.Combine(tablesDir, $"Waiting{i}.sql")).AbsoluteUri;
+                files.Add(_workspaceService.Workspace.GetFileBuffer(uri, $"CREATE TABLE dbo.Waiting{i} (Id INT);"));
+                uris.Add(uri);
+            }
+            _langService.InitializeProjectFileContexts(uris, _contextKey, "LanguageServiceTestProject");
+
+            var queuedItems = new ConcurrentQueue<QueueItem>();
+            var stalledQueue = new Mock<ConnectedBindingQueue>();
+            stalledQueue
+                .Setup(q => q.QueueBindingOperationAsync(
+                    It.IsAny<string>(),
+                    It.IsAny<Func<IBindingContext, CancellationToken, Task<object>>>(),
+                    It.IsAny<Func<IBindingContext, object>>(),
+                    It.IsAny<Func<Exception, object>>(),
+                    It.IsAny<int?>(),
+                    It.IsAny<int?>(),
+                    It.IsAny<int?>()))
+                .Returns(() =>
+                {
+                    var item = new QueueItem();
+                    queuedItems.Enqueue(item);
+                    return item;
+                });
+            ConnectedBindingQueue realQueue = _langService.BindingQueue;
+            _langService.BindingQueue = stalledQueue.Object;
+
+            Assert.That(ThreadPool.SetMaxThreads(cappedWorkerThreads, maxIoThreads), Is.True);
+            try
+            {
+                List<Task<ParseResult>> calls = files.Select(f => _langService.ParseAndBind(f, null)).ToList();
+
+                Assert.That(SpinWait.SpinUntil(() => queuedItems.Count == callCount, 10_000), Is.True,
+                    "every call reaches the queue without needing a thread of its own");
+
+                foreach (QueueItem item in queuedItems)
+                {
+                    item.ItemProcessed.Set();
+                }
+                Assert.That(((IAsyncResult)Task.WhenAll(calls)).AsyncWaitHandle.WaitOne(30_000), Is.True,
+                    "the calls complete once the queue processes their items");
+            }
+            finally
+            {
+                foreach (QueueItem item in queuedItems)
+                {
+                    item.ItemProcessed.Set();
+                }
+                ThreadPool.SetMaxThreads(maxWorkerThreads, maxIoThreads);
+                _langService.BindingQueue = realQueue;
+            }
+        }
+
+        /// <summary>
         /// Test Go to Definition from a stored procedure to a table it references
         /// </summary>
         [Test]
-        public void GoToDefinition_FindsTableDefinitionFromStoredProcedure()
+        public async Task GoToDefinition_FindsTableDefinitionFromStoredProcedure()
         {
             // Arrange: Set up the stored procedure file context
             string projectDir = Path.GetDirectoryName(_projectPath);
@@ -217,7 +493,7 @@ END
             };
 
             // Act: Request definition
-            DefinitionResult result = _langService.GetDefinition(textPosition, scriptFile, connInfo: null);
+            DefinitionResult result = await _langService.GetDefinition(textPosition, scriptFile, connInfo: null);
 
             // Assert: Should find the table definition
             Assert.IsNotNull(result, "Definition result should not be null");
@@ -285,7 +561,7 @@ END
         /// otherwise the source index lookup fails because the key is "SwaggerPetstore.Models.Get0ItemsItem".
         /// </summary>
         [Test]
-        public void GoToDefinition_FindsTableDefinitionWithDottedSchemaName()
+        public async Task GoToDefinition_FindsTableDefinitionWithDottedSchemaName()
         {
             // Arrange: Create a fresh project with a dotted schema and a table in that schema
             string projectPath = ProjectUtils.CreateTestProject("DottedSchemaProject");
@@ -362,7 +638,7 @@ END
                 };
 
                 // Act
-                DefinitionResult result = langService.GetDefinition(textPosition, scriptFile, connInfo: null);
+                DefinitionResult result = await langService.GetDefinition(textPosition, scriptFile, connInfo: null);
 
                 // Assert: Must succeed and point to Get0ItemsItem.sql
                 Assert.IsNotNull(result, "Definition result should not be null");
@@ -420,7 +696,7 @@ END
         /// Exercises Resolver.GetQuickInfo → bound ParseResult.
         /// </summary>
         [Test]
-        public void Hover_ReturnsTableTooltip()
+        public async Task Hover_ReturnsTableTooltip()
         {
             // Arrange
             string queryUri = "file:///test_hover.sql";
@@ -440,7 +716,7 @@ END
             };
 
             // Act
-            var hover = _langService.GetHoverItem(position, scriptFile);
+            var hover = await _langService.GetHoverItem(position, scriptFile);
 
             // Assert: hover tooltip should mention "table" and "Customers"
             Assert.IsNotNull(hover, "Hover result should not be null");
@@ -458,7 +734,7 @@ END
         /// GetProperty&lt;bool&gt;(Column.Nullable) instead of the old hardcoded stubs.
         /// </summary>
         [Test]
-        public void Hover_ColumnTooltip_ShowsDataTypeAndNullability()
+        public async Task Hover_ColumnTooltip_ShowsDataTypeAndNullability()
         {
             // "CustomerId INT PRIMARY KEY" — NOT NULL (primary key implies non-nullable)
             // "Email NVARCHAR(255)"        — nullable (no NOT NULL constraint)
@@ -474,7 +750,7 @@ END
                 TextDocument = new TextDocumentIdentifier { Uri = queryUri },
                 Position = new Position { Line = 0, Character = 8 }  // inside "CustomerId"
             };
-            var hoverCustomerId = _langService.GetHoverItem(posCustomerId, scriptFile);
+            var hoverCustomerId = await _langService.GetHoverItem(posCustomerId, scriptFile);
             Assert.IsNotNull(hoverCustomerId, "Hover result should not be null for CustomerId");
             Assert.IsNotNull(hoverCustomerId.Contents, "Hover contents should not be null for CustomerId");
             string textCustomerId = hoverCustomerId.Contents.Value;
@@ -489,7 +765,7 @@ END
                 TextDocument = new TextDocumentIdentifier { Uri = queryUri },
                 Position = new Position { Line = 0, Character = 20 }  // inside "Email"
             };
-            var hoverEmail = _langService.GetHoverItem(posEmail, scriptFile);
+            var hoverEmail = await _langService.GetHoverItem(posEmail, scriptFile);
             Assert.IsNotNull(hoverEmail, "Hover result should not be null for Email");
             Assert.IsNotNull(hoverEmail.Contents, "Hover contents should not be null for Email");
             string textEmail = hoverEmail.Contents.Value;
@@ -506,7 +782,7 @@ END
         /// it now returns null so the binder can continue resolving.
         /// </summary>
         [Test]
-        public void GoToDefinition_SchemaQualifiedName_ResolvesToCorrectFileAndLine()
+        public async Task GoToDefinition_SchemaQualifiedName_ResolvesToCorrectFileAndLine()
         {
             // Arrange: cursor on "Customers" in "SELECT * FROM dbo.Customers" (line 0, char 22)
             string queryUri = "file:///test_schemaqualified.sql";
@@ -520,7 +796,7 @@ END
             };
 
             // Act
-            DefinitionResult result = _langService.GetDefinition(position, scriptFile, connInfo: null);
+            DefinitionResult result = await _langService.GetDefinition(position, scriptFile, connInfo: null);
 
             // Assert: resolves to Customers.sql at a valid line
             Assert.IsNotNull(result, "Definition result should not be null");
@@ -612,7 +888,7 @@ END
             "    CONSTRAINT FK_Orders_Customers FOREIGN KEY (CustomerId) REFERENCES [dbo].[Customers]([CustomerId])",
             80,
             TestName = "GoToDefinition_ForeignKeyReferences_BracketedIdentifiers")]
-        public void GoToDefinition_ForeignKeyReferences_UsesTokenWalk(string constraintLine, int cursorColumn)
+        public async Task GoToDefinition_ForeignKeyReferences_UsesTokenWalk(string constraintLine, int cursorColumn)
         {
             string queryContent =
                 "CREATE TABLE dbo.Orders (\n" +
@@ -631,7 +907,7 @@ END
                 Position = new Position { Line = 3, Character = cursorColumn }
             };
 
-            DefinitionResult result = _langService.GetDefinition(position, scriptFile, connInfo: null);
+            DefinitionResult result = await _langService.GetDefinition(position, scriptFile, connInfo: null);
 
             Assert.IsNotNull(result, "Definition result should not be null");
             Assert.IsFalse(result.IsErrorResult,

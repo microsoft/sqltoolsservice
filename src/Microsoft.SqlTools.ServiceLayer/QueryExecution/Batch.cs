@@ -656,13 +656,20 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         /// <param name="sender">Sender of the event</param>
         /// <param name="args">Arguments for the event</param>
-        internal void StatementCompletedHandler(object sender, StatementCompletedEventArgs args)
+        internal async void StatementCompletedHandler(object sender, StatementCompletedEventArgs args)
         {
-            // Add a message for the number of rows the query returned
-            string message = args.RecordCount == 1
-                ? SR.QueryServiceAffectedOneRow
-                : SR.QueryServiceAffectedRows(args.RecordCount);
-            SendMessage(message, false).Wait();
+            try
+            {
+                // Add a message for the number of rows the query returned
+                string message = args.RecordCount == 1
+                    ? SR.QueryServiceAffectedOneRow
+                    : SR.QueryServiceAffectedRows(args.RecordCount);
+                await SendMessage(message, false);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Failed to send a statement-completed message: {ex}");
+            }
         }
 
         /// <summary>

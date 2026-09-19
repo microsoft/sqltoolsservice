@@ -98,7 +98,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             int? waitForLockTimeout = null,
             int? hardTimeout = null)
         {
-            QueueItem queueItem = new QueueItem()
+            return Enqueue(new QueueItem()
             {
                 Key = key,
                 BindOperation = bindOperation,
@@ -107,8 +107,35 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 BindingTimeout = bindingTimeout,
                 WaitForLockTimeout = waitForLockTimeout,
                 HardTimeout = hardTimeout
-            };
+            });
+        }
 
+        /// <summary>
+        /// Queue a binding request item whose operation is asynchronous
+        /// </summary>
+        public virtual QueueItem QueueBindingOperationAsync(
+            string key,
+            Func<IBindingContext, CancellationToken, Task<object?>> bindOperation,
+            Func<IBindingContext, object>? timeoutOperation = null,
+            Func<Exception, object>? errorHandler = null,
+            int? bindingTimeout = null,
+            int? waitForLockTimeout = null,
+            int? hardTimeout = null)
+        {
+            return Enqueue(new QueueItem()
+            {
+                Key = key,
+                BindOperationAsync = bindOperation,
+                TimeoutOperation = timeoutOperation,
+                ErrorHandler = errorHandler,
+                BindingTimeout = bindingTimeout,
+                WaitForLockTimeout = waitForLockTimeout,
+                HardTimeout = hardTimeout
+            });
+        }
+
+        private QueueItem Enqueue(QueueItem queueItem)
+        {
             lock (this.bindingQueueLock)
             {
                 this.bindingQueue.AddLast(queueItem);
@@ -156,7 +183,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 {
                     var bindingContext = new T();
                     this.BindingContextMap.TryAdd(key, bindingContext);
-                    this.BindingContextTasks.TryAdd(bindingContext, Task.Run(() => null));
+                    this.BindingContextTasks.TryAdd(bindingContext, Task.CompletedTask);
                 }
 
                 return this.BindingContextMap[key];
@@ -306,8 +333,8 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
                         // Run in the binding context task in case this task has to wait for a previous binding operation
                         this.BindingContextTasks[bindingContext] = bindingContextTask.ContinueWith(
-                            task => DispatchQueueItem(bindingContext, queueItem)
-                        , TaskContinuationOptions.RunContinuationsAsynchronously);
+                            task => DispatchQueueItemAsync(bindingContext, queueItem)
+                        , TaskContinuationOptions.RunContinuationsAsynchronously).Unwrap();
 
                         // if a queue processing cancellation was requested then exit the loop
                         if (token.IsCancellationRequested)
@@ -331,7 +358,23 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             }
         }
 
-        private void DispatchQueueItem(IBindingContext bindingContext, QueueItem queueItem)
+        /// <summary>
+        /// Waits for a task with a timeout, without holding a thread
+        /// </summary>
+        private static async Task<bool> CompletesWithinAsync(Task task, int millisecondsTimeout)
+        {
+            if (task.IsCompleted)
+            {
+                return true;
+            }
+
+            using var timeoutCancellation = new CancellationTokenSource();
+            Task finished = await Task.WhenAny(task, Task.Delay(millisecondsTimeout, timeoutCancellation.Token));
+            timeoutCancellation.Cancel();
+            return finished == task;
+        }
+
+        private async Task DispatchQueueItemAsync(IBindingContext bindingContext, QueueItem queueItem)
         {
             bool lockTaken = false;
             Stopwatch bindingLockStopwatch = Stopwatch.StartNew();
@@ -344,7 +387,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 Logger.Verbose($"Binding queue item {queueItem.Id} dispatch started after {queueItem.Lifetime.ElapsedMilliseconds} ms queued; lock wait timeout: {waitForLockTimeoutInMs} ms, slow threshold: {bindTimeoutInMs} ms, hard timeout: {hardTimeoutInMs} ms");
 
                 // handle the case a previous binding operation is still running
-                if (!bindingContext.BindingLock.WaitOne(waitForLockTimeoutInMs))
+                if (!await bindingContext.BindingLock.WaitOneAsync(waitForLockTimeoutInMs))
                 {
                     try
                     {
@@ -379,15 +422,15 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 CancellationTokenSource cancelToken = new CancellationTokenSource();
 
                 // run the operation in a separate thread
-                var bindTask = Task.Run(() =>
+                var bindTask = Task.Run(async () =>
                 {
                     try
                     {
                         queueItem.WasExecuted = true;
                         Logger.Verbose($"Binding queue item {queueItem.Id} operation started at {queueItem.Lifetime.ElapsedMilliseconds} ms");
-                        result = queueItem.BindOperation(
-                                            bindingContext,
-                                            cancelToken.Token);
+                        result = queueItem.BindOperationAsync != null
+                            ? await queueItem.BindOperationAsync(bindingContext, cancelToken.Token)
+                            : queueItem.BindOperation(bindingContext, cancelToken.Token);
                     }
                     catch (Exception ex)
                     {
@@ -417,15 +460,20 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                         Logger.Verbose($"Binding queue item {queueItem.Id} operation finished at {queueItem.Lifetime.ElapsedMilliseconds} ms; cancellation requested: {cancelToken.IsCancellationRequested}");
                     }
                 });
+                _ = bindTask.ContinueWith(
+                    _ => cancelToken.Dispose(),
+                    CancellationToken.None,
+                    TaskContinuationOptions.ExecuteSynchronously,
+                    TaskScheduler.Default);
 
-                Task.Run(() =>
+                _ = Task.Run(async () =>
                 {
                     try
                     {
                         int slowWaitInMs = Math.Min(bindTimeoutInMs, hardTimeoutInMs);
 
                         // The first timeout is only a slow-operation threshold when a later hard timeout is set.
-                        if (bindTask.Wait(slowWaitInMs))
+                        if (await CompletesWithinAsync(bindTask, slowWaitInMs))
                         {
                             queueItem.Result = result;
                         }
@@ -437,7 +485,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                             }
 
                             int remainingWaitInMs = hardTimeoutInMs - slowWaitInMs;
-                            if (remainingWaitInMs > 0 && bindTask.Wait(remainingWaitInMs))
+                            if (remainingWaitInMs > 0 && await CompletesWithinAsync(bindTask, remainingWaitInMs))
                             {
                                 queueItem.Result = result;
                             }
@@ -447,7 +495,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                                 queueItem.TimedOut = true;
 
                                 // Keep this context unavailable until the old operation actually exits.
-                                bindTask.ContinueWith(
+                                _ = bindTask.ContinueWith(
                                     task =>
                                     {
                                         bindingContext.BindingLock.Set();
@@ -465,7 +513,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                                     queueItem.Result = queueItem.TimeoutOperation(bindingContext);
                                 }
 
-                                bindTask.ContinueWithOnFaulted(t => Logger.Error("Binding queue threw exception " + t.Exception.ToString()));
+                                _ = bindTask.ContinueWithOnFaulted(t => Logger.Error("Binding queue threw exception " + t.Exception.ToString()));
                             }
                         }
                     }
@@ -507,12 +555,17 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// </summary>
         public void ClearQueuedItems()
         {
+            List<QueueItem> removedItems;
             lock (this.bindingQueueLock)
             {
-                if (this.bindingQueue.Count > 0)
-                {
-                    this.bindingQueue.Clear();
-                }
+                removedItems = this.bindingQueue.ToList();
+                this.bindingQueue.Clear();
+            }
+
+            foreach (QueueItem item in removedItems)
+            {
+                item.TimedOut = true;
+                item.ItemProcessed.Set();
             }
         }
 

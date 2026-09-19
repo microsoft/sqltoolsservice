@@ -348,6 +348,35 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         }
 
         [Test]
+        public async Task StatementCompletedHandlerDoesNotBlockOnMessageSend()
+        {
+            Batch batch = new Batch(Constants.StandardQuery, Common.SubsectionDocument, Common.Ordinal, MemoryFileSystem.GetFileStreamFactory());
+            var sendStarted = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var releaseSend = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var sendCompleted = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
+            batch.BatchMessageSent += async args =>
+            {
+                sendStarted.TrySetResult(null);
+                await releaseSend.Task;
+                sendCompleted.TrySetResult(null);
+            };
+
+            Task handlerCall = Task.Run(() => batch.StatementCompletedHandler(null, new StatementCompletedEventArgs(1)));
+            try
+            {
+                await sendStarted.Task.WaitAsync(TimeSpan.FromSeconds(1));
+                Task completedTask = await Task.WhenAny(handlerCall, Task.Delay(TimeSpan.FromSeconds(1)));
+                Assert.That(completedTask, Is.SameAs(handlerCall), "the database callback must not wait for protocol I/O");
+            }
+            finally
+            {
+                releaseSend.TrySetResult(null);
+            }
+
+            await sendCompleted.Task.WaitAsync(TimeSpan.FromSeconds(1));
+        }
+
+        [Test]
         public async Task ServerMessageHandlerShowsErrorMessages()
         {
             // Set up the batch to track message calls

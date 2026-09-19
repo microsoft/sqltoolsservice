@@ -90,10 +90,6 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
         public void Start()
         {
-            // Initialize semaphore for Parallel message processing using 10 initial requests.
-            var initialSemaphoreLimit = ParallelMessageProcessingLimit <= 10 ? ParallelMessageProcessingLimit : 10;
-            semaphore = new SemaphoreSlim(initialSemaphoreLimit, ParallelMessageProcessingLimit);
-
             // Start the main message loop thread.  The Task is
             // not explicitly awaited because it is running on
             // an independent background thread.
@@ -337,10 +333,7 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 {
                     if (this.ParallelMessageProcessing && isParallelProcessingSupported)
                     {
-                        _ = Task.Run(async () =>
-                        {
-                            await handlerToAwait(messageToDispatch, messageWriter);
-                        });
+                        _ = Task.Run(() => this.RunParallelHandler(handlerToAwait, messageToDispatch, messageWriter));
                     }
                     else
                     {
@@ -361,6 +354,48 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                         Logger.Error(string.Format("An unexpected error occurred in the request handler: {0}", e.ToString()));
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Runs a handler off the message loop, at most ParallelMessageProcessingLimit at a time.
+        /// </summary>
+        private async Task RunParallelHandler(
+            Func<Message, MessageWriter, Task> handler,
+            Message message,
+            MessageWriter messageWriter)
+        {
+            // Created on first use: the host sets the limit after Start().
+            SemaphoreSlim limiter = LazyInitializer.EnsureInitialized(ref this.semaphore, () =>
+            {
+                int limit = Math.Max(1, this.ParallelMessageProcessingLimit);
+                return new SemaphoreSlim(limit, limit);
+            });
+
+            try
+            {
+                await limiter.WaitAsync(this.messageLoopCancellationToken.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                return;
+            }
+
+            try
+            {
+                await handler(message, messageWriter);
+            }
+            catch (OperationCanceledException e)
+            {
+                Logger.Verbose(string.Format("A TaskCanceledException occurred in the request handler: {0}", e.ToString()));
+            }
+            catch (Exception e)
+            {
+                Logger.Error(string.Format("An unexpected error occurred in the request handler: {0}", e.ToString()));
+            }
+            finally
+            {
+                limiter.Release();
             }
         }
 

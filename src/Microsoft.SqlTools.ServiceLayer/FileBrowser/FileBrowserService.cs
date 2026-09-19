@@ -193,7 +193,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                             return result;
                         });
 
-                    queueItem.ItemProcessed.WaitOne();
+                    await queueItem.WaitForCompletionAsync();
                     if (queueItem.GetResultAsT<FileBrowserCloseResponse>() != null)
                     {
                         result = queueItem.GetResultAsT<FileBrowserCloseResponse>();
@@ -264,7 +264,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                             return result;
                         });
 
-                    queueItem.ItemProcessed.WaitOne();
+                    await queueItem.WaitForCompletionAsync();
 
                     if (queueItem.GetResultAsT<FileBrowserOpenedParams>() != null)
                     {
@@ -308,7 +308,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                             return result;
                         });
 
-                    queueItem.ItemProcessed.WaitOne();
+                    await queueItem.WaitForCompletionAsync();
 
                     if (queueItem.GetResultAsT<FileBrowserExpandedParams>() != null)
                     {
@@ -356,7 +356,7 @@ namespace Microsoft.SqlTools.ServiceLayer.FileBrowser
                             return result;
                         });
 
-                    queueItem.ItemProcessed.WaitOne();
+                    await queueItem.WaitForCompletionAsync();
 
                     if (queueItem.GetResultAsT<FileBrowserValidatedParams>() != null)
                     {

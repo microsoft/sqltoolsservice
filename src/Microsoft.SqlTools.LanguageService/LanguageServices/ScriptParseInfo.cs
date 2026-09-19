@@ -35,12 +35,12 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
     /// </summary>
     public class ScriptParseInfo
     {
-        private object buildingMetadataLock = new object();
+        private readonly MetadataLock buildingMetadataLock = new MetadataLock();
 
         /// <summary>
         /// Event which tells if MetadataProvider is built fully or not
         /// </summary>
-        public object BuildingMetadataLock
+        public MetadataLock BuildingMetadataLock
         { 
             get { return this.buildingMetadataLock; }
         }

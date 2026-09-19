@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.LanguageService.LanguageServices
 {
@@ -49,6 +50,11 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         public Func<IBindingContext, CancellationToken, object?> BindOperation { get; set; } = null!;
 
         /// <summary>
+        /// Gets or sets an asynchronous bind operation, used instead of <see cref="BindOperation"/> when set
+        /// </summary>
+        public Func<IBindingContext, CancellationToken, Task<object?>>? BindOperationAsync { get; set; }
+
+        /// <summary>
         /// Gets or sets the timeout operation to call if the bind operation doesn't finish within timeout period
         /// </summary>
 #pragma warning restore IDE0370
@@ -67,6 +73,14 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// Gets or sets an event to signal when this queue item has been processed
         /// </summary>
         public virtual ManualResetEvent ItemProcessed { get; set; }
+
+        /// <summary>
+        /// Waits for <see cref="ItemProcessed"/> without holding a thread
+        /// </summary>
+        public Task WaitForCompletionAsync(CancellationToken cancellationToken = default)
+        {
+            return this.ItemProcessed.WaitOneAsync(Timeout.Infinite, cancellationToken);
+        }
 
         /// <summary>
         /// Gets or sets the result of the queued task
