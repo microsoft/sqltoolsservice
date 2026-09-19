@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using System.IO;
 using System.Linq;
 using Microsoft.SqlServer.Dac.Model;
@@ -339,6 +340,118 @@ CREATE TABLE dbo.Orders (
                 // Name-based lookup — used by FindReferencedKey to match FK columns
                 Assert.IsNotNull(pkIndex.IndexedColumns["OrderId"], "PK IndexedColumns must support name lookup");
                 Assert.IsNotNull(uqIndex.IndexedColumns["OrderNumber"], "UNIQUE IndexedColumns must support name lookup");
+            }
+            finally
+            {
+                model?.Dispose();
+                ProjectUtils.DeleteTestProject(projectPath);
+            }
+        }
+
+        /// <summary>
+        /// The SqlParser binder copies a table's indexes into a name-keyed SortedList when it
+        /// duplicates the table (TableViewBase's constructor). Empty or colliding names make that
+        /// copy throw, which aborts binding and silently disables IntelliSense for the whole file.
+        /// </summary>
+        [Test]
+        public void TableWithPrimaryKeyAndUniqueConstraint_HasDistinctNonEmptyKeyNames()
+        {
+            string projectPath = ProjectUtils.CreateTestProject();
+            var project = SqlProject.OpenProject(projectPath);
+
+            const string tableScript = @"
+CREATE TABLE dbo.DimCustomer (
+    DimKey INT IDENTITY (1, 1) NOT NULL,
+    BusinessKey VARCHAR (64) NOT NULL,
+    ValidFrom DATETIME2 (3) NOT NULL,
+    CONSTRAINT PK_DimCustomer PRIMARY KEY CLUSTERED (DimKey ASC),
+    CONSTRAINT UQ_DimCustomer_BK UNIQUE NONCLUSTERED (BusinessKey ASC, ValidFrom ASC)
+);
+";
+            project.SqlObjectScripts.Add(new SqlObjectScript(Path.Combine("Tables", "DimCustomer.sql")), tableScript);
+
+            TSqlModel? model = null;
+            try
+            {
+                model = TSqlModelBuilder.LoadModel(project);
+                var provider = new TSqlModelMetadataProvider(model, "TestDatabase");
+                var table = provider.Server.Databases.First()
+                                    .Schemas.First(s => s.Name == "dbo")
+                                    .Tables.First(t => t.Name == "DimCustomer");
+
+                var indexNames = table.Indexes.Select(i => i.Name).ToList();
+                Assert.AreEqual(2, indexNames.Count, "PK and UNIQUE constraints should each yield an index");
+                CollectionAssert.DoesNotContain(indexNames, string.Empty, "Index names must never be empty");
+                Assert.AreEqual(
+                    indexNames.Count,
+                    indexNames.Distinct(StringComparer.OrdinalIgnoreCase).Count(),
+                    $"Index names must be unique; got: {string.Join(", ", indexNames)}");
+                CollectionAssert.AreEquivalent(
+                    new[] { "PK_DimCustomer", "UQ_DimCustomer_BK" },
+                    indexNames,
+                    "Index names should come from the declared constraint names");
+
+                var constraintNames = table.Constraints.Select(c => c.Name).ToList();
+                CollectionAssert.AreEquivalent(
+                    new[] { "PK_DimCustomer", "UQ_DimCustomer_BK" },
+                    constraintNames,
+                    "Constraint names should match the declared names, and the index names");
+            }
+            finally
+            {
+                model?.Dispose();
+                ProjectUtils.DeleteTestProject(projectPath);
+            }
+        }
+
+        /// <summary>
+        /// DacFx leaves Name.Parts empty for constraints declared without a CONSTRAINT clause, so
+        /// reading the trailing name part unguarded throws. Anonymous constraints must instead get a
+        /// synthesized name that is still unique within the table.
+        /// </summary>
+        [Test]
+        public void TableWithAnonymousConstraints_GetsSynthesizedUniqueNames()
+        {
+            string projectPath = ProjectUtils.CreateTestProject();
+            var project = SqlProject.OpenProject(projectPath);
+
+            const string tableScript = @"
+CREATE TABLE dbo.BooksAuthors (
+    AuthorId INT NOT NULL,
+    BookId INT NOT NULL,
+    Isbn VARCHAR (32) NOT NULL,
+    PRIMARY KEY CLUSTERED (AuthorId ASC, BookId ASC),
+    UNIQUE NONCLUSTERED (Isbn ASC)
+);
+";
+            project.SqlObjectScripts.Add(new SqlObjectScript(Path.Combine("Tables", "BooksAuthors.sql")), tableScript);
+
+            TSqlModel? model = null;
+            try
+            {
+                model = TSqlModelBuilder.LoadModel(project);
+                var provider = new TSqlModelMetadataProvider(model, "TestDatabase");
+                var table = provider.Server.Databases.First()
+                                    .Schemas.First(s => s.Name == "dbo")
+                                    .Tables.First(t => t.Name == "BooksAuthors");
+
+                // Materialising these must not throw; that is the regression being guarded.
+                var indexNames = table.Indexes.Select(i => i.Name).ToList();
+                var constraintNames = table.Constraints.Select(c => c.Name).ToList();
+
+                Assert.AreEqual(2, indexNames.Count, "Anonymous PK and UNIQUE should each yield an index");
+                CollectionAssert.DoesNotContain(indexNames, string.Empty, "Synthesized names must not be empty");
+                Assert.AreEqual(
+                    indexNames.Count,
+                    indexNames.Distinct(StringComparer.OrdinalIgnoreCase).Count(),
+                    $"Synthesized index names must be unique; got: {string.Join(", ", indexNames)}");
+
+                Assert.AreEqual(2, constraintNames.Count, "Anonymous PK and UNIQUE should each yield a constraint");
+                CollectionAssert.DoesNotContain(constraintNames, string.Empty,
+                    "Synthesized constraint names must not be empty");
+
+                Assert.IsTrue(table.Indexes.OfType<IRelationalIndex>().All(i => i.IsSystemNamed),
+                    "Indexes built from anonymous constraints should report IsSystemNamed");
             }
             finally
             {
