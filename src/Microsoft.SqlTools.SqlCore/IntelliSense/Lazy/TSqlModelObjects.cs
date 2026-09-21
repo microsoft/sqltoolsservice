@@ -54,6 +54,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
     internal sealed class TSqlModelTable : TSqlModelSchemaObject, ITable
     {
         private readonly TSqlObject _tableObj;
+        private readonly Lazy<IReadOnlyList<TSqlModelKeyDefinition>> _keyDefinitions;
         private IMetadataOrderedCollection<IColumn>? _columns;
         private IMetadataCollection<IConstraint>? _constraints;
         private IMetadataCollection<IIndex>? _indexes;
@@ -62,6 +63,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
             : base(schema, tableObj.Name.Parts[tableObj.Name.Parts.Count - 1], isUserDefined)
         {
             _tableObj = tableObj;
+            _keyDefinitions = new Lazy<IReadOnlyList<TSqlModelKeyDefinition>>(CreateKeyDefinitions);
         }
 
         // Lazy columns — only loaded when accessed
@@ -80,34 +82,74 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         // Lazy constraints — PK and UK constraints loaded on first access
         public IMetadataCollection<IConstraint> Constraints =>
             _constraints ??= new LazyCollection<IConstraint>(
-                () => _tableObj.GetReferencing(PrimaryKeyConstraint.Host, DacQueryScopes.UserDefined)
-                               .Select(c => (IConstraint)new TSqlModelPrimaryKeyConstraint(this, c))
-                               .Concat(
-                                   _tableObj.GetReferencing(UniqueConstraint.Host, DacQueryScopes.UserDefined)
-                                            .Select(c => (IConstraint)new TSqlModelUniqueConstraint(this, c))));
+                () => _keyDefinitions.Value.Select(d => d.Type == ConstraintType.PrimaryKey
+                    ? (IConstraint)new TSqlModelPrimaryKeyConstraint(this, d)
+                    : (IConstraint)new TSqlModelUniqueConstraint(this, d)));
 
         // Lazy indexes — binder uses Indexes (not Constraints) for FK key validation
         public IMetadataCollection<IIndex> Indexes =>
             _indexes ??= new LazyCollection<IIndex>(
-                () => _tableObj.GetReferencing(PrimaryKeyConstraint.Host, DacQueryScopes.UserDefined)
-                               .Select(c => (IIndex)new TSqlModelRelationalIndex(
-                                   this,
-                                   () => c.GetReferenced(PrimaryKeyConstraint.Columns, DacQueryScopes.UserDefined)
-                                          .Select((col, i) => (IOrderedColumn)new TSqlModelOrderedColumn(new TSqlModelColumn(this, col), i)),
-                                   () => c.GetReferenced(PrimaryKeyConstraint.Columns, DacQueryScopes.UserDefined)
-                                          .Select(col => (IIndexedColumn)new TSqlModelIndexedColumn(new TSqlModelColumn(this, col))),
-                                   ConstraintType.PrimaryKey,
-                                   c.GetProperty<bool>(PrimaryKeyConstraint.Clustered)))
-                               .Concat(
-                                   _tableObj.GetReferencing(UniqueConstraint.Host, DacQueryScopes.UserDefined)
-                                            .Select(c => (IIndex)new TSqlModelRelationalIndex(
-                                                this,
-                                                () => c.GetReferenced(UniqueConstraint.Columns, DacQueryScopes.UserDefined)
-                                                       .Select((col, i) => (IOrderedColumn)new TSqlModelOrderedColumn(new TSqlModelColumn(this, col), i)),
-                                                () => c.GetReferenced(UniqueConstraint.Columns, DacQueryScopes.UserDefined)
-                                                       .Select(col => (IIndexedColumn)new TSqlModelIndexedColumn(new TSqlModelColumn(this, col))),
-                                                ConstraintType.Unique,
-                                                c.GetProperty<bool>(UniqueConstraint.Clustered)))));
+                () => _keyDefinitions.Value.Select(d => (IIndex)d.CreateIndex(this)));
+
+        /// <summary>
+        /// Enumerates the table's PK and UNIQUE constraints, assigning every one a non-empty,
+        /// case-insensitively unique name.
+        /// </summary>
+        /// <remarks>
+        /// The SqlParser binder copies these into name-keyed <see cref="System.Collections.Generic.SortedList{TKey,TValue}"/>
+        /// instances when it duplicates a table (see TableViewBase's constructor). Duplicate names,
+        /// including multiple empty names, make binding throw and silently disable IntelliSense for the
+        /// whole file, so uniqueness is a hard requirement rather than a nicety. DacFx leaves
+        /// Name.Parts empty for constraints declared without an explicit CONSTRAINT clause, and a table
+        /// may legitimately have several of those, so anonymous constraints get a synthesized name here.
+        /// </remarks>
+        private IReadOnlyList<TSqlModelKeyDefinition> CreateKeyDefinitions()
+        {
+            var keys = new List<(TSqlObject Constraint, ConstraintType Type, ModelRelationshipClass Columns, bool IsClustered)>();
+
+            keys.AddRange(
+                _tableObj.GetReferencing(PrimaryKeyConstraint.Host, DacQueryScopes.UserDefined)
+                         .Select(constraint => (
+                             constraint,
+                             ConstraintType.PrimaryKey,
+                             PrimaryKeyConstraint.Columns,
+                             constraint.GetProperty<bool>(PrimaryKeyConstraint.Clustered))));
+
+            keys.AddRange(
+                _tableObj.GetReferencing(UniqueConstraint.Host, DacQueryScopes.UserDefined)
+                         .Select(constraint => (
+                             constraint,
+                             ConstraintType.Unique,
+                             UniqueConstraint.Columns,
+                             constraint.GetProperty<bool>(UniqueConstraint.Clustered))));
+
+            // Reserve every declared name before assigning generated names. Otherwise an anonymous
+            // constraint encountered first can claim a later constraint's real name and force the
+            // declared constraint to expose a made-up suffix instead.
+            var usedNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var key in keys)
+            {
+                string declaredName = TSqlModelKeyDefinition.GetSimpleName(key.Constraint);
+                if (!string.IsNullOrEmpty(declaredName))
+                {
+                    usedNames.Add(declaredName);
+                }
+            }
+
+            var definitions = new List<TSqlModelKeyDefinition>(keys.Count);
+            foreach (var key in keys)
+            {
+                definitions.Add(TSqlModelKeyDefinition.Create(
+                    key.Constraint,
+                    key.Type,
+                    key.Columns,
+                    key.IsClustered,
+                    _name,
+                    usedNames));
+            }
+
+            return definitions;
+        }
 
         public IMetadataCollection<IStatistics> Statistics => LazyCollection<IStatistics>.Empty;
 
@@ -569,6 +611,98 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
     }
 
     // =========================================================================
+    // TSqlModelKeyDefinition
+    // A PK or UNIQUE constraint paired with the unique name it must expose.
+    // =========================================================================
+    internal sealed class TSqlModelKeyDefinition
+    {
+        private readonly TSqlObject _constraintObj;
+        private readonly ModelRelationshipClass _columnsRelationship;
+
+        private TSqlModelKeyDefinition(
+            TSqlObject constraintObj,
+            ConstraintType type,
+            ModelRelationshipClass columnsRelationship,
+            bool isClustered,
+            string name,
+            bool isSystemNamed)
+        {
+            _constraintObj       = constraintObj;
+            _columnsRelationship = columnsRelationship;
+            Type                 = type;
+            IsClustered          = isClustered;
+            Name                 = name;
+            IsSystemNamed        = isSystemNamed;
+        }
+
+        internal ConstraintType Type { get; }
+        internal bool IsClustered { get; }
+        internal string Name { get; }
+        internal bool IsSystemNamed { get; }
+
+        /// <summary>
+        /// Builds a definition, taking the constraint's own name when it has one and otherwise
+        /// synthesizing one. <paramref name="usedNames"/> is pre-populated with every declared name
+        /// on the table and accumulates generated names, so an alias cannot displace a real name.
+        /// </summary>
+        internal static TSqlModelKeyDefinition Create(
+            TSqlObject constraintObj,
+            ConstraintType type,
+            ModelRelationshipClass columnsRelationship,
+            bool isClustered,
+            string tableName,
+            HashSet<string> usedNames)
+        {
+            string declaredName = GetSimpleName(constraintObj);
+            bool isSystemNamed = string.IsNullOrEmpty(declaredName);
+            string prefix = type == ConstraintType.PrimaryKey ? "PK" : "UQ";
+            string candidate = declaredName;
+
+            if (isSystemNamed)
+            {
+                candidate = $"{prefix}__{tableName}";
+                if (!usedNames.Add(candidate))
+                {
+                    int suffix = 2;
+                    string next;
+                    do
+                    {
+                        next = $"{candidate}__{suffix++}";
+                    }
+                    while (!usedNames.Add(next));
+                    candidate = next;
+                }
+            }
+
+            return new TSqlModelKeyDefinition(
+                constraintObj, type, columnsRelationship, isClustered, candidate, isSystemNamed);
+        }
+
+        /// <summary>
+        /// Returns the trailing part of a model object's name, or an empty string when the object is
+        /// anonymous. DacFx exposes anonymous constraints with an empty Parts collection, so indexing
+        /// the last element unguarded throws.
+        /// </summary>
+        internal static string GetSimpleName(TSqlObject obj)
+        {
+            IList<string>? parts = obj?.Name?.Parts;
+            return parts != null && parts.Count > 0 ? parts[parts.Count - 1] : string.Empty;
+        }
+
+        internal TSqlModelRelationalIndex CreateIndex(ITabular parent) =>
+            new TSqlModelRelationalIndex(
+                parent,
+                Name,
+                () => _constraintObj.GetReferenced(_columnsRelationship, DacQueryScopes.UserDefined)
+                                    .Select((col, i) => (IOrderedColumn)new TSqlModelOrderedColumn(new TSqlModelColumn(parent, col), i)),
+                () => _constraintObj.GetReferenced(_columnsRelationship, DacQueryScopes.UserDefined)
+                                    .Select(col => (IIndexedColumn)new TSqlModelIndexedColumn(new TSqlModelColumn(parent, col))),
+                Type,
+                IsClustered,
+                IsSystemNamed);
+    }
+
+    // =========================================================================
     // TSqlModelRelationalIndex : IRelationalIndex
     // Index wrapper for PK/UK constraints. Populates IndexedColumns and IndexKey
     // so the binder can resolve FK references against the correct key.
@@ -576,29 +710,37 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
     internal sealed class TSqlModelRelationalIndex : IRelationalIndex
     {
         private readonly ITabular _parent;
+        private readonly string _name;
         private readonly Func<IEnumerable<IOrderedColumn>> _columnFactory;
         private readonly Func<IEnumerable<IIndexedColumn>>? _indexedColumnFactory;
         private readonly IUniqueConstraintBase _indexKeyRef;
         private readonly bool _isClustered;
+        private readonly bool _isSystemNamed;
         private IMetadataOrderedCollection<IOrderedColumn>? _orderedColumns;
         private IMetadataOrderedCollection<IIndexedColumn>? _indexedColumns;
 
         public TSqlModelRelationalIndex(
             ITabular parent,
+            string name,
             Func<IEnumerable<IOrderedColumn>> columnFactory,
             Func<IEnumerable<IIndexedColumn>>? indexedColumnFactory,
             ConstraintType constraintType,
-            bool isClustered)
+            bool isClustered,
+            bool isSystemNamed = false)
         {
             _parent               = parent;
+            _name                 = name;
             _columnFactory        = columnFactory;
             _indexedColumnFactory = indexedColumnFactory;
-            _indexKeyRef          = new MinimalConstraintKey(parent, this, constraintType);
+            _indexKeyRef          = new MinimalConstraintKey(parent, name, this, constraintType, isSystemNamed);
             _isClustered          = isClustered;
+            _isSystemNamed        = isSystemNamed;
         }
 
         // IMetadataObject
-        public string Name => string.Empty;
+        // Must be non-empty and unique among the parent table's indexes: the binder keys its
+        // duplicated index collection by this value.
+        public string Name => _name;
         public T Accept<T>(IMetadataObjectVisitor<T> visitor) => visitor.Visit(this);
 
         // IIndex
@@ -625,7 +767,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
 
         public IUniqueConstraintBase IndexKey => _indexKeyRef;
         public bool IsClustered    => _isClustered;
-        public bool IsSystemNamed  => false;
+        public bool IsSystemNamed  => _isSystemNamed;
         public bool IsUnique       => true;
         public bool NoAutomaticRecomputation => false;
         public IPartitionScheme PartitionScheme => null!;
@@ -636,19 +778,24 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         private sealed class MinimalConstraintKey : IUniqueConstraintBase
         {
             private readonly ITabular _parent;
+            private readonly string _name;
             private readonly IRelationalIndex _index;
             private readonly ConstraintType _type;
+            private readonly bool _isSystemNamed;
 
-            internal MinimalConstraintKey(ITabular parent, IRelationalIndex index, ConstraintType type)
+            internal MinimalConstraintKey(
+                ITabular parent, string name, IRelationalIndex index, ConstraintType type, bool isSystemNamed)
             {
-                _parent = parent;
-                _index  = index;
-                _type   = type;
+                _parent        = parent;
+                _name          = name;
+                _index         = index;
+                _type          = type;
+                _isSystemNamed = isSystemNamed;
             }
 
-            public string Name              => string.Empty;
+            public string Name              => _name;
             public ITabular Parent          => _parent;
-            public bool IsSystemNamed       => false;
+            public bool IsSystemNamed       => _isSystemNamed;
             public ConstraintType Type      => _type;
             public IRelationalIndex AssociatedIndex => _index;
             // IMetadataObjectVisitor has no Visit(IUniqueConstraintBase) overload — return default
@@ -679,29 +826,21 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
     {
         private readonly ITabular _parent;
         private readonly string _name;
+        private readonly bool _isSystemNamed;
         private readonly IRelationalIndex _associatedIndex;
 
-        public TSqlModelPrimaryKeyConstraint(ITabular parent, TSqlObject constraintObj)
+        public TSqlModelPrimaryKeyConstraint(ITabular parent, TSqlModelKeyDefinition definition)
         {
-            _parent = parent;
-            _name   = constraintObj.Name.Parts[constraintObj.Name.Parts.Count - 1];
-            bool isClustered = constraintObj.GetProperty<bool>(PrimaryKeyConstraint.Clustered);
-            _associatedIndex = new TSqlModelRelationalIndex(
-                parent,
-                () => constraintObj
-                    .GetReferenced(PrimaryKeyConstraint.Columns, DacQueryScopes.UserDefined)
-                    .Select((c, i) => (IOrderedColumn)new TSqlModelOrderedColumn(new TSqlModelColumn(parent, c), i)),
-                () => constraintObj
-                    .GetReferenced(PrimaryKeyConstraint.Columns, DacQueryScopes.UserDefined)
-                    .Select(c => (IIndexedColumn)new TSqlModelIndexedColumn(new TSqlModelColumn(parent, c))),
-                ConstraintType.PrimaryKey,
-                isClustered);
+            _parent          = parent;
+            _name            = definition.Name;
+            _isSystemNamed   = definition.IsSystemNamed;
+            _associatedIndex = definition.CreateIndex(parent);
         }
 
         public string Name => _name;
         public T Accept<T>(IMetadataObjectVisitor<T> visitor) => visitor.Visit((IPrimaryKeyConstraint)this);
         public ITabular Parent         => _parent;
-        public bool IsSystemNamed      => false;
+        public bool IsSystemNamed      => _isSystemNamed;
         public ConstraintType Type     => ConstraintType.PrimaryKey;
         public IRelationalIndex AssociatedIndex => _associatedIndex;
     }
@@ -713,29 +852,21 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
     {
         private readonly ITabular _parent;
         private readonly string _name;
+        private readonly bool _isSystemNamed;
         private readonly IRelationalIndex _associatedIndex;
 
-        public TSqlModelUniqueConstraint(ITabular parent, TSqlObject constraintObj)
+        public TSqlModelUniqueConstraint(ITabular parent, TSqlModelKeyDefinition definition)
         {
-            _parent = parent;
-            _name   = constraintObj.Name.Parts[constraintObj.Name.Parts.Count - 1];
-            bool isClustered = constraintObj.GetProperty<bool>(UniqueConstraint.Clustered);
-            _associatedIndex = new TSqlModelRelationalIndex(
-                parent,
-                () => constraintObj
-                    .GetReferenced(UniqueConstraint.Columns, DacQueryScopes.UserDefined)
-                    .Select((c, i) => (IOrderedColumn)new TSqlModelOrderedColumn(new TSqlModelColumn(parent, c), i)),
-                () => constraintObj
-                    .GetReferenced(UniqueConstraint.Columns, DacQueryScopes.UserDefined)
-                    .Select(c => (IIndexedColumn)new TSqlModelIndexedColumn(new TSqlModelColumn(parent, c))),
-                ConstraintType.Unique,
-                isClustered);
+            _parent          = parent;
+            _name            = definition.Name;
+            _isSystemNamed   = definition.IsSystemNamed;
+            _associatedIndex = definition.CreateIndex(parent);
         }
 
         public string Name => _name;
         public T Accept<T>(IMetadataObjectVisitor<T> visitor) => visitor.Visit((IUniqueConstraint)this);
         public ITabular Parent         => _parent;
-        public bool IsSystemNamed      => false;
+        public bool IsSystemNamed      => _isSystemNamed;
         public ConstraintType Type     => ConstraintType.Unique;
         public IRelationalIndex AssociatedIndex => _associatedIndex;
     }
