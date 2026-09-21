@@ -54,6 +54,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
     internal sealed class TSqlModelTable : TSqlModelSchemaObject, ITable
     {
         private readonly TSqlObject _tableObj;
+        private readonly Lazy<IReadOnlyList<TSqlModelKeyDefinition>> _keyDefinitions;
         private IMetadataOrderedCollection<IColumn>? _columns;
         private IMetadataCollection<IConstraint>? _constraints;
         private IMetadataCollection<IIndex>? _indexes;
@@ -62,6 +63,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
             : base(schema, tableObj.Name.Parts[tableObj.Name.Parts.Count - 1], isUserDefined)
         {
             _tableObj = tableObj;
+            _keyDefinitions = new Lazy<IReadOnlyList<TSqlModelKeyDefinition>>(CreateKeyDefinitions);
         }
 
         // Lazy columns — only loaded when accessed
@@ -80,14 +82,14 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         // Lazy constraints — PK and UK constraints loaded on first access
         public IMetadataCollection<IConstraint> Constraints =>
             _constraints ??= new LazyCollection<IConstraint>(
-                () => GetKeyDefinitions().Select(d => d.Type == ConstraintType.PrimaryKey
+                () => _keyDefinitions.Value.Select(d => d.Type == ConstraintType.PrimaryKey
                     ? (IConstraint)new TSqlModelPrimaryKeyConstraint(this, d)
                     : (IConstraint)new TSqlModelUniqueConstraint(this, d)));
 
         // Lazy indexes — binder uses Indexes (not Constraints) for FK key validation
         public IMetadataCollection<IIndex> Indexes =>
             _indexes ??= new LazyCollection<IIndex>(
-                () => GetKeyDefinitions().Select(d => (IIndex)d.CreateIndex(this)));
+                () => _keyDefinitions.Value.Select(d => (IIndex)d.CreateIndex(this)));
 
         /// <summary>
         /// Enumerates the table's PK and UNIQUE constraints, assigning every one a non-empty,
@@ -95,35 +97,53 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         /// </summary>
         /// <remarks>
         /// The SqlParser binder copies these into name-keyed <see cref="System.Collections.Generic.SortedList{TKey,TValue}"/>
-        /// instances when it duplicates a table (see TableViewBase's constructor). Duplicate or empty
-        /// names therefore make binding throw and silently disable IntelliSense for the whole file, so
-        /// uniqueness is a hard requirement rather than a nicety. DacFx leaves Name.Parts empty for
-        /// constraints declared without an explicit CONSTRAINT clause, and a table may legitimately have
-        /// several of those, so anonymous constraints get a synthesized name here.
+        /// instances when it duplicates a table (see TableViewBase's constructor). Duplicate names,
+        /// including multiple empty names, make binding throw and silently disable IntelliSense for the
+        /// whole file, so uniqueness is a hard requirement rather than a nicety. DacFx leaves
+        /// Name.Parts empty for constraints declared without an explicit CONSTRAINT clause, and a table
+        /// may legitimately have several of those, so anonymous constraints get a synthesized name here.
         /// </remarks>
-        private List<TSqlModelKeyDefinition> GetKeyDefinitions()
+        private IReadOnlyList<TSqlModelKeyDefinition> CreateKeyDefinitions()
         {
-            var definitions = new List<TSqlModelKeyDefinition>();
-            var usedNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var keys = new List<(TSqlObject Constraint, ConstraintType Type, ModelRelationshipClass Columns, bool IsClustered)>();
 
-            foreach (TSqlObject constraint in _tableObj.GetReferencing(PrimaryKeyConstraint.Host, DacQueryScopes.UserDefined))
+            keys.AddRange(
+                _tableObj.GetReferencing(PrimaryKeyConstraint.Host, DacQueryScopes.UserDefined)
+                         .Select(constraint => (
+                             constraint,
+                             ConstraintType.PrimaryKey,
+                             PrimaryKeyConstraint.Columns,
+                             constraint.GetProperty<bool>(PrimaryKeyConstraint.Clustered))));
+
+            keys.AddRange(
+                _tableObj.GetReferencing(UniqueConstraint.Host, DacQueryScopes.UserDefined)
+                         .Select(constraint => (
+                             constraint,
+                             ConstraintType.Unique,
+                             UniqueConstraint.Columns,
+                             constraint.GetProperty<bool>(UniqueConstraint.Clustered))));
+
+            // Reserve every declared name before assigning generated names. Otherwise an anonymous
+            // constraint encountered first can claim a later constraint's real name and force the
+            // declared constraint to expose a made-up suffix instead.
+            var usedNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var key in keys)
             {
-                definitions.Add(TSqlModelKeyDefinition.Create(
-                    constraint,
-                    ConstraintType.PrimaryKey,
-                    PrimaryKeyConstraint.Columns,
-                    constraint.GetProperty<bool>(PrimaryKeyConstraint.Clustered),
-                    _name,
-                    usedNames));
+                string declaredName = TSqlModelKeyDefinition.GetSimpleName(key.Constraint);
+                if (!string.IsNullOrEmpty(declaredName))
+                {
+                    usedNames.Add(declaredName);
+                }
             }
 
-            foreach (TSqlObject constraint in _tableObj.GetReferencing(UniqueConstraint.Host, DacQueryScopes.UserDefined))
+            var definitions = new List<TSqlModelKeyDefinition>(keys.Count);
+            foreach (var key in keys)
             {
                 definitions.Add(TSqlModelKeyDefinition.Create(
-                    constraint,
-                    ConstraintType.Unique,
-                    UniqueConstraint.Columns,
-                    constraint.GetProperty<bool>(UniqueConstraint.Clustered),
+                    key.Constraint,
+                    key.Type,
+                    key.Columns,
+                    key.IsClustered,
                     _name,
                     usedNames));
             }
@@ -622,8 +642,8 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
 
         /// <summary>
         /// Builds a definition, taking the constraint's own name when it has one and otherwise
-        /// synthesizing one. <paramref name="usedNames"/> accumulates across every key on a table so
-        /// the result is unique within it; it is updated in place.
+        /// synthesizing one. <paramref name="usedNames"/> is pre-populated with every declared name
+        /// on the table and accumulates generated names, so an alias cannot displace a real name.
         /// </summary>
         internal static TSqlModelKeyDefinition Create(
             TSqlObject constraintObj,
@@ -636,18 +656,22 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
             string declaredName = GetSimpleName(constraintObj);
             bool isSystemNamed = string.IsNullOrEmpty(declaredName);
             string prefix = type == ConstraintType.PrimaryKey ? "PK" : "UQ";
-            string candidate = isSystemNamed ? $"{prefix}__{tableName}" : declaredName;
+            string candidate = declaredName;
 
-            if (!usedNames.Add(candidate))
+            if (isSystemNamed)
             {
-                int suffix = 2;
-                string next;
-                do
+                candidate = $"{prefix}__{tableName}";
+                if (!usedNames.Add(candidate))
                 {
-                    next = $"{candidate}__{suffix++}";
+                    int suffix = 2;
+                    string next;
+                    do
+                    {
+                        next = $"{candidate}__{suffix++}";
+                    }
+                    while (!usedNames.Add(next));
+                    candidate = next;
                 }
-                while (!usedNames.Add(next));
-                candidate = next;
             }
 
             return new TSqlModelKeyDefinition(
