@@ -52,7 +52,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         /// On close: Model must be disposed; binding context and ScriptParseInfo entries
         /// must be removed using ContextKey and FileUris.
         /// </summary>
-        private ConcurrentDictionary<string, (TSqlModel Model, TSqlModelMetadataProvider Provider, string ContextKey, string DatabaseName, HashSet<string> FileUris, ParseOptions ParseOptions)> projectIntelliSense = new(StringComparer.OrdinalIgnoreCase);
+        private ConcurrentDictionary<string, (TSqlModel Model, TSqlModelMetadataProvider Provider, string ContextKey, string DatabaseName, HashSet<string> FileUris, ParseOptions ParseOptions, IReadOnlyList<TSqlModel> ReferencedModels)> projectIntelliSense = new(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Monotonically-increasing generation counter per project URI.
@@ -61,6 +61,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         /// knows it is no longer the owner and must discard its results.
         /// </summary>
         private ConcurrentDictionary<string, int> projectGenerations = new(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Tracks project URIs that are currently open, independent of whether their initial
+        /// IntelliSense build has finished.
+        /// </summary>
+        private ConcurrentDictionary<string, bool> openProjectUris = new(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Initializes the service instance
@@ -140,6 +146,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             // then capture the new generation into the background task as its ownership token.
             int generation = projectGenerations.AddOrUpdate(
                 requestParams.ProjectUri, 1, (_, prev) => prev + 1);
+            openProjectUris[requestParams.ProjectUri] = true;
             // Kick off async IntelliSense model build so .sql files in this project get completions
             // without a live server connection. Fire-and-forget: errors are logged inside.
             _ = Task.Run(() => BuildProjectIntelliSenseAsync(requestParams.ProjectUri, generation));
@@ -150,6 +157,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             await RunWithErrorHandling(() =>
             {
                 Projects.TryRemove(requestParams.ProjectUri, out _);
+                openProjectUris.TryRemove(requestParams.ProjectUri, out _);
 
                 // Bump the generation to invalidate any in-flight IntelliSense build.
                 // The background task checks this at each commit point and will discard
@@ -157,19 +165,42 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 projectGenerations.AddOrUpdate(
                     requestParams.ProjectUri, 1, (_, prev) => prev + 1);
 
-                // Full IntelliSense teardown:
-                // 1. Remove binding context from the queue (releases MetadataProvider + _sourceLocations)
-                // 2. Remove ScriptParseInfo for all .sql files and the .sqlproj itself
-                // 3. Dispose TSqlModel to free DacFx unmanaged resources
-                if (projectIntelliSense.TryRemove(requestParams.ProjectUri, out var intelliSense))
-                {
-                    TSqlLanguageService.Instance.TearDownProjectContext(
-                        requestParams.ProjectUri,
-                        intelliSense.ContextKey,
-                        intelliSense.FileUris);
-                    intelliSense.Model?.Dispose();
-                }
+                TearDownProjectIntelliSense(requestParams.ProjectUri);
             }, requestContext);
+        }
+
+        /// <summary>
+        /// Full IntelliSense teardown for <paramref name="projectUri"/> if it is currently open:
+        /// removes the binding context from the queue (releasing the MetadataProvider and its
+        /// source locations), removes ScriptParseInfo for all .sql files and the .sqlproj itself,
+        /// and disposes the TSqlModel(s) to free DacFx unmanaged resources. Returns <c>false</c>
+        /// with no effect if the project isn't currently open.
+        /// </summary>
+        private bool TearDownProjectIntelliSense(string projectUri)
+        {
+            if (!projectIntelliSense.TryRemove(projectUri, out var intelliSense))
+                return false;
+
+            TSqlLanguageService.Instance.TearDownProjectContext(
+                projectUri, intelliSense.ContextKey, intelliSense.FileUris);
+            intelliSense.Model?.Dispose();
+            foreach (TSqlModel referencedModel in intelliSense.ReferencedModels ?? Array.Empty<TSqlModel>())
+                referencedModel.Dispose();
+            return true;
+        }
+
+        /// <summary>
+        /// Rebuilds live IntelliSense for <paramref name="projectUri"/> if it is open, so a
+        /// reference change takes effect without closing and reopening. Checks
+        /// <see cref="openProjectUris"/> rather than whether a build already finished, so a change
+        /// during the initial build still gets a replacement.
+        /// </summary>
+        private void RefreshProjectIntelliSenseIfOpen(string projectUri)
+        {
+            int generation = projectGenerations.AddOrUpdate(projectUri, 1, (_, prev) => prev + 1);
+            TearDownProjectIntelliSense(projectUri);
+            if (openProjectUris.ContainsKey(projectUri))
+                _ = Task.Run(() => BuildProjectIntelliSenseAsync(projectUri, generation));
         }
 
         /// <summary>
@@ -184,6 +215,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         private async Task BuildProjectIntelliSenseAsync(string projectUri, int generation)
         {
             TSqlModel? model = null;
+            var referencedModels = new List<TSqlModel>();
+            bool stored = false;
             try
             {
                 SqlProject project = GetProject(projectUri);
@@ -231,6 +264,44 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
                 var projectMetadataProvider = new TSqlModelMetadataProvider(model, databaseName);
 
+                // Wire each direct <ProjectReference> target into live IntelliSense the way
+                // `dotnet build` already resolves it via DacFx, by registering it as an additional
+                // database (see GetReferenceDatabaseAliases). A target's own references are not
+                // followed transitively, and a same-database reference (no alias) is out of scope.
+                foreach (SqlProjectReference reference in project.DatabaseReferences.OfType<SqlProjectReference>())
+                {
+                    // Bail out before loading another referenced model once stale, instead of
+                    // burning DacFx work on a build Gate 2 below will just discard.
+                    if (!IsCurrentGeneration(projectUri, generation))
+                        break;
+
+                    TSqlModel? referencedModel = null;
+                    try
+                    {
+                        string referencedProjectPath = ResolveReferencedPath(projectDir, reference.ProjectPath);
+                        if (!File.Exists(referencedProjectPath))
+                            continue; // Missing dependency; build-side SuppressMissingDependenciesErrors is similarly lenient.
+
+                        var aliases = GetReferenceDatabaseAliases(reference)
+                            .Where(a => !string.Equals(a, databaseName, StringComparison.OrdinalIgnoreCase))
+                            .Distinct(StringComparer.OrdinalIgnoreCase)
+                            .ToList();
+                        if (aliases.Count == 0)
+                            continue;
+
+                        SqlProject referencedProject = SqlProject.OpenProject(referencedProjectPath);
+                        referencedModel = await Task.Run(() => TSqlModelBuilder.LoadModel(referencedProject));
+                        foreach (string alias in aliases)
+                            projectMetadataProvider.AddReferencedDatabase(referencedModel, alias);
+                        referencedModels.Add(referencedModel);
+                    }
+                    catch (Exception ex)
+                    {
+                        referencedModel?.Dispose();
+                        Logger.Error($"Failed to load referenced project '{reference.ProjectPath}' for IntelliSense in project {projectUri}: {ex}");
+                    }
+                }
+
                 var parseOptions = new ParseOptions(
                     batchSeparator: TSqlLanguageService.DefaultBatchSeperator,
                     isQuotedIdentifierSet: true,
@@ -238,14 +309,20 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     transactSqlVersion: TransactSqlVersion.Current);
 
                 // Store everything needed for full teardown on project close.
-                projectIntelliSense[projectUri] = (model, projectMetadataProvider, contextKey, databaseName, fileUriList, parseOptions);
+                projectIntelliSense[projectUri] = (model, projectMetadataProvider, contextKey, databaseName, fileUriList, parseOptions, referencedModels);
+                stored = true;
 
                 // Gate 2: before registering the binding context — verify we are still the owner.
-                // (Close may have run between Gate 1 and here.)
+                // (Close may have run between Gate 1 and here.) Only dispose if we actually won
+                // the removal, in case a concurrent close/refresh already disposed the same models.
                 if (!IsCurrentGeneration(projectUri, generation))
                 {
-                    projectIntelliSense.TryRemove(projectUri, out _);
-                    model.Dispose();
+                    if (projectIntelliSense.TryRemove(projectUri, out _))
+                    {
+                        model.Dispose();
+                        foreach (TSqlModel referencedModel in referencedModels)
+                            referencedModel.Dispose();
+                    }
                     return;
                 }
 
@@ -255,7 +332,43 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             catch (Exception ex)
             {
                 Logger.Error($"Failed to build IntelliSense model for project {projectUri}: {ex}");
-                model?.Dispose();
+
+                // Undo the store above if it happened, same double-dispose guard as Gate 2.
+                // If it never happened, these models are still only ours to dispose.
+                if (!stored || projectIntelliSense.TryRemove(projectUri, out _))
+                {
+                    model?.Dispose();
+                    foreach (TSqlModel referencedModel in referencedModels)
+                        referencedModel.Dispose();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Resolves a &lt;ProjectReference&gt; path (always stored relative, with Windows
+        /// backslashes) to an absolute path, matching the normalisation used for script paths.
+        /// </summary>
+        private static string ResolveReferencedPath(string projectDir, string relativeOrAbsolutePath)
+        {
+            string norm = relativeOrAbsolutePath.Replace('\\', Path.DirectorySeparatorChar);
+            return Path.IsPathRooted(norm) ? norm : Path.GetFullPath(Path.Combine(projectDir, norm));
+        }
+
+        /// <summary>
+        /// Returns the alias a reference's target should resolve under, matching SSDT: a literal
+        /// database name is used as-is, while a DatabaseSqlCmdVariable resolves only through its
+        /// bracketed <c>$(Name)</c> form, never a resolved value, since the value isn't fixed
+        /// until publish time.
+        /// </summary>
+        internal static IEnumerable<string> GetReferenceDatabaseAliases(SqlProjectReference reference)
+        {
+            if (!string.IsNullOrEmpty(reference.DatabaseVariableLiteralName))
+            {
+                yield return reference.DatabaseVariableLiteralName;
+            }
+            else if (reference.DatabaseVariable != null)
+            {
+                yield return $"$({reference.DatabaseVariable.Name})";
             }
         }
 
@@ -901,6 +1014,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 }
 
                 project.DatabaseReferences.Add(reference);
+                RefreshProjectIntelliSenseIfOpen(requestParams.ProjectUri);
             }, requestContext);
         }
 
@@ -942,7 +1056,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
         internal async Task HandleDeleteDatabaseReferenceRequest(DeleteDatabaseReferenceParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithErrorHandling(() => GetProject(requestParams.ProjectUri, onlyLoadProperties: true).DatabaseReferences.Delete(requestParams.Name), requestContext);
+            await RunWithErrorHandling(() =>
+            {
+                GetProject(requestParams.ProjectUri, onlyLoadProperties: true).DatabaseReferences.Delete(requestParams.Name);
+                RefreshProjectIntelliSenseIfOpen(requestParams.ProjectUri);
+            }, requestContext);
         }
 
         #endregion
