@@ -73,10 +73,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
             // taken, and later released, on the database the operation actually uses.
             PrepareToExecute();
 
-            bool hasAccessToDb = false;
             try
             {
-                hasAccessToDb = await GainAccessToDatabaseAsync();
+                await GainAccessToDatabaseAsync();
                 Execute(mode);
             }
             catch (DatabaseFullAccessException)
@@ -86,10 +85,9 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
             }
             finally
             {
-                if (hasAccessToDb)
-                {
-                    await ReleaseAccessToDatabaseAsync();
-                }
+                // Released even when taking access failed partway, so connections it already
+                // closed are reopened.
+                await ReleaseAccessToDatabaseAsync();
             }
         }
 

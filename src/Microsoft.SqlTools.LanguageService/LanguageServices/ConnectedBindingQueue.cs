@@ -181,42 +181,64 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             }
 
             string connectionKey = connInfo.ConnectionContextKey;
-            string ReuseExistingContext()
+            while (true)
             {
-                // no need to populate the context again since the context already exists
-                Logger.Information($"AddConnectionContext: reusing existing binding context for connection key '{connectionKey}' (feature: '{featureName ?? "unknown"}')");
-                return connectionKey;
-            }
-
-            if (!overwrite && BindingContextExists(connectionKey))
-            {
-                return ReuseExistingContext();
-            }
-
-            // Publish the context while holding its lock, so operations queued for the key wait
-            // for it to be populated instead of running against an empty context.
-            var bindingContext = new ConnectedBindingContext();
-            await bindingContext.BindingLock.WaitAsync().ConfigureAwait(false);
-            try
-            {
-                if (overwrite)
+                if (!overwrite && await WaitForPublishedContextAsync(connectionKey).ConfigureAwait(false))
                 {
-                    ReplaceBindingContext(connectionKey, bindingContext);
-                }
-                else if (!this.BindingContextMap.TryAdd(connectionKey, bindingContext))
-                {
-                    return ReuseExistingContext();
+                    // no need to populate the context again since the context already exists
+                    Logger.Information($"AddConnectionContext: reusing existing binding context for connection key '{connectionKey}' (feature: '{featureName ?? "unknown"}')");
+                    return connectionKey;
                 }
 
-                // Opening the connection and loading metadata are synchronous, so keep them off the caller's thread.
-                await Task.Run(() => PopulateConnectionContext(bindingContext, connInfo, featureName, connectionKey, overwrite)).ConfigureAwait(false);
+                // Publish the context while holding its lock, so operations queued for the key wait
+                // for it to be populated instead of running against an empty context.
+                var bindingContext = new ConnectedBindingContext();
+                var populated = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+                bindingContext.Populated = populated.Task;
+                await bindingContext.BindingLock.WaitAsync().ConfigureAwait(false);
+                try
+                {
+                    if (overwrite)
+                    {
+                        ReplaceBindingContext(connectionKey, bindingContext);
+                    }
+                    else if (!this.BindingContextMap.TryAdd(connectionKey, bindingContext))
+                    {
+                        // Another caller published a context first; wait for that one instead.
+                        continue;
+                    }
+
+                    // Opening the connection and loading metadata are synchronous, so keep them off the caller's thread.
+                    await Task.Run(() => PopulateConnectionContext(bindingContext, connInfo, featureName, connectionKey, overwrite)).ConfigureAwait(false);
+                    return connectionKey;
+                }
+                finally
+                {
+                    populated.TrySetResult(true);
+                    bindingContext.BindingLock.Release();
+                }
             }
-            finally
+        }
+
+        /// <summary>
+        /// Waits for the context published for a key to finish connecting, following any context
+        /// that replaces it meanwhile. Returns false if no context is published for the key.
+        /// </summary>
+        private async Task<bool> WaitForPublishedContextAsync(string connectionKey)
+        {
+            IBindingContext waitedOn = null;
+            while (this.BindingContextMap.TryGetValue(connectionKey, out IBindingContext published))
             {
-                bindingContext.BindingLock.Release();
+                if (ReferenceEquals(published, waitedOn))
+                {
+                    return true;
+                }
+
+                waitedOn = published;
+                await ((published as ConnectedBindingContext)?.Populated ?? Task.CompletedTask).ConfigureAwait(false);
             }
 
-            return connectionKey;
+            return false;
         }
 
         private void PopulateConnectionContext(ConnectedBindingContext bindingContext, ConnectionInfoBase connInfo, string featureName, string connectionKey, bool overwrite)

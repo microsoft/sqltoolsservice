@@ -569,7 +569,11 @@ namespace Microsoft.SqlTools.LanguageService.UnitTests.LanguageServices
 
                 QueueItem[] results = await items;
 
-                Assert.That(results.All(r => r.WasExecuted && !r.TimedOut && (string)r.Result == "ran"), Is.True);
+                // An item whose context is removed while it waits does not run; every other item does.
+                Assert.That(results.All(r => r.WasExecuted
+                    ? !r.TimedOut && (string)r.Result == "ran"
+                    : r.TimedOut), Is.True);
+                Assert.That(results.Any(r => r.WasExecuted), Is.True);
             }
             finally
             {
@@ -744,6 +748,103 @@ namespace Microsoft.SqlTools.LanguageService.UnitTests.LanguageServices
             Assert.That(Volatile.Read(ref finished), Is.EqualTo(executed));
             Assert.That(bindingContext.BindingLock.CurrentCount, Is.EqualTo(1),
                 "The context is free once every operation has ended, and released no more than once.");
+        }
+
+        /// <summary>
+        /// An item waiting for a context that is replaced meanwhile (an IntelliSense rebuild, a
+        /// project save) must run on the replacement, not on the retired context.
+        /// </summary>
+        [Test]
+        [Timeout(10_000)]
+        public async Task WaitingItemRunsOnTheContextThatReplacedItsOwn()
+        {
+            var retired = new TestBindingContext();
+            var replacement = new TestBindingContext();
+            this.bindingQueue.BindingContextMap.TryAdd("testkey", retired);
+            Assert.That(retired.BindingLock.Wait(0), Is.True, "an earlier operation holds the context");
+
+            Task<QueueItem> waiting = this.bindingQueue.QueueBindingOperationAsync(
+                "testkey",
+                waitForLockTimeout: 5_000,
+                bindOperation: (context, cancellationToken) => context);
+            await Task.Delay(50);
+            this.bindingQueue.Replace("testkey", replacement);
+            retired.BindingLock.Release();
+
+            QueueItem item = await waiting;
+            Assert.That(item.WasExecuted, Is.True);
+            Assert.That(item.Result, Is.SameAs(replacement));
+            Assert.That(await retired.BindingLock.WaitAsync(1_000), Is.True, "The retired context is handed back.");
+            retired.BindingLock.Release();
+        }
+
+        /// <summary>
+        /// An item waiting for a context that is removed meanwhile (a closed session, a broken
+        /// connection) must not run on it, and completes with its timeout result.
+        /// </summary>
+        [Test]
+        [Timeout(10_000)]
+        public async Task WaitingItemDoesNotRunOnARemovedContext()
+        {
+            object timeoutResult = new object();
+            bool ran = false;
+            var removed = new TestBindingContext();
+            this.bindingQueue.BindingContextMap.TryAdd("testkey", removed);
+            Assert.That(removed.BindingLock.Wait(0), Is.True, "an earlier operation holds the context");
+
+            Task<QueueItem> waiting = this.bindingQueue.QueueBindingOperationAsync(
+                "testkey",
+                waitForLockTimeout: 5_000,
+                bindOperation: (context, cancellationToken) =>
+                {
+                    ran = true;
+                    return null;
+                },
+                timeoutOperation: context => timeoutResult);
+            await Task.Delay(50);
+            this.bindingQueue.Remove("testkey");
+            removed.BindingLock.Release();
+
+            QueueItem item = await waiting;
+            Assert.That(ran, Is.False);
+            Assert.That(item.WasExecuted, Is.False);
+            Assert.That(item.TimedOut, Is.True);
+            Assert.That(item.Result, Is.SameAs(timeoutResult));
+        }
+
+        /// <summary>
+        /// Cancelling a timed-out operation runs the callbacks it registered. One that throws must
+        /// not lose the timeout outcome.
+        /// </summary>
+        [Test]
+        [Timeout(10_000)]
+        public async Task HardTimeoutStandsWhenACancellationCallbackThrows()
+        {
+            object timeoutResult = new object();
+            using var releaseOperation = new ManualResetEventSlim(false);
+            try
+            {
+                QueueItem item = await this.bindingQueue.QueueBindingOperationAsync(
+                    "testkey",
+                    hardTimeout: 50,
+                    bindOperation: (context, cancellationToken) =>
+                    {
+                        using (cancellationToken.Register(() => throw new InvalidOperationException("callback failed")))
+                        {
+                            releaseOperation.Wait();
+                        }
+                        return "late";
+                    },
+                    timeoutOperation: context => timeoutResult);
+
+                Assert.That(item.WasExecuted, Is.True);
+                Assert.That(item.TimedOut, Is.True);
+                Assert.That(item.Result, Is.SameAs(timeoutResult));
+            }
+            finally
+            {
+                releaseOperation.Set();
+            }
         }
 
         private static void InterlockedMax(ref int target, int value)

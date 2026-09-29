@@ -54,6 +54,20 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
             Assert.That(events, Is.EqualTo(new[] { "prepare", "close target", "execute target", "open target" }));
         }
 
+        [Test]
+        public async Task AccessIsRolledBackWhenTakingItFails()
+        {
+            var events = new List<string>();
+            using DatabaseLocksManager locksManager = CreateLocksManager(events, closeFailure: new InvalidOperationException("close failed"));
+            var operation = new RecordingOperation(events) { LockedDatabaseManager = locksManager };
+
+            TaskResult result = await TaskOperationHelper.ExecuteTaskAsync(CreateSqlTask(operation));
+
+            Assert.That(result.TaskStatus, Is.EqualTo(SqlTaskStatus.Failed));
+            Assert.That(events, Is.EqualTo(new[] { "prepare", "close target", "open target" }),
+                "The operation does not run, and connections closed before the failure are reopened.");
+        }
+
         private static SqlTask CreateSqlTask(ITaskOperation operation)
         {
             return new SqlTask(
@@ -62,12 +76,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
                 null);
         }
 
-        private static DatabaseLocksManager CreateLocksManager(List<string> events)
+        private static DatabaseLocksManager CreateLocksManager(List<string> events, Exception closeFailure = null)
         {
             var queue = new Mock<IConnectedBindingQueue>();
             queue.Setup(q => q.CloseConnectionsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
                 .Callback((string server, string database, int timeout) => events.Add($"close {database}"))
-                .Returns(Task.CompletedTask);
+                .Returns(closeFailure == null ? Task.CompletedTask : Task.FromException(closeFailure));
             queue.Setup(q => q.OpenConnectionsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
                 .Callback((string server, string database, int timeout) => events.Add($"open {database}"))
                 .Returns(Task.CompletedTask);

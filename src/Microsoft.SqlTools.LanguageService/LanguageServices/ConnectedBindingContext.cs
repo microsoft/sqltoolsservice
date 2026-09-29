@@ -8,6 +8,7 @@
 using System;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
 using SMO = Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.SmoMetadataProvider;
@@ -117,6 +118,11 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// Gets the lock that gives one operation at a time use of this context
         /// </summary>
         public SemaphoreSlim BindingLock { get; } = new SemaphoreSlim(1, 1);
+
+        /// <summary>
+        /// Completes once the context has finished connecting, whether or not it succeeded
+        /// </summary>
+        internal Task Populated { get; set; } = Task.CompletedTask;
 
         /// <summary>
         /// Gets or sets the binding operation timeout in milliseconds

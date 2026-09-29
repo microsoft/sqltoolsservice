@@ -47,7 +47,8 @@ namespace Microsoft.SqlTools.LanguageService.UnitTests.LanguageServices
 
         /// <summary>
         /// Editors, Object Explorer and the file browser add the same connection's context at once.
-        /// Exactly one of them may create and connect it.
+        /// Exactly one of them may create and connect it, and every caller must see it connected
+        /// once its call returns, or an editor is left without IntelliSense.
         /// </summary>
         [Test]
         [Timeout(30_000)]
@@ -56,19 +57,51 @@ namespace Microsoft.SqlTools.LanguageService.UnitTests.LanguageServices
             this.opener.OpenDelay = TimeSpan.FromMilliseconds(50);
             TestConnectionInfo connectionInfo = CreateConnectionInfo();
             var start = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
+            int sawDisconnected = 0;
 
             Task<string>[] adds = Enumerable.Range(0, 32).Select(_ => Task.Run(async () =>
             {
                 await start.Task;
-                return await this.connectedQueue.AddConnectionContextAsync(connectionInfo, "test");
+                string key = await this.connectedQueue.AddConnectionContextAsync(connectionInfo, "test");
+                if (!this.connectedQueue.IsBindingContextConnected(key))
+                {
+                    Interlocked.Increment(ref sawDisconnected);
+                }
+                return key;
             })).ToArray();
             start.SetResult(null);
             string[] keys = await Task.WhenAll(adds);
 
+            Assert.That(sawDisconnected, Is.Zero, "Every caller sees the context connected when its call returns.");
             Assert.That(keys.Distinct(), Is.EqualTo(new[] { connectionInfo.ConnectionContextKey }));
             Assert.That(this.opener.OpenCount, Is.EqualTo(1), "Only one caller opens the connection.");
             Assert.That(this.connectedQueue.BindingContextMap.Count, Is.EqualTo(1));
             Assert.That(this.connectedQueue.IsBindingContextConnected(connectionInfo.ConnectionContextKey), Is.True);
+        }
+
+        /// <summary>
+        /// A caller that finds a context another caller is still connecting must wait for it,
+        /// not return while the context still reports it is not connected.
+        /// </summary>
+        [Test]
+        [Timeout(10_000)]
+        public async Task ReusingCallerWaitsForTheContextToConnect()
+        {
+            this.opener.HoldOpens();
+            TestConnectionInfo connectionInfo = CreateConnectionInfo();
+
+            Task<string> first = this.connectedQueue.AddConnectionContextAsync(connectionInfo, "test");
+            await this.opener.OpenStarted;
+            Task<string> second = this.connectedQueue.AddConnectionContextAsync(connectionInfo, "test");
+            await Task.Delay(100);
+            Assert.That(second.IsCompleted, Is.False, "The second caller waits for the first to connect.");
+
+            this.opener.ReleaseOpens();
+            await first;
+            string key = await second;
+
+            Assert.That(this.connectedQueue.IsBindingContextConnected(key), Is.True);
+            Assert.That(this.opener.OpenCount, Is.EqualTo(1));
         }
 
         /// <summary>

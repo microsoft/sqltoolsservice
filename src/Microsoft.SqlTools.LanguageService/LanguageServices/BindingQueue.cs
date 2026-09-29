@@ -148,13 +148,13 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// </summary>
         protected IBindingContext GetOrCreateBindingContext(string key)
         {
-            // use a default binding context for disconnected requests
-            if (string.IsNullOrWhiteSpace(key))
-            {
-                key = DisconnectedBindingContextKey;
-            }
+            return this.BindingContextMap.GetOrAdd(NormalizeKey(key), _ => new T());
+        }
 
-            return this.BindingContextMap.GetOrAdd(key, _ => new T());
+        private static string NormalizeKey(string key)
+        {
+            // use a default binding context for disconnected requests
+            return string.IsNullOrWhiteSpace(key) ? DisconnectedBindingContextKey : key;
         }
 
         protected IReadOnlyList<IBindingContext> GetBindingContexts(string keyPrefix)
@@ -290,35 +290,56 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         {
             try
             {
-                IBindingContext context = GetOrCreateBindingContext(item.Key);
+                string contextKey = NormalizeKey(item.Key);
+                int lockTimeout = item.WaitForLockTimeout ?? 0;
+                IBindingContext context = GetOrCreateBindingContext(contextKey);
+                while (true)
+                {
+                    bool acquired;
+                    try
+                    {
+                        acquired = await context.BindingLock.WaitAsync(
+                            RemainingTimeout(lockTimeout, item.Lifetime.ElapsedMilliseconds),
+                            this.pendingItemsCancellation.Token).ConfigureAwait(false);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        return Abandon(item);
+                    }
+
+                    if (!acquired)
+                    {
+                        Logger.Warning($"Binding queue item {item.Id} for key '{item.Key}' gave up after {item.Lifetime.ElapsedMilliseconds} ms waiting for its binding context");
+                        return TimeOut(item, context);
+                    }
+
+                    // Disposal can start between reading the token above and taking a free context.
+                    if (this.disposed)
+                    {
+                        context.BindingLock.Release();
+                        return Abandon(item);
+                    }
+
+                    // A context replaced or removed while this item waited is retired: only
+                    // operations that had already started keep using it.
+                    this.BindingContextMap.TryGetValue(contextKey, out IBindingContext? current);
+                    if (ReferenceEquals(current, context))
+                    {
+                        break;
+                    }
+
+                    context.BindingLock.Release();
+                    if (current == null)
+                    {
+                        Logger.Warning($"Binding queue item {item.Id} for key '{item.Key}' did not run because its binding context was removed while it waited");
+                        return TimeOut(item, context);
+                    }
+
+                    context = current;
+                }
+
                 int bindTimeout = item.BindingTimeout ?? context.BindingTimeout;
                 int hardTimeout = item.HardTimeout ?? bindTimeout;
-                int lockTimeout = item.WaitForLockTimeout ?? 0;
-
-                bool acquired;
-                try
-                {
-                    acquired = await context.BindingLock.WaitAsync(lockTimeout, this.pendingItemsCancellation.Token).ConfigureAwait(false);
-                }
-                catch (OperationCanceledException)
-                {
-                    return Abandon(item);
-                }
-
-                // Disposal can start between reading the token above and taking a free context.
-                if (acquired && this.disposed)
-                {
-                    context.BindingLock.Release();
-                    return Abandon(item);
-                }
-
-                if (!acquired)
-                {
-                    Logger.Warning($"Binding queue item {item.Id} for key '{item.Key}' gave up after {item.Lifetime.ElapsedMilliseconds} ms waiting for its binding context");
-                    item.TimedOut = true;
-                    item.Result = RunTimeoutOperation(item, context);
-                    return item;
-                }
 
                 // The operation releases the context when it actually ends, which can be after
                 // the caller has been given the timeout result.
@@ -341,15 +362,23 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 else
                 {
                     Logger.Warning($"Binding queue item {item.Id} reached its {hardTimeout} ms hard timeout; cancelling it");
-                    operationCancellation.Cancel();
+                    try
+                    {
+                        operationCancellation.Cancel();
+                    }
+                    catch (Exception ex)
+                    {
+                        // A cancellation callback registered by the operation threw; the timeout still stands.
+                        Logger.Warning($"Binding queue item {item.Id} cancellation callback failed: {ex.Message}");
+                    }
+
                     _ = operation.ContinueWith(
                         _ => operationCancellation.Dispose(),
                         CancellationToken.None,
                         TaskContinuationOptions.ExecuteSynchronously,
                         TaskScheduler.Default);
 
-                    item.TimedOut = true;
-                    item.Result = RunTimeoutOperation(item, context);
+                    TimeOut(item, context);
                 }
             }
             catch (Exception ex)
@@ -409,6 +438,26 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             Logger.Verbose($"Binding queue item {item.Id} for key '{item.Key}' was abandoned before it ran");
             item.TimedOut = true;
             return item;
+        }
+
+        /// <summary>
+        /// Completes an item with its timeout result
+        /// </summary>
+        private static QueueItem TimeOut(QueueItem item, IBindingContext context)
+        {
+            item.TimedOut = true;
+            item.Result = RunTimeoutOperation(item, context);
+            return item;
+        }
+
+        /// <summary>
+        /// Gets what is left of a lock-wait timeout after some of it has been spent
+        /// </summary>
+        private static int RemainingTimeout(int millisecondsTimeout, long elapsedMilliseconds)
+        {
+            return millisecondsTimeout <= 0
+                ? millisecondsTimeout
+                : (int)Math.Max(0, millisecondsTimeout - elapsedMilliseconds);
         }
 
         private static object? RunTimeoutOperation(QueueItem item, IBindingContext context)
