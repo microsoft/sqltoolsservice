@@ -75,7 +75,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// completes when the item is done and never faults: check <see cref="QueueItem.Result"/>,
         /// <see cref="QueueItem.TimedOut"/> and <see cref="QueueItem.WasExecuted"/>.
         /// </summary>
-        /// <param name="bindOperation">Runs on the thread pool while the item holds the context.</param>
+        /// <param name="bindOperationAsync">Runs on the thread pool while the item holds the context.</param>
         /// <param name="timeoutOperation">Supplies the result when the item times out.</param>
         /// <param name="errorHandler">Supplies the result when the operation throws.</param>
         /// <param name="bindingTimeout">
