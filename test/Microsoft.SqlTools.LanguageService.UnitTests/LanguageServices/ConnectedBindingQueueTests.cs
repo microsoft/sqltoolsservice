@@ -105,6 +105,32 @@ namespace Microsoft.SqlTools.LanguageService.UnitTests.LanguageServices
         }
 
         /// <summary>
+        /// Removing a context while another caller waits for it to connect must not cause
+        /// that caller to recreate the connection after the session has closed.
+        /// </summary>
+        [Test]
+        [Timeout(10_000)]
+        public async Task ReusingCallerDoesNotRecreateAContextRemovedWhileConnecting()
+        {
+            this.opener.HoldOpens();
+            TestConnectionInfo connectionInfo = CreateConnectionInfo();
+
+            Task<string> first = this.connectedQueue.AddConnectionContextAsync(connectionInfo, "test");
+            await this.opener.OpenStarted;
+            Task<string> second = this.connectedQueue.AddConnectionContextAsync(connectionInfo, "test");
+            Assert.That(second.IsCompleted, Is.False);
+
+            this.connectedQueue.RemoveConnectionContext(connectionInfo);
+            this.opener.ReleaseOpens();
+            await first;
+
+            Assert.ThrowsAsync<OperationCanceledException>(async () => { await second; });
+            Assert.That(second.IsCanceled, Is.True);
+            Assert.That(this.connectedQueue.BindingContextMap.ContainsKey(connectionInfo.ConnectionContextKey), Is.False);
+            Assert.That(this.opener.OpenCount, Is.EqualTo(1), "Removal must not trigger another connection open.");
+        }
+
+        /// <summary>
         /// A context is visible as soon as it is added, before its connection is open. An
         /// operation queued in that window must wait and then see the populated context.
         /// </summary>

@@ -222,7 +222,8 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
         /// <summary>
         /// Waits for the context published for a key to finish connecting, following any context
-        /// that replaces it meanwhile. Returns false if no context is published for the key.
+        /// that replaces it meanwhile. Returns false if no context was published for the key,
+        /// and cancels the add if the context is removed while it waits.
         /// </summary>
         private async Task<bool> WaitForPublishedContextAsync(string connectionKey)
         {
@@ -236,6 +237,13 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
                 waitedOn = published;
                 await ((published as ConnectedBindingContext)?.Populated ?? Task.CompletedTask).ConfigureAwait(false);
+            }
+
+            if (waitedOn != null)
+            {
+                // Removal can mean the session was closed. Do not reopen its connection on
+                // behalf of a caller that only intended to reuse the removed context.
+                throw new OperationCanceledException($"Binding context '{connectionKey}' was removed while connecting.");
             }
 
             return false;
