@@ -638,57 +638,66 @@ namespace Microsoft.SqlTools.LanguageService.UnitTests.LanguageServices
         }
 
         /// <summary>
-        /// Disposing while other threads are still queueing must complete every item, and the
-        /// queue must not run anything once it is disposed.
+        /// Disposing while other threads are still queueing must complete every item and leave
+        /// every context free, including items that took a free context just as disposal began
+        /// and so must hand it back without running. Nothing may run once disposal is done.
         /// </summary>
         [Test]
-        [Timeout(30_000)]
-        public async Task DisposingWhileItemsAreQueuedCompletesEveryItem()
+        [Timeout(60_000)]
+        public async Task DisposingWhileItemsAreQueuedCompletesEveryItemAndFreesEveryContext()
         {
-            var items = new List<Task<QueueItem>>();
-            var startQueueing = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
-            Task producers = Task.WhenAll(Enumerable.Range(0, 4).Select(producer => Task.Run(async () =>
+            for (int iteration = 0; iteration < 25; iteration++)
             {
-                await startQueueing.Task;
-                for (int i = 0; i < 100; i++)
+                var queue = new TestBindingQueue();
+                var items = new List<Task<QueueItem>>();
+                var startQueueing = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
+                Task producers = Task.WhenAll(Enumerable.Range(0, 4).Select(producer => Task.Run(async () =>
                 {
-                    Task<QueueItem> item = this.bindingQueue.QueueBindingOperationAsync(
-                        "key" + (i % 3),
-                        waitForLockTimeout: 20_000,
-                        bindOperationAsync: async (context, cancellationToken) =>
-                        {
-                            await Task.Delay(1);
-                            return null;
-                        });
-                    lock (items)
+                    await startQueueing.Task;
+                    for (int i = 0; i < 100; i++)
                     {
-                        items.Add(item);
+                        // Mostly distinct keys, so most items take a free context straight away.
+                        Task<QueueItem> item = queue.QueueBindingOperationAsync(
+                            $"key{producer}-{i % 40}",
+                            waitForLockTimeout: 20_000,
+                            bindOperationAsync: async (context, cancellationToken) =>
+                            {
+                                await Task.Yield();
+                                return null;
+                            });
+                        lock (items)
+                        {
+                            items.Add(item);
+                        }
                     }
-                }
-            })));
+                })));
 
-            startQueueing.SetResult(null);
-            await Task.Delay(5);
-            this.bindingQueue.Dispose();
-            await producers;
+                startQueueing.SetResult(null);
+                await Task.Delay(iteration % 3);
+                queue.Dispose();
+                await producers;
 
-            Task<QueueItem>[] queued;
-            lock (items)
-            {
-                queued = items.ToArray();
-            }
-            await Task.WhenAll(queued);
-
-            bool ranAfterDispose = false;
-            QueueItem late = await this.bindingQueue.QueueBindingOperationAsync(
-                "key0",
-                bindOperation: (context, cancellationToken) =>
+                Task<QueueItem>[] queued;
+                lock (items)
                 {
-                    ranAfterDispose = true;
-                    return null;
-                });
-            Assert.That(late.WasExecuted, Is.False);
-            Assert.That(ranAfterDispose, Is.False);
+                    queued = items.ToArray();
+                }
+                await Task.WhenAll(queued);
+
+                Assert.That(queue.BindingContextMap.Values.All(context => context.BindingLock.CurrentCount == 1), Is.True,
+                    $"Every context is free once every item has completed (iteration {iteration}).");
+
+                bool ranAfterDispose = false;
+                QueueItem late = await queue.QueueBindingOperationAsync(
+                    "key0-0",
+                    bindOperation: (context, cancellationToken) =>
+                    {
+                        ranAfterDispose = true;
+                        return null;
+                    });
+                Assert.That(late.WasExecuted, Is.False);
+                Assert.That(ranAfterDispose, Is.False);
+            }
         }
 
         /// <summary>

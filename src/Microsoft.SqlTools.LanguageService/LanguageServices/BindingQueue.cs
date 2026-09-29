@@ -32,7 +32,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
         private readonly object pendingItemsLock = new object();
 
-        private bool disposed;
+        private volatile bool disposed;
 
         public delegate void UnhandledExceptionDelegate(string connectionKey, Exception ex);
 
@@ -302,9 +302,14 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 }
                 catch (OperationCanceledException)
                 {
-                    Logger.Verbose($"Binding queue item {item.Id} for key '{item.Key}' was abandoned before it ran");
-                    item.TimedOut = true;
-                    return item;
+                    return Abandon(item);
+                }
+
+                // Disposal can start between reading the token above and taking a free context.
+                if (acquired && this.disposed)
+                {
+                    context.BindingLock.Release();
+                    return Abandon(item);
                 }
 
                 if (!acquired)
@@ -395,6 +400,17 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             }
         }
 
+        /// <summary>
+        /// Completes an item that <see cref="ClearQueuedItems"/> or <see cref="Dispose"/> stopped
+        /// before it ran
+        /// </summary>
+        private static QueueItem Abandon(QueueItem item)
+        {
+            Logger.Verbose($"Binding queue item {item.Id} for key '{item.Key}' was abandoned before it ran");
+            item.TimedOut = true;
+            return item;
+        }
+
         private static object? RunTimeoutOperation(QueueItem item, IBindingContext context)
         {
             try
@@ -442,6 +458,10 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 || ex.InnerException is SqlException || ex.InnerException is SocketException;
         }
 
+        /// <summary>
+        /// Completes waiting items without running them, stops new items from running, and
+        /// closes the contexts' connections. Operations already running are not stopped.
+        /// </summary>
         public void Dispose()
         {
             lock (this.pendingItemsLock)
