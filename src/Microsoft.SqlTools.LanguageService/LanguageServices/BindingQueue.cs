@@ -518,8 +518,9 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         }
 
         /// <summary>
-        /// Completes waiting items without running them, stops new items from running, and
-        /// closes the contexts' connections. Operations already running are not stopped.
+        /// Completes waiting items without running them and stops new items from running. Each
+        /// context's connection is closed once no operation is using it, including a context that
+        /// is still connecting; a command still running on it is cancelled first.
         /// </summary>
         public void Dispose()
         {
@@ -537,14 +538,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
             foreach (IBindingContext context in this.BindingContextMap.Values)
             {
-                try
-                {
-                    context.ServerConnection?.SqlConnectionObject?.Close();
-                }
-                catch (Exception ex)
-                {
-                    Logger.Warning($"Failed to close a binding context connection: {ex.Message}");
-                }
+                CloseConnectionWhenIdle(context);
             }
         }
     }
