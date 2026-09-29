@@ -248,6 +248,58 @@ namespace Microsoft.SqlTools.LanguageService.UnitTests.LanguageServices
             await close;
         }
 
+        [Test]
+        [Timeout(10_000)]
+        public async Task AddingAContextAfterDisposeIsRejected()
+        {
+            this.connectedQueue.Dispose();
+
+            ObjectDisposedException thrown = null;
+            try
+            {
+                await this.connectedQueue.AddConnectionContextAsync(CreateConnectionInfo(), "test");
+            }
+            catch (ObjectDisposedException ex)
+            {
+                thrown = ex;
+            }
+
+            Assert.That(thrown, Is.Not.Null);
+            Assert.That(this.opener.OpenCount, Is.Zero, "No connection is opened.");
+            Assert.That(this.connectedQueue.BindingContextMap, Is.Empty);
+        }
+
+        /// <summary>
+        /// Disposal can land while a context is still connecting, before it has a connection for
+        /// Dispose to close. The add must close the connection it opened and report the disposal.
+        /// </summary>
+        [Test]
+        [Timeout(10_000)]
+        public async Task DisposingWhileAContextConnectsClosesItsConnection()
+        {
+            this.opener.HoldOpens();
+            TestConnectionInfo connectionInfo = CreateConnectionInfo();
+            Task<string> add = this.connectedQueue.AddConnectionContextAsync(connectionInfo, "test");
+            await this.opener.OpenStarted;
+
+            this.connectedQueue.Dispose();
+            this.opener.ReleaseOpens();
+
+            ObjectDisposedException thrown = null;
+            try
+            {
+                await add;
+            }
+            catch (ObjectDisposedException ex)
+            {
+                thrown = ex;
+            }
+
+            Assert.That(thrown, Is.Not.Null);
+            Assert.That(this.connectedQueue.IsBindingContextConnected(connectionInfo.ConnectionContextKey), Is.False,
+                "The connection opened during disposal is closed.");
+        }
+
         private static TestConnectionInfo CreateConnectionInfo()
         {
             return new TestConnectionInfo(new ConnectionDetails

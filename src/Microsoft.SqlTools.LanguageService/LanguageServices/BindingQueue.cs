@@ -112,6 +112,11 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         }
 
         /// <summary>
+        /// Gets whether <see cref="Dispose"/> has started
+        /// </summary>
+        protected bool IsDisposed => this.disposed;
+
+        /// <summary>
         /// Checks if a particular binding context is connected or not
         /// </summary>
         public bool IsBindingContextConnected(string key)
@@ -362,17 +367,21 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 else
                 {
                     Logger.Warning($"Binding queue item {item.Id} reached its {hardTimeout} ms hard timeout; cancelling it");
-                    try
-                    {
-                        operationCancellation.Cancel();
-                    }
-                    catch (Exception ex)
-                    {
-                        // A cancellation callback registered by the operation threw; the timeout still stands.
-                        Logger.Warning($"Binding queue item {item.Id} cancellation callback failed: {ex.Message}");
-                    }
 
-                    _ = operation.ContinueWith(
+                    // Cancel() runs the operation's callbacks synchronously, and one may block or
+                    // throw, so it runs off this path; the caller gets the timeout result now.
+                    Task cancelling = Task.Run(() =>
+                    {
+                        try
+                        {
+                            operationCancellation.Cancel();
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Warning($"Binding queue item {item.Id} cancellation callback failed: {ex.Message}");
+                        }
+                    });
+                    _ = Task.WhenAll(operation, cancelling).ContinueWith(
                         _ => operationCancellation.Dispose(),
                         CancellationToken.None,
                         TaskContinuationOptions.ExecuteSynchronously,

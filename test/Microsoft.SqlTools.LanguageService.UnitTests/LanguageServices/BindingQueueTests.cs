@@ -429,7 +429,7 @@ namespace Microsoft.SqlTools.LanguageService.UnitTests.LanguageServices
             object timeoutResult = new object();
             using var operationFinished = new ManualResetEventSlim(false);
             using var releaseOperation = new ManualResetEventSlim(false);
-            bool cancellationRequested = false;
+            using var cancellationRequested = new ManualResetEventSlim(false);
             bool secondOperationStarted = false;
             var bindingContext = new TestBindingContext();
             this.bindingQueue.BindingContextMap.TryAdd(operationKey, bindingContext);
@@ -442,7 +442,7 @@ namespace Microsoft.SqlTools.LanguageService.UnitTests.LanguageServices
                     hardTimeout: 150,
                     bindOperation: (context, cancellationToken) =>
                     {
-                        using (cancellationToken.Register(() => cancellationRequested = true))
+                        using (cancellationToken.Register(() => cancellationRequested.Set()))
                         {
                             releaseOperation.Wait();
                         }
@@ -453,7 +453,7 @@ namespace Microsoft.SqlTools.LanguageService.UnitTests.LanguageServices
 
                 Assert.That(firstItem.Result, Is.SameAs(timeoutResult));
                 Assert.That(firstItem.TimedOut, Is.True);
-                Assert.That(cancellationRequested, Is.True);
+                Assert.That(cancellationRequested.Wait(TimeSpan.FromSeconds(1)), Is.True, "The operation is asked to cancel.");
                 Assert.That(operationFinished.IsSet, Is.False, "The caller must not wait for the blocked operation.");
                 Assert.That(bindingContext.BindingLock.CurrentCount, Is.Zero,
                     "The context must remain unavailable while the timed-out operation is still running.");
@@ -843,6 +843,45 @@ namespace Microsoft.SqlTools.LanguageService.UnitTests.LanguageServices
             }
             finally
             {
+                releaseOperation.Set();
+            }
+        }
+
+        /// <summary>
+        /// A cancellation callback that blocks must not hold the caller past its hard timeout.
+        /// </summary>
+        [Test]
+        [Timeout(10_000)]
+        public async Task HardTimeoutIsNotHeldUpByABlockingCancellationCallback()
+        {
+            object timeoutResult = new object();
+            using var releaseCallback = new ManualResetEventSlim(false);
+            using var releaseOperation = new ManualResetEventSlim(false);
+            // Failsafe so a regression fails the timing assertion below rather than hanging.
+            _ = Task.Delay(3_000).ContinueWith(_ => releaseCallback.Set(), TaskScheduler.Default);
+            try
+            {
+                Stopwatch stopwatch = Stopwatch.StartNew();
+                QueueItem item = await this.bindingQueue.QueueBindingOperationAsync(
+                    "testkey",
+                    hardTimeout: 50,
+                    bindOperation: (context, cancellationToken) =>
+                    {
+                        using (cancellationToken.Register(() => releaseCallback.Wait()))
+                        {
+                            releaseOperation.Wait();
+                        }
+                        return "late";
+                    },
+                    timeoutOperation: context => timeoutResult);
+
+                Assert.That(stopwatch.ElapsedMilliseconds, Is.LessThan(2_000), "The caller gets the timeout result without waiting for the callback.");
+                Assert.That(item.TimedOut, Is.True);
+                Assert.That(item.Result, Is.SameAs(timeoutResult));
+            }
+            finally
+            {
+                releaseCallback.Set();
                 releaseOperation.Set();
             }
         }

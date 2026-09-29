@@ -183,6 +183,11 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             string connectionKey = connInfo.ConnectionContextKey;
             while (true)
             {
+                if (IsDisposed)
+                {
+                    throw new ObjectDisposedException(nameof(ConnectedBindingQueue));
+                }
+
                 if (!overwrite && await WaitForPublishedContextAsync(connectionKey).ConfigureAwait(false))
                 {
                     // no need to populate the context again since the context already exists
@@ -210,6 +215,13 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
                     // Opening the connection and loading metadata are synchronous, so keep them off the caller's thread.
                     await Task.Run(() => PopulateConnectionContext(bindingContext, connInfo, featureName, connectionKey, overwrite)).ConfigureAwait(false);
+                    if (IsDisposed)
+                    {
+                        // Dispose may have run before this context had a connection to close.
+                        CloseConnection(bindingContext);
+                        throw new ObjectDisposedException(nameof(ConnectedBindingQueue));
+                    }
+
                     return connectionKey;
                 }
                 finally
@@ -217,6 +229,19 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                     populated.TrySetResult(true);
                     bindingContext.BindingLock.Release();
                 }
+            }
+        }
+
+        private static void CloseConnection(ConnectedBindingContext bindingContext)
+        {
+            bindingContext.IsConnected = false;
+            try
+            {
+                bindingContext.ServerConnection?.Disconnect();
+            }
+            catch (Exception ex)
+            {
+                Logger.Warning($"Failed to close a binding context connection opened during disposal: {ex.Message}");
             }
         }
 
