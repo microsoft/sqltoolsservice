@@ -8,8 +8,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.TaskServices
 {
@@ -69,32 +67,15 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         /// <summary>
         /// Executes the operation, holding full access to its database while it runs if it needs it
         /// </summary>
-        private static async Task ExecuteAsync(ITaskOperation taskOperation, TaskExecutionMode mode)
+        private static Task ExecuteAsync(ITaskOperation taskOperation, TaskExecutionMode mode)
         {
-            if (taskOperation is not IFeatureWithFullDbAccess fullDbAccess)
+            if (taskOperation is SmoScriptableOperationWithFullDbAccess fullDbAccessOperation)
             {
-                taskOperation.Execute(mode);
-                return;
+                return fullDbAccessOperation.ExecuteWithFullDbAccessAsync(mode);
             }
 
-            bool hasAccessToDb = false;
-            try
-            {
-                hasAccessToDb = await fullDbAccess.GainAccessToDatabaseAsync();
-                taskOperation.Execute(mode);
-            }
-            catch (DatabaseFullAccessException)
-            {
-                Logger.Warning($"Failed to gain access to database. server|database:{fullDbAccess.ServerName}|{fullDbAccess.DatabaseName}");
-                throw;
-            }
-            finally
-            {
-                if (hasAccessToDb)
-                {
-                    await fullDbAccess.ReleaseAccessToDatabaseAsync();
-                }
-            }
+            taskOperation.Execute(mode);
+            return Task.CompletedTask;
         }
 
         internal static string GetInnermostExceptionMessage(Exception exception)

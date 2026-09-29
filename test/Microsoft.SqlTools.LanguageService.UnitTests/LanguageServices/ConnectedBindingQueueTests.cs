@@ -1,0 +1,253 @@
+//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+#nullable disable
+
+using System;
+using System.Data.Common;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlServer.Management.SqlParser.Binder;
+using Microsoft.SqlServer.Management.SqlParser.Common;
+using Microsoft.SqlServer.Management.SqlParser.Parser;
+using Microsoft.SqlTools.LanguageService.Connection.Contracts;
+using Microsoft.SqlTools.LanguageService.LanguageServices;
+using Moq;
+using NUnit.Framework;
+
+namespace Microsoft.SqlTools.LanguageService.UnitTests.LanguageServices
+{
+    /// <summary>
+    /// Races between creating, replacing and using connection and project binding contexts
+    /// </summary>
+    public class ConnectedBindingQueueTests
+    {
+        private ConnectedBindingQueue connectedQueue;
+
+        private TestConnectionOpener opener;
+
+        [SetUp]
+        public void CreateQueue()
+        {
+            this.opener = new TestConnectionOpener();
+            this.connectedQueue = new ConnectedBindingQueue(needsMetadata: false);
+            this.connectedQueue.SetConnectionOpener(this.opener);
+        }
+
+        [TearDown]
+        public void DisposeQueue()
+        {
+            this.opener.ReleaseOpens();
+            this.connectedQueue.Dispose();
+        }
+
+        /// <summary>
+        /// Editors, Object Explorer and the file browser add the same connection's context at once.
+        /// Exactly one of them may create and connect it.
+        /// </summary>
+        [Test]
+        [Timeout(30_000)]
+        public async Task ConcurrentAddsCreateAndConnectOneContext()
+        {
+            this.opener.OpenDelay = TimeSpan.FromMilliseconds(50);
+            TestConnectionInfo connectionInfo = CreateConnectionInfo();
+            var start = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+            Task<string>[] adds = Enumerable.Range(0, 32).Select(_ => Task.Run(async () =>
+            {
+                await start.Task;
+                return await this.connectedQueue.AddConnectionContextAsync(connectionInfo, "test");
+            })).ToArray();
+            start.SetResult(null);
+            string[] keys = await Task.WhenAll(adds);
+
+            Assert.That(keys.Distinct(), Is.EqualTo(new[] { connectionInfo.ConnectionContextKey }));
+            Assert.That(this.opener.OpenCount, Is.EqualTo(1), "Only one caller opens the connection.");
+            Assert.That(this.connectedQueue.BindingContextMap.Count, Is.EqualTo(1));
+            Assert.That(this.connectedQueue.IsBindingContextConnected(connectionInfo.ConnectionContextKey), Is.True);
+        }
+
+        /// <summary>
+        /// A context is visible as soon as it is added, before its connection is open. An
+        /// operation queued in that window must wait and then see the populated context.
+        /// </summary>
+        [Test]
+        [Timeout(10_000)]
+        public async Task OperationQueuedWhileTheContextConnectsSeesItConnected()
+        {
+            this.opener.HoldOpens();
+            TestConnectionInfo connectionInfo = CreateConnectionInfo();
+
+            Task<string> add = this.connectedQueue.AddConnectionContextAsync(connectionInfo, "test");
+            await this.opener.OpenStarted;
+            Task<QueueItem> operation = this.connectedQueue.QueueBindingOperationAsync(
+                connectionInfo.ConnectionContextKey,
+                waitForLockTimeout: 5_000,
+                bindOperation: (context, cancellationToken) => context.IsConnected ? context.ServerConnection : null);
+            await Task.Delay(100);
+            Assert.That(operation.IsCompleted, Is.False, "The operation waits for the connection to open.");
+
+            this.opener.ReleaseOpens();
+            await add;
+            QueueItem item = await operation;
+
+            Assert.That(item.WasExecuted, Is.True);
+            Assert.That(item.Result, Is.Not.Null, "The operation must not run on a half-built context.");
+        }
+
+        /// <summary>
+        /// Rebuilding IntelliSense overwrites a connection's context. Overwrites that race each
+        /// other, including one that lands while another is still connecting, must leave a
+        /// connected context and let every caller finish.
+        /// </summary>
+        [Test]
+        [Timeout(30_000)]
+        public async Task ConcurrentOverwritesLeaveAConnectedContext()
+        {
+            this.opener.OpenDelay = TimeSpan.FromMilliseconds(20);
+            TestConnectionInfo connectionInfo = CreateConnectionInfo();
+
+            await Task.WhenAll(Enumerable.Range(0, 16).Select(_ => Task.Run(() =>
+                this.connectedQueue.AddConnectionContextAsync(connectionInfo, "test", overwrite: true))));
+
+            Assert.That(this.connectedQueue.BindingContextMap.Count, Is.EqualTo(1));
+            Assert.That(this.connectedQueue.BindingContextMap.TryGetValue(connectionInfo.ConnectionContextKey, out IBindingContext context), Is.True);
+            Assert.That(context.IsConnected, Is.True);
+            Assert.That(context.ServerConnection, Is.Not.Null);
+            Assert.That(await context.BindingLock.WaitAsync(0), Is.True, "No overwrite leaves the published context locked.");
+            context.BindingLock.Release();
+        }
+
+        /// <summary>
+        /// Every project save replaces the project's context while completions and diagnostics are
+        /// queued for it. No operation may ever see a context without its binder.
+        /// </summary>
+        [Test]
+        [Timeout(30_000)]
+        public async Task ProjectContextReplacementsNeverExposeAHalfBuiltContext()
+        {
+            const string projectKey = "project_test";
+            IBinder binder = new Mock<IBinder>().Object;
+            var parseOptions = new ParseOptions(
+                batchSeparator: "GO",
+                isQuotedIdentifierSet: true,
+                compatibilityLevel: DatabaseCompatibilityLevel.Current,
+                transactSqlVersion: TransactSqlVersion.Current);
+            this.connectedQueue.AddProjectContext(projectKey, binder, parseOptions);
+            int halfBuilt = 0;
+
+            Task replacements = Task.Run(() =>
+            {
+                for (int i = 0; i < 500; i++)
+                {
+                    this.connectedQueue.AddProjectContext(projectKey, binder, parseOptions);
+                }
+            });
+            QueueItem[] results = await Task.WhenAll(Enumerable.Range(0, 500).Select(_ => Task.Run(() =>
+                this.connectedQueue.QueueBindingOperationAsync(
+                    projectKey,
+                    waitForLockTimeout: 10_000,
+                    bindOperation: (context, cancellationToken) =>
+                    {
+                        if (!(context is ConnectedBindingContext { IsProjectContext: true } project)
+                            || project.Binder == null
+                            || project.ProjectParseOptions == null)
+                        {
+                            Interlocked.Increment(ref halfBuilt);
+                        }
+                        return null;
+                    }))));
+            await replacements;
+
+            Assert.That(results.All(r => r.WasExecuted), Is.True);
+            Assert.That(halfBuilt, Is.Zero);
+        }
+
+        /// <summary>
+        /// A restore closes every connection to its database. It must wait for a context that is
+        /// still connecting rather than skip it, or the restore starts while that context connects.
+        /// </summary>
+        [Test]
+        [Timeout(10_000)]
+        public async Task CloseConnectionsWaitsForAContextThatIsStillConnecting()
+        {
+            this.opener.HoldOpens();
+            TestConnectionInfo connectionInfo = CreateConnectionInfo();
+            Task<string> add = this.connectedQueue.AddConnectionContextAsync(connectionInfo, "test");
+            await this.opener.OpenStarted;
+
+            Task close = this.connectedQueue.CloseConnectionsAsync("server", "db", 10_000);
+            await Task.Delay(100);
+            Assert.That(close.IsCompleted, Is.False, "A restore must not proceed while a context is still connecting.");
+
+            this.opener.ReleaseOpens();
+            await add;
+            await close;
+        }
+
+        private static TestConnectionInfo CreateConnectionInfo()
+        {
+            return new TestConnectionInfo(new ConnectionDetails
+            {
+                ServerName = "server",
+                DatabaseName = "db",
+                UserName = "user",
+                AuthenticationType = "SqlLogin"
+            });
+        }
+
+        private sealed class TestConnectionInfo : ConnectionInfoBase
+        {
+            public TestConnectionInfo(ConnectionDetails connectionDetails)
+                : base("test-owner-uri", connectionDetails)
+            {
+            }
+
+            public override bool IsCloud { get; set; }
+
+            public override bool TryGetConnection(string connectionType, out DbConnection connection)
+            {
+                connection = null;
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Returns unopened server connections, counting them, and can hold opens in progress
+        /// </summary>
+        private sealed class TestConnectionOpener : SqlConnectionOpener
+        {
+            private readonly ManualResetEventSlim opensReleased = new ManualResetEventSlim(initialState: true);
+
+            private readonly TaskCompletionSource<object> openStarted = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+            private int openCount;
+
+            public TimeSpan OpenDelay { get; set; }
+
+            public int OpenCount => Volatile.Read(ref this.openCount);
+
+            public Task OpenStarted => this.openStarted.Task;
+
+            public void HoldOpens() => this.opensReleased.Reset();
+
+            public void ReleaseOpens() => this.opensReleased.Set();
+
+            public override ServerConnection OpenServerConnection(ConnectionInfoBase connInfo, string featureName)
+            {
+                Interlocked.Increment(ref this.openCount);
+                this.openStarted.TrySetResult(null);
+                this.opensReleased.Wait();
+                if (this.OpenDelay > TimeSpan.Zero)
+                {
+                    Thread.Sleep(this.OpenDelay);
+                }
+                return new ServerConnection();
+            }
+        }
+    }
+}

@@ -60,11 +60,13 @@ namespace Microsoft.SqlTools.LanguageService.UnitTests.LanguageServices
     }
 
     /// <summary>
-    /// A binding queue that exposes context replacement to the tests
+    /// A binding queue that exposes context replacement and removal to the tests
     /// </summary>
     public class TestBindingQueue : BindingQueue<TestBindingContext>
     {
         public void Replace(string key, IBindingContext context) => ReplaceBindingContext(key, context);
+
+        public void Remove(string key) => RemoveBindingContext(key);
 
         public static Task RunIdle(IBindingContext context, int millisecondsTimeout, Action<ServerConnection> action)
             => RunWhenIdleAsync(context, millisecondsTimeout, action);
@@ -525,21 +527,214 @@ namespace Microsoft.SqlTools.LanguageService.UnitTests.LanguageServices
             bindingContext.BindingLock.Release();
         }
 
+        /// <summary>
+        /// Contexts are replaced (project saves, IntelliSense rebuilds) and removed (connection
+        /// errors, closed sessions) while items are queued for them. The old queue's processor
+        /// died on that race and every later item hung, so every item must still complete.
+        /// </summary>
         [Test]
-        [Timeout(10_000)]
-        public async Task CloseConnectionsWaitsForAContextThatIsStillBeingPopulated()
+        [Timeout(30_000)]
+        public async Task ItemsCompleteWhileTheirContextsAreReplacedAndRemoved()
         {
-            using var connectedQueue = new ConnectedBindingQueue(needsMetadata: false);
-            var bindingContext = new ConnectedBindingContext();
-            Assert.That(await bindingContext.BindingLock.WaitAsync(0), Is.True, "hold the lock as population does");
-            connectedQueue.BindingContextMap.TryAdd("server_db_user_SqlLogin", bindingContext);
+            string[] keys = { "a", "b", "c", "d" };
+            using var stopChurn = new CancellationTokenSource();
+            Task churn = Task.Run(() =>
+            {
+                var random = new Random(1);
+                while (!stopChurn.IsCancellationRequested)
+                {
+                    string key = keys[random.Next(keys.Length)];
+                    if (random.Next(2) == 0)
+                    {
+                        this.bindingQueue.Replace(key, new TestBindingContext());
+                    }
+                    else
+                    {
+                        this.bindingQueue.Remove(key);
+                    }
+                }
+            });
 
-            Task close = connectedQueue.CloseConnectionsAsync("server", "db", 10_000);
-            await Task.Delay(100);
-            Assert.That(close.IsCompleted, Is.False, "A restore must not proceed while a context is still connecting.");
+            try
+            {
+                Task<QueueItem[]> items = Task.WhenAll(Enumerable.Range(0, 400).Select(i => Task.Run(() =>
+                    this.bindingQueue.QueueBindingOperationAsync(
+                        keys[i % keys.Length],
+                        waitForLockTimeout: 20_000,
+                        bindOperationAsync: async (context, cancellationToken) =>
+                        {
+                            await Task.Yield();
+                            return "ran";
+                        }))));
 
-            bindingContext.BindingLock.Release();
-            await close;
+                QueueItem[] results = await items;
+
+                Assert.That(results.All(r => r.WasExecuted && !r.TimedOut && (string)r.Result == "ran"), Is.True);
+            }
+            finally
+            {
+                stopChurn.Cancel();
+                await churn;
+            }
+        }
+
+        /// <summary>
+        /// Clearing abandons items that are waiting for a context. Racing it against items being
+        /// queued must leave every item either run once or abandoned before running, never both,
+        /// never stranded, and never running alongside another item on the same context.
+        /// </summary>
+        [Test]
+        [Timeout(30_000)]
+        public async Task ClearingWhileItemsAreQueuedNeverStrandsOrOverlapsThem()
+        {
+            int running = 0;
+            int maxRunning = 0;
+            using var stopClearing = new CancellationTokenSource();
+            Task clearing = Task.Run(async () =>
+            {
+                while (!stopClearing.IsCancellationRequested)
+                {
+                    this.bindingQueue.ClearQueuedItems();
+                    await Task.Delay(20);
+                }
+            });
+
+            try
+            {
+                // Several producers queue items over time, so clears land among waiting and running items.
+                QueueItem[][] produced = await Task.WhenAll(Enumerable.Range(0, 4).Select(producer => Task.Run(async () =>
+                {
+                    var queued = new List<Task<QueueItem>>();
+                    for (int i = 0; i < 75; i++)
+                    {
+                        queued.Add(this.bindingQueue.QueueBindingOperationAsync(
+                            "testkey",
+                            bindingTimeout: 20_000,
+                            waitForLockTimeout: 20_000,
+                            bindOperationAsync: async (context, cancellationToken) =>
+                            {
+                                InterlockedMax(ref maxRunning, Interlocked.Increment(ref running));
+                                await Task.Yield();
+                                Interlocked.Decrement(ref running);
+                                return "ran";
+                            }));
+                        await Task.Delay(1);
+                    }
+                    return await Task.WhenAll(queued);
+                })));
+                QueueItem[] results = produced.SelectMany(items => items).ToArray();
+
+                Assert.That(maxRunning, Is.EqualTo(1));
+                Assert.That(results.All(r => r.WasExecuted
+                    ? !r.TimedOut && (string)r.Result == "ran"
+                    : r.TimedOut && r.Result == null), Is.True,
+                    "Each item either ran or was abandoned before running.");
+            }
+            finally
+            {
+                stopClearing.Cancel();
+                await clearing;
+            }
+        }
+
+        /// <summary>
+        /// Disposing while other threads are still queueing must complete every item, and the
+        /// queue must not run anything once it is disposed.
+        /// </summary>
+        [Test]
+        [Timeout(30_000)]
+        public async Task DisposingWhileItemsAreQueuedCompletesEveryItem()
+        {
+            var items = new List<Task<QueueItem>>();
+            var startQueueing = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
+            Task producers = Task.WhenAll(Enumerable.Range(0, 4).Select(producer => Task.Run(async () =>
+            {
+                await startQueueing.Task;
+                for (int i = 0; i < 100; i++)
+                {
+                    Task<QueueItem> item = this.bindingQueue.QueueBindingOperationAsync(
+                        "key" + (i % 3),
+                        waitForLockTimeout: 20_000,
+                        bindOperationAsync: async (context, cancellationToken) =>
+                        {
+                            await Task.Delay(1);
+                            return null;
+                        });
+                    lock (items)
+                    {
+                        items.Add(item);
+                    }
+                }
+            })));
+
+            startQueueing.SetResult(null);
+            await Task.Delay(5);
+            this.bindingQueue.Dispose();
+            await producers;
+
+            Task<QueueItem>[] queued;
+            lock (items)
+            {
+                queued = items.ToArray();
+            }
+            await Task.WhenAll(queued);
+
+            bool ranAfterDispose = false;
+            QueueItem late = await this.bindingQueue.QueueBindingOperationAsync(
+                "key0",
+                bindOperation: (context, cancellationToken) =>
+                {
+                    ranAfterDispose = true;
+                    return null;
+                });
+            Assert.That(late.WasExecuted, Is.False);
+            Assert.That(ranAfterDispose, Is.False);
+        }
+
+        /// <summary>
+        /// Hard timeouts hand the caller a result while a non-cooperative operation keeps the
+        /// context. Under contention, no two operations may overlap on a context, and each
+        /// context lock must be released exactly once, after its operation really ends.
+        /// </summary>
+        [Test]
+        [Timeout(60_000)]
+        public async Task HardTimeoutsUnderContentionNeverOverlapOperationsOrOverReleaseTheContext()
+        {
+            var bindingContext = new TestBindingContext();
+            this.bindingQueue.BindingContextMap.TryAdd("testkey", bindingContext);
+            var random = new Random(7);
+            int[] delays = Enumerable.Range(0, 60).Select(_ => random.Next(0, 40)).ToArray();
+            int running = 0;
+            int maxRunning = 0;
+            int finished = 0;
+
+            QueueItem[] results = await Task.WhenAll(delays.Select(delay => this.bindingQueue.QueueBindingOperationAsync(
+                "testkey",
+                bindingTimeout: 5,
+                hardTimeout: 10,
+                waitForLockTimeout: 30_000,
+                bindOperation: (context, cancellationToken) =>
+                {
+                    // Ignores cancellation, like a SMO query blocked on a lock.
+                    InterlockedMax(ref maxRunning, Interlocked.Increment(ref running));
+                    Thread.Sleep(delay);
+                    Interlocked.Decrement(ref running);
+                    Interlocked.Increment(ref finished);
+                    return null;
+                })));
+
+            int executed = results.Count(r => r.WasExecuted);
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            while (Volatile.Read(ref finished) < executed && stopwatch.ElapsedMilliseconds < 20_000)
+            {
+                await Task.Delay(20);
+            }
+
+            Assert.That(results.Any(r => r.WasExecuted && r.TimedOut), Is.True, "Some operations outlive their hard timeout.");
+            Assert.That(maxRunning, Is.EqualTo(1));
+            Assert.That(Volatile.Read(ref finished), Is.EqualTo(executed));
+            Assert.That(bindingContext.BindingLock.CurrentCount, Is.EqualTo(1),
+                "The context is free once every operation has ended, and released no more than once.");
         }
 
         private static void InterlockedMax(ref int target, int value)
