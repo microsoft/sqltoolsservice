@@ -23,7 +23,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         public async Task GainFullAccessShouldDisconnectTheConnections()
         {
             var connectionLock = new Mock<IConnectedBindingQueue>();
-            connectionLock.Setup(x => x.CloseConnectionsAsync(server1, database1, DatabaseLocksManager.DefaultWaitToGetFullAccess));
+            connectionLock.Setup(x => x.CloseConnectionsAsync(server1, database1, DatabaseLocksManager.DefaultWaitToGetFullAccess)).Returns(Task.CompletedTask);
 
             using (DatabaseLocksManager databaseLocksManager = CreateManager())
             {
@@ -38,7 +38,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         public async Task ReleaseAccessShouldConnectTheConnections()
         {
             var connectionLock = new Mock<IConnectedBindingQueue>();
-            connectionLock.Setup(x => x.OpenConnectionsAsync(server1, database1, DatabaseLocksManager.DefaultWaitToGetFullAccess));
+            connectionLock.Setup(x => x.OpenConnectionsAsync(server1, database1, DatabaseLocksManager.DefaultWaitToGetFullAccess)).Returns(Task.CompletedTask);
 
             using (DatabaseLocksManager databaseLocksManager = CreateManager())
             {
@@ -78,10 +78,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             DatabaseLocksManager databaseLocksManager = new DatabaseLocksManager(2000);
             var connectionLock1 = new Mock<IConnectedBindingQueue>();
             var connectionLock2 = new Mock<IConnectedBindingQueue>();
-            connectionLock1.Setup(x => x.CloseConnectionsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()));
-            connectionLock2.Setup(x => x.OpenConnectionsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()));
-            connectionLock1.Setup(x => x.OpenConnectionsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()));
-            connectionLock2.Setup(x => x.CloseConnectionsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()));
+            connectionLock1.Setup(x => x.CloseConnectionsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>())).Returns(Task.CompletedTask);
+            connectionLock2.Setup(x => x.OpenConnectionsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>())).Returns(Task.CompletedTask);
+            connectionLock1.Setup(x => x.OpenConnectionsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>())).Returns(Task.CompletedTask);
+            connectionLock2.Setup(x => x.CloseConnectionsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>())).Returns(Task.CompletedTask);
             ConnectionService connectionService = new ConnectionService();
 
             databaseLocksManager.ConnectionService = connectionService;
