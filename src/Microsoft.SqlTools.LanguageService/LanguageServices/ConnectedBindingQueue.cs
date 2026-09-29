@@ -135,25 +135,6 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 })));
         }
 
-        private static async Task RunWhenIdleAsync(IBindingContext bindingContext, int millisecondsTimeout, Action<ServerConnection> action)
-        {
-            // A context whose connection failed to open has nothing to act on
-            if (bindingContext.ServerConnection == null
-                || !await bindingContext.BindingLock.WaitAsync(millisecondsTimeout).ConfigureAwait(false))
-            {
-                return;
-            }
-
-            try
-            {
-                action(bindingContext.ServerConnection);
-            }
-            finally
-            {
-                bindingContext.BindingLock.Release();
-            }
-        }
-
         public void RemoveConnectionContext(ConnectionInfoBase connInfo)
         {
             RemoveBindingContext(connInfo.ConnectionContextKey);

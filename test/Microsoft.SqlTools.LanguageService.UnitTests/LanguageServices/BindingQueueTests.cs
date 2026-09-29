@@ -65,6 +65,9 @@ namespace Microsoft.SqlTools.LanguageService.UnitTests.LanguageServices
     public class TestBindingQueue : BindingQueue<TestBindingContext>
     {
         public void Replace(string key, IBindingContext context) => ReplaceBindingContext(key, context);
+
+        public static Task RunIdle(IBindingContext context, int millisecondsTimeout, Action<ServerConnection> action)
+            => RunWhenIdleAsync(context, millisecondsTimeout, action);
     }
 
     /// <summary>
@@ -479,6 +482,64 @@ namespace Microsoft.SqlTools.LanguageService.UnitTests.LanguageServices
             {
                 releaseOperation.Set();
             }
+        }
+
+        /// <summary>
+        /// A context that is still being populated holds its lock and has no connection yet. Acting
+        /// on it must wait for population and then use the connection it assigned, or a removed
+        /// context leaks its connection and a restore can run while the context connects.
+        /// </summary>
+        [Test]
+        [Timeout(10_000)]
+        public async Task RunWhenIdleUsesTheConnectionAssignedWhileItWaited()
+        {
+            var bindingContext = new TestBindingContext();
+            Assert.That(bindingContext.BindingLock.Wait(0), Is.True, "hold the lock as population does");
+            ServerConnection seen = null;
+
+            Task run = TestBindingQueue.RunIdle(bindingContext, 5_000, connection => seen = connection);
+            await Task.Delay(100);
+            Assert.That(run.IsCompleted, Is.False, "It waits for the context to be populated.");
+
+            var populated = new ServerConnection();
+            bindingContext.ServerConnection = populated;
+            bindingContext.BindingLock.Release();
+            await run;
+
+            Assert.That(seen, Is.SameAs(populated));
+            Assert.That(bindingContext.BindingLock.CurrentCount, Is.EqualTo(1));
+        }
+
+        [Test]
+        [Timeout(10_000)]
+        public async Task RunWhenIdleGivesUpOnABusyContext()
+        {
+            var bindingContext = new TestBindingContext { ServerConnection = new ServerConnection() };
+            Assert.That(bindingContext.BindingLock.Wait(0), Is.True);
+            bool acted = false;
+
+            await TestBindingQueue.RunIdle(bindingContext, 50, connection => acted = true);
+
+            Assert.That(acted, Is.False);
+            Assert.That(bindingContext.BindingLock.CurrentCount, Is.Zero, "It must not release a lock it did not take.");
+            bindingContext.BindingLock.Release();
+        }
+
+        [Test]
+        [Timeout(10_000)]
+        public async Task CloseConnectionsWaitsForAContextThatIsStillBeingPopulated()
+        {
+            using var connectedQueue = new ConnectedBindingQueue(needsMetadata: false);
+            var bindingContext = new ConnectedBindingContext();
+            Assert.That(await bindingContext.BindingLock.WaitAsync(0), Is.True, "hold the lock as population does");
+            connectedQueue.BindingContextMap.TryAdd("server_db_user_SqlLogin", bindingContext);
+
+            Task close = connectedQueue.CloseConnectionsAsync("server", "db", 10_000);
+            await Task.Delay(100);
+            Assert.That(close.IsCompleted, Is.False, "A restore must not proceed while a context is still connecting.");
+
+            bindingContext.BindingLock.Release();
+            await close;
         }
 
         private static void InterlockedMax(ref int target, int value)

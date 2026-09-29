@@ -235,37 +235,55 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// </summary>
         private static void CloseConnectionWhenIdle(IBindingContext context)
         {
-            ServerConnection? connection = context.ServerConnection;
-            if (connection == null)
-            {
-                return;
-            }
-
             _ = Task.Run(async () =>
             {
                 try
                 {
-                    if (!connection.IsOpen)
+                    if (context.ServerConnection is { IsOpen: true } running)
                     {
-                        return;
+                        running.Cancel();
                     }
 
-                    connection.Cancel();
-                    await context.BindingLock.WaitAsync().ConfigureAwait(false);
-                    try
+                    await RunWhenIdleAsync(context, Timeout.Infinite, connection =>
                     {
-                        connection.Disconnect();
-                    }
-                    finally
-                    {
-                        context.BindingLock.Release();
-                    }
+                        if (connection.IsOpen)
+                        {
+                            connection.Disconnect();
+                        }
+                    }).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
                     Logger.Warning($"Failed to close a removed binding context connection: {ex.Message}");
                 }
             });
+        }
+
+        /// <summary>
+        /// Runs an action on a context's connection once no operation is using the context, and
+        /// does nothing if the context stays busy for the whole timeout or has no connection.
+        /// </summary>
+        protected static async Task RunWhenIdleAsync(IBindingContext context, int millisecondsTimeout, Action<ServerConnection> action)
+        {
+            if (!await context.BindingLock.WaitAsync(millisecondsTimeout).ConfigureAwait(false))
+            {
+                return;
+            }
+
+            try
+            {
+                // Read under the lock: a context that is still being populated has no connection
+                // until its population releases the lock.
+                ServerConnection? connection = context.ServerConnection;
+                if (connection != null)
+                {
+                    action(connection);
+                }
+            }
+            finally
+            {
+                context.BindingLock.Release();
+            }
         }
 
         private async Task<QueueItem> RunAsync(QueueItem item)
