@@ -57,11 +57,28 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         public override abstract void Execute();
 
         /// <summary>
+        /// Full access to the database is taken asynchronously, so this operation must run through
+        /// <see cref="ExecuteWithFullDbAccessAsync"/>. Running it directly would skip that access.
+        /// </summary>
+        public sealed override void Execute(TaskExecutionMode mode)
+        {
+            throw new InvalidOperationException($"{GetType().Name} needs full access to its database. Run it with {nameof(ExecuteWithFullDbAccessAsync)}.");
+        }
+
+        /// <summary>
         /// Settles what the operation runs against, such as its target database, before full
         /// access to that database is taken.
         /// </summary>
         protected virtual void PrepareToExecute()
         {
+        }
+
+        /// <summary>
+        /// Executes the operation for the given mode while full access to its database is held
+        /// </summary>
+        protected virtual void ExecuteWhileHoldingAccess(TaskExecutionMode mode)
+        {
+            base.Execute(mode);
         }
 
         /// <summary>
@@ -76,7 +93,7 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
             try
             {
                 await GainAccessToDatabaseAsync();
-                Execute(mode);
+                ExecuteWhileHoldingAccess(mode);
             }
             catch (DatabaseFullAccessException)
             {

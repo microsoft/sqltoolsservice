@@ -68,6 +68,21 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
                 "The operation does not run, and connections closed before the failure are reopened.");
         }
 
+        /// <summary>
+        /// Running the operation directly through the task contract would skip preparation and
+        /// full access, so it is rejected rather than run unprotected.
+        /// </summary>
+        [Test]
+        public void RunningTheOperationDirectlyIsRejected()
+        {
+            var events = new List<string>();
+            using DatabaseLocksManager locksManager = CreateLocksManager(events);
+            ITaskOperation operation = new RecordingOperation(events) { LockedDatabaseManager = locksManager };
+
+            Assert.Throws<InvalidOperationException>(() => operation.Execute(TaskExecutionMode.Execute));
+            Assert.That(events, Is.Empty);
+        }
+
         private static SqlTask CreateSqlTask(ITaskOperation operation)
         {
             return new SqlTask(
@@ -122,7 +137,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.TaskServices
             {
             }
 
-            public override void Execute(TaskExecutionMode mode)
+            protected override void ExecuteWhileHoldingAccess(TaskExecutionMode mode)
             {
                 this.events.Add($"execute {this.databaseName}");
                 if (this.ExecuteFailure != null)

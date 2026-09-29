@@ -272,6 +272,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         {
             if (!await context.BindingLock.WaitAsync(millisecondsTimeout).ConfigureAwait(false))
             {
+                Logger.Warning($"A binding context was still busy after {millisecondsTimeout} ms, so its connection was left as it was");
                 return;
             }
 
