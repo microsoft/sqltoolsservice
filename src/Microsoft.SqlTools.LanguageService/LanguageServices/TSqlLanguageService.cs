@@ -102,6 +102,9 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
         internal const int CompletionExtTimeout = 200;
 
+        // The parser recurses deeply on large scripts, so it runs on a thread with a larger stack.
+        internal const int ParseThreadStackSize = 5 * 1024 * 1024;
+
         // {0} = bracketed object name, e.g. [TableName] or [dbo].[TableName]
         internal const string DuplicateNameWarningFormat =
             "A schema object with the name {0} already exists. Would you like to continue?";
@@ -1121,13 +1124,12 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                         {
                             try
                             {
-                                this.BindingQueue.AddConnectionContext(connInfo, featureName: Constants.LanguageServiceFeature, overwrite: true);
+                                await this.BindingQueue.AddConnectionContextAsync(connInfo, featureName: Constants.LanguageServiceFeature, overwrite: true);
                                 RemoveScriptParseInfo(rebuildParams.OwnerUri);
                             }
                             finally
                             {
-                                // A Monitor is owned by the thread that entered it, so it must be
-                                // released before the asynchronous metadata rebuild can change threads.
+                                // Released before the metadata rebuild below, which takes the document's lock itself.
                                 scriptInfo.BuildingMetadataLock.Exit();
                             }
 
@@ -1386,10 +1388,10 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                         }
                         else
                         {
-                            QueueItem queueItem = this.BindingQueue.QueueBindingOperationAsync(
+                            QueueItem queueItem = await this.BindingQueue.QueueBindingOperationAsync(
                                 key: parseInfo.ConnectionKey,
                                 bindingTimeout: ConnectedBindingQueue.BindingTimeout,
-                                bindOperation: async (bindingContext, cancelToken) =>
+                                bindOperationAsync: async (bindingContext, cancelToken) =>
                                 {
                                     try
                                     {
@@ -1436,7 +1438,6 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                                     return null;
                                 });
 
-                            await queueItem.WaitForCompletionAsync();
                             if (!queueItem.WasExecuted || queueItem.TimedOut)
                             {
                                 Logger.Verbose($"ParseAndBind: binding queue did not complete the parse for '{scriptFile.ClientUri}'");
@@ -1519,7 +1520,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
         internal virtual Thread CreateParseThread(ThreadStart threadStart)
         {
-            Thread thread = new Thread(threadStart, ConnectedBindingQueue.QueueThreadStackSize);
+            Thread thread = new Thread(threadStart, ParseThreadStackSize);
             thread.IsBackground = true;
             return thread;
         }
@@ -1654,7 +1655,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             {
                 try
                 {
-                    scriptInfo.ConnectionKey = this.BindingQueue.AddConnectionContext(info, Constants.LanguageServiceFeature);
+                    scriptInfo.ConnectionKey = await this.BindingQueue.AddConnectionContextAsync(info, Constants.LanguageServiceFeature);
                     scriptInfo.BindingContextKind = this.BindingQueue.IsBindingContextConnected(scriptInfo.ConnectionKey)
                         ? BindingContextKindEnum.LiveConnection
                         : BindingContextKindEnum.None;
@@ -1802,7 +1803,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                     {
                         try
                         {
-                            QueueItem queueItem = bindingQueue.QueueBindingOperation(
+                            await bindingQueue.QueueBindingOperationAsync(
                                 key: scriptInfo.ConnectionKey,
                                 bindingTimeout: PrepopulateBindTimeout,
                                 waitForLockTimeout: PrepopulateBindTimeout,
@@ -1850,8 +1851,6 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                                     }
                                     return null;
                                 });
-
-                            await queueItem.WaitForCompletionAsync();
                         }
                         catch (Exception ex)
                         {
@@ -1928,7 +1927,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 {
                     try
                     {
-                        QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
+                        await this.BindingQueue.QueueBindingOperationAsync(
                             key: scriptParseInfo.ConnectionKey,
                             bindingTimeout: ConnectedBindingQueue.BindingTimeout,
                             bindOperation: (bindingContext, cancelToken) =>
@@ -1944,8 +1943,6 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                                 }
                                 return completionItem;
                             });
-
-                        await queueItem.WaitForCompletionAsync();
                     }
                     catch (Exception ex)
                     {
@@ -1979,7 +1976,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                                             ConnectionInfoBase connInfo, ScriptFile scriptFile, string tokenText)
         {
             // Queue the task with the binding queue
-            QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
+            QueueItem queueItem = await this.BindingQueue.QueueBindingOperationAsync(
                 key: scriptParseInfo.ConnectionKey,
                 bindingTimeout: TSqlLanguageService.PeekDefinitionTimeout,
                 bindOperation: (bindingContext, cancelToken) =>
@@ -2030,8 +2027,6 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                     };
                 });
 
-            // wait for the queue item
-            await queueItem.WaitForCompletionAsync();
             var result = queueItem.GetResultAsT<DefinitionResult>();
             return result;
         }
@@ -2729,7 +2724,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             int parserLine = textDocumentPosition.Position.Line + 1;
             int parserColumn = textDocumentPosition.Position.Character + 1;
 
-            QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
+            QueueItem queueItem = await this.BindingQueue.QueueBindingOperationAsync(
                 key: scriptParseInfo.ConnectionKey,
                 bindingTimeout: TSqlLanguageService.PeekDefinitionTimeout,
                 bindOperation: (bindingContext, cancelToken) =>
@@ -2810,7 +2805,6 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                     Locations = null
                 });
 
-            await queueItem.WaitForCompletionAsync();
             return queueItem.GetResultAsT<DefinitionResult>();
         }
 
@@ -2956,7 +2950,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 {
                     try
                     {
-                        QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
+                        QueueItem queueItem = await this.BindingQueue.QueueBindingOperationAsync(
                             key: scriptParseInfo.ConnectionKey,
                             bindingTimeout: TSqlLanguageService.HoverTimeout,
                             bindOperation: (bindingContext, cancelToken) =>
@@ -2976,7 +2970,6 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                                         endColumn);
                             });
 
-                        await queueItem.WaitForCompletionAsync();
                         return queueItem.GetResultAsT<Hover>();
                     }
                     finally
@@ -3029,7 +3022,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 {
                     try
                     {
-                        QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
+                        QueueItem queueItem = await this.BindingQueue.QueueBindingOperationAsync(
                             key: scriptParseInfo.ConnectionKey,
                             bindingTimeout: ConnectedBindingQueue.BindingTimeout,
                             bindOperation: (bindingContext, cancelToken) =>
@@ -3061,7 +3054,6 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                                     return null;
                                 }
                             });
-                        await queueItem.WaitForCompletionAsync();
                         Logger.Verbose($"GetSignatureHelp - Got result {queueItem.Result}");
                         return queueItem.GetResultAsT<SignatureHelp>();
                     }

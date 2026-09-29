@@ -224,31 +224,18 @@ GO";
             var langSvc = new TSqlLanguageService();
             Mock<ConnectedBindingQueue> queueMock = new Mock<ConnectedBindingQueue>();
             langSvc.BindingQueue = queueMock.Object;
-            ManualResetEvent mre = new ManualResetEvent(true); // Do not block
-            Mock<QueueItem> itemMock = new Mock<QueueItem>();
-            itemMock.Setup(i => i.ItemProcessed).Returns(mre);
 
-            DefinitionResult timeoutResult = null;
-
-            queueMock.Setup(q => q.QueueBindingOperation(
+            queueMock.Setup(q => q.QueueBindingOperationAsync(
                 It.IsAny<string>(),
-                It.IsAny<Func<IBindingContext, CancellationToken, object>>(),
+                It.IsAny<Func<IBindingContext, CancellationToken, Task<object>>>(),
                 It.IsAny<Func<IBindingContext, object>>(),
                 It.IsAny<Func<Exception, object>>(),
                 It.IsAny<int?>(),
                 It.IsAny<int?>(),
                 It.IsAny<int?>()))
-            .Callback<string, Func<IBindingContext, CancellationToken, object>, Func<IBindingContext, object>, Func<Exception, object>, int?, int?, int?>(
+            .Returns<string, Func<IBindingContext, CancellationToken, Task<object>>, Func<IBindingContext, object>, Func<Exception, object>, int?, int?, int?>(
                 (key, bindOperation, timeoutOperation, errHandler, t1, t2, t3) =>
-                {
-                    if(timeoutOperation != null)
-                    {
-                        timeoutResult = (DefinitionResult)timeoutOperation(null);
-                    }
-                    
-                    itemMock.Object.Result = timeoutResult;
-                })
-            .Returns(() => itemMock.Object);
+                    Task.FromResult(new QueueItem { Result = timeoutOperation?.Invoke(null) }));
 
             TextDocumentPosition textDocument = new TextDocumentPosition
             {
@@ -791,7 +778,7 @@ GO";
             ConnectionInfo connInfo = connectionResult.ConnectionInfo;
             connInfo.RemoveAllConnections();
             var bindingQueue = new ConnectedBindingQueue();
-            bindingQueue.AddConnectionContext(connInfo);
+            await bindingQueue.AddConnectionContextAsync(connInfo);
             scriptFile.Contents = fileContents;
 
             var service = new TSqlLanguageService();
@@ -804,7 +791,7 @@ GO";
 
             ScriptParseInfo scriptInfo = new ScriptParseInfo { BindingContextKind = BindingContextKindEnum.LiveConnection };
             await service.ParseAndBind(scriptFile, connInfo);
-            scriptInfo.ConnectionKey = bindingQueue.AddConnectionContext(connInfo);
+            scriptInfo.ConnectionKey = await bindingQueue.AddConnectionContextAsync(connInfo);
             service.ScriptParseInfoMap.TryAdd(TestUri, scriptInfo);
 
             // When I call the language service

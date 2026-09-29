@@ -6,6 +6,7 @@
 #nullable disable
 
 using System;
+using System.Linq;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.SmoMetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Binder;
@@ -13,18 +14,19 @@ using Microsoft.SqlServer.Management.SqlParser.MetadataProvider;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.Utility;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.LanguageService.LanguageServices
 {
     public interface IConnectedBindingQueue
     {
-        void CloseConnections(string serverName, string databaseName, int millisecondsTimeout);
-        void OpenConnections(string serverName, string databaseName, int millisecondsTimeout);
-        string AddConnectionContext(ConnectionInfoBase connInfo, string featureName = null, bool overwrite = false);
+        Task CloseConnectionsAsync(string serverName, string databaseName, int millisecondsTimeout);
+        Task OpenConnectionsAsync(string serverName, string databaseName, int millisecondsTimeout);
+        Task<string> AddConnectionContextAsync(ConnectionInfoBase connInfo, string featureName = null, bool overwrite = false);
         void Dispose();
-        QueueItem QueueBindingOperation(
+        Task<QueueItem> QueueBindingOperationAsync(
             string key,
-            Func<IBindingContext, CancellationToken, object> bindOperation,
+            Func<IBindingContext, CancellationToken, Task<object>> bindOperationAsync,
             Func<IBindingContext, object> timeoutOperation = null,
             Func<Exception, object> errorHandler = null,
             int? bindingTimeout = null,
@@ -79,7 +81,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
         public ConnectedBindingQueue()
             : this(true)
-        {            
+        {
         }
 
         public ConnectedBindingQueue(bool needsMetadata)
@@ -95,57 +97,66 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         }
 
         /// <summary>
-        /// Generate a unique key based on the ConnectionInfo object
+        /// Gets the prefix shared by the context keys of every connection to a database
         /// </summary>
-        /// <param name="connInfo"></param>
-        private string GetConnectionContextKey(string serverName, string databaseName)
+        private static string GetConnectionContextKeyPrefix(string serverName, string databaseName)
         {
-            return string.Format("{0}_{1}",
+            return string.Format("{0}_{1}_",
                 serverName ?? "NULL",
                 databaseName ?? "NULL");
-            
         }
 
-        public void CloseConnections(string serverName, string databaseName, int millisecondsTimeout)
+        /// <summary>
+        /// Disconnects every context connected to a database, each once no operation is using it.
+        /// A context that stays busy for the whole timeout is left connected.
+        /// </summary>
+        public Task CloseConnectionsAsync(string serverName, string databaseName, int millisecondsTimeout)
         {
-            string connectionKey = GetConnectionContextKey(serverName, databaseName);
-            var contexts = GetBindingContexts(connectionKey);
-            foreach (var bindingContext in contexts)
-            {
-                if (bindingContext.BindingLock.WaitOne(millisecondsTimeout))
-                {
-                    bindingContext.ServerConnection.Disconnect();
-                }
-            }
+            return Task.WhenAll(GetBindingContexts(GetConnectionContextKeyPrefix(serverName, databaseName))
+                .Select(context => RunWhenIdleAsync(context, millisecondsTimeout, connection => connection.Disconnect())));
         }
 
-        public void OpenConnections(string serverName, string databaseName, int millisecondsTimeout)
+        /// <summary>
+        /// Reconnects every context connected to a database, each once no operation is using it.
+        /// </summary>
+        public Task OpenConnectionsAsync(string serverName, string databaseName, int millisecondsTimeout)
         {
-            string connectionKey = GetConnectionContextKey(serverName, databaseName);
-            var contexts = GetBindingContexts(connectionKey);
-            foreach (var bindingContext in contexts)
-            {
-                if (bindingContext.BindingLock.WaitOne(millisecondsTimeout))
+            return Task.WhenAll(GetBindingContexts(GetConnectionContextKeyPrefix(serverName, databaseName))
+                .Select(context => RunWhenIdleAsync(context, millisecondsTimeout, connection =>
                 {
                     try
                     {
-                        bindingContext.ServerConnection.Connect();
+                        connection.Connect();
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        //TODO: remove the binding context? 
+                        Logger.Warning($"Failed to reconnect a binding context: {ex.Message}");
                     }
-                }
+                })));
+        }
+
+        private static async Task RunWhenIdleAsync(IBindingContext bindingContext, int millisecondsTimeout, Action<ServerConnection> action)
+        {
+            // A context whose connection failed to open has nothing to act on
+            if (bindingContext.ServerConnection == null
+                || !await bindingContext.BindingLock.WaitAsync(millisecondsTimeout).ConfigureAwait(false))
+            {
+                return;
+            }
+
+            try
+            {
+                action(bindingContext.ServerConnection);
+            }
+            finally
+            {
+                bindingContext.BindingLock.Release();
             }
         }
 
-        public void RemoveBindigContext(ConnectionInfoBase connInfo)
+        public void RemoveConnectionContext(ConnectionInfoBase connInfo)
         {
-            string connectionKey = connInfo.ConnectionContextKey;
-            if (BindingContextExists(connectionKey))
-            {
-                RemoveBindingContext(connectionKey);
-            }
+            RemoveBindingContext(connInfo.ConnectionContextKey);
         }
 
         /// <summary>
@@ -154,105 +165,103 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// </summary>
         public void RemoveProjectContext(string projectKey)
         {
-            if (BindingContextExists(projectKey))
-            {
-                RemoveBindingContext(projectKey);
-            }
+            RemoveBindingContext(projectKey);
         }
 
         /// <summary>
-        /// Creates an offline binding context for a SQL project (no server connection required).
+        /// Creates an offline binding context for a SQL project (no server connection required),
+        /// replacing any existing one. Operations already running keep the context they started with.
         /// </summary>
         public void AddProjectContext(string projectKey, IBinder binder, ParseOptions parseOptions, IMetadataProvider metadataProvider = null)
         {
-            if (BindingContextExists(projectKey))
+            // The context is complete before it is published, so no operation can see it half built.
+            ReplaceBindingContext(projectKey, new ConnectedBindingContext
             {
-                RemoveBindingContext(projectKey);
-            }
-
-            ConnectedBindingContext bindingContext = (ConnectedBindingContext)this.GetOrCreateBindingContext(projectKey);
-            if (bindingContext.BindingLock.WaitOne())
-            {
-                try
-                {
-                    bindingContext.BindingLock.Reset();
-                    bindingContext.Binder = binder;
-                    bindingContext.MetadataProvider = metadataProvider;
-                    bindingContext.BindingTimeout = ConnectedBindingQueue.DefaultBindingTimeout;
-                    bindingContext.IsProjectContext = true;
-                    // IsConnected intentionally left false: no live server connection.
-                    // ParseOptions are fixed at context creation; no server query needed.
-                    bindingContext.ProjectParseOptions = parseOptions;
-                }
-                finally
-                {
-                    bindingContext.BindingLock.Set();
-                }
-            }
+                Binder = binder,
+                MetadataProvider = metadataProvider,
+                BindingTimeout = DefaultBindingTimeout,
+                IsProjectContext = true,
+                // IsConnected intentionally left false: no live server connection.
+                // ParseOptions are fixed at context creation; no server query needed.
+                ProjectParseOptions = parseOptions
+            });
         }
 
         /// <summary>
         /// Use a ConnectionInfo item to create a connected binding context
         /// </summary>
-        /// <param name="connInfo">Connection info used to create binding context</param>   
-        /// <param name="overwrite">Overwrite existing context</param>      
-        public virtual string AddConnectionContext(ConnectionInfoBase connInfo, string featureName = null, bool overwrite = false)
+        /// <param name="connInfo">Connection info used to create binding context</param>
+        /// <param name="overwrite">Overwrite existing context</param>
+        public virtual async Task<string> AddConnectionContextAsync(ConnectionInfoBase connInfo, string featureName = null, bool overwrite = false)
         {
             if (connInfo == null)
             {
                 return string.Empty;
             }
 
-            // lookup the current binding context
             string connectionKey = connInfo.ConnectionContextKey;
-            if (BindingContextExists(connectionKey))
+            string ReuseExistingContext()
+            {
+                // no need to populate the context again since the context already exists
+                Logger.Information($"AddConnectionContext: reusing existing binding context for connection key '{connectionKey}' (feature: '{featureName ?? "unknown"}')");
+                return connectionKey;
+            }
+
+            if (!overwrite && BindingContextExists(connectionKey))
+            {
+                return ReuseExistingContext();
+            }
+
+            // Publish the context while holding its lock, so operations queued for the key wait
+            // for it to be populated instead of running against an empty context.
+            var bindingContext = new ConnectedBindingContext();
+            await bindingContext.BindingLock.WaitAsync().ConfigureAwait(false);
+            try
             {
                 if (overwrite)
                 {
-                    RemoveBindingContext(connectionKey);
+                    ReplaceBindingContext(connectionKey, bindingContext);
                 }
-                else
+                else if (!this.BindingContextMap.TryAdd(connectionKey, bindingContext))
                 {
-                    // no need to populate the context again since the context already exists
-                    Logger.Information($"AddConnectionContext: reusing existing binding context for connection key '{connectionKey}' (feature: '{featureName ?? "unknown"}')");
-                    return connectionKey;
+                    return ReuseExistingContext();
                 }
+
+                // Opening the connection and loading metadata are synchronous, so keep them off the caller's thread.
+                await Task.Run(() => PopulateConnectionContext(bindingContext, connInfo, featureName, connectionKey, overwrite)).ConfigureAwait(false);
             }
-            IBindingContext bindingContext = this.GetOrCreateBindingContext(connectionKey);
-
-            if (bindingContext.BindingLock.WaitOne())
+            finally
             {
-                try
-                {
-                    bindingContext.BindingLock.Reset();
-
-                    // populate the binding context to work with the SMO metadata provider
-                    bindingContext.ServerConnection = connectionOpener.OpenServerConnection(connInfo, featureName);
-
-                    if (this.needsMetadata)
-                    {
-                        bindingContext.SmoMetadataProvider = SmoMetadataProvider.CreateConnectedProvider(bindingContext.ServerConnection);
-                        bindingContext.MetadataDisplayInfoProvider = new MetadataDisplayInfoProvider();
-                        bindingContext.MetadataDisplayInfoProvider.BuiltInCasing = UseLowercaseKeywordCasingProvider() ? CasingStyle.Lowercase : CasingStyle.Uppercase;
-                            bindingContext.Binder = BinderProvider.CreateBinder(bindingContext.SmoMetadataProvider);
-                        }
-            
-                    bindingContext.BindingTimeout = ConnectedBindingQueue.DefaultBindingTimeout;
-                    bindingContext.IsConnected = true;
-                    Logger.Information($"AddConnectionContext: binding context ready for connection key '{connectionKey}' (feature: '{featureName ?? "unknown"}', metadata: {this.needsMetadata}, overwrite: {overwrite})");
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error($"Failed creating binding context for intellisense. Feature: '{featureName ?? "unknown"}' ConnKey: '{connectionKey}'. Exception: {ex}");
-                    bindingContext.IsConnected = false;
-                }       
-                finally
-                {
-                    bindingContext.BindingLock.Set();
-                }         
+                bindingContext.BindingLock.Release();
             }
 
             return connectionKey;
+        }
+
+        private void PopulateConnectionContext(ConnectedBindingContext bindingContext, ConnectionInfoBase connInfo, string featureName, string connectionKey, bool overwrite)
+        {
+            try
+            {
+                // populate the binding context to work with the SMO metadata provider
+                bindingContext.ServerConnection = connectionOpener.OpenServerConnection(connInfo, featureName);
+
+                if (this.needsMetadata)
+                {
+                    bindingContext.SmoMetadataProvider = SmoMetadataProvider.CreateConnectedProvider(bindingContext.ServerConnection);
+                    bindingContext.MetadataDisplayInfoProvider = new MetadataDisplayInfoProvider();
+                    bindingContext.MetadataDisplayInfoProvider.BuiltInCasing = UseLowercaseKeywordCasingProvider() ? CasingStyle.Lowercase : CasingStyle.Uppercase;
+                    bindingContext.Binder = BinderProvider.CreateBinder(bindingContext.SmoMetadataProvider);
+                }
+
+                bindingContext.BindingTimeout = ConnectedBindingQueue.DefaultBindingTimeout;
+                bindingContext.IsConnected = true;
+                Logger.Information($"AddConnectionContext: binding context ready for connection key '{connectionKey}' (feature: '{featureName ?? "unknown"}', metadata: {this.needsMetadata}, overwrite: {overwrite})");
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Failed creating binding context for intellisense. Feature: '{featureName ?? "unknown"}' ConnKey: '{connectionKey}'. Exception: {ex}");
+                bindingContext.IsConnected = false;
+            }
         }
     }
 }
