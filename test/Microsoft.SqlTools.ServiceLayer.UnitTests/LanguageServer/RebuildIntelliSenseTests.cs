@@ -93,7 +93,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             bool metadataUpdateStarted = false;
 
             bindingQueue
-                .Setup(queue => queue.AddConnectionContext(
+                .Setup(queue => queue.AddConnectionContextAsync(
                     It.IsAny<ConnectionInfoBase>(),
                     It.IsAny<string>(),
                     It.IsAny<bool>()))
@@ -105,7 +105,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                         oldMetadataLockWasAvailable = CanAcquireFromAnotherThread(oldMetadataLock);
                     }
                 })
-                .Returns(this.testConnectionKey);
+                .ReturnsAsync(this.testConnectionKey);
 
             try
             {

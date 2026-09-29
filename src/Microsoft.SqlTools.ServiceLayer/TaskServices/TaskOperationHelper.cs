@@ -31,14 +31,14 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
             {
                 taskOperation.SqlTask = sqlTask;
 
-                return Task.Run(() =>
+                return Task.Run(async () =>
                 {
                     TaskResult result = new TaskResult();
                     try
                     {
                         if (string.IsNullOrEmpty(taskOperation.ErrorMessage))
                         {
-                            taskOperation.Execute(sqlTask.TaskMetadata.TaskExecutionMode);
+                            await ExecuteAsync(taskOperation, sqlTask.TaskMetadata.TaskExecutionMode);
                             result.TaskStatus = SqlTaskStatus.Succeeded;
                         }
                         else
@@ -62,6 +62,20 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
             }
 
             return Task.FromResult(taskResult);
+        }
+
+        /// <summary>
+        /// Executes the operation, holding full access to its database while it runs if it needs it
+        /// </summary>
+        private static Task ExecuteAsync(ITaskOperation taskOperation, TaskExecutionMode mode)
+        {
+            if (taskOperation is SmoScriptableOperationWithFullDbAccess fullDbAccessOperation)
+            {
+                return fullDbAccessOperation.ExecuteWithFullDbAccessAsync(mode);
+            }
+
+            taskOperation.Execute(mode);
+            return Task.CompletedTask;
         }
 
         internal static string GetInnermostExceptionMessage(Exception exception)

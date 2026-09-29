@@ -5,11 +5,13 @@
 
 #nullable disable
 
+using System.Threading.Tasks;
+
 namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
     /// <summary>
     /// Any operation that needs full access to databas should implement this interface.
-    /// Make sure to call GainAccessToDatabase before the operation and ReleaseAccessToDatabase after
+    /// Make sure to call GainAccessToDatabaseAsync before the operation and ReleaseAccessToDatabaseAsync after
     /// </summary>
     public interface IFeatureWithFullDbAccess
     {
@@ -21,12 +23,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         /// <summary>
         /// Makes sure the feature has fill access to the database
         /// </summary>
-        bool GainAccessToDatabase();
+        Task<bool> GainAccessToDatabaseAsync();
 
         /// <summary>
         /// Release the access to db
         /// </summary>
-        bool ReleaseAccessToDatabase();
+        Task<bool> ReleaseAccessToDatabaseAsync();
 
         /// <summary>
         /// Server name

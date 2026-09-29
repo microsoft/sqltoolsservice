@@ -288,7 +288,7 @@ END
             _langService.InitializeProjectFileContexts(uris, _contextKey, "LanguageServiceTestProject");
 
             // A binding queue that accepts items but does not process them until told to.
-            var queuedItems = new ConcurrentQueue<QueueItem>();
+            var queuedItems = new ConcurrentQueue<TaskCompletionSource<QueueItem>>();
             var itemQueued = new SemaphoreSlim(0);
             var stalledQueue = new Mock<ConnectedBindingQueue>();
             stalledQueue
@@ -302,10 +302,10 @@ END
                     It.IsAny<int?>()))
                 .Returns(() =>
                 {
-                    var item = new QueueItem();
-                    queuedItems.Enqueue(item);
+                    var pending = new TaskCompletionSource<QueueItem>(TaskCreationOptions.RunContinuationsAsynchronously);
+                    queuedItems.Enqueue(pending);
                     itemQueued.Release();
-                    return item;
+                    return pending.Task;
                 });
             ConnectedBindingQueue realQueue = _langService.BindingQueue;
             _langService.BindingQueue = stalledQueue.Object;
@@ -330,9 +330,9 @@ END
                 });
 
                 supersede.Cancel();
-                foreach (QueueItem item in queuedItems)
+                foreach (TaskCompletionSource<QueueItem> pending in queuedItems)
                 {
-                    item.ItemProcessed.Set();
+                    pending.TrySetResult(new QueueItem());
                 }
 
                 Assert.That(await Task.WhenAny(refresh, Task.Delay(10_000)), Is.SameAs(refresh),
@@ -342,9 +342,9 @@ END
             }
             finally
             {
-                foreach (QueueItem item in queuedItems)
+                foreach (TaskCompletionSource<QueueItem> pending in queuedItems)
                 {
-                    item.ItemProcessed.Set();
+                    pending.TrySetResult(new QueueItem());
                 }
                 _langService.BindingQueue = realQueue;
             }
@@ -407,7 +407,7 @@ END
             }
             _langService.InitializeProjectFileContexts(uris, _contextKey, "LanguageServiceTestProject");
 
-            var queuedItems = new ConcurrentQueue<QueueItem>();
+            var queuedItems = new ConcurrentQueue<TaskCompletionSource<QueueItem>>();
             var stalledQueue = new Mock<ConnectedBindingQueue>();
             stalledQueue
                 .Setup(q => q.QueueBindingOperationAsync(
@@ -420,9 +420,9 @@ END
                     It.IsAny<int?>()))
                 .Returns(() =>
                 {
-                    var item = new QueueItem();
-                    queuedItems.Enqueue(item);
-                    return item;
+                    var pending = new TaskCompletionSource<QueueItem>(TaskCreationOptions.RunContinuationsAsynchronously);
+                    queuedItems.Enqueue(pending);
+                    return pending.Task;
                 });
             ConnectedBindingQueue realQueue = _langService.BindingQueue;
             _langService.BindingQueue = stalledQueue.Object;
@@ -435,18 +435,18 @@ END
                 Assert.That(SpinWait.SpinUntil(() => queuedItems.Count == callCount, 10_000), Is.True,
                     "every call reaches the queue without needing a thread of its own");
 
-                foreach (QueueItem item in queuedItems)
+                foreach (TaskCompletionSource<QueueItem> pending in queuedItems)
                 {
-                    item.ItemProcessed.Set();
+                    pending.TrySetResult(new QueueItem());
                 }
                 Assert.That(((IAsyncResult)Task.WhenAll(calls)).AsyncWaitHandle.WaitOne(30_000), Is.True,
                     "the calls complete once the queue processes their items");
             }
             finally
             {
-                foreach (QueueItem item in queuedItems)
+                foreach (TaskCompletionSource<QueueItem> pending in queuedItems)
                 {
-                    item.ItemProcessed.Set();
+                    pending.TrySetResult(new QueueItem());
                 }
                 ThreadPool.SetMaxThreads(maxWorkerThreads, maxIoThreads);
                 _langService.BindingQueue = realQueue;

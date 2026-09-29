@@ -277,7 +277,11 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
 
         }
 
-        public override void Execute(TaskExecutionMode mode)
+        /// <summary>
+        /// Applies the latest restore options, including the target database, before full
+        /// access to that database is taken
+        /// </summary>
+        protected override void PrepareToExecute()
         {
             RestorePlanToExecute = null;
             UpdateRestoreTaskObject();
@@ -285,8 +289,6 @@ namespace Microsoft.SqlTools.ServiceLayer.DisasterRecovery.RestoreOperation
             {
                 GetRestorePlanForExecutionAndScript();
             }
-
-            base.Execute(mode);
         }
 
         public ConnectionInfo ConnectionInfo { get; set; }

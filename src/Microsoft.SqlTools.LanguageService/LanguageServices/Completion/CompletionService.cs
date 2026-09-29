@@ -64,10 +64,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices.Completion
             if (scriptDocumentInfo.ScriptParseInfo.IsConnected || scriptDocumentInfo.ScriptParseInfo.IsProject)
             {
                 Logger.Verbose($"Queueing completion binding operation for {connInfo?.OwnerUri}");
-                QueueItem queueItem = AddToQueue(connInfo, scriptDocumentInfo.ScriptParseInfo, scriptDocumentInfo, useLowerCaseSuggestions);
-
-                // wait for the queue item
-                await queueItem.WaitForCompletionAsync();
+                QueueItem queueItem = await AddToQueue(connInfo, scriptDocumentInfo.ScriptParseInfo, scriptDocumentInfo, useLowerCaseSuggestions);
                 Logger.Verbose($"Finished processing completion request for {connInfo?.OwnerUri} in CompletionService.CreateCompletions");
                 if (queueItem.TimedOut)
                 {
@@ -89,14 +86,14 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices.Completion
             return result;
         }
 
-        private QueueItem AddToQueue(
+        private Task<QueueItem> AddToQueue(
             ConnectionInfoBase connInfo,
             ScriptParseInfo scriptParseInfo,
             ScriptDocumentInfo scriptDocumentInfo,
             bool useLowerCaseSuggestions)
         {
-            // queue the completion task with the binding queue    
-            QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
+            // queue the completion task with the binding queue
+            return this.BindingQueue.QueueBindingOperationAsync(
                 key: scriptParseInfo.ConnectionKey,
                 bindingTimeout: ConnectedBindingQueue.BindingTimeout,
                 hardTimeout: this.HardTimeout,
@@ -114,7 +111,6 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices.Completion
                     // return the default list if an unexpected exception occurs
                     return CreateDefaultCompletionItems(scriptParseInfo, scriptDocumentInfo, useLowerCaseSuggestions);
                 });
-            return queueItem;
         }
 
         private static bool ShouldShowCompletionList(Token token)
