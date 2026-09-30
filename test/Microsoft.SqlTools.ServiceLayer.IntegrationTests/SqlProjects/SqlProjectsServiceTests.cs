@@ -1592,6 +1592,37 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
         }
 
         [Test]
+        public async Task TestClosedHostIsReplaced()
+        {
+            SqlProjectsService service = new();
+            string projectUri = await service.CreateSqlProject();
+            ProjectHost host = service.GetHost(projectUri)!;
+
+            // Leave a closed host in the service, as a close whose teardown failed used to
+            await host.RunAsync(() =>
+            {
+                host.Close();
+                return Task.FromResult(true);
+            });
+            Assert.AreSame(host, service.GetHost(projectUri), "Setup: the closed host is still registered");
+
+            MockRequest<GetProjectModelResult> getMock = new();
+            await service.HandleGetProjectModelRequest(new SqlProjectParams() { ProjectUri = projectUri }, getMock.Object)
+                .WaitAsync(TimeSpan.FromSeconds(30));
+
+            getMock.AssertSuccess(nameof(service.HandleGetProjectModelRequest));
+            Assert.AreNotSame(host, service.GetHost(projectUri), "The request should replace the closed host with a new one");
+        }
+
+        [Test]
+        public void TestHasUnsavedChangesIgnoresLineEndings()
+        {
+            Assert.IsFalse(ProjectHost.HasUnsavedChanges("SELECT 1\r\nSELECT 2", "SELECT 1\nSELECT 2"), "CRLF buffer vs LF file");
+            Assert.IsFalse(ProjectHost.HasUnsavedChanges("SELECT 1\r\nSELECT 2", "SELECT 1\r\nSELECT 2"), "Same text");
+            Assert.IsTrue(ProjectHost.HasUnsavedChanges("SELECT 1\r\nSELECT 3", "SELECT 1\nSELECT 2"), "Edited text");
+        }
+
+        [Test]
         public void TestFindProjectForFile()
         {
             string root = TestContext.CurrentContext.GetTestWorkingFolder();

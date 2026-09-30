@@ -202,6 +202,16 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     List<IntelliSenseChange> changes = changesDuringBuild ?? new List<IntelliSenseChange>();
                     changesDuringBuild = null;
 
+                    // Bring the model up to date before exposing it: replay the edits and saves made while it was
+                    // building, in order, then apply the unsaved text of open files. Only then register the
+                    // binding context, stamp the files, and send the ready notification.
+                    foreach (IntelliSenseChange change in changes)
+                    {
+                        await ApplyChangeAsync(state, change, expose: false).ConfigureAwait(false);
+                    }
+
+                    await ApplyUnsavedOpenFilesAsync(state).ConfigureAwait(false);
+
                     bool registered = await TSqlLanguageService.Instance.UpdateLanguageServiceOnProjectOpen(
                         ProjectUri, state.Provider, state.ParseOptions, state.DatabaseName, state.FileUris).ConfigureAwait(false);
                     if (!registered)
@@ -212,14 +222,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     }
 
                     Volatile.Write(ref intelliSense, state);
-
-                    // Replay the edits and saves made while the model was building, in order
-                    foreach (IntelliSenseChange change in changes)
-                    {
-                        await ApplyChangeAsync(state, change).ConfigureAwait(false);
-                    }
-
-                    await ApplyUnsavedOpenFilesAsync(state).ConfigureAwait(false);
                     return true;
                 }).ConfigureAwait(false);
             }
@@ -243,7 +245,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         }
 
         /// <summary>
-        /// Applies the unsaved text of the project's open files to a newly published model. The model is built
+        /// Applies the unsaved text of the project's open files to a model about to be published. The model is built
         /// from disk, and the language service only forwards edits for files already stamped as project files,
         /// so text typed before the model was published would otherwise be missing until the next edit.
         /// </summary>
@@ -270,14 +272,21 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 string path = GetAbsoluteFilePath(ProjectUri, openedFile.ClientUri);
                 string contents = openedFile.Contents;
                 if (!projectFiles.Contains(path)
-                    || (File.Exists(path) && string.Equals(await File.ReadAllTextAsync(path).ConfigureAwait(false), contents, StringComparison.Ordinal)))
+                    || (File.Exists(path) && !HasUnsavedChanges(contents, await File.ReadAllTextAsync(path).ConfigureAwait(false))))
                 {
                     continue; // not in the project, or no unsaved changes
                 }
 
-                await ApplyChangeAsync(state, new IntelliSenseChange(openedFile.ClientUri, Deleted: false, SqlTextOverride: contents)).ConfigureAwait(false);
+                await ApplyChangeAsync(state, new IntelliSenseChange(openedFile.ClientUri, Deleted: false, SqlTextOverride: contents), expose: false).ConfigureAwait(false);
             }
         }
+
+        /// <summary>
+        /// Whether an open buffer's text differs from the file on disk. <see cref="ScriptFile.Contents"/> always
+        /// joins lines with CRLF, so line endings are ignored.
+        /// </summary>
+        internal static bool HasUnsavedChanges(string bufferText, string diskText)
+            => !string.Equals(bufferText.Replace("\r", string.Empty), diskText.Replace("\r", string.Empty), StringComparison.Ordinal);
 
         /// <summary>
         /// After a failed build, stops collecting changes so the next open starts a new build.
@@ -301,7 +310,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             }
         }
 
-        private async Task ApplyChangeAsync(ProjectIntelliSense state, IntelliSenseChange change)
+        /// <summary>
+        /// Applies one file change to the model and provider. With <paramref name="expose"/> false, the model
+        /// isn't registered with the language service yet: only the model, provider and file list change, and
+        /// registering the model later rebuilds the binder and stamps the files.
+        /// </summary>
+        private async Task ApplyChangeAsync(ProjectIntelliSense state, IntelliSenseChange change, bool expose = true)
         {
             try
             {
@@ -336,6 +350,23 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 // Update provider: deleted=true for actual deletes OR failed parses
                 state.Provider.UpdateForFileChange(sourceName, change.Deleted || !parseSucceeded);
 
+                string fileUri = Utility.FileUtilities.LocalPathToFileUri(sourceName);
+                if (!expose)
+                {
+                    lock (state.FileUris)
+                    {
+                        if (change.Deleted)
+                        {
+                            state.FileUris.Remove(fileUri);
+                        }
+                        else
+                        {
+                            state.FileUris.Add(fileUri);
+                        }
+                    }
+                    return;
+                }
+
                 // The binder built at project-open time holds a snapshot of the metadata.
                 // After mutating the provider, recreate the binder so alias resolution (e.g.
                 // "p." after "FROM sss.packages p") and object enumeration ("sss.") pick up
@@ -343,14 +374,16 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 var newBinder = Microsoft.SqlServer.Management.SqlParser.Binder.BinderProvider.CreateBinder(state.Provider);
                 TSqlLanguageService.Instance.BindingQueue.AddProjectContext(state.ContextKey, newBinder, state.ParseOptions, state.Provider);
 
-                string fileUri = Utility.FileUtilities.LocalPathToFileUri(sourceName);
                 if (!change.Deleted)
                 {
                     // Stamp the file URI with the project context so IntelliSense works when the
                     // user opens the file. For deletes the file is gone so nothing to stamp.
                     lock (state.FileUris) { state.FileUris.Add(fileUri); }
-                    TSqlLanguageService.Instance.InitializeProjectFileContexts(
-                        new[] { fileUri }, state.ContextKey, state.DatabaseName);
+                    if (!TSqlLanguageService.Instance.InitializeProjectFileContexts(
+                        new[] { fileUri }, state.ContextKey, state.DatabaseName))
+                    {
+                        Logger.Warning($"Timed out stamping {fileUri} with the project context for {ProjectUri}");
+                    }
                 }
                 else
                 {
@@ -475,8 +508,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         /// </summary>
         public void TearDown(string projectUri)
         {
-            TSqlLanguageService.Instance.TearDownProjectContext(projectUri, ContextKey, FileUris);
-            Model.Dispose();
+            try
+            {
+                TSqlLanguageService.Instance.TearDownProjectContext(projectUri, ContextKey, FileUris);
+            }
+            finally
+            {
+                Model.Dispose();
+            }
         }
     }
 

@@ -1694,8 +1694,8 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// Registers an offline binding context for a SQL project (no server connection required).
         /// </summary>
         /// <returns>
-        /// True when the binding context is registered and the project's files are stamped. A failure to send
-        /// the ready notification is logged but doesn't count as a failure.
+        /// True when the binding context is registered and the .sqlproj and every project file are stamped.
+        /// A failure to send the ready notification is logged but doesn't count as a failure.
         /// </returns>
         public async Task<bool> UpdateLanguageServiceOnProjectOpen(
             string projectUri,
@@ -1715,24 +1715,28 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
                 // Stamp the .sqlproj URI itself
                 ScriptParseInfo scriptInfo = GetScriptParseInfo(projectUri, createIfNotExists: true);
-                if (await scriptInfo.BuildingMetadataLock.TryEnterAsync(TSqlLanguageService.OnConnectionWaitTimeout))
+                if (!await scriptInfo.BuildingMetadataLock.TryEnterAsync(TSqlLanguageService.OnConnectionWaitTimeout))
                 {
-                    try
-                    {
-                        scriptInfo.ConnectionKey = contextKey;
-                        scriptInfo.BindingContextKind = BindingContextKindEnum.Project;
-                        scriptInfo.ProjectDatabaseName = databaseName;
-                    }
-                    finally
-                    {
-                        scriptInfo.BuildingMetadataLock.Exit();
-                    }
+                    Logger.Error($"Timed out stamping {projectUri} with its project context");
+                    return false;
+                }
+
+                try
+                {
+                    scriptInfo.ConnectionKey = contextKey;
+                    scriptInfo.BindingContextKind = BindingContextKindEnum.Project;
+                    scriptInfo.ProjectDatabaseName = databaseName;
+                }
+                finally
+                {
+                    scriptInfo.BuildingMetadataLock.Exit();
                 }
 
                 // Stamp all .sql files with project context (IsProject == true)
-                if (fileUris != null)
+                if (fileUris != null && !InitializeProjectFileContexts(fileUris, contextKey, databaseName))
                 {
-                    InitializeProjectFileContexts(fileUris, contextKey, databaseName);
+                    Logger.Error($"Timed out stamping one or more files with the project context for {projectUri}");
+                    return false;
                 }
             }
             catch (Exception ex)
@@ -1759,8 +1763,10 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// Must only be called AFTER AddProjectContext has registered the binding context, so that
         /// any request that arrives immediately after stamping finds a ready context with MetadataProvider set.
         /// </summary>
-        public void InitializeProjectFileContexts(IEnumerable<string> fileUris, string contextKey, string databaseName)
+        /// <returns>True when every file was stamped; false when a file's lock timed out and it was skipped.</returns>
+        public bool InitializeProjectFileContexts(IEnumerable<string> fileUris, string contextKey, string databaseName)
         {
+            bool allStamped = true;
             foreach (string fileUri in fileUris)
             {
                 ScriptParseInfo scriptInfo = GetScriptParseInfo(fileUri, createIfNotExists: true);
@@ -1777,7 +1783,12 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                         scriptInfo.BuildingMetadataLock.Exit();
                     }
                 }
+                else
+                {
+                    allStamped = false;
+                }
             }
+            return allStamped;
         }
 
         /// <summary>

@@ -155,8 +155,15 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 {
                     await host.RunAsync(() =>
                     {
-                        host.Close();
-                        hosts.TryRemove(new KeyValuePair<string, ProjectHost>(requestParams.ProjectUri, host));
+                        try
+                        {
+                            host.Close();
+                        }
+                        finally
+                        {
+                            // Remove the host even if teardown fails, so later requests get a new host
+                            hosts.TryRemove(new KeyValuePair<string, ProjectHost>(requestParams.ProjectUri, host));
+                        }
                         return Task.FromResult(true);
                     });
                 }
@@ -783,7 +790,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 }
                 catch (ProjectHostClosedException)
                 {
-                    // Closed after we found it; close removed it, so the next GetOrAdd creates a new host
+                    // Closed after we found it. Close removes the host; remove it here too so a closed host
+                    // can never stay in the dictionary, and the next GetOrAdd creates a new one.
+                    hosts.TryRemove(new KeyValuePair<string, ProjectHost>(projectUri, host));
                 }
             }
         }
