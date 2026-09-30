@@ -296,6 +296,17 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         }
 
         /// <summary>
+        /// Gets the files open in the workspace, with their current (possibly unsaved) contents.
+        /// Returns false when no workspace is attached yet.
+        /// </summary>
+        internal bool TryGetOpenedFiles(out ScriptFile[] openedFiles)
+        {
+            Microsoft.SqlTools.LanguageService.Workspace.Workspace workspace = workspaceServiceInstance?.Workspace;
+            openedFiles = workspace?.GetOpenedFiles() ?? Array.Empty<ScriptFile>();
+            return workspace != null;
+        }
+
+        /// <summary>
         /// Gets or sets the current SQL Tools context
         /// </summary>
         /// <returns></returns>
@@ -1682,7 +1693,11 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// <summary>
         /// Registers an offline binding context for a SQL project (no server connection required).
         /// </summary>
-        public async Task UpdateLanguageServiceOnProjectOpen(
+        /// <returns>
+        /// True when the binding context is registered and the .sqlproj and every project file are stamped.
+        /// A failure to send the ready notification is logged but doesn't count as a failure.
+        /// </returns>
+        public async Task<bool> UpdateLanguageServiceOnProjectOpen(
             string projectUri,
             Microsoft.SqlServer.Management.SqlParser.MetadataProvider.IMetadataProvider metadataProvider,
             Microsoft.SqlServer.Management.SqlParser.Parser.ParseOptions parseOptions,
@@ -1700,33 +1715,47 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
                 // Stamp the .sqlproj URI itself
                 ScriptParseInfo scriptInfo = GetScriptParseInfo(projectUri, createIfNotExists: true);
-                if (await scriptInfo.BuildingMetadataLock.TryEnterAsync(TSqlLanguageService.OnConnectionWaitTimeout))
+                if (!await scriptInfo.BuildingMetadataLock.TryEnterAsync(TSqlLanguageService.OnConnectionWaitTimeout))
                 {
-                    try
-                    {
-                        scriptInfo.ConnectionKey = contextKey;
-                        scriptInfo.BindingContextKind = BindingContextKindEnum.Project;
-                        scriptInfo.ProjectDatabaseName = databaseName;
-                    }
-                    finally
-                    {
-                        scriptInfo.BuildingMetadataLock.Exit();
-                    }
+                    Logger.Error($"Timed out stamping {projectUri} with its project context");
+                    return false;
+                }
+
+                try
+                {
+                    scriptInfo.ConnectionKey = contextKey;
+                    scriptInfo.BindingContextKind = BindingContextKindEnum.Project;
+                    scriptInfo.ProjectDatabaseName = databaseName;
+                }
+                finally
+                {
+                    scriptInfo.BuildingMetadataLock.Exit();
                 }
 
                 // Stamp all .sql files with project context (IsProject == true)
-                if (fileUris != null)
+                if (fileUris != null && !InitializeProjectFileContexts(fileUris, contextKey, databaseName))
                 {
-                    InitializeProjectFileContexts(fileUris, contextKey, databaseName);
+                    Logger.Error($"Timed out stamping one or more files with the project context for {projectUri}");
+                    return false;
                 }
-
-                await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = projectUri });
-                Logger.Information($"UpdateLanguageServiceOnProjectOpen: offline IntelliSense ready for project '{projectUri}' (database: '{databaseName}')");
             }
             catch (Exception ex)
             {
                 Logger.Error($"Failed to set up project IntelliSense for {projectUri}: {ex}");
+                return false;
             }
+
+            try
+            {
+                await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = projectUri });
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Failed to send IntelliSense ready notification for {projectUri}: {ex}");
+            }
+
+            Logger.Information($"UpdateLanguageServiceOnProjectOpen: offline IntelliSense ready for project '{projectUri}' (database: '{databaseName}')");
+            return true;
         }
 
         /// <summary>
@@ -1734,8 +1763,10 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// Must only be called AFTER AddProjectContext has registered the binding context, so that
         /// any request that arrives immediately after stamping finds a ready context with MetadataProvider set.
         /// </summary>
-        public void InitializeProjectFileContexts(IEnumerable<string> fileUris, string contextKey, string databaseName)
+        /// <returns>True when every file was stamped; false when a file's lock timed out and it was skipped.</returns>
+        public bool InitializeProjectFileContexts(IEnumerable<string> fileUris, string contextKey, string databaseName)
         {
+            bool allStamped = true;
             foreach (string fileUri in fileUris)
             {
                 ScriptParseInfo scriptInfo = GetScriptParseInfo(fileUri, createIfNotExists: true);
@@ -1752,7 +1783,12 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                         scriptInfo.BuildingMetadataLock.Exit();
                     }
                 }
+                else
+                {
+                    allStamped = false;
+                }
             }
+            return allStamped;
         }
 
         /// <summary>

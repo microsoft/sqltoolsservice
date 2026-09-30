@@ -9,21 +9,17 @@ using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Microsoft.SqlServer.Dac.CodeAnalysis;
 using Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlServer.Dac.Projects;
-using Microsoft.SqlServer.Management.SqlParser.Common;
-using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.LanguageService.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.SqlCore.IntelliSense;
 using Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Utility;
-using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 {
@@ -42,34 +38,30 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         /// </summary>
         public static SqlProjectsService Instance => instance.Value;
 
-        private Lazy<ConcurrentDictionary<string, SqlProject>> projects = new Lazy<ConcurrentDictionary<string, SqlProject>>(() => new ConcurrentDictionary<string, SqlProject>(StringComparer.OrdinalIgnoreCase));
+        /// <summary>
+        /// One host per project URI. A host owns everything the service holds for that project and runs
+        /// every operation on it one at a time. Close removes the host; the next request creates a new one.
+        /// </summary>
+        private readonly ConcurrentDictionary<string, ProjectHost> hosts = new(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
-        /// <see cref="ConcurrentDictionary{String, TSqlModel}"/> that maps Project URI to Project
+        /// Builds a project's IntelliSense model from a snapshot of the project. Tests replace it to control
+        /// when a build finishes.
         /// </summary>
-        public ConcurrentDictionary<string, SqlProject> Projects => projects.Value;
+        internal Func<SqlProject, TSqlModel> IntelliSenseModelBuilder { get; set; } = TSqlModelBuilder.LoadModel;
 
         /// <summary>
-        /// Maps project URI to its IntelliSense state for offline IntelliSense.
-        /// On close: Model must be disposed; binding context and ScriptParseInfo entries
-        /// must be removed using ContextKey and FileUris.
+        /// Snapshot of the loaded projects by URI, for diagnostics and tests.
         /// </summary>
-        private ConcurrentDictionary<string, (TSqlModel Model, TSqlModelMetadataProvider Provider, string ContextKey, string DatabaseName, HashSet<string> FileUris, ParseOptions ParseOptions)> projectIntelliSense = new(StringComparer.OrdinalIgnoreCase);
+        internal IReadOnlyDictionary<string, SqlProject> Projects => hosts.Values
+            .Select(host => (host.ProjectUri, Project: host.LoadedProject))
+            .Where(entry => entry.Project != null)
+            .ToDictionary(entry => entry.ProjectUri, entry => entry.Project!, StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
-        /// Monotonically-increasing generation counter per project URI.
-        /// Incremented on every Open and Close. A background build task captures the generation
-        /// at start and checks it at each commit point; if the generation has changed the task
-        /// knows it is no longer the owner and must discard its results.
+        /// The host for a project, if the service has one. For tests.
         /// </summary>
-        private ConcurrentDictionary<string, int> projectGenerations = new(StringComparer.OrdinalIgnoreCase);
-
-        /// <summary>
-        /// One lock per project URI. Requests hold it while they load, read, or change a project,
-        /// so a read never sees a half-applied change and two loads never race to replace the cached project.
-        /// Entries are never removed: disposing a semaphore another request is waiting on would break the exclusion.
-        /// </summary>
-        private readonly ConcurrentDictionary<string, SemaphoreSlim> projectLocks = new(StringComparer.OrdinalIgnoreCase);
+        internal ProjectHost? GetHost(string projectUri) => hosts.TryGetValue(projectUri, out ProjectHost? host) ? host : null;
 
         /// <summary>
         /// Initializes the service instance
@@ -141,144 +133,46 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
         internal async Task HandleOpenSqlProjectRequest(SqlProjectParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            int generation = 0;
-            await RunWithProjectLock(requestParams.ProjectUri, () =>
+            await RunWithProject(requestParams.ProjectUri, host =>
             {
-                GetProject(requestParams.ProjectUri);
-                // Bump the generation under the same lock as the load, so a close can't run between them.
-                // The new generation invalidates any previously in-flight build and is this build's ownership token.
-                generation = projectGenerations.AddOrUpdate(
-                    requestParams.ProjectUri, 1, (_, prev) => prev + 1);
+                host.GetProject();
+                // Build the IntelliSense model in the background so .sql files in this project get
+                // completions without a live server connection. Reuses a model that's already built or building.
+                host.EnsureIntelliSense();
             }, requestContext);
-
-            if (generation != 0)
-            {
-                // Kick off async IntelliSense model build so .sql files in this project get completions
-                // without a live server connection. Fire-and-forget: errors are logged inside.
-                _ = Task.Run(() => BuildProjectIntelliSenseAsync(requestParams.ProjectUri, generation));
-            }
         }
 
         internal async Task HandleCloseSqlProjectRequest(SqlProjectParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithProjectLock(requestParams.ProjectUri, () =>
+            await RunWithErrorHandling(async () =>
             {
-                Projects.TryRemove(requestParams.ProjectUri, out _);
-
-                // Bump the generation to invalidate any in-flight IntelliSense build.
-                // The background task checks this at each commit point and will discard
-                // its model if it sees the generation has changed.
-                projectGenerations.AddOrUpdate(
-                    requestParams.ProjectUri, 1, (_, prev) => prev + 1);
-
-                // Full IntelliSense teardown:
-                // 1. Remove binding context from the queue (releases MetadataProvider + _sourceLocations)
-                // 2. Remove ScriptParseInfo for all .sql files and the .sqlproj itself
-                // 3. Dispose TSqlModel to free DacFx unmanaged resources
-                if (projectIntelliSense.TryRemove(requestParams.ProjectUri, out var intelliSense))
+                if (!hosts.TryGetValue(requestParams.ProjectUri, out ProjectHost? host))
                 {
-                    TSqlLanguageService.Instance.TearDownProjectContext(
-                        requestParams.ProjectUri,
-                        intelliSense.ContextKey,
-                        intelliSense.FileUris);
-                    intelliSense.Model?.Dispose();
+                    return;
+                }
+
+                try
+                {
+                    await host.RunAsync(() =>
+                    {
+                        try
+                        {
+                            host.Close();
+                        }
+                        finally
+                        {
+                            // Remove the host even if teardown fails, so later requests get a new host
+                            hosts.TryRemove(new KeyValuePair<string, ProjectHost>(requestParams.ProjectUri, host));
+                        }
+                        return Task.FromResult(true);
+                    });
+                }
+                catch (ProjectHostClosedException)
+                {
+                    // Already closed
                 }
             }, requestContext);
         }
-
-        /// <summary>
-        /// Builds the TSqlModel for a project and creates a MetadataProvider for offline IntelliSense.
-        /// Stores both in projectIntelliSense cache for disposal on project close.
-        /// Runs on a background thread; errors do not affect the project open response.
-        /// </summary>
-        /// <param name="projectUri">URI of the project being opened.</param>
-        /// <param name="generation">Ownership token captured at the moment the task was started.
-        /// If the current generation for this URI differs at any commit point, the task is stale
-        /// (project was closed or re-opened) and must discard its results.</param>
-        private async Task BuildProjectIntelliSenseAsync(string projectUri, int generation)
-        {
-            TSqlModel? model = null;
-            try
-            {
-                SqlProject project = GetProject(projectUri);
-
-                string databaseName = Path.GetFileNameWithoutExtension(projectUri);
-                string contextKey = $"{TSqlLanguageService.ProjectContextKeyPrefix}{projectUri}";
-                string projectDir = Path.GetDirectoryName(ToLocalPath(projectUri))
-                    ?? throw new InvalidOperationException($"Cannot determine project directory from URI: {projectUri}");
-
-                // Include all SQL files: Build items, PreDeploy, and PostDeploy
-                var allScripts = new List<string>();
-                foreach (var script in project.SqlObjectScripts)
-                {
-                    allScripts.Add(script.Path);
-                }
-                foreach (var script in project.PreDeployScripts)
-                {
-                    allScripts.Add(script.Path);
-                }
-                foreach (var script in project.PostDeployScripts)
-                {
-                    allScripts.Add(script.Path);
-                }
-
-                var fileUriList = new HashSet<string>(
-                    allScripts.Select(p =>
-                    {
-                        // .sqlproj files always store relative paths with Windows backslashes.
-                        // On macOS/Linux, Path.Combine does not treat '\\' as a separator,
-                        // so we must normalise first or the resulting file URI will contain
-                        // literal backslashes that never match VS Code's forward-slash URIs.
-                        string norm = p.Replace('\\', Path.DirectorySeparatorChar);
-                        return Utility.FileUtilities.LocalPathToFileUri(Path.IsPathRooted(norm) ? norm : Path.Combine(projectDir, norm));
-                    }),
-                    StringComparer.OrdinalIgnoreCase);
-
-                model = await Task.Run(() => TSqlModelBuilder.LoadModel(project));
-
-                // Gate 1: after the expensive load — verify we are still the owner.
-                if (!IsCurrentGeneration(projectUri, generation))
-                {
-                    model.Dispose();
-                    return;
-                }
-
-                var projectMetadataProvider = new TSqlModelMetadataProvider(model, databaseName);
-
-                var parseOptions = new ParseOptions(
-                    batchSeparator: TSqlLanguageService.DefaultBatchSeperator,
-                    isQuotedIdentifierSet: true,
-                    compatibilityLevel: DatabaseCompatibilityLevel.Current,
-                    transactSqlVersion: TransactSqlVersion.Current);
-
-                // Store everything needed for full teardown on project close.
-                projectIntelliSense[projectUri] = (model, projectMetadataProvider, contextKey, databaseName, fileUriList, parseOptions);
-
-                // Gate 2: before registering the binding context — verify we are still the owner.
-                // (Close may have run between Gate 1 and here.)
-                if (!IsCurrentGeneration(projectUri, generation))
-                {
-                    projectIntelliSense.TryRemove(projectUri, out _);
-                    model.Dispose();
-                    return;
-                }
-
-                await TSqlLanguageService.Instance.UpdateLanguageServiceOnProjectOpen(
-                    projectUri, projectMetadataProvider, parseOptions, databaseName, fileUriList);
-            }
-            catch (Exception ex)
-            {
-                Logger.Error($"Failed to build IntelliSense model for project {projectUri}: {ex}");
-                model?.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Returns true when <paramref name="generation"/> still matches the current generation
-        /// for the given project URI, meaning no Open or Close has superseded this build task.
-        /// </summary>
-        private bool IsCurrentGeneration(string projectUri, int generation)
-            => projectGenerations.TryGetValue(projectUri, out int current) && current == generation;
 
         internal async Task HandleCreateSqlProjectRequest(Contracts.CreateSqlProjectParams requestParams, RequestContext<ResultStatus> requestContext)
         {
@@ -291,11 +185,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     BuildSdkVersion = requestParams.BuildSdkVersion
                 };
 
-                // Hold the project lock across creation and load so a concurrent read waits for the finished project
-                await WithLockAsync(projectLocks, requestParams.ProjectUri, async () =>
+                // Create and load in one operation so a concurrent read waits for the finished project
+                await RunOnProjectAsync(requestParams.ProjectUri, async host =>
                 {
                     await SqlProject.CreateProjectAsync(requestParams.ProjectUri, createParams);
-                    GetProject(requestParams.ProjectUri); // load into the cache
+                    host.ForgetProject();
+                    host.GetProject(); // load into the cache
                     return true;
                 });
             }, requestContext);
@@ -303,33 +198,33 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
         internal async Task HandleGetCrossPlatformCompatibilityRequest(SqlProjectParams requestParams, RequestContext<GetCrossPlatformCompatibilityResult> requestContext)
         {
-            await RunWithProjectLock(requestParams.ProjectUri, () =>
+            await RunWithProject(requestParams.ProjectUri, host =>
             {
                 return new GetCrossPlatformCompatibilityResult()
                 {
                     Success = true,
                     ErrorMessage = null,
-                    IsCrossPlatformCompatible = GetProject(requestParams.ProjectUri, onlyLoadProperties: true).CrossPlatformCompatible
+                    IsCrossPlatformCompatible = host.GetProject(onlyLoadProperties: true).CrossPlatformCompatible
                 };
             }, requestContext);
         }
 
         internal async Task HandleUpdateProjectForCrossPlatformRequest(SqlProjectParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithProjectLock(requestParams.ProjectUri, () => GetProject(requestParams.ProjectUri, onlyLoadProperties: true).UpdateForCrossPlatform(), requestContext);
+            await RunWithProject(requestParams.ProjectUri, host => host.GetProject(onlyLoadProperties: true).UpdateForCrossPlatform(), requestContext);
         }
 
         internal async Task HandleGetProjectPropertiesRequest(SqlProjectParams requestParams, RequestContext<GetProjectPropertiesResult> requestContext)
         {
-            await RunWithProjectLock(requestParams.ProjectUri, () => BuildProjectPropertiesResult(GetProject(requestParams.ProjectUri, onlyLoadProperties: true)), requestContext);
+            await RunWithProject(requestParams.ProjectUri, host => BuildProjectPropertiesResult(host.GetProject(onlyLoadProperties: true)), requestContext);
         }
 
         internal async Task HandleGetProjectModelRequest(SqlProjectParams requestParams, RequestContext<GetProjectModelResult> requestContext)
         {
-            await RunWithProjectLock(requestParams.ProjectUri, () =>
+            await RunWithProject(requestParams.ProjectUri, host =>
             {
                 // Load the full project once, rather than properties-only followed by a reload for the items
-                SqlProject project = GetProject(requestParams.ProjectUri);
+                SqlProject project = host.GetProject();
 
                 return new GetProjectModelResult()
                 {
@@ -359,26 +254,26 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     Success = true,
                     ErrorMessage = null,
                     ProjectUri = projectUri,
-                    IsLoaded = projectUri != null && Projects.ContainsKey(projectUri)
+                    IsLoaded = projectUri != null && GetHost(projectUri)?.LoadedProject != null
                 };
             }, requestContext);
         }
 
         internal async Task HandleSetDatabaseSourceRequest(SetDatabaseSourceParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithProjectLock(requestParams.ProjectUri, () => GetProject(requestParams.ProjectUri, onlyLoadProperties: true).Properties.DatabaseSource = requestParams.DatabaseSource, requestContext);
+            await RunWithProject(requestParams.ProjectUri, host => host.GetProject(onlyLoadProperties: true).Properties.DatabaseSource = requestParams.DatabaseSource, requestContext);
         }
 
         internal async Task HandleSetDatabaseSchemaProviderRequest(SetDatabaseSchemaProviderParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithProjectLock(requestParams.ProjectUri, () => GetProject(requestParams.ProjectUri, onlyLoadProperties: true).Properties.TargetSqlPlatform = Utilities.DatabaseSchemaProviderToSqlPlatform(requestParams.DatabaseSchemaProvider), requestContext);
+            await RunWithProject(requestParams.ProjectUri, host => host.GetProject(onlyLoadProperties: true).Properties.TargetSqlPlatform = Utilities.DatabaseSchemaProviderToSqlPlatform(requestParams.DatabaseSchemaProvider), requestContext);
         }
 
         internal async Task HandleSetProjectPropertiesRequest(SetProjectPropertiesParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithProjectLock(requestParams.ProjectUri, () =>
+            await RunWithProject(requestParams.ProjectUri, host =>
             {
-                SqlProject project = GetProject(requestParams.ProjectUri, onlyLoadProperties: true);
+                SqlProject project = host.GetProject(onlyLoadProperties: true);
 
                 // First pass: apply all DacFx-managed properties so they are fully flushed
                 // to disk before any raw XML edits are made against the same file.
@@ -398,7 +293,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     if (string.Equals(entry.Key, ProjectGuidPropertyName, StringComparison.OrdinalIgnoreCase))
                     {
                         SetReadOnlyPropertyInXml(requestParams.ProjectUri, entry.Key, entry.Value);
-                        Projects.TryRemove(requestParams.ProjectUri, out _);
+                        host.ForgetProject();
                     }
                 }
             }, requestContext);
@@ -406,9 +301,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
         internal async Task HandleUpdateCodeAnalysisRulesRequest(UpdateCodeAnalysisRulesParams requestParams, RequestContext<UpdateCodeAnalysisRulesResult> requestContext)
         {
-            await RunWithProjectLock(requestParams.ProjectUri, () =>
+            await RunWithProject(requestParams.ProjectUri, host =>
             {
-                SqlProject project = GetProject(requestParams.ProjectUri, onlyLoadProperties: true);
+                SqlProject project = host.GetProject(onlyLoadProperties: true);
 
                 if (requestParams.RunSqlCodeAnalysis.HasValue)
                 {
@@ -481,121 +376,71 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
         internal async Task HandleAddSqlObjectScriptRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            // Hold the project lock across the change and its model update, so model updates apply in the
-            // same order as the project changes
-            await RunWithErrorHandling(() => WithLockAsync(projectLocks, requestParams.ProjectUri, async () =>
+            await RunWithErrorHandling(() => RunOnProjectAsync(requestParams.ProjectUri, async host =>
             {
-                GetProject(requestParams.ProjectUri).SqlObjectScripts.Add(new SqlObjectScript(requestParams.Path));
+                host.GetProject().SqlObjectScripts.Add(new SqlObjectScript(requestParams.Path));
                 // Incrementally update the IntelliSense model for the new file.
-                await UpdateProjectIntelliSenseAsync(requestParams.ProjectUri, requestParams.Path, deleted: false);
+                await host.UpdateIntelliSenseAsync(requestParams.Path, deleted: false);
                 return true;
             }), requestContext);
         }
 
         internal async Task HandleDeleteSqlObjectScriptRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            // Hold the project lock across the change and its model update, so model updates apply in the
-            // same order as the project changes
-            await RunWithErrorHandling(() => WithLockAsync(projectLocks, requestParams.ProjectUri, async () =>
+            await RunWithErrorHandling(() => RunOnProjectAsync(requestParams.ProjectUri, async host =>
             {
-                GetProject(requestParams.ProjectUri).SqlObjectScripts.Delete(requestParams.Path);
+                host.GetProject().SqlObjectScripts.Delete(requestParams.Path);
                 // Incrementally remove the deleted file's objects from the IntelliSense model.
-                await UpdateProjectIntelliSenseAsync(requestParams.ProjectUri, requestParams.Path, deleted: true);
+                await host.UpdateIntelliSenseAsync(requestParams.Path, deleted: true);
                 return true;
             }), requestContext);
         }
 
         internal async Task HandleExcludeSqlObjectScriptRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            // Hold the project lock across the change and its model update, so model updates apply in the
-            // same order as the project changes
-            await RunWithErrorHandling(() => WithLockAsync(projectLocks, requestParams.ProjectUri, async () =>
+            await RunWithErrorHandling(() => RunOnProjectAsync(requestParams.ProjectUri, async host =>
             {
-                GetProject(requestParams.ProjectUri).SqlObjectScripts.Exclude(requestParams.Path);
+                host.GetProject().SqlObjectScripts.Exclude(requestParams.Path);
                 // Remove the excluded file's objects from the IntelliSense model.
-                await UpdateProjectIntelliSenseAsync(requestParams.ProjectUri, requestParams.Path, deleted: true);
+                await host.UpdateIntelliSenseAsync(requestParams.Path, deleted: true);
                 return true;
             }), requestContext);
         }
 
         internal async Task HandleMoveSqlObjectScriptRequest(MoveItemParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            // Hold the project lock across the change and its model update, so model updates apply in the
-            // same order as the project changes
-            await RunWithErrorHandling(() => WithLockAsync(projectLocks, requestParams.ProjectUri, async () =>
+            await RunWithErrorHandling(() => RunOnProjectAsync(requestParams.ProjectUri, async host =>
             {
-                GetProject(requestParams.ProjectUri).SqlObjectScripts.Move(requestParams.Path, requestParams.DestinationPath, requestParams.MetadataOnly);
+                host.GetProject().SqlObjectScripts.Move(requestParams.Path, requestParams.DestinationPath, requestParams.MetadataOnly);
                 // The IntelliSense model is path-keyed, so a rename is a delete + add:
                 // (1) Purge the old path's objects from the model and source location index.
-                await UpdateProjectIntelliSenseAsync(requestParams.ProjectUri, requestParams.Path, deleted: true);
+                await host.UpdateIntelliSenseAsync(requestParams.Path, deleted: true);
                 // (2) Read the file at its new path and re-register its objects under the new key.
-                await UpdateProjectIntelliSenseAsync(requestParams.ProjectUri, requestParams.DestinationPath, deleted: false);
+                await host.UpdateIntelliSenseAsync(requestParams.DestinationPath, deleted: false);
                 return true;
             }), requestContext);
         }
 
         internal async Task UpdateProjectIntelliSenseAsync(string projectUri, string filePathOrUri, bool deleted, string? sqlTextOverride = null)
         {
-            if (!projectIntelliSense.TryGetValue(projectUri, out var state)) return;
+            // Only a project the service already holds can have IntelliSense; don't create a host for a stray update
+            if (!hosts.TryGetValue(projectUri, out ProjectHost? host))
+            {
+                return;
+            }
+
             try
             {
-                string sourceName = GetAbsoluteFilePath(projectUri, filePathOrUri);
-                bool parseSucceeded = false;
-                
-                if (!deleted)
+                await host.RunAsync(async () =>
                 {
-                    string? sqlText = sqlTextOverride ?? (File.Exists(sourceName)
-                        ? await File.ReadAllTextAsync(sourceName).ConfigureAwait(false)
-                        : null);
-                    if (sqlText == null) return;
-                    if (!projectIntelliSense.ContainsKey(projectUri)) return; // closed during await
-                    
-                    try
-                    {
-                        state.Model.AddOrUpdateObjects(sqlText, sourceName, new TSqlObjectOptions { SkipExistingModelValidation = true });
-                        parseSucceeded = true;
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.Error($"UpdateProjectIntelliSenseAsync parse error for {sourceName}: {ex}");
-                    }
-                }
-                else
-                {
-                    if (!projectIntelliSense.ContainsKey(projectUri)) return;
-                    state.Model.DeleteObjects(sourceName, new TSqlObjectOptions { SkipExistingModelValidation = true });
-                }
-                
-                // Update provider: deleted=true for actual deletes OR failed parses
-                state.Provider.UpdateForFileChange(sourceName, deleted || !parseSucceeded);
-
-                // The binder built at project-open time holds a snapshot of the metadata.
-                // After mutating the provider, recreate the binder so alias resolution (e.g.
-                // "p." after "FROM sss.packages p") and object enumeration ("sss.") pick up
-                // the updated schema.
-                var newBinder = Microsoft.SqlServer.Management.SqlParser.Binder.BinderProvider.CreateBinder(state.Provider);
-                TSqlLanguageService.Instance.BindingQueue.AddProjectContext(state.ContextKey, newBinder, state.ParseOptions, state.Provider);
-
-                // Stamp the file URI with the project context so IntelliSense works when the
-                // user opens the file. For deletes the file is gone so nothing to stamp.
-                if (!deleted)
-                {
-                    string fileUri = Utility.FileUtilities.LocalPathToFileUri(sourceName);
-                    lock (state.FileUris) { state.FileUris.Add(fileUri); }
-                    TSqlLanguageService.Instance.InitializeProjectFileContexts(
-                        new[] { fileUri }, state.ContextKey, state.DatabaseName);
-                }
-                else
-                {
-                    // Immediately remove the stale ScriptParseInfo so the context key for this
-                    // file does not outlive the file's presence in the project. Also drop it
-                    // from the FileUris set so TearDownProjectContext won't try it again on close.
-                    string fileUri = Utility.FileUtilities.LocalPathToFileUri(sourceName);
-                    lock (state.FileUris) { state.FileUris.Remove(fileUri); }
-                    TSqlLanguageService.Instance.RemoveScriptParseInfo(fileUri);
-                }
+                    await host.UpdateIntelliSenseAsync(filePathOrUri, deleted, sqlTextOverride);
+                    return true;
+                });
             }
-            catch (Exception ex) { Logger.Error($"UpdateProjectIntelliSenseAsync error for {filePathOrUri}: {ex}"); }
+            catch (ProjectHostClosedException)
+            {
+                // Closed; its model is gone
+            }
         }
 
         /// <summary>
@@ -609,7 +454,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         internal bool TryIsDuplicate(string projectUri, string name, out bool isDuplicate)
         {
             isDuplicate = false;
-            if (!projectIntelliSense.TryGetValue(projectUri, out var state)
+            if (GetHost(projectUri)?.IntelliSense is not ProjectIntelliSense state
                 || string.IsNullOrWhiteSpace(name))
             {
                 return false;
@@ -626,7 +471,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         /// </summary>
         internal bool TryGetProvider(string projectUri, out TSqlModelMetadataProvider? provider)
         {
-            if (projectIntelliSense.TryGetValue(projectUri, out var state))
+            if (GetHost(projectUri)?.IntelliSense is ProjectIntelliSense state)
             {
                 provider = state.Provider;
                 return true;
@@ -641,7 +486,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         /// </summary>
         internal IReadOnlyList<string> GetSiblingProjectFileUris(string projectUri, string excludeUri)
         {
-            if (!projectIntelliSense.TryGetValue(projectUri, out var state))
+            if (GetHost(projectUri)?.IntelliSense is not ProjectIntelliSense state)
                 return Array.Empty<string>();
             lock (state.FileUris)
             {
@@ -663,77 +508,48 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         IReadOnlyList<string> IProjectIntelliSenseService.GetSiblingProjectFileUris(string projectUri, string excludeUri)
             => GetSiblingProjectFileUris(projectUri, excludeUri);
 
-        private static string GetAbsoluteFilePath(string projectUri, string filePathOrUri)
-        {
-            // Handle file:// URIs from LSP (e.g. "file:///c:/Users/..." or "file:///home/...")
-            if (Uri.TryCreate(filePathOrUri, UriKind.Absolute, out Uri? parsedUri) && parsedUri.IsFile)
-                return Path.GetFullPath(Utility.FileUtilities.UriToLocalPath(parsedUri));
-
-            // Already an absolute OS path — normalise separators/casing via Path.GetFullPath.
-            if (Path.IsPathRooted(filePathOrUri))
-                return Path.GetFullPath(filePathOrUri);
-
-            // Relative path — resolve against the project directory.
-            // Use ToLocalPath so both file:// URIs and plain OS paths work on all platforms.
-            string projectLocal = ToLocalPath(projectUri);
-            string projectDir = Path.GetDirectoryName(projectLocal) ?? string.Empty;
-            return Path.GetFullPath(Path.Combine(projectDir, filePathOrUri));
-        }
-
-        /// <summary>
-        /// Returns the OS-native local path from either a <c>file://</c> URI string or a plain
-        /// OS path (e.g. <c>/Users/...</c> on macOS or <c>c:\</c> on Windows), so IntelliSense
-        /// bootstrap works regardless of whether the caller passes a URI or a raw path.
-        /// </summary>
-        private static string ToLocalPath(string uriOrPath)
-        {
-            if (Uri.TryCreate(uriOrPath, UriKind.Absolute, out Uri? uri) && uri.IsFile)
-                return Utility.FileUtilities.UriToLocalPath(uri);
-            return uriOrPath; // already a plain OS path
-        }
-
         #endregion
 
         #region Pre/Post-deployment script functions
 
         internal async Task HandleAddPreDeploymentScriptRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithProjectLock(requestParams.ProjectUri, () => GetProject(requestParams.ProjectUri).PreDeployScripts.Add(new PreDeployScript(requestParams.Path)), requestContext);
+            await RunWithProject(requestParams.ProjectUri, host => host.GetProject().PreDeployScripts.Add(new PreDeployScript(requestParams.Path)), requestContext);
         }
 
         internal async Task HandleDeletePreDeploymentScriptRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithProjectLock(requestParams.ProjectUri, () => GetProject(requestParams.ProjectUri).PreDeployScripts.Delete(requestParams.Path), requestContext);
+            await RunWithProject(requestParams.ProjectUri, host => host.GetProject().PreDeployScripts.Delete(requestParams.Path), requestContext);
         }
 
         internal async Task HandleExcludePreDeploymentScriptRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithProjectLock(requestParams.ProjectUri, () => GetProject(requestParams.ProjectUri).PreDeployScripts.Exclude(requestParams.Path), requestContext);
+            await RunWithProject(requestParams.ProjectUri, host => host.GetProject().PreDeployScripts.Exclude(requestParams.Path), requestContext);
         }
 
         internal async Task HandleMovePreDeploymentScriptRequest(MoveItemParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithProjectLock(requestParams.ProjectUri, () => GetProject(requestParams.ProjectUri).PreDeployScripts.Move(requestParams.Path, requestParams.DestinationPath), requestContext);
+            await RunWithProject(requestParams.ProjectUri, host => host.GetProject().PreDeployScripts.Move(requestParams.Path, requestParams.DestinationPath), requestContext);
         }
 
         internal async Task HandleAddPostDeploymentScriptRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithProjectLock(requestParams.ProjectUri, () => GetProject(requestParams.ProjectUri).PostDeployScripts.Add(new PostDeployScript(requestParams.Path)), requestContext);
+            await RunWithProject(requestParams.ProjectUri, host => host.GetProject().PostDeployScripts.Add(new PostDeployScript(requestParams.Path)), requestContext);
         }
 
         internal async Task HandleDeletePostDeploymentScriptRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithProjectLock(requestParams.ProjectUri, () => GetProject(requestParams.ProjectUri).PostDeployScripts.Delete(requestParams.Path), requestContext);
+            await RunWithProject(requestParams.ProjectUri, host => host.GetProject().PostDeployScripts.Delete(requestParams.Path), requestContext);
         }
 
         internal async Task HandleExcludePostDeploymentScriptRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithProjectLock(requestParams.ProjectUri, () => GetProject(requestParams.ProjectUri).PostDeployScripts.Exclude(requestParams.Path), requestContext);
+            await RunWithProject(requestParams.ProjectUri, host => host.GetProject().PostDeployScripts.Exclude(requestParams.Path), requestContext);
         }
 
         internal async Task HandleMovePostDeploymentScriptRequest(MoveItemParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithProjectLock(requestParams.ProjectUri, () => GetProject(requestParams.ProjectUri).PostDeployScripts.Move(requestParams.Path, requestParams.DestinationPath), requestContext);
+            await RunWithProject(requestParams.ProjectUri, host => host.GetProject().PostDeployScripts.Move(requestParams.Path, requestParams.DestinationPath), requestContext);
         }
 
         #endregion
@@ -742,22 +558,22 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
         internal async Task HandleAddNoneItemRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithProjectLock(requestParams.ProjectUri, () => GetProject(requestParams.ProjectUri).NoneItems.Add(new NoneItem(requestParams.Path)), requestContext);
+            await RunWithProject(requestParams.ProjectUri, host => host.GetProject().NoneItems.Add(new NoneItem(requestParams.Path)), requestContext);
         }
 
         internal async Task HandleDeleteNoneItemRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithProjectLock(requestParams.ProjectUri, () => GetProject(requestParams.ProjectUri).NoneItems.Delete(requestParams.Path), requestContext);
+            await RunWithProject(requestParams.ProjectUri, host => host.GetProject().NoneItems.Delete(requestParams.Path), requestContext);
         }
 
         internal async Task HandleExcludeNoneItemRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithProjectLock(requestParams.ProjectUri, () => GetProject(requestParams.ProjectUri).NoneItems.Exclude(requestParams.Path), requestContext);
+            await RunWithProject(requestParams.ProjectUri, host => host.GetProject().NoneItems.Exclude(requestParams.Path), requestContext);
         }
 
         internal async Task HandleMoveNoneItemRequest(MoveItemParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithProjectLock(requestParams.ProjectUri, () => GetProject(requestParams.ProjectUri).NoneItems.Move(requestParams.Path, requestParams.DestinationPath), requestContext);
+            await RunWithProject(requestParams.ProjectUri, host => host.GetProject().NoneItems.Move(requestParams.Path, requestParams.DestinationPath), requestContext);
         }
 
         #endregion
@@ -766,22 +582,22 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
         internal async Task HandleAddFolderRequest(FolderParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithProjectLock(requestParams.ProjectUri, () => GetProject(requestParams.ProjectUri).Folders.Add(new Folder(requestParams.Path)), requestContext);
+            await RunWithProject(requestParams.ProjectUri, host => host.GetProject().Folders.Add(new Folder(requestParams.Path)), requestContext);
         }
 
         internal async Task HandleDeleteFolderRequest(FolderParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithProjectLock(requestParams.ProjectUri, () => GetProject(requestParams.ProjectUri).Folders.Delete(requestParams.Path), requestContext);
+            await RunWithProject(requestParams.ProjectUri, host => host.GetProject().Folders.Delete(requestParams.Path), requestContext);
         }
 
         internal async Task HandleExcludeFolderRequest(FolderParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithProjectLock(requestParams.ProjectUri, () => GetProject(requestParams.ProjectUri).Folders.Exclude(requestParams.Path), requestContext);
+            await RunWithProject(requestParams.ProjectUri, host => host.GetProject().Folders.Exclude(requestParams.Path), requestContext);
         }
 
         internal async Task HandleMoveFolderRequest(MoveFolderParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithProjectLock(requestParams.ProjectUri, () => GetProject(requestParams.ProjectUri).Folders.Move(requestParams.Path, requestParams.DestinationPath), requestContext);
+            await RunWithProject(requestParams.ProjectUri, host => host.GetProject().Folders.Move(requestParams.Path, requestParams.DestinationPath), requestContext);
         }
 
         #endregion
@@ -792,12 +608,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
         internal async Task HandleGetDatabaseReferencesRequest(SqlProjectParams requestParams, RequestContext<GetDatabaseReferencesResult> requestContext)
         {
-            await RunWithProjectLock(requestParams.ProjectUri, () => BuildDatabaseReferencesResult(GetProject(requestParams.ProjectUri, onlyLoadProperties: true)), requestContext);
+            await RunWithProject(requestParams.ProjectUri, host => BuildDatabaseReferencesResult(host.GetProject(onlyLoadProperties: true)), requestContext);
         }
 
         internal async Task HandleAddSystemDatabaseReferenceRequest(AddSystemDatabaseReferenceParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithProjectLock(requestParams.ProjectUri, () => GetProject(requestParams.ProjectUri, onlyLoadProperties: true).DatabaseReferences.Add(
+            await RunWithProject(requestParams.ProjectUri, host => host.GetProject(onlyLoadProperties: true).DatabaseReferences.Add(
                 new SystemDatabaseReference(
                     requestParams.SystemDatabase,
                     requestParams.SuppressMissingDependencies,
@@ -808,11 +624,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
         internal async Task HandleAddDacpacReferenceRequest(AddDacpacReferenceParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithProjectLock(requestParams.ProjectUri, () =>
+            await RunWithProject(requestParams.ProjectUri, host =>
             {
                 requestParams.Validate();
 
-                SqlProject project = GetProject(requestParams.ProjectUri, onlyLoadProperties: true);
+                SqlProject project = host.GetProject(onlyLoadProperties: true);
                 DacpacReference reference;
 
                 if (!string.IsNullOrWhiteSpace(requestParams.DatabaseLiteral)) // same server, different database via database name literal
@@ -841,11 +657,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
         internal async Task HandleAddSqlProjectReferenceRequest(AddSqlProjectReferenceParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithProjectLock(requestParams.ProjectUri, () =>
+            await RunWithProject(requestParams.ProjectUri, host =>
             {
                 requestParams.Validate();
 
-                SqlProject project = GetProject(requestParams.ProjectUri, onlyLoadProperties: true);
+                SqlProject project = host.GetProject(onlyLoadProperties: true);
                 SqlProjectReference reference;
 
                 if (!string.IsNullOrWhiteSpace(requestParams.DatabaseLiteral)) // same server, different database via database name literal
@@ -878,11 +694,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
         internal async Task HandleAddNugetPackageReferenceRequest(AddNugetPackageReferenceParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithProjectLock(requestParams.ProjectUri, () =>
+            await RunWithProject(requestParams.ProjectUri, host =>
             {
                 requestParams.Validate();
 
-                SqlProject project = GetProject(requestParams.ProjectUri, onlyLoadProperties: true);
+                SqlProject project = host.GetProject(onlyLoadProperties: true);
                 NugetPackageReference reference;
 
                 if (!string.IsNullOrWhiteSpace(requestParams.DatabaseLiteral)) // same server, different database via database name literal
@@ -914,7 +730,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
         internal async Task HandleDeleteDatabaseReferenceRequest(DeleteDatabaseReferenceParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithProjectLock(requestParams.ProjectUri, () => GetProject(requestParams.ProjectUri, onlyLoadProperties: true).DatabaseReferences.Delete(requestParams.Name), requestContext);
+            await RunWithProject(requestParams.ProjectUri, host => host.GetProject(onlyLoadProperties: true).DatabaseReferences.Delete(requestParams.Name), requestContext);
         }
 
         #endregion
@@ -923,32 +739,32 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
         internal async Task HandleGetSqlCmdVariablesRequest(SqlProjectParams requestParams, RequestContext<GetSqlCmdVariablesResult> requestContext)
         {
-            await RunWithProjectLock(requestParams.ProjectUri, () =>
+            await RunWithProject(requestParams.ProjectUri, host =>
             {
                 return new GetSqlCmdVariablesResult()
                 {
                     Success = true,
                     ErrorMessage = null,
-                    SqlCmdVariables = GetProject(requestParams.ProjectUri, onlyLoadProperties: true).SqlCmdVariables.ToArray()
+                    SqlCmdVariables = host.GetProject(onlyLoadProperties: true).SqlCmdVariables.ToArray()
                 };
             }, requestContext);
         }
 
         internal async Task HandleAddSqlCmdVariableRequest(AddSqlCmdVariableParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithProjectLock(requestParams.ProjectUri, () => GetProject(requestParams.ProjectUri, onlyLoadProperties: true).SqlCmdVariables.Add(new SqlCmdVariable(requestParams.Name, requestParams.DefaultValue)), requestContext);
+            await RunWithProject(requestParams.ProjectUri, host => host.GetProject(onlyLoadProperties: true).SqlCmdVariables.Add(new SqlCmdVariable(requestParams.Name, requestParams.DefaultValue)), requestContext);
         }
 
         internal async Task HandleDeleteSqlCmdVariableRequest(DeleteSqlCmdVariableParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithProjectLock(requestParams.ProjectUri, () => GetProject(requestParams.ProjectUri, onlyLoadProperties: true).SqlCmdVariables.Delete(requestParams.Name!), requestContext);
+            await RunWithProject(requestParams.ProjectUri, host => host.GetProject(onlyLoadProperties: true).SqlCmdVariables.Delete(requestParams.Name!), requestContext);
         }
 
         internal async Task HandleUpdateSqlCmdVariableRequest(AddSqlCmdVariableParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithProjectLock(requestParams.ProjectUri, () =>
+            await RunWithProject(requestParams.ProjectUri, host =>
             {
-                SqlProject project = GetProject(requestParams.ProjectUri, onlyLoadProperties: true);
+                SqlProject project = host.GetProject(onlyLoadProperties: true);
                 project.SqlCmdVariables.Update(requestParams.Name, requestParams.DefaultValue); // won't throw if doesn't exist
             }, requestContext);
         }
@@ -960,65 +776,42 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         #region Helper methods
 
         /// <summary>
-        /// Returns the cached project, loading it if it isn't cached or if only its properties are loaded
-        /// and <paramref name="onlyLoadProperties"/> is false. Callers hold the project's lock
-        /// (<see cref="WithProjectLockAsync{T}(string, Func{T})"/>) while they use the result.
+        /// Runs <paramref name="operation"/> on the project's host, creating the host if needed. If the host
+        /// closes before the operation runs, retries on the new host that replaces it.
         /// </summary>
-        private SqlProject GetProject(string projectUri, bool onlyLoadProperties = false)
+        private async Task<T> RunOnProjectAsync<T>(string projectUri, Func<ProjectHost, Task<T>> operation)
         {
-            if (Projects.TryGetValue(projectUri, out SqlProject? cached) && (onlyLoadProperties || !cached.OnlyPropertiesLoaded))
+            while (true)
             {
-                return cached;
-            }
-
-            SqlProject loaded = SqlProject.OpenProject(projectUri, onlyLoadProperties);
-
-            // Never replace a fully-loaded project with a properties-only one, and return the instance
-            // that ends up in the cache rather than re-reading the dictionary.
-            return Projects.AddOrUpdate(
-                projectUri,
-                loaded,
-                (_, existing) => existing.OnlyPropertiesLoaded && !loaded.OnlyPropertiesLoaded ? loaded : existing);
-        }
-
-        /// <summary>
-        /// Runs <paramref name="action"/> on the thread pool while holding the project's lock.
-        /// Waiting for the lock doesn't block a thread, and the action never runs on the message loop.
-        /// Not reentrant: <paramref name="action"/> must not take the same project's lock again.
-        /// </summary>
-        private Task<T> WithProjectLockAsync<T>(string projectUri, Func<T> action)
-            => WithLockAsync(projectLocks, projectUri, () => Task.FromResult(action()));
-
-        /// <summary>
-        /// Runs <paramref name="action"/> on the thread pool while holding the lock for <paramref name="key"/>.
-        /// Waiting doesn't block a thread. Not reentrant.
-        /// </summary>
-        private static async Task<T> WithLockAsync<T>(ConcurrentDictionary<string, SemaphoreSlim> locks, string key, Func<Task<T>> action)
-        {
-            SemaphoreSlim gate = locks.GetOrAdd(key, _ => new SemaphoreSlim(1, 1));
-            await gate.WaitAsync().ConfigureAwait(false);
-            try
-            {
-                return await Task.Run(action).ConfigureAwait(false);
-            }
-            finally
-            {
-                gate.Release();
+                ProjectHost host = hosts.GetOrAdd(projectUri, uri => new ProjectHost(uri, snapshot => IntelliSenseModelBuilder(snapshot)));
+                try
+                {
+                    return await host.RunAsync(() => operation(host)).ConfigureAwait(false);
+                }
+                catch (ProjectHostClosedException)
+                {
+                    // Closed after we found it. Close removes the host; remove it here too so a closed host
+                    // can never stay in the dictionary, and the next GetOrAdd creates a new one.
+                    hosts.TryRemove(new KeyValuePair<string, ProjectHost>(projectUri, host));
+                }
             }
         }
 
-        private Task WithProjectLockAsync(string projectUri, Action action)
-            => WithProjectLockAsync(projectUri, () =>
+        private Task<T> WithProjectAsync<T>(string projectUri, Func<ProjectHost, T> operation)
+            => RunOnProjectAsync(projectUri, host => Task.FromResult(operation(host)));
+
+        private Task WithProjectAsync(string projectUri, Action<ProjectHost> operation)
+            => WithProjectAsync(projectUri, host =>
             {
-                action();
+                operation(host);
                 return true;
             });
 
-        private Task RunWithProjectLock(string projectUri, Action action, RequestContext<ResultStatus> requestContext)
-            => RunWithErrorHandling(() => WithProjectLockAsync(projectUri, action), requestContext);
+        private Task RunWithProject(string projectUri, Action<ProjectHost> operation, RequestContext<ResultStatus> requestContext)
+            => RunWithErrorHandling(() => WithProjectAsync(projectUri, operation), requestContext);
 
-        private Task RunWithProjectLock<T>(string projectUri, Func<T> action, RequestContext<T> requestContext) where T : ResultStatus, new()
-            => RunWithErrorHandling(() => WithProjectLockAsync(projectUri, action), requestContext);
+        private Task RunWithProject<T>(string projectUri, Func<ProjectHost, T> operation, RequestContext<T> requestContext) where T : ResultStatus, new()
+            => RunWithErrorHandling(() => WithProjectAsync(projectUri, operation), requestContext);
 
         private static GetProjectPropertiesResult BuildProjectPropertiesResult(SqlProject project)
         {
