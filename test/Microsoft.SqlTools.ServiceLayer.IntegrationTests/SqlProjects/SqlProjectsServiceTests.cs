@@ -1460,59 +1460,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
         }
 
         [Test]
-        public async Task TestStaleIntelliSenseBuildDoesNotReopenClosedProject()
-        {
-            SqlProjectsService service = new();
-            string projectUri = await service.CreateSqlProject();
-            SqlProjectParams projectParams = new() { ProjectUri = projectUri };
-
-            MockRequest<ResultStatus> openMock = new();
-            await service.HandleOpenSqlProjectRequest(projectParams, openMock.Object);
-            openMock.AssertSuccess(nameof(service.HandleOpenSqlProjectRequest));
-
-            MockRequest<ResultStatus> closeMock = new();
-            await service.HandleCloseSqlProjectRequest(projectParams, closeMock.Object);
-            closeMock.AssertSuccess(nameof(service.HandleCloseSqlProjectRequest));
-
-            // A new service starts at generation 0; open made it 1 and close made it 2.
-            // A build that still holds generation 1 must neither reload the project nor publish a model.
-            await service.BuildProjectIntelliSenseAsync(projectUri, generation: 1);
-
-            Assert.IsFalse(service.Projects.ContainsKey(projectUri), "A stale build must not reopen a closed project");
-        }
-
-        [Test]
-        public async Task TestRepeatOpenReusesIntelliSenseBuild()
-        {
-            SqlProjectsService service = new();
-            string projectUri = await service.CreateSqlProject();
-            SqlProjectParams projectParams = new() { ProjectUri = projectUri };
-
-            MockRequest<ResultStatus> requestMock = new();
-            await service.HandleOpenSqlProjectRequest(projectParams, requestMock.Object);
-            requestMock.AssertSuccess(nameof(service.HandleOpenSqlProjectRequest));
-            Assert.AreEqual(1, service.GetIntelliSenseGeneration(projectUri), "First open starts a build");
-            Assert.IsTrue(service.IsIntelliSenseModelBuiltOrBuilding(projectUri), "First open starts a build");
-
-            requestMock = new();
-            await service.HandleOpenSqlProjectRequest(projectParams, requestMock.Object);
-            requestMock.AssertSuccess(nameof(service.HandleOpenSqlProjectRequest));
-            Assert.AreEqual(1, service.GetIntelliSenseGeneration(projectUri), "Repeat open reuses the existing build instead of starting another");
-
-            requestMock = new();
-            await service.HandleCloseSqlProjectRequest(projectParams, requestMock.Object);
-            requestMock.AssertSuccess(nameof(service.HandleCloseSqlProjectRequest));
-            Assert.AreEqual(2, service.GetIntelliSenseGeneration(projectUri), "Close invalidates the build");
-            Assert.IsFalse(service.IsIntelliSenseModelBuiltOrBuilding(projectUri), "Close tears down IntelliSense state");
-
-            requestMock = new();
-            await service.HandleOpenSqlProjectRequest(projectParams, requestMock.Object);
-            requestMock.AssertSuccess(nameof(service.HandleOpenSqlProjectRequest));
-            Assert.AreEqual(3, service.GetIntelliSenseGeneration(projectUri), "Open after close rebuilds from disk");
-            Assert.IsTrue(service.IsIntelliSenseModelBuiltOrBuilding(projectUri), "Open after close rebuilds from disk");
-        }
-
-        [Test]
         public void TestFindProjectForFile()
         {
             string root = TestContext.CurrentContext.GetTestWorkingFolder();
