@@ -1482,6 +1482,37 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
         }
 
         [Test]
+        public async Task TestRepeatOpenReusesIntelliSenseBuild()
+        {
+            SqlProjectsService service = new();
+            string projectUri = await service.CreateSqlProject();
+            SqlProjectParams projectParams = new() { ProjectUri = projectUri };
+
+            MockRequest<ResultStatus> requestMock = new();
+            await service.HandleOpenSqlProjectRequest(projectParams, requestMock.Object);
+            requestMock.AssertSuccess(nameof(service.HandleOpenSqlProjectRequest));
+            Assert.AreEqual(1, service.GetIntelliSenseGeneration(projectUri), "First open starts a build");
+            Assert.IsTrue(service.IsIntelliSenseModelBuiltOrBuilding(projectUri), "First open starts a build");
+
+            requestMock = new();
+            await service.HandleOpenSqlProjectRequest(projectParams, requestMock.Object);
+            requestMock.AssertSuccess(nameof(service.HandleOpenSqlProjectRequest));
+            Assert.AreEqual(1, service.GetIntelliSenseGeneration(projectUri), "Repeat open reuses the existing build instead of starting another");
+
+            requestMock = new();
+            await service.HandleCloseSqlProjectRequest(projectParams, requestMock.Object);
+            requestMock.AssertSuccess(nameof(service.HandleCloseSqlProjectRequest));
+            Assert.AreEqual(2, service.GetIntelliSenseGeneration(projectUri), "Close invalidates the build");
+            Assert.IsFalse(service.IsIntelliSenseModelBuiltOrBuilding(projectUri), "Close tears down IntelliSense state");
+
+            requestMock = new();
+            await service.HandleOpenSqlProjectRequest(projectParams, requestMock.Object);
+            requestMock.AssertSuccess(nameof(service.HandleOpenSqlProjectRequest));
+            Assert.AreEqual(3, service.GetIntelliSenseGeneration(projectUri), "Open after close rebuilds from disk");
+            Assert.IsTrue(service.IsIntelliSenseModelBuiltOrBuilding(projectUri), "Open after close rebuilds from disk");
+        }
+
+        [Test]
         public void TestFindProjectForFile()
         {
             string root = TestContext.CurrentContext.GetTestWorkingFolder();
@@ -1491,6 +1522,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             Directory.CreateDirectory(Path.Join(root, "Views"));
             File.WriteAllText(outerProject, "<Project />");
             File.WriteAllText(innerProject, "<Project />");
+            string upperCaseProject = Path.Join(root, "Upper", "Upper.SQLPROJ");
+            Directory.CreateDirectory(Path.GetDirectoryName(upperCaseProject)!);
+            File.WriteAllText(upperCaseProject, "<Project />");
 
             Assert.AreEqual(innerProject, SqlProjectsService.FindProjectForFile(Path.Join(root, "Inner", "Tables", "MyTable.sql")),
                 "Nearest project should win for a file in a nested project");
@@ -1498,6 +1532,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
                 "File outside the nested project should belong to the outer project");
             Assert.AreEqual(outerProject, SqlProjectsService.FindProjectForFile(Path.Join(root, "Script.SQL")),
                 "Extension check should ignore case");
+            Assert.AreEqual(upperCaseProject, SqlProjectsService.FindProjectForFile(Path.Join(root, "Upper", "MyTable.sql")),
+                "Project extension match should ignore case, even on case-sensitive file systems");
 
             Assert.IsNull(SqlProjectsService.FindProjectForFile(Path.Join(root, "Views", "Notes.txt")), "Only .sql files belong to a project");
             Assert.IsNull(SqlProjectsService.FindProjectForFile(Path.Join("Views", "MyView.sql")), "Relative paths are not looked up");

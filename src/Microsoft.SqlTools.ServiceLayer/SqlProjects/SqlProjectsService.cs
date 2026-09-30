@@ -160,10 +160,22 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             await RunWithProjectLock(requestParams.ProjectUri, () =>
             {
                 GetProject(requestParams.ProjectUri);
+
+                // Reuse a model that's already published or being built: incremental updates keep it current,
+                // and close tears it down, so closing and reopening still rebuilds from disk.
+                if (IsIntelliSenseModelBuiltOrBuilding(requestParams.ProjectUri))
+                {
+                    return;
+                }
+
                 // Bump the generation under the same lock as the load, so a close can't run between them.
-                // The new generation invalidates any in-flight build and is this build's ownership token.
+                // The new generation invalidates any stale build and is this build's ownership token.
                 generation = projectGenerations.AddOrUpdate(
                     requestParams.ProjectUri, 1, (_, prev) => prev + 1);
+
+                // Start collecting IntelliSense updates now, so a repeat open sees the build as in flight
+                // and edits made before the build publishes are replayed into its model.
+                pendingIntelliSenseUpdates[requestParams.ProjectUri] = new List<PendingIntelliSenseUpdate>();
             }, requestContext);
 
             if (generation != 0)
@@ -176,18 +188,17 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
         internal async Task HandleCloseSqlProjectRequest(SqlProjectParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithErrorHandling(async () =>
+            // Hold the project lock through the IntelliSense teardown, so an open can't start a new build
+            // whose state this close would then tear down. Lock order is always project, then IntelliSense.
+            await RunWithErrorHandling(() => WithLockAsync(projectLocks, requestParams.ProjectUri, async () =>
             {
-                await WithProjectLockAsync(requestParams.ProjectUri, () =>
-                {
-                    Projects.TryRemove(requestParams.ProjectUri, out _);
+                Projects.TryRemove(requestParams.ProjectUri, out _);
 
-                    // Bump the generation to invalidate any in-flight IntelliSense build. A build checks it
-                    // under this lock before it loads the project, and under the IntelliSense lock before it
-                    // publishes its model.
-                    projectGenerations.AddOrUpdate(
-                        requestParams.ProjectUri, 1, (_, prev) => prev + 1);
-                });
+                // Bump the generation to invalidate any in-flight IntelliSense build. A build checks it
+                // under the project lock before it loads the project, and under the IntelliSense lock before
+                // it publishes its model.
+                projectGenerations.AddOrUpdate(
+                    requestParams.ProjectUri, 1, (_, prev) => prev + 1);
 
                 // Full IntelliSense teardown, under the IntelliSense lock so it can't interleave with a build
                 // publishing its model:
@@ -207,7 +218,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     }
                     return Task.CompletedTask;
                 });
-            }, requestContext);
+
+                return new ResultStatus() { Success = true, ErrorMessage = null };
+            }), requestContext);
         }
 
         /// <summary>
@@ -246,8 +259,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     allScripts.AddRange(snapshot.PreDeployScripts.Select(script => script.Path));
                     allScripts.AddRange(snapshot.PostDeployScripts.Select(script => script.Path));
 
-                    pendingUpdates = new List<PendingIntelliSenseUpdate>();
-                    pendingIntelliSenseUpdates[projectUri] = pendingUpdates;
+                    // Open registers the queue when it schedules the build; register one if it's missing.
+                    pendingUpdates = pendingIntelliSenseUpdates.GetOrAdd(projectUri, _ => new List<PendingIntelliSenseUpdate>());
                 });
 
                 if (snapshot == null)
@@ -292,7 +305,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 await WithIntelliSenseLockAsync(projectUri, async () =>
                 {
                     // Close bumps the generation before it takes this lock, so checking here is final.
-                    if (!IsCurrentGeneration(projectUri, generation))
+                    // Never replace a published model: it'd leak its binding context and model, and open
+                    // only starts a build when no model exists.
+                    if (!IsCurrentGeneration(projectUri, generation) || projectIntelliSense.ContainsKey(projectUri))
                     {
                         return;
                     }
@@ -339,6 +354,18 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         /// </summary>
         private bool IsCurrentGeneration(string projectUri, int generation)
             => projectGenerations.TryGetValue(projectUri, out int current) && current == generation;
+
+        /// <summary>
+        /// Whether the project has a published IntelliSense model, or a build that will publish one.
+        /// </summary>
+        internal bool IsIntelliSenseModelBuiltOrBuilding(string projectUri)
+            => projectIntelliSense.ContainsKey(projectUri) || pendingIntelliSenseUpdates.ContainsKey(projectUri);
+
+        /// <summary>
+        /// The IntelliSense build generation for the project: bumped by each open that starts a build and by each close.
+        /// </summary>
+        internal int GetIntelliSenseGeneration(string projectUri)
+            => projectGenerations.TryGetValue(projectUri, out int current) ? current : 0;
 
         internal async Task HandleCreateSqlProjectRequest(Contracts.CreateSqlProjectParams requestParams, RequestContext<ResultStatus> requestContext)
         {
@@ -1136,6 +1163,19 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         private static bool IsGlobPattern(string path) => path.AsSpan().ContainsAny(GlobCharacters);
 
         /// <summary>
+        /// Top-level files only, including hidden ones, matching .sqlproj in any case (e.g. Db.SQLPROJ)
+        /// even on case-sensitive file systems.
+        /// </summary>
+        private static readonly EnumerationOptions ProjectFileEnumerationOptions = new()
+        {
+            RecurseSubdirectories = false,
+            MatchCasing = MatchCasing.CaseInsensitive,
+            MatchType = MatchType.Win32,
+            AttributesToSkip = 0,
+            IgnoreInaccessible = false,
+        };
+
+        /// <summary>
         /// Returns the .sqlproj that owns <paramref name="filePath"/>: the nearest one in the file's folder
         /// or any parent folder. Only the ancestor folders are read, never the whole workspace.
         /// Returns null for anything other than a .sql file, and for files outside any project.
@@ -1155,7 +1195,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 try
                 {
                     // Order so the result is stable when a folder holds more than one project
-                    string? projectPath = Directory.EnumerateFiles(directory, "*.sqlproj", SearchOption.TopDirectoryOnly)
+                    string? projectPath = Directory.EnumerateFiles(directory, "*.sqlproj", ProjectFileEnumerationOptions)
                         .OrderBy(p => p, StringComparer.OrdinalIgnoreCase)
                         .FirstOrDefault();
 
