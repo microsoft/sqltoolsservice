@@ -1391,6 +1391,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             project.SqlCmdVariables.Add(new SqlCmdVariable("OtherDb", "OtherDbDefaultValue", "OtherDbValue"));
             project.DatabaseReferences.Add(new DacpacReference("OtherDatabaseDacpac.dacpac", suppressMissingDependencies: true));
 
+            // Add a globbed None item directly to the .sqlproj; the model should only return literal paths
+            XDocument projectXml = XDocument.Load(projectUri);
+            XNamespace ns = projectXml.Root!.Name.Namespace;
+            projectXml.Root.Add(new XElement(ns + "ItemGroup", new XElement(ns + "None", new XAttribute("Include", @"Config\*.json"))));
+            projectXml.Save(projectUri);
+
             // Unload the project so the request has to read everything back from disk in one load
             service.Projects.TryRemove(projectUri, out _);
 
@@ -1406,7 +1412,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             CollectionAssert.AreEquivalent(new[] { "MyTable.sql" }, model.SqlObjectScripts, "SQL object scripts");
             CollectionAssert.AreEquivalent(new[] { "PreDeploy.sql" }, model.PreDeploymentScripts, "Pre-deployment scripts");
             CollectionAssert.AreEquivalent(new[] { "PostDeploy.sql" }, model.PostDeploymentScripts, "Post-deployment scripts");
-            CollectionAssert.AreEquivalent(new[] { "Settings.json" }, model.NoneItems, "None items");
+            Assert.IsTrue(service.Projects[projectUri].NoneItems.Any(item => item.Path.Contains('*')), "The project itself should list the globbed None item");
+            CollectionAssert.AreEquivalent(new[] { "Settings.json" }, model.NoneItems, "None items should leave out glob patterns");
             CollectionAssert.Contains(model.Folders, "Tables", "Folders");
             Assert.AreEqual("OtherDb", model.SqlCmdVariables.Single().VarName, "SQLCMD variables");
             Assert.AreEqual("OtherDatabaseDacpac.dacpac", model.DatabaseReferences.DacpacReferences.Single().DacpacPath, "Dacpac references");

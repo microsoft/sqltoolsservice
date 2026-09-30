@@ -481,45 +481,57 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
         internal async Task HandleAddSqlObjectScriptRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithErrorHandling(async () =>
+            // Hold the project lock across the change and its model update, so model updates apply in the
+            // same order as the project changes
+            await RunWithErrorHandling(() => WithLockAsync(projectLocks, requestParams.ProjectUri, async () =>
             {
-                await WithProjectLockAsync(requestParams.ProjectUri, () => GetProject(requestParams.ProjectUri).SqlObjectScripts.Add(new SqlObjectScript(requestParams.Path)));
+                GetProject(requestParams.ProjectUri).SqlObjectScripts.Add(new SqlObjectScript(requestParams.Path));
                 // Incrementally update the IntelliSense model for the new file.
                 await UpdateProjectIntelliSenseAsync(requestParams.ProjectUri, requestParams.Path, deleted: false);
-            }, requestContext);
+                return true;
+            }), requestContext);
         }
 
         internal async Task HandleDeleteSqlObjectScriptRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithErrorHandling(async () =>
+            // Hold the project lock across the change and its model update, so model updates apply in the
+            // same order as the project changes
+            await RunWithErrorHandling(() => WithLockAsync(projectLocks, requestParams.ProjectUri, async () =>
             {
-                await WithProjectLockAsync(requestParams.ProjectUri, () => GetProject(requestParams.ProjectUri).SqlObjectScripts.Delete(requestParams.Path));
+                GetProject(requestParams.ProjectUri).SqlObjectScripts.Delete(requestParams.Path);
                 // Incrementally remove the deleted file's objects from the IntelliSense model.
                 await UpdateProjectIntelliSenseAsync(requestParams.ProjectUri, requestParams.Path, deleted: true);
-            }, requestContext);
+                return true;
+            }), requestContext);
         }
 
         internal async Task HandleExcludeSqlObjectScriptRequest(SqlProjectScriptParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithErrorHandling(async () =>
+            // Hold the project lock across the change and its model update, so model updates apply in the
+            // same order as the project changes
+            await RunWithErrorHandling(() => WithLockAsync(projectLocks, requestParams.ProjectUri, async () =>
             {
-                await WithProjectLockAsync(requestParams.ProjectUri, () => GetProject(requestParams.ProjectUri).SqlObjectScripts.Exclude(requestParams.Path));
+                GetProject(requestParams.ProjectUri).SqlObjectScripts.Exclude(requestParams.Path);
                 // Remove the excluded file's objects from the IntelliSense model.
                 await UpdateProjectIntelliSenseAsync(requestParams.ProjectUri, requestParams.Path, deleted: true);
-            }, requestContext);
+                return true;
+            }), requestContext);
         }
 
         internal async Task HandleMoveSqlObjectScriptRequest(MoveItemParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithErrorHandling(async () =>
+            // Hold the project lock across the change and its model update, so model updates apply in the
+            // same order as the project changes
+            await RunWithErrorHandling(() => WithLockAsync(projectLocks, requestParams.ProjectUri, async () =>
             {
-                await WithProjectLockAsync(requestParams.ProjectUri, () => GetProject(requestParams.ProjectUri).SqlObjectScripts.Move(requestParams.Path, requestParams.DestinationPath, requestParams.MetadataOnly));
+                GetProject(requestParams.ProjectUri).SqlObjectScripts.Move(requestParams.Path, requestParams.DestinationPath, requestParams.MetadataOnly);
                 // The IntelliSense model is path-keyed, so a rename is a delete + add:
                 // (1) Purge the old path's objects from the model and source location index.
                 await UpdateProjectIntelliSenseAsync(requestParams.ProjectUri, requestParams.Path, deleted: true);
                 // (2) Read the file at its new path and re-register its objects under the new key.
                 await UpdateProjectIntelliSenseAsync(requestParams.ProjectUri, requestParams.DestinationPath, deleted: false);
-            }, requestContext);
+                return true;
+            }), requestContext);
         }
 
         internal async Task UpdateProjectIntelliSenseAsync(string projectUri, string filePathOrUri, bool deleted, string? sqlTextOverride = null)
