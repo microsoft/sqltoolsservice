@@ -1460,6 +1460,28 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
         }
 
         [Test]
+        public async Task TestStaleIntelliSenseBuildDoesNotReopenClosedProject()
+        {
+            SqlProjectsService service = new();
+            string projectUri = await service.CreateSqlProject();
+            SqlProjectParams projectParams = new() { ProjectUri = projectUri };
+
+            MockRequest<ResultStatus> openMock = new();
+            await service.HandleOpenSqlProjectRequest(projectParams, openMock.Object);
+            openMock.AssertSuccess(nameof(service.HandleOpenSqlProjectRequest));
+
+            MockRequest<ResultStatus> closeMock = new();
+            await service.HandleCloseSqlProjectRequest(projectParams, closeMock.Object);
+            closeMock.AssertSuccess(nameof(service.HandleCloseSqlProjectRequest));
+
+            // A new service starts at generation 0; open made it 1 and close made it 2.
+            // A build that still holds generation 1 must neither reload the project nor publish a model.
+            await service.BuildProjectIntelliSenseAsync(projectUri, generation: 1);
+
+            Assert.IsFalse(service.Projects.ContainsKey(projectUri), "A stale build must not reopen a closed project");
+        }
+
+        [Test]
         public void TestFindProjectForFile()
         {
             string root = TestContext.CurrentContext.GetTestWorkingFolder();
@@ -1480,6 +1502,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             Assert.IsNull(SqlProjectsService.FindProjectForFile(Path.Join(root, "Views", "Notes.txt")), "Only .sql files belong to a project");
             Assert.IsNull(SqlProjectsService.FindProjectForFile(Path.Join("Views", "MyView.sql")), "Relative paths are not looked up");
             Assert.IsNull(SqlProjectsService.FindProjectForFile(null), "Null path");
+
+            if (OperatingSystem.IsWindows())
+            {
+                // Rooted but relative to the current directory on drive C
+                Assert.IsNull(SqlProjectsService.FindProjectForFile(@"C:Views\MyView.sql"), "Drive-relative paths are not looked up");
+            }
 
             string noProjectDir = Path.Join(Path.GetTempPath(), "FindProjectForFile_" + Guid.NewGuid().ToString("N"));
             Assert.IsNull(SqlProjectsService.FindProjectForFile(Path.Join(noProjectDir, "Loose.sql")), "File with no project in any parent folder");

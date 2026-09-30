@@ -72,6 +72,21 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         private readonly ConcurrentDictionary<string, SemaphoreSlim> projectLocks = new(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
+        /// One IntelliSense lock per project URI. Publishing a newly built model, applying an incremental
+        /// update, and tearing the model down on close all hold it, so they run one at a time and in order.
+        /// </summary>
+        private readonly ConcurrentDictionary<string, SemaphoreSlim> intelliSenseLocks = new(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// IntelliSense updates that arrive while a project's model is being built. The build replays them,
+        /// in order, after it publishes the model, so an edit or save made mid-build isn't lost.
+        /// Only accessed while holding the project's IntelliSense lock.
+        /// </summary>
+        private readonly ConcurrentDictionary<string, List<PendingIntelliSenseUpdate>> pendingIntelliSenseUpdates = new(StringComparer.OrdinalIgnoreCase);
+
+        private readonly record struct PendingIntelliSenseUpdate(string FilePathOrUri, bool Deleted, string? SqlTextOverride);
+
+        /// <summary>
         /// Initializes the service instance
         /// </summary>
         /// <param name="serviceHost"></param>
@@ -141,40 +156,57 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
         internal async Task HandleOpenSqlProjectRequest(SqlProjectParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithProjectLock(requestParams.ProjectUri, () => GetProject(requestParams.ProjectUri), requestContext);
-            // Bump the generation so any previously in-flight build for this URI is invalidated,
-            // then capture the new generation into the background task as its ownership token.
-            int generation = projectGenerations.AddOrUpdate(
-                requestParams.ProjectUri, 1, (_, prev) => prev + 1);
-            // Kick off async IntelliSense model build so .sql files in this project get completions
-            // without a live server connection. Fire-and-forget: errors are logged inside.
-            _ = Task.Run(() => BuildProjectIntelliSenseAsync(requestParams.ProjectUri, generation));
+            int generation = 0;
+            await RunWithProjectLock(requestParams.ProjectUri, () =>
+            {
+                GetProject(requestParams.ProjectUri);
+                // Bump the generation under the same lock as the load, so a close can't run between them.
+                // The new generation invalidates any in-flight build and is this build's ownership token.
+                generation = projectGenerations.AddOrUpdate(
+                    requestParams.ProjectUri, 1, (_, prev) => prev + 1);
+            }, requestContext);
+
+            if (generation != 0)
+            {
+                // Kick off async IntelliSense model build so .sql files in this project get completions
+                // without a live server connection. Fire-and-forget: errors are logged inside.
+                _ = Task.Run(() => BuildProjectIntelliSenseAsync(requestParams.ProjectUri, generation));
+            }
         }
 
         internal async Task HandleCloseSqlProjectRequest(SqlProjectParams requestParams, RequestContext<ResultStatus> requestContext)
         {
-            await RunWithProjectLock(requestParams.ProjectUri, () =>
+            await RunWithErrorHandling(async () =>
             {
-                Projects.TryRemove(requestParams.ProjectUri, out _);
+                await WithProjectLockAsync(requestParams.ProjectUri, () =>
+                {
+                    Projects.TryRemove(requestParams.ProjectUri, out _);
 
-                // Bump the generation to invalidate any in-flight IntelliSense build.
-                // The background task checks this at each commit point and will discard
-                // its model if it sees the generation has changed.
-                projectGenerations.AddOrUpdate(
-                    requestParams.ProjectUri, 1, (_, prev) => prev + 1);
+                    // Bump the generation to invalidate any in-flight IntelliSense build. A build checks it
+                    // under this lock before it loads the project, and under the IntelliSense lock before it
+                    // publishes its model.
+                    projectGenerations.AddOrUpdate(
+                        requestParams.ProjectUri, 1, (_, prev) => prev + 1);
+                });
 
-                // Full IntelliSense teardown:
+                // Full IntelliSense teardown, under the IntelliSense lock so it can't interleave with a build
+                // publishing its model:
                 // 1. Remove binding context from the queue (releases MetadataProvider + _sourceLocations)
                 // 2. Remove ScriptParseInfo for all .sql files and the .sqlproj itself
                 // 3. Dispose TSqlModel to free DacFx unmanaged resources
-                if (projectIntelliSense.TryRemove(requestParams.ProjectUri, out var intelliSense))
+                await WithIntelliSenseLockAsync(requestParams.ProjectUri, () =>
                 {
-                    TSqlLanguageService.Instance.TearDownProjectContext(
-                        requestParams.ProjectUri,
-                        intelliSense.ContextKey,
-                        intelliSense.FileUris);
-                    intelliSense.Model?.Dispose();
-                }
+                    pendingIntelliSenseUpdates.TryRemove(requestParams.ProjectUri, out _);
+                    if (projectIntelliSense.TryRemove(requestParams.ProjectUri, out var intelliSense))
+                    {
+                        TSqlLanguageService.Instance.TearDownProjectContext(
+                            requestParams.ProjectUri,
+                            intelliSense.ContextKey,
+                            intelliSense.FileUris);
+                        intelliSense.Model?.Dispose();
+                    }
+                    return Task.CompletedTask;
+                });
             }, requestContext);
         }
 
@@ -187,24 +219,41 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         /// <param name="generation">Ownership token captured at the moment the task was started.
         /// If the current generation for this URI differs at any commit point, the task is stale
         /// (project was closed or re-opened) and must discard its results.</param>
-        private async Task BuildProjectIntelliSenseAsync(string projectUri, int generation)
+        internal async Task BuildProjectIntelliSenseAsync(string projectUri, int generation)
         {
             TSqlModel? model = null;
+            List<PendingIntelliSenseUpdate>? pendingUpdates = null;
+            bool published = false;
             try
             {
-                // Read the project's script list under the lock so a concurrent change can't modify the
-                // collections mid-enumeration. The slow model build below runs outside the lock.
-                (SqlProject project, List<string> allScripts) = await WithProjectLockAsync(projectUri, () =>
+                // Under the project lock: confirm this build is still current (close bumps the generation under
+                // the same lock), open a private snapshot of the project for the model build, and start collecting
+                // IntelliSense updates that arrive while the model builds. Nothing else references the snapshot,
+                // so edits can't change it mid-build; those edits are replayed after the model is published.
+                SqlProject? snapshot = null;
+                List<string> allScripts = new();
+                await WithProjectLockAsync(projectUri, () =>
                 {
-                    SqlProject loaded = GetProject(projectUri);
+                    if (!IsCurrentGeneration(projectUri, generation))
+                    {
+                        return;
+                    }
+
+                    snapshot = SqlProject.OpenProject(projectUri);
 
                     // Include all SQL files: Build items, PreDeploy, and PostDeploy
-                    var scripts = new List<string>();
-                    scripts.AddRange(loaded.SqlObjectScripts.Select(script => script.Path));
-                    scripts.AddRange(loaded.PreDeployScripts.Select(script => script.Path));
-                    scripts.AddRange(loaded.PostDeployScripts.Select(script => script.Path));
-                    return (loaded, scripts);
+                    allScripts.AddRange(snapshot.SqlObjectScripts.Select(script => script.Path));
+                    allScripts.AddRange(snapshot.PreDeployScripts.Select(script => script.Path));
+                    allScripts.AddRange(snapshot.PostDeployScripts.Select(script => script.Path));
+
+                    pendingUpdates = new List<PendingIntelliSenseUpdate>();
+                    pendingIntelliSenseUpdates[projectUri] = pendingUpdates;
                 });
+
+                if (snapshot == null)
+                {
+                    return;
+                }
 
                 string databaseName = Path.GetFileNameWithoutExtension(projectUri);
                 string contextKey = $"{TSqlLanguageService.ProjectContextKeyPrefix}{projectUri}";
@@ -223,12 +272,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     }),
                     StringComparer.OrdinalIgnoreCase);
 
-                model = await Task.Run(() => TSqlModelBuilder.LoadModel(project));
+                model = await Task.Run(() => TSqlModelBuilder.LoadModel(snapshot));
 
-                // Gate 1: after the expensive load — verify we are still the owner.
+                // Skip the rest of the setup if the build was superseded during the expensive load.
                 if (!IsCurrentGeneration(projectUri, generation))
                 {
-                    model.Dispose();
                     return;
                 }
 
@@ -240,25 +288,48 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     compatibilityLevel: DatabaseCompatibilityLevel.Current,
                     transactSqlVersion: TransactSqlVersion.Current);
 
-                // Store everything needed for full teardown on project close.
-                projectIntelliSense[projectUri] = (model, projectMetadataProvider, contextKey, databaseName, fileUriList, parseOptions);
-
-                // Gate 2: before registering the binding context — verify we are still the owner.
-                // (Close may have run between Gate 1 and here.)
-                if (!IsCurrentGeneration(projectUri, generation))
+                // Publish under the IntelliSense lock so incremental updates and close are ordered around it.
+                await WithIntelliSenseLockAsync(projectUri, async () =>
                 {
-                    projectIntelliSense.TryRemove(projectUri, out _);
-                    model.Dispose();
-                    return;
-                }
+                    // Close bumps the generation before it takes this lock, so checking here is final.
+                    if (!IsCurrentGeneration(projectUri, generation))
+                    {
+                        return;
+                    }
 
-                await TSqlLanguageService.Instance.UpdateLanguageServiceOnProjectOpen(
-                    projectUri, projectMetadataProvider, parseOptions, databaseName, fileUriList);
+                    // Store everything needed for full teardown on project close.
+                    var state = (model, projectMetadataProvider, contextKey, databaseName, fileUriList, parseOptions);
+                    projectIntelliSense[projectUri] = state;
+                    published = true;
+
+                    await TSqlLanguageService.Instance.UpdateLanguageServiceOnProjectOpen(
+                        projectUri, projectMetadataProvider, parseOptions, databaseName, fileUriList);
+
+                    // Replay the edits and saves that arrived while the model was building, in order.
+                    pendingIntelliSenseUpdates.TryRemove(new KeyValuePair<string, List<PendingIntelliSenseUpdate>>(projectUri, pendingUpdates!));
+                    foreach (PendingIntelliSenseUpdate update in pendingUpdates!)
+                    {
+                        await ApplyProjectIntelliSenseUpdateAsync(projectUri, state, update.FilePathOrUri, update.Deleted, update.SqlTextOverride);
+                    }
+                });
             }
             catch (Exception ex)
             {
                 Logger.Error($"Failed to build IntelliSense model for project {projectUri}: {ex}");
-                model?.Dispose();
+            }
+            finally
+            {
+                if (pendingUpdates != null)
+                {
+                    // Stop collecting updates for this build; a newer build registers its own list.
+                    pendingIntelliSenseUpdates.TryRemove(new KeyValuePair<string, List<PendingIntelliSenseUpdate>>(projectUri, pendingUpdates));
+                }
+
+                // A published model is owned by projectIntelliSense and disposed on close.
+                if (!published)
+                {
+                    model?.Dispose();
+                }
             }
         }
 
@@ -280,8 +351,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     BuildSdkVersion = requestParams.BuildSdkVersion
                 };
 
-                await SqlProject.CreateProjectAsync(requestParams.ProjectUri, createParams);
-                await WithProjectLockAsync(requestParams.ProjectUri, () => GetProject(requestParams.ProjectUri)); // load into the cache
+                // Hold the project lock across creation and load so a concurrent read waits for the finished project
+                await WithLockAsync(projectLocks, requestParams.ProjectUri, async () =>
+                {
+                    await SqlProject.CreateProjectAsync(requestParams.ProjectUri, createParams);
+                    GetProject(requestParams.ProjectUri); // load into the cache
+                    return true;
+                });
             }, requestContext);
         }
 
@@ -506,9 +582,30 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             }, requestContext);
         }
 
-        internal async Task UpdateProjectIntelliSenseAsync(string projectUri, string filePathOrUri, bool deleted, string? sqlTextOverride = null)
+        internal Task UpdateProjectIntelliSenseAsync(string projectUri, string filePathOrUri, bool deleted, string? sqlTextOverride = null)
+            => WithIntelliSenseLockAsync(projectUri, async () =>
+            {
+                if (projectIntelliSense.TryGetValue(projectUri, out var state))
+                {
+                    await ApplyProjectIntelliSenseUpdateAsync(projectUri, state, filePathOrUri, deleted, sqlTextOverride);
+                }
+                else if (pendingIntelliSenseUpdates.TryGetValue(projectUri, out List<PendingIntelliSenseUpdate>? pending))
+                {
+                    // The model is still being built; the build replays this after it publishes the model.
+                    pending.Add(new PendingIntelliSenseUpdate(filePathOrUri, deleted, sqlTextOverride));
+                }
+            });
+
+        /// <summary>
+        /// Applies one file change to a published IntelliSense model. Callers hold the project's IntelliSense lock.
+        /// </summary>
+        private async Task ApplyProjectIntelliSenseUpdateAsync(
+            string projectUri,
+            (TSqlModel Model, TSqlModelMetadataProvider Provider, string ContextKey, string DatabaseName, HashSet<string> FileUris, ParseOptions ParseOptions) state,
+            string filePathOrUri,
+            bool deleted,
+            string? sqlTextOverride)
         {
-            if (!projectIntelliSense.TryGetValue(projectUri, out var state)) return;
             try
             {
                 string sourceName = GetAbsoluteFilePath(projectUri, filePathOrUri);
@@ -958,17 +1055,31 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         /// Waiting for the lock doesn't block a thread, and the action never runs on the message loop.
         /// Not reentrant: <paramref name="action"/> must not take the same project's lock again.
         /// </summary>
-        private async Task<T> WithProjectLockAsync<T>(string projectUri, Func<T> action)
+        private Task<T> WithProjectLockAsync<T>(string projectUri, Func<T> action)
+            => WithLockAsync(projectLocks, projectUri, () => Task.FromResult(action()));
+
+        private Task WithIntelliSenseLockAsync(string projectUri, Func<Task> action)
+            => WithLockAsync(intelliSenseLocks, projectUri, async () =>
+            {
+                await action().ConfigureAwait(false);
+                return true;
+            });
+
+        /// <summary>
+        /// Runs <paramref name="action"/> on the thread pool while holding the lock for <paramref name="key"/>.
+        /// Waiting doesn't block a thread. Not reentrant.
+        /// </summary>
+        private static async Task<T> WithLockAsync<T>(ConcurrentDictionary<string, SemaphoreSlim> locks, string key, Func<Task<T>> action)
         {
-            SemaphoreSlim projectLock = projectLocks.GetOrAdd(projectUri, _ => new SemaphoreSlim(1, 1));
-            await projectLock.WaitAsync().ConfigureAwait(false);
+            SemaphoreSlim gate = locks.GetOrAdd(key, _ => new SemaphoreSlim(1, 1));
+            await gate.WaitAsync().ConfigureAwait(false);
             try
             {
                 return await Task.Run(action).ConfigureAwait(false);
             }
             finally
             {
-                projectLock.Release();
+                gate.Release();
             }
         }
 
@@ -1032,7 +1143,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         internal static string? FindProjectForFile(string? filePath)
         {
             if (string.IsNullOrWhiteSpace(filePath)
-                || !Path.IsPathRooted(filePath)
+                || !Path.IsPathFullyQualified(filePath)
                 || !string.Equals(Path.GetExtension(filePath), ".sql", StringComparison.OrdinalIgnoreCase))
             {
                 return null;
