@@ -17,6 +17,7 @@ using Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.SqlCore.IntelliSense;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
@@ -1238,7 +1239,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             Assert.IsFalse(service.Projects[projectUri].OnlyPropertiesLoaded, "Project should be fully-loaded when initially created.");
 
             // Verify metadata calls only load properties
-            service.Projects.Clear();
+            await CloseProject(service, projectUri);
             SqlProjectParams projParams = new SqlProjectParams() { ProjectUri = projectUri };
             await service.HandleGetProjectPropertiesRequest(projParams, new MockRequest<GetProjectPropertiesResult>().Object);
             await service.HandleGetSqlCmdVariablesRequest(projParams, new MockRequest<GetSqlCmdVariablesResult>().Object);
@@ -1251,7 +1252,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             Assert.IsFalse(service.Projects[projectUri].OnlyPropertiesLoaded, "Project should be fully-loaded after getting a list of files");
 
             // Verify file call on unopened project results in full-load
-            service.Projects.Clear();
+            await CloseProject(service, projectUri);
             await GetProjectModel(service, projectUri);
             Assert.IsFalse(service.Projects[projectUri].OnlyPropertiesLoaded, "Project should be fully-loaded when initially opened for a list of files");
         }
@@ -1281,7 +1282,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             setMock.AssertSuccess(nameof(service.HandleSetProjectPropertiesRequest));
 
             // Reload from disk to verify both values were written
-            service.Projects.Clear();
             SqlProject project = SqlProject.OpenProject(projectUri, onlyLoadProperties: true);
             Assert.AreEqual("TestSource", project.Properties.DatabaseSource, "DatabaseSource should match the value set via SetProjectProperties");
             Assert.AreEqual("Test project description", project.Properties.GetProperty("Description"), "Description should match the value set via SetProjectProperties");
@@ -1325,7 +1325,6 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
 
             setMock.AssertSuccess(nameof(service.HandleSetProjectPropertiesRequest));
 
-            service.Projects.Clear();
             SqlProject project = SqlProject.OpenProject(projectUri, onlyLoadProperties: true);
             Assert.AreEqual("Updated description", project.Properties.GetProperty("Description"), "Description should reflect the updated value");
             Assert.AreEqual("TestSource", project.Properties.DatabaseSource, "DatabaseSource should be unaffected by updating Description");
@@ -1392,7 +1391,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             project.DatabaseReferences.Add(new DacpacReference("OtherDatabaseDacpac.dacpac", suppressMissingDependencies: true));
 
             // Unload the project so the request has to read everything back from disk in one load
-            service.Projects.TryRemove(projectUri, out _);
+            await CloseProject(service, projectUri);
 
             MockRequest<GetProjectModelResult> getMock = new();
             await service.HandleGetProjectModelRequest(new SqlProjectParams() { ProjectUri = projectUri }, getMock.Object);
@@ -1427,8 +1426,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
                 await File.WriteAllTextAsync(Path.Join(projectDir, script), $"CREATE TABLE [{Path.GetFileNameWithoutExtension(script)}] ([Id] INT)");
             }
 
-            // Start from an empty cache so full and properties-only loads race to populate it
-            service.Projects.Clear();
+            // Start unloaded so full and properties-only loads race to load it
+            await CloseProject(service, projectUri);
             SqlProjectParams projectParams = new() { ProjectUri = projectUri };
 
             var adds = new List<MockRequest<ResultStatus>>();
@@ -1457,6 +1456,88 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
 
             Assert.IsFalse(service.Projects[projectUri].OnlyPropertiesLoaded, "A properties-only load must not replace the fully-loaded project");
             CollectionAssert.AreEquivalent(scripts, (await GetProjectModel(service, projectUri)).SqlObjectScripts, "Every concurrently added script should be in the project");
+        }
+
+        [Test]
+        public async Task TestRepeatOpenReusesIntelliSenseModel()
+        {
+            SqlProjectsService service = new();
+            string projectUri = await service.CreateSqlProject();
+            await File.WriteAllTextAsync(Path.Join(Path.GetDirectoryName(projectUri), "Table1.sql"), "CREATE TABLE [dbo].[Table1] ([Id] INT)");
+
+            await OpenProject(service, projectUri);
+            ProjectHost host = service.GetHost(projectUri)!;
+            Task firstBuild = host.IntelliSenseBuild!;
+            await firstBuild;
+            Assert.IsTrue(service.TryGetProvider(projectUri, out TSqlModelMetadataProvider? firstProvider), "Open publishes an IntelliSense model");
+
+            await OpenProject(service, projectUri);
+            Assert.AreSame(host, service.GetHost(projectUri), "Repeat open keeps the same host");
+            Assert.AreSame(firstBuild, host.IntelliSenseBuild, "Repeat open doesn't start another build");
+            Assert.IsTrue(service.TryGetProvider(projectUri, out TSqlModelMetadataProvider? provider));
+            Assert.AreSame(firstProvider, provider, "Repeat open keeps the published model");
+
+            await CloseProject(service, projectUri);
+            Assert.IsNull(service.GetHost(projectUri), "Close removes the host");
+            Assert.IsFalse(service.TryGetProvider(projectUri, out _), "Close tears down the model");
+
+            await OpenProject(service, projectUri);
+            ProjectHost reopened = service.GetHost(projectUri)!;
+            Assert.AreNotSame(host, reopened, "Open after close creates a new host");
+            await reopened.IntelliSenseBuild!;
+            Assert.IsTrue(service.TryGetProvider(projectUri, out provider), "Open after close rebuilds the model");
+            Assert.AreNotSame(firstProvider, provider, "Open after close rebuilds the model from disk");
+        }
+
+        [Test]
+        public async Task TestCloseDuringIntelliSenseBuildDiscardsModel()
+        {
+            SqlProjectsService service = new();
+            string projectUri = await service.CreateSqlProject();
+            PausedModelBuilder builder = new(service);
+
+            await OpenProject(service, projectUri);
+            Task build = service.GetHost(projectUri)!.IntelliSenseBuild!;
+            await builder.Started;
+
+            await CloseProject(service, projectUri);
+            builder.Release();
+            await build.WaitAsync(TimeSpan.FromSeconds(30));
+
+            Assert.IsNull(service.GetHost(projectUri), "A build must not bring back a closed project's host");
+            Assert.IsFalse(service.Projects.ContainsKey(projectUri), "A build must not reload a closed project");
+            Assert.IsFalse(service.TryGetProvider(projectUri, out _), "A build must not publish a model for a closed project");
+        }
+
+        [Test]
+        public async Task TestScriptAddedDuringIntelliSenseBuildReachesModel()
+        {
+            SqlProjectsService service = new();
+            string projectUri = await service.CreateSqlProject(ProjectType.LegacyStyle);
+            string projectDir = Path.GetDirectoryName(projectUri)!;
+            await File.WriteAllTextAsync(Path.Join(projectDir, "Table1.sql"), "CREATE TABLE [dbo].[Table1] ([Id] INT)");
+            await File.WriteAllTextAsync(Path.Join(projectDir, "Table2.sql"), "CREATE TABLE [dbo].[Table2] ([Id] INT)");
+
+            MockRequest<ResultStatus> addMock = new();
+            await service.HandleAddSqlObjectScriptRequest(new SqlProjectScriptParams() { ProjectUri = projectUri, Path = "Table1.sql" }, addMock.Object);
+            addMock.AssertSuccess(nameof(service.HandleAddSqlObjectScriptRequest));
+
+            PausedModelBuilder builder = new(service);
+            await OpenProject(service, projectUri);
+            Task build = service.GetHost(projectUri)!.IntelliSenseBuild!;
+            await builder.Started;
+
+            // The build has taken its snapshot (with only Table1) and is still running
+            addMock = new();
+            await service.HandleAddSqlObjectScriptRequest(new SqlProjectScriptParams() { ProjectUri = projectUri, Path = "Table2.sql" }, addMock.Object);
+            addMock.AssertSuccess(nameof(service.HandleAddSqlObjectScriptRequest));
+
+            builder.Release();
+            await build.WaitAsync(TimeSpan.FromSeconds(30));
+
+            Assert.IsTrue(service.TryGetProvider(projectUri, out TSqlModelMetadataProvider? provider), "Open publishes an IntelliSense model");
+            Assert.IsTrue(provider!.CanResolveName("dbo.Table1"), "Script in the project when the build started is in the model");
+            Assert.IsTrue(provider.CanResolveName("dbo.Table2"), "Script added during the build is replayed into the model");
         }
 
         [Test]
@@ -1510,7 +1591,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             Assert.AreEqual(projectUri, findMock.Result.ProjectUri, "Owning project");
             Assert.IsTrue(findMock.Result.IsLoaded, "Project created through the service is loaded");
 
-            service.Projects.TryRemove(projectUri, out _);
+            await CloseProject(service, projectUri);
 
             findMock = new();
             await service.HandleFindProjectForFileRequest(new FindProjectForFileParams() { FilePath = scriptPath }, findMock.Object);
@@ -1521,6 +1602,44 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
         }
 
         #region Helpers
+
+        /// <summary>
+        /// Replaces the service's IntelliSense model builder with one that waits for <see cref="Release"/>,
+        /// so a test can act while a build is in flight.
+        /// </summary>
+        private sealed class PausedModelBuilder
+        {
+            private readonly TaskCompletionSource started = new(TaskCreationOptions.RunContinuationsAsynchronously);
+            private readonly TaskCompletionSource released = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+            public PausedModelBuilder(SqlProjectsService service)
+            {
+                service.IntelliSenseModelBuilder = project =>
+                {
+                    started.TrySetResult();
+                    released.Task.Wait(TimeSpan.FromSeconds(30));
+                    return TSqlModelBuilder.LoadModel(project);
+                };
+            }
+
+            public Task Started => started.Task.WaitAsync(TimeSpan.FromSeconds(30));
+
+            public void Release() => released.TrySetResult();
+        }
+
+        private static async Task CloseProject(SqlProjectsService service, string projectUri)
+        {
+            MockRequest<ResultStatus> closeMock = new();
+            await service.HandleCloseSqlProjectRequest(new SqlProjectParams() { ProjectUri = projectUri }, closeMock.Object);
+            closeMock.AssertSuccess(nameof(service.HandleCloseSqlProjectRequest));
+        }
+
+        private static async Task OpenProject(SqlProjectsService service, string projectUri)
+        {
+            MockRequest<ResultStatus> openMock = new();
+            await service.HandleOpenSqlProjectRequest(new SqlProjectParams() { ProjectUri = projectUri }, openMock.Object);
+            openMock.AssertSuccess(nameof(service.HandleOpenSqlProjectRequest));
+        }
 
         private static async Task<GetProjectModelResult> GetProjectModel(SqlProjectsService service, string projectUri)
         {
