@@ -14,6 +14,7 @@ using Microsoft.SqlServer.Dac.Projects;
 using Microsoft.SqlServer.Management.SqlParser.Common;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.LanguageService.LanguageServices;
+using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using Microsoft.SqlTools.SqlCore.IntelliSense;
 using Microsoft.SqlTools.Utility;
 
@@ -198,12 +199,19 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                         return false;
                     }
 
-                    Volatile.Write(ref intelliSense, state);
                     List<IntelliSenseChange> changes = changesDuringBuild ?? new List<IntelliSenseChange>();
                     changesDuringBuild = null;
 
-                    await TSqlLanguageService.Instance.UpdateLanguageServiceOnProjectOpen(
+                    bool registered = await TSqlLanguageService.Instance.UpdateLanguageServiceOnProjectOpen(
                         ProjectUri, state.Provider, state.ParseOptions, state.DatabaseName, state.FileUris).ConfigureAwait(false);
+                    if (!registered)
+                    {
+                        // Undo any partial registration. With no model and no build in flight, the next open retries.
+                        TSqlLanguageService.Instance.TearDownProjectContext(ProjectUri, state.ContextKey, state.FileUris);
+                        return false;
+                    }
+
+                    Volatile.Write(ref intelliSense, state);
 
                     // Replay the edits and saves made while the model was building, in order
                     foreach (IntelliSenseChange change in changes)
@@ -211,6 +219,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                         await ApplyChangeAsync(state, change).ConfigureAwait(false);
                     }
 
+                    await ApplyUnsavedOpenFilesAsync(state).ConfigureAwait(false);
                     return true;
                 }).ConfigureAwait(false);
             }
@@ -230,6 +239,43 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 {
                     model?.Dispose();
                 }
+            }
+        }
+
+        /// <summary>
+        /// Applies the unsaved text of the project's open files to a newly published model. The model is built
+        /// from disk, and the language service only forwards edits for files already stamped as project files,
+        /// so text typed before the model was published would otherwise be missing until the next edit.
+        /// </summary>
+        private async Task ApplyUnsavedOpenFilesAsync(ProjectIntelliSense state)
+        {
+            if (!TSqlLanguageService.Instance.TryGetOpenedFiles(out ScriptFile[] openedFiles) || openedFiles.Length == 0)
+            {
+                return;
+            }
+
+            HashSet<string> projectFiles;
+            lock (state.FileUris)
+            {
+                projectFiles = new HashSet<string>(state.FileUris.Select(uri => GetAbsoluteFilePath(ProjectUri, uri)), StringComparer.OrdinalIgnoreCase);
+            }
+
+            foreach (ScriptFile openedFile in openedFiles)
+            {
+                if (!Uri.TryCreate(openedFile.ClientUri, UriKind.Absolute, out Uri? uri) || !uri.IsFile)
+                {
+                    continue; // untitled and other non-file documents can't belong to the project
+                }
+
+                string path = GetAbsoluteFilePath(ProjectUri, openedFile.ClientUri);
+                string contents = openedFile.Contents;
+                if (!projectFiles.Contains(path)
+                    || (File.Exists(path) && string.Equals(await File.ReadAllTextAsync(path).ConfigureAwait(false), contents, StringComparison.Ordinal)))
+                {
+                    continue; // not in the project, or no unsaved changes
+                }
+
+                await ApplyChangeAsync(state, new IntelliSenseChange(openedFile.ClientUri, Deleted: false, SqlTextOverride: contents)).ConfigureAwait(false);
             }
         }
 

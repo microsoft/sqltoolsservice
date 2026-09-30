@@ -296,6 +296,17 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         }
 
         /// <summary>
+        /// Gets the files open in the workspace, with their current (possibly unsaved) contents.
+        /// Returns false when no workspace is attached yet.
+        /// </summary>
+        internal bool TryGetOpenedFiles(out ScriptFile[] openedFiles)
+        {
+            Microsoft.SqlTools.LanguageService.Workspace.Workspace workspace = workspaceServiceInstance?.Workspace;
+            openedFiles = workspace?.GetOpenedFiles() ?? Array.Empty<ScriptFile>();
+            return workspace != null;
+        }
+
+        /// <summary>
         /// Gets or sets the current SQL Tools context
         /// </summary>
         /// <returns></returns>
@@ -1682,7 +1693,11 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// <summary>
         /// Registers an offline binding context for a SQL project (no server connection required).
         /// </summary>
-        public async Task UpdateLanguageServiceOnProjectOpen(
+        /// <returns>
+        /// True when the binding context is registered and the project's files are stamped. A failure to send
+        /// the ready notification is logged but doesn't count as a failure.
+        /// </returns>
+        public async Task<bool> UpdateLanguageServiceOnProjectOpen(
             string projectUri,
             Microsoft.SqlServer.Management.SqlParser.MetadataProvider.IMetadataProvider metadataProvider,
             Microsoft.SqlServer.Management.SqlParser.Parser.ParseOptions parseOptions,
@@ -1719,14 +1734,24 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 {
                     InitializeProjectFileContexts(fileUris, contextKey, databaseName);
                 }
-
-                await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = projectUri });
-                Logger.Information($"UpdateLanguageServiceOnProjectOpen: offline IntelliSense ready for project '{projectUri}' (database: '{databaseName}')");
             }
             catch (Exception ex)
             {
                 Logger.Error($"Failed to set up project IntelliSense for {projectUri}: {ex}");
+                return false;
             }
+
+            try
+            {
+                await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = projectUri });
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Failed to send IntelliSense ready notification for {projectUri}: {ex}");
+            }
+
+            Logger.Information($"UpdateLanguageServiceOnProjectOpen: offline IntelliSense ready for project '{projectUri}' (database: '{databaseName}')");
+            return true;
         }
 
         /// <summary>

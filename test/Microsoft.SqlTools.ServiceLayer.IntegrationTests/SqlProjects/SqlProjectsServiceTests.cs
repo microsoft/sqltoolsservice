@@ -18,6 +18,10 @@ using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Microsoft.SqlTools.ServiceLayer.Utility;
 using Microsoft.SqlTools.SqlCore.IntelliSense;
+using Microsoft.SqlTools.LanguageService.LanguageServices;
+using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
+using Microsoft.SqlTools.LanguageService.Workspace;
+using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using NUnit.Framework;
 
 namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
@@ -1545,6 +1549,46 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             Assert.IsTrue(service.TryGetProvider(projectUri, out TSqlModelMetadataProvider? provider), "Open publishes an IntelliSense model");
             Assert.IsTrue(provider!.CanResolveName("dbo.Table1"), "Script in the project when the build started is in the model");
             Assert.IsTrue(provider.CanResolveName("dbo.Table2"), "Script added during the build is replayed into the model");
+        }
+
+        [Test]
+        public async Task TestUnsavedOpenFileReachesModel()
+        {
+            SqlProjectsService service = new();
+            string projectUri = await service.CreateSqlProject(ProjectType.LegacyStyle);
+            string scriptPath = Path.Join(Path.GetDirectoryName(projectUri)!, "Table1.sql");
+            await File.WriteAllTextAsync(scriptPath, "CREATE TABLE [dbo].[Table1] ([Id] INT)");
+
+            MockRequest<ResultStatus> addMock = new();
+            await service.HandleAddSqlObjectScriptRequest(new SqlProjectScriptParams() { ProjectUri = projectUri, Path = "Table1.sql" }, addMock.Object);
+            addMock.AssertSuccess(nameof(service.HandleAddSqlObjectScriptRequest));
+
+            // The file is open with unsaved changes when the project opens
+            TSqlLanguageService languageService = TSqlLanguageService.Instance;
+            bool attachedWorkspace = !languageService.TryGetOpenedFiles(out _);
+            if (attachedWorkspace)
+            {
+                languageService.WorkspaceServiceInstance = new WorkspaceService<SqlToolsSettings>() { Workspace = new LanguageService.Workspace.Workspace() };
+            }
+
+            ScriptFile openFile = languageService.CurrentWorkspace.GetFileBuffer(new Uri(scriptPath).AbsoluteUri, "CREATE TABLE [dbo].[UnsavedTable] ([Id] INT)");
+            try
+            {
+                await OpenProject(service, projectUri);
+                await service.GetHost(projectUri)!.IntelliSenseBuild!.WaitAsync(TimeSpan.FromSeconds(30));
+
+                Assert.IsTrue(service.TryGetProvider(projectUri, out TSqlModelMetadataProvider? provider), "Open publishes an IntelliSense model");
+                Assert.IsTrue(provider!.CanResolveName("dbo.UnsavedTable"), "The model should reflect the open file's unsaved text");
+            }
+            finally
+            {
+                languageService.CurrentWorkspace.CloseFile(openFile);
+                if (attachedWorkspace)
+                {
+                    languageService.WorkspaceServiceInstance = null!;
+                }
+                await CloseProject(service, projectUri);
+            }
         }
 
         [Test]
