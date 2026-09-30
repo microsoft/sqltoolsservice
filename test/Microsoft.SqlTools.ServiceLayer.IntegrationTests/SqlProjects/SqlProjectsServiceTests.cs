@@ -133,15 +133,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             Assert.IsTrue(service.Projects[projectUri].SqlObjectScripts.Contains(scriptRelativePath), $"SqlObjectScripts expected to contain {scriptRelativePath}");
 
             // Validate getting a list of the SQL object scripts
-            MockRequest<GetScriptsResult> getMock = new();
-            await service.HandleGetSqlObjectScriptsRequest(new SqlProjectParams()
-            {
-                ProjectUri = projectUri
-            }, getMock.Object);
-
-            getMock.AssertSuccess(nameof(service.HandleGetSqlObjectScriptsRequest));
-            Assert.AreEqual(1, getMock.Result.Scripts.Length);
-            Assert.AreEqual(scriptRelativePath, getMock.Result.Scripts[0]);
+            string[] items = (await GetProjectModel(service, projectUri)).SqlObjectScripts;
+            Assert.AreEqual(1, items.Length);
+            Assert.AreEqual(scriptRelativePath, items[0]);
 
             // Validate excluding a SQL object script
             requestMock = new();
@@ -247,15 +241,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             Assert.IsTrue(service.Projects[projectUri].NoneItems.Contains(relativePath), $"NoneItems expected to contain {relativePath}");
 
             // Validate getting a list of the None scripts
-            MockRequest<GetScriptsResult> getMock = new();
-            await service.HandleGetNoneItemsRequest(new SqlProjectParams()
-            {
-                ProjectUri = projectUri
-            }, getMock.Object);
-
-            getMock.AssertSuccess(nameof(service.HandleGetNoneItemsRequest));
-            Assert.AreEqual(1, getMock.Result.Scripts.Length);
-            Assert.AreEqual(relativePath, getMock.Result.Scripts[0]);
+            string[] items = (await GetProjectModel(service, projectUri)).NoneItems;
+            Assert.AreEqual(1, items.Length);
+            Assert.AreEqual(relativePath, items[0]);
 
             // Validate excluding a None script
             requestMock = new();
@@ -336,15 +324,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             Assert.IsTrue(service.Projects[projectUri].PreDeployScripts.Contains(scriptRelativePath), $"PreDeployScripts expected to contain {scriptRelativePath}");
 
             // Validate getting a list of the pre-deployment scripts
-            MockRequest<GetScriptsResult> getMock = new();
-            await service.HandleGetPreDeploymentScriptsRequest(new SqlProjectParams()
-            {
-                ProjectUri = projectUri
-            }, getMock.Object);
-
-            getMock.AssertSuccess(nameof(service.HandleGetPreDeploymentScriptsRequest));
-            Assert.AreEqual(1, getMock.Result.Scripts.Length);
-            Assert.AreEqual(scriptRelativePath, getMock.Result.Scripts[0]);
+            string[] items = (await GetProjectModel(service, projectUri)).PreDeploymentScripts;
+            Assert.AreEqual(1, items.Length);
+            Assert.AreEqual(scriptRelativePath, items[0]);
 
             // Validate excluding a pre-deployment script
             requestMock = new();
@@ -425,15 +407,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             Assert.IsTrue(service.Projects[projectUri].PostDeployScripts.Contains(scriptRelativePath), $"PostDeployScripts expected to contain {scriptRelativePath}");
 
             // Validate getting a list of the post-deployment scripts
-            MockRequest<GetScriptsResult> getMock = new();
-            await service.HandleGetPostDeploymentScriptsRequest(new SqlProjectParams()
-            {
-                ProjectUri = projectUri
-            }, getMock.Object);
-
-            getMock.AssertSuccess(nameof(service.HandleGetPostDeploymentScriptsRequest));
-            Assert.AreEqual(1, getMock.Result.Scripts.Length);
-            Assert.AreEqual(scriptRelativePath, getMock.Result.Scripts[0]);
+            string[] items = (await GetProjectModel(service, projectUri)).PostDeploymentScripts;
+            Assert.AreEqual(1, items.Length);
+            Assert.AreEqual(scriptRelativePath, items[0]);
 
             // Validate excluding a Post-deployment script
             requestMock = new();
@@ -866,15 +842,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             Assert.IsTrue(service.Projects[projectUri].Folders.Contains(folderParams.Path), $"Folders expected to contain {folderParams.Path}");
 
             // Validate getting a list of the folders
-            MockRequest<GetFoldersResult> getMock = new();
-            await service.HandleGetFoldersRequest(new SqlProjectParams()
-            {
-                ProjectUri = projectUri
-            }, getMock.Object);
-
-            getMock.AssertSuccess(nameof(service.HandleGetFoldersRequest));
-            Assert.AreEqual(1, getMock.Result.Folders.Length);
-            Assert.AreEqual(folderParams.Path, getMock.Result.Folders[0]);
+            string[] items = (await GetProjectModel(service, projectUri)).Folders;
+            Assert.AreEqual(1, items.Length);
+            Assert.AreEqual(folderParams.Path, items[0]);
 
             // Validate moving a folder
             requestMock = new();
@@ -1277,18 +1247,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             Assert.IsTrue(service.Projects[projectUri].OnlyPropertiesLoaded, "Project should be partially-loaded after only property/metadata actions");
 
             // Verify file call on already-opened project results in full-load
-            MockRequest<GetScriptsResult> scriptsMock = new();
-            await service.HandleGetSqlObjectScriptsRequest(projParams, scriptsMock.Object);
-
-            scriptsMock.AssertSuccess(nameof(service.HandleGetSqlObjectScriptsRequest));
+            await GetProjectModel(service, projectUri);
             Assert.IsFalse(service.Projects[projectUri].OnlyPropertiesLoaded, "Project should be fully-loaded after getting a list of files");
 
             // Verify file call on unopened project results in full-load
             service.Projects.Clear();
-            scriptsMock = new();
-            await service.HandleGetPreDeploymentScriptsRequest(projParams, scriptsMock.Object);
-
-            scriptsMock.AssertSuccess(nameof(service.HandleGetSqlObjectScriptsRequest));
+            await GetProjectModel(service, projectUri);
             Assert.IsFalse(service.Projects[projectUri].OnlyPropertiesLoaded, "Project should be fully-loaded when initially opened for a list of files");
         }
 
@@ -1405,7 +1369,155 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
                 "ProjectGuid should match the value written by SetProjectProperties");
         }
 
+        [Test]
+        public async Task TestGetProjectModel()
+        {
+            // Setup
+            SqlProjectsService service = new();
+            string projectUri = await service.CreateSqlProject();
+            string projectDir = Path.GetDirectoryName(projectUri)!;
+            SqlProject project = service.Projects[projectUri];
+
+            await File.WriteAllTextAsync(Path.Join(projectDir, "MyTable.sql"), "CREATE TABLE [MyTable] ([Id] INT)");
+            await File.WriteAllTextAsync(Path.Join(projectDir, "PreDeploy.sql"), "SELECT 1");
+            await File.WriteAllTextAsync(Path.Join(projectDir, "PostDeploy.sql"), "SELECT 2");
+            await File.WriteAllTextAsync(Path.Join(projectDir, "Settings.json"), "{}");
+
+            project.SqlObjectScripts.Add(new SqlObjectScript("MyTable.sql"));
+            project.PreDeployScripts.Add(new PreDeployScript("PreDeploy.sql"));
+            project.PostDeployScripts.Add(new PostDeployScript("PostDeploy.sql"));
+            project.NoneItems.Add(new NoneItem("Settings.json"));
+            project.Folders.Add(new Folder("Tables"));
+            project.SqlCmdVariables.Add(new SqlCmdVariable("OtherDb", "OtherDbDefaultValue", "OtherDbValue"));
+            project.DatabaseReferences.Add(new DacpacReference("OtherDatabaseDacpac.dacpac", suppressMissingDependencies: true));
+
+            // Unload the project so the request has to read everything back from disk in one load
+            service.Projects.TryRemove(projectUri, out _);
+
+            MockRequest<GetProjectModelResult> getMock = new();
+            await service.HandleGetProjectModelRequest(new SqlProjectParams() { ProjectUri = projectUri }, getMock.Object);
+
+            getMock.AssertSuccess(nameof(service.HandleGetProjectModelRequest));
+            GetProjectModelResult model = getMock.Result;
+
+            Assert.IsFalse(service.Projects[projectUri].OnlyPropertiesLoaded, "Project should be fully loaded after getProjectModel");
+            Assert.AreEqual(ProjectType.SdkStyle, model.Properties.ProjectStyle, "Project style");
+            Assert.IsTrue(model.IsCrossPlatformCompatible, "SDK-style projects are cross-platform compatible");
+            CollectionAssert.AreEquivalent(new[] { "MyTable.sql" }, model.SqlObjectScripts, "SQL object scripts");
+            CollectionAssert.AreEquivalent(new[] { "PreDeploy.sql" }, model.PreDeploymentScripts, "Pre-deployment scripts");
+            CollectionAssert.AreEquivalent(new[] { "PostDeploy.sql" }, model.PostDeploymentScripts, "Post-deployment scripts");
+            CollectionAssert.AreEquivalent(new[] { "Settings.json" }, model.NoneItems, "None items");
+            CollectionAssert.Contains(model.Folders, "Tables", "Folders");
+            Assert.AreEqual("OtherDb", model.SqlCmdVariables.Single().VarName, "SQLCMD variables");
+            Assert.AreEqual("OtherDatabaseDacpac.dacpac", model.DatabaseReferences.DacpacReferences.Single().DacpacPath, "Dacpac references");
+            Assert.AreEqual(0, model.DatabaseReferences.SystemDatabaseReferences.Length, "System database references");
+        }
+
+        [Test]
+        public async Task TestConcurrentReadsAndChanges()
+        {
+            SqlProjectsService service = new();
+            string projectUri = await service.CreateSqlProject(ProjectType.LegacyStyle);
+            string projectDir = Path.GetDirectoryName(projectUri)!;
+
+            const int scriptCount = 30;
+            string[] scripts = Enumerable.Range(0, scriptCount).Select(i => $"Table{i}.sql").ToArray();
+            foreach (string script in scripts)
+            {
+                await File.WriteAllTextAsync(Path.Join(projectDir, script), $"CREATE TABLE [{Path.GetFileNameWithoutExtension(script)}] ([Id] INT)");
+            }
+
+            // Start from an empty cache so full and properties-only loads race to populate it
+            service.Projects.Clear();
+            SqlProjectParams projectParams = new() { ProjectUri = projectUri };
+
+            var adds = new List<MockRequest<ResultStatus>>();
+            var models = new List<MockRequest<GetProjectModelResult>>();
+            var properties = new List<MockRequest<GetProjectPropertiesResult>>();
+            var requests = new List<Task>();
+            foreach (string script in scripts)
+            {
+                MockRequest<ResultStatus> addMock = new();
+                MockRequest<GetProjectModelResult> modelMock = new();
+                MockRequest<GetProjectPropertiesResult> propertiesMock = new();
+                adds.Add(addMock);
+                models.Add(modelMock);
+                properties.Add(propertiesMock);
+
+                requests.Add(Task.Run(() => service.HandleAddSqlObjectScriptRequest(new SqlProjectScriptParams() { ProjectUri = projectUri, Path = script }, addMock.Object)));
+                requests.Add(Task.Run(() => service.HandleGetProjectModelRequest(projectParams, modelMock.Object)));
+                requests.Add(Task.Run(() => service.HandleGetProjectPropertiesRequest(projectParams, propertiesMock.Object)));
+            }
+
+            await Task.WhenAll(requests);
+
+            adds.ForEach(mock => mock.AssertSuccess(nameof(service.HandleAddSqlObjectScriptRequest)));
+            models.ForEach(mock => mock.AssertSuccess(nameof(service.HandleGetProjectModelRequest)));
+            properties.ForEach(mock => mock.AssertSuccess(nameof(service.HandleGetProjectPropertiesRequest)));
+
+            Assert.IsFalse(service.Projects[projectUri].OnlyPropertiesLoaded, "A properties-only load must not replace the fully-loaded project");
+            CollectionAssert.AreEquivalent(scripts, (await GetProjectModel(service, projectUri)).SqlObjectScripts, "Every concurrently added script should be in the project");
+        }
+
+        [Test]
+        public void TestFindProjectForFile()
+        {
+            string root = TestContext.CurrentContext.GetTestWorkingFolder();
+            string outerProject = Path.Join(root, "Outer.sqlproj");
+            string innerProject = Path.Join(root, "Inner", "Inner.sqlproj");
+            Directory.CreateDirectory(Path.Join(root, "Inner", "Tables"));
+            Directory.CreateDirectory(Path.Join(root, "Views"));
+            File.WriteAllText(outerProject, "<Project />");
+            File.WriteAllText(innerProject, "<Project />");
+
+            Assert.AreEqual(innerProject, SqlProjectsService.FindProjectForFile(Path.Join(root, "Inner", "Tables", "MyTable.sql")),
+                "Nearest project should win for a file in a nested project");
+            Assert.AreEqual(outerProject, SqlProjectsService.FindProjectForFile(Path.Join(root, "Views", "MyView.sql")),
+                "File outside the nested project should belong to the outer project");
+            Assert.AreEqual(outerProject, SqlProjectsService.FindProjectForFile(Path.Join(root, "Script.SQL")),
+                "Extension check should ignore case");
+
+            Assert.IsNull(SqlProjectsService.FindProjectForFile(Path.Join(root, "Views", "Notes.txt")), "Only .sql files belong to a project");
+            Assert.IsNull(SqlProjectsService.FindProjectForFile(Path.Join("Views", "MyView.sql")), "Relative paths are not looked up");
+            Assert.IsNull(SqlProjectsService.FindProjectForFile(null), "Null path");
+
+            string noProjectDir = Path.Join(Path.GetTempPath(), "FindProjectForFile_" + Guid.NewGuid().ToString("N"));
+            Assert.IsNull(SqlProjectsService.FindProjectForFile(Path.Join(noProjectDir, "Loose.sql")), "File with no project in any parent folder");
+        }
+
+        [Test]
+        public async Task TestFindProjectForFileRequest()
+        {
+            SqlProjectsService service = new();
+            string projectUri = await service.CreateSqlProject();
+            string scriptPath = Path.Join(Path.GetDirectoryName(projectUri), "Tables", "MyTable.sql");
+
+            MockRequest<FindProjectForFileResult> findMock = new();
+            await service.HandleFindProjectForFileRequest(new FindProjectForFileParams() { FilePath = scriptPath }, findMock.Object);
+
+            findMock.AssertSuccess(nameof(service.HandleFindProjectForFileRequest));
+            Assert.AreEqual(projectUri, findMock.Result.ProjectUri, "Owning project");
+            Assert.IsTrue(findMock.Result.IsLoaded, "Project created through the service is loaded");
+
+            service.Projects.TryRemove(projectUri, out _);
+
+            findMock = new();
+            await service.HandleFindProjectForFileRequest(new FindProjectForFileParams() { FilePath = scriptPath }, findMock.Object);
+
+            findMock.AssertSuccess(nameof(service.HandleFindProjectForFileRequest));
+            Assert.AreEqual(projectUri, findMock.Result.ProjectUri, "Owning project is found on disk when not loaded");
+            Assert.IsFalse(findMock.Result.IsLoaded, "Project was unloaded");
+        }
+
         #region Helpers
+
+        private static async Task<GetProjectModelResult> GetProjectModel(SqlProjectsService service, string projectUri)
+        {
+            MockRequest<GetProjectModelResult> getMock = new();
+            await service.HandleGetProjectModelRequest(new SqlProjectParams() { ProjectUri = projectUri }, getMock.Object);
+            getMock.AssertSuccess(nameof(service.HandleGetProjectModelRequest));
+            return getMock.Result;
+        }
 
         private async Task<(SqlProjectsService Service, string ProjectUri, SqlCmdVariable DatabaseVar, SqlCmdVariable ServerVar)> SetUpDatabaseReferenceTest()
         {
