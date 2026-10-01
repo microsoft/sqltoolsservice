@@ -1422,8 +1422,11 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                                         parseResults.Add(parseResult);
                                         if ((bindingContext.IsConnected || (bindingContext is ConnectedBindingContext cbc2 && cbc2.IsProjectContext)) && bindingContext.Binder != null)
                                         {
-                                            string dbName = connInfo?.ConnectionDetails?.DatabaseName
-                                                            ?? parseInfo.ProjectDatabaseName;
+                                            // A project's binder only knows the project's database, even when the file is
+                                            // also connected to a server
+                                            string dbName = bindingContext is ConnectedBindingContext { IsProjectContext: true }
+                                                ? parseInfo.ProjectDatabaseName
+                                                : connInfo?.ConnectionDetails?.DatabaseName ?? parseInfo.ProjectDatabaseName;
                                             bindingContext.Binder.Bind(
                                                 parseResults,
                                                 dbName,
@@ -1659,6 +1662,11 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             if (scriptInfo.IsProject)
             {
                 Logger.Information($"UpdateLanguageServiceOnConnection: skipping '{info.OwnerUri}' - file already has a SQL project binding context");
+
+                // The file's IntelliSense comes from its project, which is ready: files are only stamped with the
+                // project context once the project's model is published. Tell the client, which shows
+                // "Updating IntelliSense" for this connection until it hears that.
+                await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = info.OwnerUri });
                 return;
             }
 

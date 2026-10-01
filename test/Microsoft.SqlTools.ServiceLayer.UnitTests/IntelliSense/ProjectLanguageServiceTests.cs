@@ -827,12 +827,50 @@ END
             // We pass a real ConnectionInfo pointing at the project URI so the guard can read OwnerUri.
             var fakeDetails = new ConnectionDetails { ServerName = "fakeserver", DatabaseName = "fakedb" };
             var fakeConn = new ConnectionInfo(factory: null, ownerUri: _projectUri, details: fakeDetails);
+            var readyUris = new List<string>();
+            var serviceHost = new Mock<ILanguageServiceHost>();
+            serviceHost
+                .Setup(host => host.SendEvent(It.IsAny<EventType<IntelliSenseReadyParams>>(), It.IsAny<IntelliSenseReadyParams>()))
+                .Callback((EventType<IntelliSenseReadyParams> _, IntelliSenseReadyParams ready) => readyUris.Add(ready.OwnerUri))
+                .Returns(Task.CompletedTask);
+            _langService.ServiceHostInstance = serviceHost.Object;
+
             _langService.UpdateLanguageServiceOnConnection(fakeConn).GetAwaiter().GetResult();
 
             // Assert: key must still be the project key
             var parseInfoAfter = _langService.GetScriptParseInfo(_projectUri);
             Assert.AreEqual(originalKey, parseInfoAfter.ConnectionKey,
                 "Project context key must not be overwritten by a server connection");
+
+            // The client shows "Updating IntelliSense" for the connection until it hears it's ready
+            CollectionAssert.AreEqual(new[] { _projectUri }, readyUris,
+                "IntelliSense ready must still be sent for the connected project file");
+        }
+
+        /// <summary>
+        /// Regression: a project file that's also connected to a server must bind against the project's
+        /// database. Binding with the connection's database name made the binder throw
+        /// NullReferenceException, because the project's metadata doesn't contain that database.
+        /// </summary>
+        [Test]
+        public async Task ConnectedProjectFile_BindsAgainstProjectDatabase()
+        {
+            string queryUri = "file:///test_connected_project_file.sql";
+            var scriptFile = _workspaceService.Workspace.GetFileBuffer(queryUri, "SELECT * FROM dbo.Customers");
+            _langService.InitializeProjectFileContexts(new[] { queryUri }, _contextKey, "LanguageServiceTestProject");
+
+            var details = new ConnectionDetails { ServerName = "fakeserver", DatabaseName = "SomeOtherDatabase" };
+            var connInfo = new ConnectionInfo(factory: null, ownerUri: queryUri, details: details);
+            await _langService.ParseAndBind(scriptFile, connInfo);
+
+            var hover = await _langService.GetHoverItem(new TextDocumentPosition
+            {
+                TextDocument = new TextDocumentIdentifier { Uri = queryUri },
+                Position = new Position { Line = 0, Character = 22 } // inside "Customers"
+            }, scriptFile);
+
+            Assert.IsNotNull(hover?.Contents, "A connected project file should still bind and produce hover info");
+            StringAssert.Contains("Customers", hover.Contents.Value, "Hover should resolve the project's table");
         }
 
         /// <summary>
