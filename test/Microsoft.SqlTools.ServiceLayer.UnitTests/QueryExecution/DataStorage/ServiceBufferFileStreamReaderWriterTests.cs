@@ -577,13 +577,20 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.DataStorage
         }
 
         [Test]
-        public void GuidTest()
+        public void GuidTest([Values] bool displayInUppercase)
         {
             foreach (var testValue in GuidTestParameters)
             {
-                VerifyReadWrite(testValue.ToByteArray().Length + 1, testValue,
+                string displayValue = VerifyReadWrite(testValue.ToByteArray().Length + 1, testValue,
                     (writer, val) => writer.WriteGuid(testValue),
-                    (reader, rowId) => reader.ReadGuid(0, rowId));
+                    (reader, rowId) => reader.ReadGuid(0, rowId),
+                    new QueryExecutionSettings { DisplayUniqueIdentifierInUppercase = displayInUppercase });
+
+                // The display value uses the requested case
+                string expected = displayInUppercase
+                    ? testValue.ToString().ToUpperInvariant()
+                    : testValue.ToString().ToLowerInvariant();
+                Assert.AreEqual(expected, displayValue);
             }
         }
 

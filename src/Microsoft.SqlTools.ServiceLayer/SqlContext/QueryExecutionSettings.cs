@@ -49,6 +49,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         private const bool DefaultDisplayBitAsNumber = true;
 
         /// <summary>
+        /// Default option for displaying uniqueidentifier values in uppercase, matching SQL Server's
+        /// own string conversion and SSMS.
+        /// </summary>
+        private const bool DefaultDisplayUniqueIdentifierInUppercase = true;
+
+        /// <summary>
         /// default row count
         /// </summary>
         private const int DefaultRowCount = 0;
@@ -254,6 +260,22 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
             set
             {
                 SetOptionValue("displayBitAsNumber", value);
+            }
+        }
+
+        /// <summary>
+        /// Determines how to generate display value for uniqueidentifier columns. If <c>true</c>,
+        /// they are rendered in uppercase. If <c>false</c>, they are rendered in lowercase.
+        /// </summary>
+        public bool DisplayUniqueIdentifierInUppercase
+        {
+            get
+            {
+                return GetOptionValue<bool>("displayUniqueIdentifierInUppercase", DefaultDisplayUniqueIdentifierInUppercase);
+            }
+            set
+            {
+                SetOptionValue("displayUniqueIdentifierInUppercase", value);
             }
         }
 
@@ -690,6 +712,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
             MaxXmlCharsToStore = newSettings.MaxXmlCharsToStore;
             ExecutionPlanOptions = newSettings.ExecutionPlanOptions;
             DisplayBitAsNumber = newSettings.DisplayBitAsNumber;
+            DisplayUniqueIdentifierInUppercase = newSettings.DisplayUniqueIdentifierInUppercase;
             RowCount = newSettings.RowCount;
             TextSize = newSettings.TextSize;
             ExecutionTimeout = newSettings.ExecutionTimeout;
