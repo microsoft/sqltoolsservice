@@ -7,6 +7,7 @@
 
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlTools.ServiceLayer.Connection;
+using Microsoft.SqlTools.ServiceLayer.SqlProjects;
 using Microsoft.SqlTools.SqlCore.SchemaCompare;
 using Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
 using Microsoft.SqlTools.SqlCore.Utility;
@@ -16,10 +17,18 @@ namespace Microsoft.SqlTools.ServiceLayer.SchemaCompare
 {
     /// <summary>
     /// VSCode/ADS implementation of ISchemaCompareConnectionProvider.
-    /// Bridges ConnectionService to the host-agnostic interface.
+    /// Bridges ConnectionService to the host-agnostic interface, and resolves project references
+    /// through the SQL projects service.
     /// </summary>
-    internal class VsCodeConnectionProvider : ISchemaCompareConnectionProvider
+    internal class VsCodeConnectionProvider : ISchemaCompareConnectionProvider, ISchemaCompareProjectReferenceProvider
     {
+        public SchemaCompareProjectReferences GetProjectReferences(string projectFilePath)
+        {
+            return string.IsNullOrEmpty(projectFilePath)
+                ? null
+                : SqlProjectsService.Instance.GetSchemaCompareProjectReferences(projectFilePath);
+        }
+
         private readonly ConnectionService _connectionService;
 
         public VsCodeConnectionProvider(ConnectionService connectionService)

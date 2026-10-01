@@ -15,6 +15,7 @@ using Microsoft.SqlServer.Management.SqlParser.Common;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
 using Microsoft.SqlTools.LanguageService.LanguageServices;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
+using Microsoft.SqlTools.ServiceLayer.SqlProjects.References;
 using Microsoft.SqlTools.SqlCore.IntelliSense;
 using Microsoft.SqlTools.Utility;
 
@@ -49,14 +50,31 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
         private bool closed;
 
+        /// <summary>
+        /// Bumped by every request to reload the database references. A reload applies only if no later one
+        /// was requested, and a build reloads after publishing if one was requested while it was building.
+        /// </summary>
+        private int referencesVersion;
+
+        /// <summary>
+        /// The <see cref="referencesVersion"/> whose references are in the published model. Written inside the queue.
+        /// </summary>
+        private int appliedReferencesVersion;
+
         private readonly Func<SqlProject, TSqlModel> buildModel;
+        private readonly Func<SqlProject, string, ResolvedProjectReferences>? resolveReferences;
 
         /// <param name="projectUri">Path of the .sqlproj</param>
         /// <param name="buildModel">Builds the IntelliSense model from a project snapshot</param>
-        public ProjectHost(string projectUri, Func<SqlProject, TSqlModel> buildModel)
+        /// <param name="resolveReferences">
+        /// Resolves the database references of a loaded project, given the .sqlproj's local path. It must not read the
+        /// .sqlproj again, since requests may be writing it. When null, the model has no references.
+        /// </param>
+        public ProjectHost(string projectUri, Func<SqlProject, TSqlModel> buildModel, Func<SqlProject, string, ResolvedProjectReferences>? resolveReferences = null)
         {
             ProjectUri = projectUri;
             this.buildModel = buildModel;
+            this.resolveReferences = resolveReferences;
         }
 
         public string ProjectUri { get; }
@@ -159,6 +177,116 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         }
 
         /// <summary>
+        /// Reloads the database references into the published IntelliSense model after the project's references or
+        /// SQLCMD variables changed. Resolves from the loaded project and replaces the references inside the queue, so
+        /// edits to this project wait while the references load. Without a published model there's nothing to update;
+        /// a build in flight reloads once it publishes. Call outside the queue.
+        /// </summary>
+        public Task ReloadReferencesAsync()
+        {
+            Task reload = ReloadReferencesCoreAsync();
+            ReferencesReload = reload;
+            return reload;
+        }
+
+        /// <summary>
+        /// The most recently started reference reload, if any. Lets tests wait for it.
+        /// </summary>
+        internal Task? ReferencesReload { get; private set; }
+
+        private async Task ReloadReferencesCoreAsync()
+        {
+            if (resolveReferences == null)
+            {
+                return;
+            }
+
+            int version = Interlocked.Increment(ref referencesVersion);
+            try
+            {
+                bool reloaded = await RunAsync(() =>
+                {
+                    ProjectIntelliSense? state = intelliSense;
+                    // A later request supersedes this one
+                    if (state == null || version != Volatile.Read(ref referencesVersion))
+                    {
+                        return Task.FromResult(false);
+                    }
+
+                    // Resolve from the loaded project: requests write the .sqlproj inside the queue, so reading it here can't collide with them
+                    ResolvedProjectReferences? references = TryResolveReferences(GetProject(onlyLoadProperties: true));
+                    if (references == null)
+                    {
+                        return Task.FromResult(false);
+                    }
+
+                    LoadReferences(state, references);
+                    appliedReferencesVersion = version;
+
+                    // The binder holds a snapshot of the metadata, so recreate it to pick up the referenced objects
+                    var binder = Microsoft.SqlServer.Management.SqlParser.Binder.BinderProvider.CreateBinder(state.Provider);
+                    TSqlLanguageService.Instance.BindingQueue.AddProjectContext(state.ContextKey, binder, state.ParseOptions, state.Provider);
+                    return Task.FromResult(true);
+                }).ConfigureAwait(false);
+
+                if (reloaded)
+                {
+                    // Names that resolve through the references may have been reported as errors, or the reverse
+                    await TSqlLanguageService.Instance.RefreshOpenProjectFileDiagnosticsAsync(ProjectUri).ConfigureAwait(false);
+                }
+            }
+            catch (ProjectHostClosedException)
+            {
+                // Closed before the references loaded
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Failed to reload database references for IntelliSense in {ProjectUri}: {ex}");
+            }
+        }
+
+        /// <summary>
+        /// Resolves the database references of <paramref name="loadedProject"/>, a private snapshot or the loaded
+        /// project from inside the queue. Returns null when the host doesn't load references or they can't be resolved.
+        /// </summary>
+        private ResolvedProjectReferences? TryResolveReferences(SqlProject loadedProject)
+        {
+            if (resolveReferences == null)
+            {
+                return null;
+            }
+
+            try
+            {
+                return resolveReferences(loadedProject, ToLocalPath(ProjectUri));
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Failed to resolve database references for IntelliSense in {ProjectUri}: {ex}");
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Replaces the database references in a model that isn't published yet, or in the published model from
+        /// inside the queue. A reference that can't be loaded is logged and skipped; the model stays usable.
+        /// </summary>
+        private void LoadReferences(ProjectIntelliSense state, ResolvedProjectReferences references)
+        {
+            try
+            {
+                foreach (string failure in ProjectReferenceLoader.ApplyReferences(state.Model, state.Provider, references))
+                {
+                    Logger.Warning($"Database reference not loaded for IntelliSense in {ProjectUri}: {failure}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Failed to load database references for IntelliSense in {ProjectUri}: {ex}");
+            }
+        }
+
+        /// <summary>
         /// Tears down the IntelliSense model, drops the loaded project, and rejects every later operation.
         /// </summary>
         public void Close()
@@ -192,12 +320,23 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 model = buildModel(snapshot);
                 ProjectIntelliSense state = ProjectIntelliSense.Create(ProjectUri, snapshot, model);
 
+                // Load the database references while the model is still private, so loading them never holds up
+                // the queue and the first completions and diagnostics already include the referenced objects.
+                int loadedReferencesVersion = Volatile.Read(ref referencesVersion);
+                ResolvedProjectReferences? references = TryResolveReferences(snapshot);
+                if (references != null)
+                {
+                    LoadReferences(state, references);
+                }
+
                 published = await RunAsync(async () =>
                 {
                     if (id != buildId || intelliSense != null)
                     {
                         return false;
                     }
+
+                    appliedReferencesVersion = loadedReferencesVersion;
 
                     List<IntelliSenseChange> changes = changesDuringBuild ?? new List<IntelliSenseChange>();
                     changesDuringBuild = null;
@@ -224,6 +363,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     Volatile.Write(ref intelliSense, state);
                     return true;
                 }).ConfigureAwait(false);
+
+                // The references or SQLCMD variables changed while the model was building, and no reload has applied the change yet
+                if (published && Volatile.Read(ref referencesVersion) != Volatile.Read(ref appliedReferencesVersion))
+                {
+                    await ReloadReferencesAsync().ConfigureAwait(false);
+                }
             }
             catch (ProjectHostClosedException)
             {

@@ -97,6 +97,55 @@
   <ItemGroup>
     <EmbeddedResource Include=".\Agent\NotebookResources\NotebookJobScript.ps1" />
   </ItemGroup>
+
+  <!--
+    System database dacpacs (master and msdb) for every target platform, from the Microsoft.SqlServer.Dacpacs.* packages.
+    They are copied to SystemDacpacs\<platform>\ next to the service, the layout of the SQL projects SDK's
+    $(SystemDacpacsLocation)\SystemDacpacs folder, and are used to resolve system database references of
+    SQL projects. Folder names match the SDK's (160, AzureV12, AzureDw, DbFabric, ...).
+  -->
+  <ItemGroup Label="System dacpacs">
+    <PackageDownload Include="Microsoft.SqlServer.Dacpacs.Master" Version="[100.0.0];[110.0.0];[120.0.0];[130.0.2];[140.0.4];[150.1.2];[160.2.8];[170.0.4]" />
+    <PackageDownload Include="Microsoft.SqlServer.Dacpacs.Msdb" Version="[100.0.0];[110.0.0];[120.0.2];[130.1.2];[140.0.4];[150.0.1];[160.1.4];[170.0.3]" />
+    <PackageDownload Include="Microsoft.SqlServer.Dacpacs.Azure.Master" Version="[170.0.4]" />
+    <PackageDownload Include="Microsoft.SqlServer.Dacpacs.Synapse.Master" Version="[130.2.9]" />
+    <PackageDownload Include="Microsoft.SqlServer.Dacpacs.SynapseServerless.Master" Version="[160.2.4]" />
+    <PackageDownload Include="Microsoft.SqlServer.Dacpacs.FabricDw" Version="[170.0.4]" />
+    <PackageDownload Include="Microsoft.SqlServer.Dacpacs.DbFabric" Version="[170.0.4]" />
+
+    <SystemDacpac Include="$(NuGetPackageRoot)microsoft.sqlserver.dacpacs.master\100.0.0\tools\master.dacpac" Folder="100" />
+    <SystemDacpac Include="$(NuGetPackageRoot)microsoft.sqlserver.dacpacs.master\110.0.0\tools\master.dacpac" Folder="110" />
+    <SystemDacpac Include="$(NuGetPackageRoot)microsoft.sqlserver.dacpacs.master\120.0.0\tools\master.dacpac" Folder="120" />
+    <SystemDacpac Include="$(NuGetPackageRoot)microsoft.sqlserver.dacpacs.master\130.0.2\tools\master.dacpac" Folder="130" />
+    <SystemDacpac Include="$(NuGetPackageRoot)microsoft.sqlserver.dacpacs.master\140.0.4\tools\master.dacpac" Folder="140" />
+    <SystemDacpac Include="$(NuGetPackageRoot)microsoft.sqlserver.dacpacs.master\150.1.2\tools\master.dacpac" Folder="150" />
+    <SystemDacpac Include="$(NuGetPackageRoot)microsoft.sqlserver.dacpacs.master\160.2.8\tools\master.dacpac" Folder="160" />
+    <SystemDacpac Include="$(NuGetPackageRoot)microsoft.sqlserver.dacpacs.master\170.0.4\tools\master.dacpac" Folder="170" />
+    <SystemDacpac Include="$(NuGetPackageRoot)microsoft.sqlserver.dacpacs.msdb\100.0.0\tools\msdb.dacpac" Folder="100" />
+    <SystemDacpac Include="$(NuGetPackageRoot)microsoft.sqlserver.dacpacs.msdb\110.0.0\tools\msdb.dacpac" Folder="110" />
+    <SystemDacpac Include="$(NuGetPackageRoot)microsoft.sqlserver.dacpacs.msdb\120.0.2\tools\msdb.dacpac" Folder="120" />
+    <SystemDacpac Include="$(NuGetPackageRoot)microsoft.sqlserver.dacpacs.msdb\130.1.2\tools\msdb.dacpac" Folder="130" />
+    <SystemDacpac Include="$(NuGetPackageRoot)microsoft.sqlserver.dacpacs.msdb\140.0.4\tools\msdb.dacpac" Folder="140" />
+    <SystemDacpac Include="$(NuGetPackageRoot)microsoft.sqlserver.dacpacs.msdb\150.0.1\tools\msdb.dacpac" Folder="150" />
+    <SystemDacpac Include="$(NuGetPackageRoot)microsoft.sqlserver.dacpacs.msdb\160.1.4\tools\msdb.dacpac" Folder="160" />
+    <SystemDacpac Include="$(NuGetPackageRoot)microsoft.sqlserver.dacpacs.msdb\170.0.3\tools\msdb.dacpac" Folder="170" />
+    <SystemDacpac Include="$(NuGetPackageRoot)microsoft.sqlserver.dacpacs.azure.master\170.0.4\tools\master.dacpac" Folder="AzureV12" />
+    <SystemDacpac Include="$(NuGetPackageRoot)microsoft.sqlserver.dacpacs.synapse.master\130.2.9\tools\master.dacpac" Folder="AzureDw" />
+    <SystemDacpac Include="$(NuGetPackageRoot)microsoft.sqlserver.dacpacs.synapseserverless.master\160.2.4\tools\master.dacpac" Folder="Serverless" />
+    <SystemDacpac Include="$(NuGetPackageRoot)microsoft.sqlserver.dacpacs.fabricdw\170.0.4\tools\master.dacpac" Folder="DwUnified" />
+    <SystemDacpac Include="$(NuGetPackageRoot)microsoft.sqlserver.dacpacs.dbfabric\170.0.4\tools\master.dacpac" Folder="DbFabric" />
+  </ItemGroup>
+
+  <Target Name="IncludeSystemDacpacs" BeforeTargets="AssignTargetPaths">
+    <Warning Condition="!Exists('%(SystemDacpac.FullPath)')" Text="System dacpac '%(SystemDacpac.Identity)' was not restored and will not be included." />
+    <ItemGroup>
+      <None Include="@(SystemDacpac)" Condition="Exists('%(SystemDacpac.FullPath)')">
+        <Link>SystemDacpacs\%(SystemDacpac.Folder)\%(SystemDacpac.Filename)%(SystemDacpac.Extension)</Link>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      </None>
+    </ItemGroup>
+  </Target>
   <ItemGroup>
     <InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.UnitTests" />
     <InternalsVisibleTo Include="Microsoft.SqlTools.ServiceLayer.IntegrationTests" />

@@ -177,7 +177,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// Reads the NuGet package folders recorded in the assets file. Taking them from the file
         /// covers custom NUGET_PACKAGES locations and shared caches without probing the environment.
         /// </summary>
-        private static IReadOnlyList<string> ReadPackageFolders(JsonElement root)
+        internal static IReadOnlyList<string> ReadPackageFolders(JsonElement root)
         {
             List<string> packageFolders = new();
 

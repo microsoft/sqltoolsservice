@@ -69,7 +69,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         // Lazy columns — only loaded when accessed
         public IMetadataOrderedCollection<IColumn> Columns =>
             _columns ??= new LazyOrderedCollection<IColumn>(
-                () => _tableObj.GetReferenced(Table.Columns)
+                () => _tableObj.GetReferenced(Table.Columns, DacQueryScopes.All)
                                .Select(c => new TSqlModelColumn(this, c))
                                .Cast<IColumn>());
 
@@ -179,7 +179,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         // Lazy columns — populated on first access
         public IMetadataOrderedCollection<IColumn> Columns =>
             _columns ??= new LazyOrderedCollection<IColumn>(
-                () => _viewObj.GetReferenced(View.Columns)
+                () => _viewObj.GetReferenced(View.Columns, DacQueryScopes.All)
                               .Select(c => new TSqlModelColumn(this, c))
                               .Cast<IColumn>());
 
@@ -225,7 +225,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         public IMetadataOrderedCollection<IParameter> Parameters =>
             _parameters ??= new LazyOrderedCollection<IParameter>(() =>
                 _procObj
-                    .GetReferenced(Procedure.Parameters)
+                    .GetReferenced(Procedure.Parameters, DacQueryScopes.All)
                     .Select(p => (IParameter)new TSqlModelParameter(
                         p.Name.Parts[p.Name.Parts.Count - 1],
                         p.GetProperty<bool>(Parameter.IsOutput))));
@@ -267,7 +267,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         public IMetadataOrderedCollection<IParameter> Parameters =>
             _parameters ??= new LazyOrderedCollection<IParameter>(() =>
                 _fnObj
-                    .GetReferenced(ScalarFunction.Parameters)
+                    .GetReferenced(ScalarFunction.Parameters, DacQueryScopes.All)
                     .Select(p => (IParameter)new TSqlModelParameter(
                         p.Name.Parts[p.Name.Parts.Count - 1],
                         p.GetProperty<bool>(Parameter.IsOutput))));
@@ -318,7 +318,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         // ITabular / IDatabaseTable — lazy columns, populated on first access
         public IMetadataOrderedCollection<IColumn> Columns =>
             _columns ??= new LazyOrderedCollection<IColumn>(
-                () => _fnObj.GetReferenced(TableValuedFunction.Columns)
+                () => _fnObj.GetReferenced(TableValuedFunction.Columns, DacQueryScopes.All)
                             .Select(c => new TSqlModelColumn(this, c))
                             .Cast<IColumn>());
 
@@ -337,7 +337,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         public IMetadataOrderedCollection<IParameter> Parameters =>
             _parameters ??= new LazyOrderedCollection<IParameter>(() =>
                 _fnObj
-                    .GetReferenced(TableValuedFunction.Parameters)
+                    .GetReferenced(TableValuedFunction.Parameters, DacQueryScopes.All)
                     .Select(p => (IParameter)new TSqlModelParameter(
                         p.Name.Parts[p.Name.Parts.Count - 1],
                         p.GetProperty<bool>(Parameter.IsOutput))));
@@ -487,7 +487,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         {
             get
             {
-                TSqlObject? typeObj = _colObj.GetReferenced(Column.DataType).FirstOrDefault();
+                TSqlObject? typeObj = _colObj.GetReferenced(Column.DataType, DacQueryScopes.All).FirstOrDefault();
                 if (typeObj == null) return null;
 
                 // Primary: use the last Name part (e.g. "nvarchar", "int")

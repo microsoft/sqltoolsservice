@@ -1052,6 +1052,42 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         }
 
         /// <summary>
+        /// Re-runs diagnostics on the project's files that are open in the editor, for example after the project's
+        /// database references changed in its IntelliSense model, so squiggles for names that now resolve (or no
+        /// longer resolve) update without waiting for the next edit.
+        /// </summary>
+        public async Task RefreshOpenProjectFileDiagnosticsAsync(string projectUri)
+        {
+            if (!CurrentWorkspaceSettings.IsDiagnosticsEnabled)
+            {
+                return;
+            }
+
+            // Excluding the project file itself leaves every script of the project.
+            List<ScriptFile> openFiles = GetOpenProjectFilesToRefresh(projectUri, projectUri);
+            if (openFiles.Count > 0)
+            {
+                await RunScriptDiagnostics(openFiles.ToArray(), new HostEventContext(ServiceHostInstance));
+            }
+        }
+
+        /// <summary>
+        /// Sends events through the service host, for work that was not started by a client notification.
+        /// </summary>
+        private sealed class HostEventContext : EventContext
+        {
+            private readonly IEventSender eventSender;
+
+            public HostEventContext(IEventSender eventSender)
+            {
+                this.eventSender = eventSender;
+            }
+
+            public override Task SendEvent<TParams>(Hosting.Protocol.Contracts.EventType<TParams> eventType, TParams eventParams) =>
+                eventSender.SendEvent(eventType, eventParams);
+        }
+
+        /// <summary>
         /// Returns the project URI for a given SQL file URI if the file belongs to a SQL project,
         /// or <c>false</c> if the file should be skipped (not a .sql file, not a project file,
         /// or the URI is the .sqlproj itself).

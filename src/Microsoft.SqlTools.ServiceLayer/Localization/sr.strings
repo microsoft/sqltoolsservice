@@ -446,6 +446,17 @@ CustomRuleConflictsWithBuiltInRule(string ruleId) = Rule '{0}' is defined by bot
 CustomRuleDuplicateId(string ruleId) = Rule '{0}' is defined by more than one custom analyzer package. Duplicate rule IDs are not supported, and which definition applies during build is not guaranteed. Update the custom rules to use unique IDs.
 
 ############################################################################
+# SQL Project database references
+DatabaseReferenceNotSupported(string referenceName) = Database reference '{0}' is not a supported reference type.
+SystemDatabasePackageNotRestored(string databaseName) = The {0} package has not been restored, so the {0}.dacpac that ships with SQL Tools Service is used instead. Restore the project to use the package's version.
+SystemDatabaseDacpacNotFound(string databaseName, string platform) = No {0}.dacpac is available for target platform '{1}'.
+DatabaseReferenceUndefinedProperty(string referencePath, string propertyName) = Database reference '{0}' uses the MSBuild property $({1}), which is not defined in the project.
+DatabaseReferenceFileNotFound(string path) = Referenced file '{0}' was not found.
+DatabaseReferenceCircular(string projectPath) = Project reference '{0}' is circular and was not loaded.
+DatabaseReferenceTooDeep(string projectPath) = Project reference '{0}' is nested too deeply and was not loaded.
+DatabaseReferencePackageNotRestored(string packageName) = Package '{0}' has not been restored. Restore the project to load its dacpac.
+
+############################################################################
 # Schema Compare
 PublishChangesTaskName = Apply schema compare changes
 SchemaCompareExcludeIncludeNodeNotFound = Failed to find the specified change in the model
