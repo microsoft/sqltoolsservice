@@ -330,6 +330,21 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         public string ServerConnectionId { get; private set; }
 
         /// <summary>
+        /// Records the server session id of the query connection. It can change when the connection
+        /// reconnects, so it is refreshed each time the connection is used.
+        /// </summary>
+        private void UpdateServerConnectionId(ReliableSqlConnection sqlConn)
+        {
+            var serverConnId = (sqlConn.GetUnderlyingConnection() as SqlConnection).ServerProcessId;
+            if (serverConnId != 0)
+            {
+                // If 0, that would mean the connection is inactive, so there's no
+                // need to return the connection id.
+                ServerConnectionId = serverConnId.ToString();
+            }
+        }
+
+        /// <summary>
         /// The text of the query to execute
         /// </summary>
         public string QueryText { get; }
@@ -506,6 +521,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 sqlConn = queryConnection as ReliableSqlConnection;
                 if (sqlConn != null)
                 {
+                    // Report the session before any batch starts so clients can watch it while it runs
+                    UpdateServerConnectionId(sqlConn);
+
                     // Subscribe to database informational messages
                     sqlConn.GetUnderlyingConnection().FireInfoMessageEventOnUserErrors = true;
                     sqlConn.GetUnderlyingConnection().InfoMessage += OnInfoMessage;
@@ -543,13 +561,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     if (sqlConn != null)
                     {
-                        // Update Server Connection ID here as it may change upon reconnect and only updates upon query execution.
-                        var ServerConnID = (sqlConn.GetUnderlyingConnection() as SqlConnection).ServerProcessId;
-                        if (ServerConnID != 0) {
-                            // If 0, that would mean the connection is inactive, so there's no 
-                            // need to return the connection id.
-                            ServerConnectionId = ServerConnID.ToString();
-                        }
+                        UpdateServerConnectionId(sqlConn);
                     }
                     await QueryCompleted(this);
                 }
@@ -570,13 +582,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 {
                     if (sqlConn != null)
                     {
-                        // Update Server Connection ID here as it may change upon reconnect and only updates upon query execution.
-                        var ServerConnID = (sqlConn.GetUnderlyingConnection() as SqlConnection).ServerProcessId;
-                        if (ServerConnID != 0) {
-                            // If 0, that would mean the connection is inactive, so there's no 
-                            // need to return the connection id.
-                            ServerConnectionId = ServerConnID.ToString();
-                        }
+                        UpdateServerConnectionId(sqlConn);
                     }
                     await QueryFailed(this, e);
                 }

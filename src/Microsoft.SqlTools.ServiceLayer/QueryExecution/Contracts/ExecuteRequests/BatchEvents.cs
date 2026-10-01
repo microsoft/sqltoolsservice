@@ -24,6 +24,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteReques
         /// URI for the editor that owns the query
         /// </summary>
         public string OwnerUri { get; set; }
+
+        /// <summary>
+        /// Server session id (SPID) of the connection running the batch
+        /// </summary>
+        public string ServerConnectionId { get; set; }
     }
 
     public class BatchCompleteEvent
