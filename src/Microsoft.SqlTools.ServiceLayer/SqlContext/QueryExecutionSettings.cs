@@ -49,8 +49,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlContext
         private const bool DefaultDisplayBitAsNumber = true;
 
         /// <summary>
-        /// Default option for displaying uniqueidentifier values in uppercase, matching SQL Server's
-        /// own string conversion and SSMS.
+        /// Default option for displaying uniqueidentifier values in uppercase.
         /// </summary>
         private const bool DefaultDisplayUniqueIdentifierInUppercase = true;
 
