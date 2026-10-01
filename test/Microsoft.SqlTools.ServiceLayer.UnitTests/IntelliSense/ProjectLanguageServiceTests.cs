@@ -24,6 +24,7 @@ using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.SqlProjects;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.SqlProjects;
+using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Microsoft.SqlTools.LanguageService.Workspace;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using Microsoft.SqlTools.Hosting.Protocol;
@@ -827,13 +828,7 @@ END
             // We pass a real ConnectionInfo pointing at the project URI so the guard can read OwnerUri.
             var fakeDetails = new ConnectionDetails { ServerName = "fakeserver", DatabaseName = "fakedb" };
             var fakeConn = new ConnectionInfo(factory: null, ownerUri: _projectUri, details: fakeDetails);
-            var readyUris = new List<string>();
-            var serviceHost = new Mock<ILanguageServiceHost>();
-            serviceHost
-                .Setup(host => host.SendEvent(It.IsAny<EventType<IntelliSenseReadyParams>>(), It.IsAny<IntelliSenseReadyParams>()))
-                .Callback((EventType<IntelliSenseReadyParams> _, IntelliSenseReadyParams ready) => readyUris.Add(ready.OwnerUri))
-                .Returns(Task.CompletedTask);
-            _langService.ServiceHostInstance = serviceHost.Object;
+            List<string> readyUris = CaptureIntelliSenseReady();
 
             _langService.UpdateLanguageServiceOnConnection(fakeConn).GetAwaiter().GetResult();
 
@@ -845,6 +840,59 @@ END
             // The client shows "Updating IntelliSense" for the connection until it hears it's ready
             CollectionAssert.AreEqual(new[] { _projectUri }, readyUris,
                 "IntelliSense ready must still be sent for the connected project file");
+        }
+
+        /// <summary>
+        /// A project file on a dedicated admin connection keeps its project context, and the client is still
+        /// told IntelliSense is ready so it stops showing "Updating IntelliSense".
+        /// </summary>
+        [Test]
+        public async Task DedicatedAdminConnection_OnProjectFile_KeepsProjectContextAndSendsReady()
+        {
+            string originalKey = _langService.GetScriptParseInfo(_projectUri).ConnectionKey;
+            List<string> readyUris = CaptureIntelliSenseReady();
+
+            await _langService.UpdateLanguageServiceOnConnection(CreateDedicatedAdminConnection(_projectUri));
+
+            Assert.AreEqual(originalKey, _langService.GetScriptParseInfo(_projectUri).ConnectionKey,
+                "Project context key must not change on a dedicated admin connection");
+            CollectionAssert.AreEqual(new[] { _projectUri }, readyUris,
+                "IntelliSense ready must be sent for a project file on a dedicated admin connection");
+        }
+
+        /// <summary>
+        /// IntelliSense isn't supported on dedicated admin connections, but the client still needs
+        /// intelliSense/ready to stop showing "Updating IntelliSense".
+        /// </summary>
+        [Test]
+        public async Task DedicatedAdminConnection_SendsReady()
+        {
+            string queryUri = "file:///test_dedicated_admin_connection.sql";
+            List<string> readyUris = CaptureIntelliSenseReady();
+
+            await _langService.UpdateLanguageServiceOnConnection(CreateDedicatedAdminConnection(queryUri));
+
+            CollectionAssert.AreEqual(new[] { queryUri }, readyUris,
+                "IntelliSense ready must be sent for a dedicated admin connection");
+        }
+
+        private List<string> CaptureIntelliSenseReady()
+        {
+            var readyUris = new List<string>();
+            var serviceHost = new Mock<ILanguageServiceHost>();
+            serviceHost
+                .Setup(host => host.SendEvent(It.IsAny<EventType<IntelliSenseReadyParams>>(), It.IsAny<IntelliSenseReadyParams>()))
+                .Callback((EventType<IntelliSenseReadyParams> _, IntelliSenseReadyParams ready) => readyUris.Add(ready.OwnerUri))
+                .Returns(Task.CompletedTask);
+            _langService.ServiceHostInstance = serviceHost.Object;
+            return readyUris;
+        }
+
+        private static ConnectionInfo CreateDedicatedAdminConnection(string ownerUri)
+        {
+            ConnectionDetails details = TestObjects.GetTestConnectionParams().Connection;
+            details.ServerName = "ADMIN:fakeserver";
+            return new ConnectionInfo(factory: null, ownerUri: ownerUri, details: details);
         }
 
         /// <summary>
