@@ -1422,8 +1422,11 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                                         parseResults.Add(parseResult);
                                         if ((bindingContext.IsConnected || (bindingContext is ConnectedBindingContext cbc2 && cbc2.IsProjectContext)) && bindingContext.Binder != null)
                                         {
-                                            string dbName = connInfo?.ConnectionDetails?.DatabaseName
-                                                            ?? parseInfo.ProjectDatabaseName;
+                                            // A project's binder only knows the project's database, even when the file is
+                                            // also connected to a server
+                                            string dbName = bindingContext is ConnectedBindingContext { IsProjectContext: true }
+                                                ? parseInfo.ProjectDatabaseName
+                                                : connInfo?.ConnectionDetails?.DatabaseName ?? parseInfo.ProjectDatabaseName;
                                             bindingContext.Binder.Bind(
                                                 parseResults,
                                                 dbName,
@@ -1646,21 +1649,31 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// <param name="info"></param>
         public async Task UpdateLanguageServiceOnConnection(ConnectionInfoBase info)
         {
+            // Clients show "Updating IntelliSense" for a connection until they receive intelliSense/ready for it,
+            // so every path through this method sends it, including the ones that skip IntelliSense setup.
+
+            // Project files always retain their Project context — a server connection must not
+            // overwrite it and redirect the file to the SMO binder. Checked first so this also holds
+            // for dedicated admin connections.
+            if (GetScriptParseInfo(info.OwnerUri, createIfNotExists: false)?.IsProject == true)
+            {
+                Logger.Information($"UpdateLanguageServiceOnConnection: skipping '{info.OwnerUri}' - file already has a SQL project binding context");
+
+                // The file's IntelliSense comes from its project, which is ready: files are only stamped
+                // with the project context once the project's model is published.
+                await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = info.OwnerUri });
+                return;
+            }
+
             if (ConnectionStringHelper.IsDedicatedAdminConnection(info.ConnectionDetails, ConnectionServiceInstance.EnableSqlAuthenticationProvider, !ConnectionServiceInstance.EnableGlobalConnectionPooling))
             {
                 // Intellisense cannot be run on these connections as only 1 SqlConnection can be opened on them at a time
                 Logger.Information($"UpdateLanguageServiceOnConnection: skipping '{info.OwnerUri}' - IntelliSense is not supported on dedicated admin connections");
+                await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = info.OwnerUri });
                 return;
             }
-            ScriptParseInfo scriptInfo = GetScriptParseInfo(info.OwnerUri, createIfNotExists: true);
 
-            // Project files always retain their Project context — a server connection must not
-            // overwrite it and redirect the file to the SMO binder.
-            if (scriptInfo.IsProject)
-            {
-                Logger.Information($"UpdateLanguageServiceOnConnection: skipping '{info.OwnerUri}' - file already has a SQL project binding context");
-                return;
-            }
+            ScriptParseInfo scriptInfo = GetScriptParseInfo(info.OwnerUri, createIfNotExists: true);
 
             if (await scriptInfo.BuildingMetadataLock.TryEnterAsync(TSqlLanguageService.OnConnectionWaitTimeout))
             {
