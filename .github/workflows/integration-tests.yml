@@ -18,9 +18,18 @@ permissions:
   actions: read
   checks: write
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
-  integration-tests:
+  integration-test-shards:
+    name: Integration tests (${{ matrix.shard }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [schema-compare-files, schema-compare, database, services]
 
     steps:
       - name: Checkout repository
@@ -30,6 +39,22 @@ jobs:
         uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
           global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Packages.props
+            global.json
+            nuget.config
+            .config/dotnet-tools.json
+            **/*.csproj
+
+      - name: Select integration test shard
+        id: test_shard
+        shell: pwsh
+        env:
+          INTEGRATION_SHARD: ${{ matrix.shard }}
+        run: |
+          $filter = ./scripts/Get-IntegrationTestFilter.ps1 -Shard $env:INTEGRATION_SHARD
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "filter=$filter"
 
       - name: Generate SQL authentication password
         shell: pwsh
@@ -55,7 +80,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: cake-build-logs
+          name: cake-build-logs-${{ matrix.shard }}
           path: artifacts/logs
           if-no-files-found: ignore
 
@@ -134,24 +159,48 @@ jobs:
           dotnet build test/Microsoft.SqlTools.ServiceLayer.IntegrationTests/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj --configuration Release
 
       - name: Build STS2 tests
+        if: matrix.shard == 'services'
         shell: pwsh
         run: |
           dotnet build test/sts2/Microsoft.SqlTools.Sts2.UnitTests/Microsoft.SqlTools.Sts2.UnitTests.csproj --configuration Release
           dotnet build test/sts2/Microsoft.SqlTools.Sts2.E2ETests/Microsoft.SqlTools.Sts2.E2ETests.csproj --configuration Release
+
+      - name: Run SQL project integration tests
+        if: matrix.shard == 'services'
+        id: sql_project_tests
+        continue-on-error: true
+        timeout-minutes: 60
+        shell: pwsh
+        run: |
+          $filter = ./scripts/Get-IntegrationTestFilter.ps1 -Shard sql-projects
+          dotnet test test/Microsoft.SqlTools.ServiceLayer.IntegrationTests/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj `
+            --configuration Release `
+            --no-build `
+            --no-restore `
+            --filter $filter `
+            --logger "console;verbosity=normal" `
+            --logger "trx;LogFileName=SqlProjectIntegrationTests.trx" `
+            --results-directory "$PWD/TestResults"
 
       - name: Run integration tests
         id: integration_tests
         continue-on-error: true
         timeout-minutes: 60
         shell: pwsh
+        env:
+          INTEGRATION_TEST_FILTER: ${{ steps.test_shard.outputs.filter }}
         run: |
           dotnet test test/Microsoft.SqlTools.ServiceLayer.IntegrationTests/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj `
             --configuration Release `
             --no-build `
+            --no-restore `
+            --filter $env:INTEGRATION_TEST_FILTER `
+            --logger "console;verbosity=normal" `
             --logger "trx;LogFileName=IntegrationTests.trx" `
             --results-directory "$PWD/TestResults"
 
       - name: Run STS2 tests
+        if: matrix.shard == 'services'
         id: sts2_tests
         continue-on-error: true
         timeout-minutes: 30
@@ -182,7 +231,7 @@ jobs:
         if: always()
         uses: dorny/test-reporter@a43b3a5f7366b97d083190328d2c652e1a8b6aa2 # v3.0.0
         with:
-          name: Integration Tests
+          name: Integration Tests (${{ matrix.shard }})
           path: TestResults/*.trx
           reporter: dotnet-trx
           fail-on-error: false
@@ -191,7 +240,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: integration-test-results
+          name: integration-test-results-${{ matrix.shard }}
           path: TestResults/*.trx
           if-no-files-found: ignore
 
@@ -201,6 +250,17 @@ jobs:
         run: docker rm -f sqltoolsservice-integration-tests *> $null
 
       - name: Fail workflow when integration tests fail
-        if: steps.integration_tests.outcome == 'failure' || steps.sts2_tests.outcome == 'failure'
+        if: always() && (steps.integration_tests.outcome == 'failure' || steps.sql_project_tests.outcome == 'failure' || steps.sts2_tests.outcome == 'failure')
         shell: pwsh
         run: exit 1
+
+  # Keep the original aggregate check name available for branch protection.
+  integration-tests:
+    needs: integration-test-shards
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require every integration test shard to pass
+        env:
+          SHARD_RESULT: ${{ needs.integration-test-shards.result }}
+        run: test "$SHARD_RESULT" = success
