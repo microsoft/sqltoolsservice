@@ -17,6 +17,7 @@ using System.Xml;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.ExecutionPlan;
+using Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Moq;
@@ -56,10 +57,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
         [TestCase("XmlReader")]
         public async Task GetLiveExecutionPlanReturnsGraphs(string resultType)
         {
-            using Stream stream = typeof(LiveExecutionPlanTests).Assembly.GetManifestResourceStream(
-                "Microsoft.SqlTools.ServiceLayer.UnitTests.ShowPlan.TestShowPlan.xml");
-            using var textReader = new StreamReader(stream);
-            string planXml = textReader.ReadToEnd();
+            string planXml = ReadTestPlan();
             using var xmlReader = XmlReader.Create(new StringReader(planXml));
             object plan = resultType switch
             {
@@ -93,7 +91,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 
         private static IEnumerable<TestCaseData> EmptyPlans => new[]
         {
-            new TestCaseData(new object[] { null }).SetName("GetLiveExecutionPlanReturnsEmptyGraphsForNoRow"),
+            new TestCaseData((object)null).SetName("GetLiveExecutionPlanReturnsEmptyGraphsForNoRow"),
             new TestCaseData(DBNull.Value).SetName("GetLiveExecutionPlanReturnsEmptyGraphsForDbNull"),
             new TestCaseData(SqlXml.Null).SetName("GetLiveExecutionPlanReturnsEmptyGraphsForSqlXmlNull"),
             new TestCaseData("").SetName("GetLiveExecutionPlanReturnsEmptyGraphsForEmptyString")
@@ -130,13 +128,58 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 
         private Mock<DbCommand> SetUpCommand(object plan, SqlCommand parameterOwner)
         {
+            var resultSet = new TestResultSet(1, 0);
+            if (plan != null)
+            {
+                resultSet.Rows.Add(new[] { plan });
+            }
+            return SetUpCommand(resultSet, parameterOwner);
+        }
+
+        private Mock<DbCommand> SetUpCommand(TestResultSet resultSet, SqlCommand parameterOwner)
+        {
             var command = new Mock<DbCommand>();
             command.SetupAllProperties();
             command.Protected().Setup<DbParameter>("CreateDbParameter").Returns(() => new SqlParameter());
             command.Protected().SetupGet<DbParameterCollection>("DbParameterCollection").Returns(parameterOwner.Parameters);
-            command.Setup(c => c.ExecuteScalarAsync(It.IsAny<CancellationToken>())).ReturnsAsync(plan);
+            command.Protected().Setup<Task<DbDataReader>>("ExecuteDbDataReaderAsync",
+                ItExpr.IsAny<CommandBehavior>(), ItExpr.IsAny<CancellationToken>())
+                .Returns(() => Task.FromResult<DbDataReader>(new TestDbDataReader(new[] { resultSet }, false)));
             monitoringConnection.Protected().Setup<DbCommand>("CreateDbCommand").Returns(command.Object);
             return command;
+        }
+
+        private static string ReadTestPlan()
+        {
+            using Stream stream = typeof(LiveExecutionPlanTests).Assembly.GetManifestResourceStream(
+                "Microsoft.SqlTools.ServiceLayer.UnitTests.ShowPlan.TestShowPlan.xml");
+            using var reader = new StreamReader(stream);
+            return reader.ReadToEnd();
+        }
+
+        [Test]
+        public async Task GetLiveExecutionPlanReturnsEveryActiveRequestsGraphsInOrder()
+        {
+            string firstPlan = ReadTestPlan();
+            string secondPlan = firstPlan.Replace("select * from sys.all_objects CROSS JOIN sys.databases", "SELECT 2");
+            var resultSet = new TestResultSet(1, 0);
+            resultSet.Rows.Add(new object[] { firstPlan });
+            resultSet.Rows.Add(new object[] { secondPlan });
+            using var parameterOwner = new SqlCommand();
+            SetUpCommand(resultSet, parameterOwner);
+            string error = null;
+            GetExecutionPlanResult result = null;
+            var requestContext = RequestContextMocks.Create<GetExecutionPlanResult>(r => result = r)
+                .AddErrorHandling((message, _, _) => error = message);
+
+            await ExecutionPlanService.Instance.HandleGetLiveExecutionPlan(
+                new GetLiveExecutionPlanParams { OwnerUri = ownerUri, SessionId = 57 }, requestContext.Object);
+
+            Assert.That(error, Is.Null);
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Graphs, Has.Count.EqualTo(2));
+            Assert.That(result.Graphs[0].GraphFile.GraphFileContent, Is.EqualTo(firstPlan));
+            Assert.That(result.Graphs[1].GraphFile.GraphFileContent, Is.EqualTo(secondPlan));
         }
 
         [Test]
@@ -225,6 +268,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
         public void LiveExecutionPlanQueryReadsTheSessionsInFlightPlan()
         {
             Assert.That(ExecutionPlanService.LiveExecutionPlanQuery, Does.Contain("sys.dm_exec_query_statistics_xml(@sessionId)"));
+            Assert.That(ExecutionPlanService.LiveExecutionPlanQuery, Does.Not.Contain("TOP"));
+            Assert.That(ExecutionPlanService.LiveExecutionPlanQuery, Does.Contain("ORDER BY request_id"));
         }
     }
 }

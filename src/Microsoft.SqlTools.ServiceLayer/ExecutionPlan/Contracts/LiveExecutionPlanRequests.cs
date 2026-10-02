@@ -7,7 +7,7 @@
 
 using Microsoft.SqlTools.Hosting.Protocol.Contracts;
 
-namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
+namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts
 {
     public class GetLiveExecutionPlanParams
     {

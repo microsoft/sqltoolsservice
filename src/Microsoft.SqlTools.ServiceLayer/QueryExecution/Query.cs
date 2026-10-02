@@ -333,13 +333,16 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// Records the server session id of the query connection. It can change when the connection
         /// reconnects, so it is refreshed each time the connection is used.
         /// </summary>
-        private void UpdateServerConnectionId(ReliableSqlConnection sqlConn)
+        internal void UpdateServerConnectionId(ReliableSqlConnection sqlConn)
         {
             if (sqlConn.GetUnderlyingConnection() is SqlConnection connection && connection.ServerProcessId != 0)
             {
-                // If 0, that would mean the connection is inactive, so there's no
-                // need to return the connection id.
                 ServerConnectionId = connection.ServerProcessId.ToString();
+            }
+            else
+            {
+                // An inactive connection no longer owns the previously reported session.
+                ServerConnectionId = null;
             }
         }
 

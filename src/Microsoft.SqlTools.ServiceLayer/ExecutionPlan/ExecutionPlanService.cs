@@ -35,7 +35,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
         /// Reads the in-flight plan of a session. SQL Server fills in the actual row counts so far.
         /// </summary>
         internal const string LiveExecutionPlanQuery =
-            "SELECT TOP (1) query_plan FROM sys.dm_exec_query_statistics_xml(@sessionId) WHERE query_plan IS NOT NULL;";
+            "SELECT query_plan FROM sys.dm_exec_query_statistics_xml(@sessionId) WHERE query_plan IS NOT NULL ORDER BY request_id;";
 
         /// <summary>
         /// Construct a new Execution Plan Service instance with default parameters
@@ -87,36 +87,41 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                 sessionId.Value = requestParams.SessionId;
                 command.Parameters.Add(sessionId);
 
-                // No row means the session isn't running a statement yet
-                object plan = await command.ExecuteScalarAsync();
-                string planXml;
-                if (plan is SqlXml sqlXml)
+                // A session can have multiple active requests (MARS). Return every plan in request
+                // order rather than choosing an arbitrary one. No rows means no plan is available yet.
+                var graphs = new List<ExecutionPlanGraph>();
+                using DbDataReader plans = await command.ExecuteReaderAsync();
+                while (await plans.ReadAsync())
                 {
-                    planXml = sqlXml.IsNull ? null : sqlXml.Value;
-                }
-                else if (plan is XmlReader reader)
-                {
-                    using (reader)
+                    string planXml = ReadPlanXml(plans.GetValue(0));
+                    if (!string.IsNullOrEmpty(planXml))
                     {
-                        reader.MoveToContent();
-                        planXml = reader.ReadOuterXml();
+                        graphs.AddRange(ExecutionPlanGraphUtils.CreateShowPlanGraph(planXml, ""));
                     }
                 }
-                else
-                {
-                    planXml = Convert.ToString(plan, CultureInfo.InvariantCulture);
-                }
-                await requestContext.SendResult(new GetExecutionPlanResult
-                {
-                    Graphs = string.IsNullOrEmpty(planXml)
-                        ? new List<ExecutionPlanGraph>()
-                        : ExecutionPlanGraphUtils.CreateShowPlanGraph(planXml, "")
-                });
+                await requestContext.SendResult(new GetExecutionPlanResult { Graphs = graphs });
             }
             catch (Exception e)
             {
                 await requestContext.SendError(e.Message);
             }
+        }
+
+        private static string ReadPlanXml(object plan)
+        {
+            if (plan is SqlXml sqlXml)
+            {
+                return sqlXml.IsNull ? null : sqlXml.Value;
+            }
+            if (plan is XmlReader reader)
+            {
+                using (reader)
+                {
+                    reader.MoveToContent();
+                    return reader.ReadOuterXml();
+                }
+            }
+            return Convert.ToString(plan, CultureInfo.InvariantCulture);
         }
 
         /// <summary>
