@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Microsoft.Data.Tools.Schema.SchemaModel;
@@ -14,6 +15,7 @@ using Microsoft.SqlServer.Dac.Projects;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.SqlProjects;
 using Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts;
+using Microsoft.SqlTools.ServiceLayer.SqlProjects.References;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Microsoft.SqlTools.ServiceLayer.Utility;
@@ -1592,6 +1594,123 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
         }
 
         [Test]
+        public async Task TestIntelliSenseIncludesDatabaseReferences()
+        {
+            SqlProjectsService service = new();
+            string projectUri = await service.CreateSqlProject();
+            string otherDbDacpac = Path.Join(Path.GetDirectoryName(projectUri), "OtherDb.dacpac");
+            SaveDacpac(otherDbDacpac, "CREATE TABLE [dbo].[OtherTable] ([Id] INT NOT NULL)");
+            await AddDacpacReference(service, projectUri, otherDbDacpac, databaseLiteral: "OtherDb");
+
+            try
+            {
+                await OpenProject(service, projectUri);
+                await service.GetHost(projectUri)!.IntelliSenseBuild!.WaitAsync(TimeSpan.FromSeconds(60));
+
+                Assert.IsTrue(service.TryGetProvider(projectUri, out TSqlModelMetadataProvider? provider), "Open publishes an IntelliSense model");
+                Assert.IsNotNull(provider!.Server.Databases["OtherDb"]?.Schemas["dbo"]?.Tables["OtherTable"],
+                    "The project's references are in the model when it's published");
+            }
+            finally
+            {
+                await CloseProject(service, projectUri);
+            }
+        }
+
+        [Test]
+        public async Task TestDatabaseReferenceChangeReachesPublishedModel()
+        {
+            SqlProjectsService service = new();
+            string projectUri = await service.CreateSqlProject();
+            string otherDbDacpac = Path.Join(Path.GetDirectoryName(projectUri), "OtherDb.dacpac");
+            SaveDacpac(otherDbDacpac, "CREATE TABLE [dbo].[OtherTable] ([Id] INT NOT NULL)");
+
+            try
+            {
+                await OpenProject(service, projectUri);
+                ProjectHost host = service.GetHost(projectUri)!;
+                await host.IntelliSenseBuild!.WaitAsync(TimeSpan.FromSeconds(60));
+                Assert.IsTrue(service.TryGetProvider(projectUri, out TSqlModelMetadataProvider? provider), "Open publishes an IntelliSense model");
+                Assert.IsNull(provider!.Server.Databases["OtherDb"], "Setup: no reference yet");
+
+                await AddDacpacReference(service, projectUri, otherDbDacpac, databaseLiteral: "OtherDb");
+                await host.ReferencesReload!.WaitAsync(TimeSpan.FromSeconds(60));
+                Assert.IsNotNull(provider.Server.Databases["OtherDb"]?.Schemas["dbo"]?.Tables["OtherTable"],
+                    "A reference added after open reaches the published model");
+
+                MockRequest<ResultStatus> deleteMock = new();
+                await service.HandleDeleteDatabaseReferenceRequest(new DeleteDatabaseReferenceParams()
+                {
+                    ProjectUri = projectUri,
+                    Name = service.Projects[projectUri].DatabaseReferences.Single().Name
+                }, deleteMock.Object);
+                deleteMock.AssertSuccess(nameof(service.HandleDeleteDatabaseReferenceRequest));
+                await host.ReferencesReload!.WaitAsync(TimeSpan.FromSeconds(60));
+                Assert.IsNull(provider.Server.Databases["OtherDb"], "A deleted reference leaves the published model");
+            }
+            finally
+            {
+                await CloseProject(service, projectUri);
+            }
+        }
+
+        [Test]
+        public async Task TestDatabaseReferenceChangeDuringIntelliSenseBuildReachesModel()
+        {
+            SqlProjectsService service = new();
+            string projectUri = await service.CreateSqlProject();
+            string otherDbDacpac = Path.Join(Path.GetDirectoryName(projectUri), "OtherDb.dacpac");
+            SaveDacpac(otherDbDacpac, "CREATE TABLE [dbo].[OtherTable] ([Id] INT NOT NULL)");
+            await CloseProject(service, projectUri);
+
+            // The build resolves the references before the change; every later resolution sees it
+            var buildResolving = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            var changeMade = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            int resolutions = 0;
+            ProjectHost host = new(projectUri, TSqlModelBuilder.LoadModel, (project, path) =>
+            {
+                if (Interlocked.Increment(ref resolutions) == 1)
+                {
+                    buildResolving.TrySetResult();
+                    changeMade.Task.Wait(TimeSpan.FromSeconds(30));
+                    return NoReferences(path);
+                }
+
+                return OtherDbReference(path, otherDbDacpac);
+            });
+
+            try
+            {
+                await host.RunAsync(() =>
+                {
+                    host.EnsureIntelliSense();
+                    return Task.FromResult(true);
+                });
+                Task build = host.IntelliSenseBuild!;
+                await buildResolving.Task.WaitAsync(TimeSpan.FromSeconds(30));
+
+                // The change arrives while the model is private, so its reload has no published model to update
+                await host.ReloadReferencesAsync().WaitAsync(TimeSpan.FromSeconds(30));
+                Assert.IsNull(host.IntelliSense, "Setup: the model isn't published yet");
+
+                changeMade.TrySetResult();
+                await build.WaitAsync(TimeSpan.FromSeconds(60));
+                await host.ReferencesReload!.WaitAsync(TimeSpan.FromSeconds(60));
+
+                Assert.IsNotNull(host.IntelliSense?.Provider.Server.Databases["OtherDb"]?.Schemas["dbo"]?.Tables["OtherTable"],
+                    "A reference change made while the model was building reaches it after it's published");
+            }
+            finally
+            {
+                await host.RunAsync(() =>
+                {
+                    host.Close();
+                    return Task.FromResult(true);
+                });
+            }
+        }
+
+        [Test]
         public async Task TestClosedHostIsReplaced()
         {
             SqlProjectsService service = new();
@@ -1708,6 +1827,43 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
 
             public void Release() => released.TrySetResult();
         }
+
+        private static void SaveDacpac(string dacpacPath, string script)
+        {
+            using var model = new Microsoft.SqlServer.Dac.Model.TSqlModel(Microsoft.SqlServer.Dac.Model.SqlServerVersion.Sql160, new Microsoft.SqlServer.Dac.Model.TSqlModelOptions());
+            model.AddObjects(script);
+            Microsoft.SqlServer.Dac.DacPackageExtensions.BuildPackage(dacpacPath, model, new Microsoft.SqlServer.Dac.PackageMetadata());
+        }
+
+        private static async Task AddDacpacReference(SqlProjectsService service, string projectUri, string dacpacPath, string databaseLiteral)
+        {
+            MockRequest<ResultStatus> addMock = new();
+            await service.HandleAddDacpacReferenceRequest(new AddDacpacReferenceParams()
+            {
+                ProjectUri = projectUri,
+                DacpacPath = dacpacPath,
+                SuppressMissingDependencies = false,
+                DatabaseLiteral = databaseLiteral
+            }, addMock.Object);
+            addMock.AssertSuccess(nameof(service.HandleAddDacpacReferenceRequest));
+        }
+
+        private static ResolvedProjectReferences NoReferences(string projectPath) =>
+            new(projectPath, Array.Empty<ResolvedDatabaseReference>(), new Dictionary<string, string>());
+
+        private static ResolvedProjectReferences OtherDbReference(string projectPath, string dacpacPath) =>
+            new(projectPath, new[]
+            {
+                new ResolvedDatabaseReference
+                {
+                    Name = dacpacPath,
+                    Kind = DatabaseReferenceKind.Dacpac,
+                    Resolution = DatabaseReferenceResolution.Resolved,
+                    ResolvedPath = dacpacPath,
+                    ModelReference = new Microsoft.SqlServer.Dac.Model.TSqlModelReference(dacpacPath, databaseVariableLiteralValue: "OtherDb"),
+                    DatabaseNames = new[] { "OtherDb" },
+                }
+            }, new Dictionary<string, string>());
 
         private static async Task CloseProject(SqlProjectsService service, string projectUri)
         {

@@ -724,6 +724,24 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
             return false;
         }
 
+        /// <summary>
+        /// Picks up a change to the model's database references: objects from same-database and master
+        /// references appear in the project database, and each <paramref name="referencedDatabases"/> entry
+        /// becomes a database for three-part names. The binder must be recreated afterwards, as after any
+        /// other metadata change.
+        /// </summary>
+        /// <remarks>
+        /// Call while holding the lock that serializes changes to the project's model.
+        /// </remarks>
+        public void RefreshReferences(IEnumerable<ProjectReferencedDatabase> referencedDatabases)
+        {
+            if (referencedDatabases == null)
+                throw new ArgumentNullException(nameof(referencedDatabases));
+
+            _server.Database.ResetSchemaMap();
+            _server.SetReferencedDatabases(referencedDatabases);
+        }
+
         /// <inheritdoc/>
         public override IServer Server => _server;
 
