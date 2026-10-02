@@ -29,6 +29,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
             Assert.False(sqlToolsSettings.QueryExecutionSettings.ExecutionPlanOptions.IncludeActualExecutionPlanXml);
             Assert.False(sqlToolsSettings.QueryExecutionSettings.ExecutionPlanOptions.IncludeEstimatedExecutionPlanXml);
             Assert.True(sqlToolsSettings.QueryExecutionSettings.DisplayBitAsNumber);
+            Assert.True(sqlToolsSettings.QueryExecutionSettings.DisplayUniqueIdentifierInUppercase);
         }
 
         [Test]
@@ -40,12 +41,13 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 
         private static void ValidateSettings(string settingsPropertyName)
         {
-            // NOTE: Only testing displayBitAsNumber for now because it is the only one piped through
+            // NOTE: Only testing the display settings because they are the only ones piped through
             string settingsJson = @"{"
                                         + @"""params"": {"
                                         + @""""+settingsPropertyName+@""": {"
                                         + @"""query"": {"
-                                        + @"displayBitAsNumber: false"
+                                        + @"displayBitAsNumber: false,"
+                                        + @"displayUniqueIdentifierInUppercase: false"
                                         + @"}"
                                         + @"}"
                                         + @"}"
@@ -59,6 +61,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 
             // Then: The values defined in the JSON should propagate to the setting object
             Assert.False(sqlToolsSettings.QueryExecutionSettings.DisplayBitAsNumber);
+            Assert.False(sqlToolsSettings.QueryExecutionSettings.DisplayUniqueIdentifierInUppercase);
         }
 
         [Test]
@@ -73,6 +76,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
                     QueryExecutionSettings = new QueryExecutionSettings
                     {
                         DisplayBitAsNumber = false,
+                        DisplayUniqueIdentifierInUppercase = false,
                         MaxXmlCharsToStore = 1,
                         MaxCharsToStore = 1,
                         RowCount = 0,
@@ -110,6 +114,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution
 
             // Then: The settings object should match what it was updated to
             Assert.False(qes.Settings.QueryExecutionSettings.DisplayBitAsNumber);
+            Assert.False(qes.Settings.QueryExecutionSettings.DisplayUniqueIdentifierInUppercase);
             Assert.True(qes.Settings.QueryExecutionSettings.ExecutionPlanOptions.IncludeActualExecutionPlanXml);
             Assert.True(qes.Settings.QueryExecutionSettings.ExecutionPlanOptions.IncludeEstimatedExecutionPlanXml);
             Assert.AreEqual(1, qes.Settings.QueryExecutionSettings.MaxCharsToStore);

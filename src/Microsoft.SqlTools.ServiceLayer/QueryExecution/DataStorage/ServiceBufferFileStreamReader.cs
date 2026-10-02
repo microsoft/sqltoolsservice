@@ -548,7 +548,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.DataStorage
                 byte[] output = new byte[length];
                 Buffer.BlockCopy(buffer, 0, output, 0, length);
                 return new Guid(output);
-            }, totalLength => totalLength == 1);
+            }, totalLength => totalLength == 1,
+                toStringFunc: val => executionSettings.DisplayUniqueIdentifierInUppercase
+                    ? val.ToString().ToUpperInvariant()
+                    : val.ToString());
         }
 
         /// <summary>
