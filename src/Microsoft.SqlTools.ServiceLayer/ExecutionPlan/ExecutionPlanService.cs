@@ -9,7 +9,10 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Data.SqlTypes;
+using System.Globalization;
 using System.Threading.Tasks;
+using System.Xml;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.ExecutionPlan.Contracts;
@@ -85,7 +88,24 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
                 command.Parameters.Add(sessionId);
 
                 // No row means the session isn't running a statement yet
-                string planXml = await command.ExecuteScalarAsync() as string;
+                object plan = await command.ExecuteScalarAsync();
+                string planXml;
+                if (plan is SqlXml sqlXml)
+                {
+                    planXml = sqlXml.IsNull ? null : sqlXml.Value;
+                }
+                else if (plan is XmlReader reader)
+                {
+                    using (reader)
+                    {
+                        reader.MoveToContent();
+                        planXml = reader.ReadOuterXml();
+                    }
+                }
+                else
+                {
+                    planXml = Convert.ToString(plan, CultureInfo.InvariantCulture);
+                }
                 await requestContext.SendResult(new GetExecutionPlanResult
                 {
                     Graphs = string.IsNullOrEmpty(planXml)
@@ -105,16 +125,29 @@ namespace Microsoft.SqlTools.ServiceLayer.ExecutionPlan
         /// </summary>
         internal async Task HandleEndLiveExecutionPlan(EndLiveExecutionPlanParams requestParams, RequestContext<bool> requestContext)
         {
-            bool closed = false;
-            if (ConnectionService.Instance.TryFindConnection(requestParams.OwnerUri, out ConnectionInfo connectionInfo)
-                && connectionInfo.TryGetConnection(ConnectionType.LiveQueryStatistics, out DbConnection connection))
+            try
             {
-                connectionInfo.RemoveConnection(ConnectionType.LiveQueryStatistics);
-                connection.Close();
-                connection.Dispose();
-                closed = true;
+                bool closed = false;
+                if (ConnectionService.Instance.TryFindConnection(requestParams.OwnerUri, out ConnectionInfo connectionInfo)
+                    && connectionInfo.TryGetConnection(ConnectionType.LiveQueryStatistics, out DbConnection connection))
+                {
+                    connectionInfo.RemoveConnection(ConnectionType.LiveQueryStatistics);
+                    try
+                    {
+                        connection.Close();
+                    }
+                    finally
+                    {
+                        connection.Dispose();
+                    }
+                    closed = true;
+                }
+                await requestContext.SendResult(closed);
             }
-            await requestContext.SendResult(closed);
+            catch (Exception e)
+            {
+                await requestContext.SendError(e.Message);
+            }
         }
 
         private async Task HandleGetExecutionPlan(GetExecutionPlanParams requestParams, RequestContext<GetExecutionPlanResult> requestContext)

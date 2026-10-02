@@ -335,12 +335,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// </summary>
         private void UpdateServerConnectionId(ReliableSqlConnection sqlConn)
         {
-            var serverConnId = (sqlConn.GetUnderlyingConnection() as SqlConnection).ServerProcessId;
-            if (serverConnId != 0)
+            if (sqlConn.GetUnderlyingConnection() is SqlConnection connection && connection.ServerProcessId != 0)
             {
                 // If 0, that would mean the connection is inactive, so there's no
                 // need to return the connection id.
-                ServerConnectionId = serverConnId.ToString();
+                ServerConnectionId = connection.ServerProcessId.ToString();
             }
         }
 
