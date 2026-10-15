@@ -73,10 +73,9 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         private static readonly SqlConnectionStringBuilder defaultBuilder = new SqlConnectionStringBuilder();
 
         /// <summary>
-        /// IV and Key as received from Encryption Key Notification event. The MSAL token cache reads them on every access,
-        /// so they're replaced as one object to never pair a new key with an old IV.
+        /// IV and Key as received from Encryption Key Notification event.
         /// </summary>
-        private volatile EncryptionKeysChangeParams encryptionKeys;
+        private (string key, string iv) encryptionKeys;
 
         /// <summary>
         /// The SQL connection factory object
@@ -1388,19 +1387,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
 
             var cachePath = Path.Combine(applicationPath, applicationName, AzureTokenFolder);
-            return new Authenticator(new(ApplicationClientId, applicationName, cachePath, MsalCacheName, commandOptions.HttpProxyUrl, commandOptions.HttpProxyStrictSSL), GetEncryptionKeys);
-        }
-
-        private (string key, string iv) GetEncryptionKeys()
-        {
-            EncryptionKeysChangeParams keys = this.encryptionKeys;
-            return (keys?.Key, keys?.Iv);
+            return new Authenticator(new(ApplicationClientId, applicationName, cachePath, MsalCacheName, commandOptions.HttpProxyUrl, commandOptions.HttpProxyStrictSSL), () => this.encryptionKeys);
         }
 
         private Task HandleEncryptionKeysNotificationEvent(EncryptionKeysChangeParams @params, EventContext context)
         {
             Logger.Verbose("EncryptionKeysNotificationEvent");
-            this.encryptionKeys = new EncryptionKeysChangeParams(@params.Key, @params.Iv);
+            this.encryptionKeys = (@params.Key, @params.Iv);
             return Task.FromResult(true);
         }
 
