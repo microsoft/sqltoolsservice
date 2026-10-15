@@ -18,8 +18,6 @@ using Microsoft.SqlTools.LanguageService.Connection.Contracts;
 using Microsoft.SqlTools.LanguageService.LanguageServices;
 using Moq;
 using NUnit.Framework;
-// SMO's Microsoft.SqlServer.Management.Common namespace also has a ConnectionInfoBase.
-using ConnectionInfoBase = Microsoft.SqlTools.LanguageService.LanguageServices.ConnectionInfoBase;
 
 namespace Microsoft.SqlTools.LanguageService.UnitTests.LanguageServices
 {
