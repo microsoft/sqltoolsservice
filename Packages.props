@@ -75,6 +75,11 @@
          10.0.9 pins the vulnerable SQLitePCLRaw.lib.e_sqlite3 2.1.11 native library. Pin the
          patched native library until Microsoft.Data.Sqlite carries an updated dependency. -->
     <PackageReference Update="SQLitePCLRaw.lib.e_sqlite3" Version="3.50.3" />
+    <!-- Security override (CVE-2026-84008 / GHSA-846f-f764-76mx): Microsoft.Data.SqlClient depends on
+         System.Security.Cryptography.Pkcs 8.0.1 and 9.0.11, which have a denial of service vulnerability.
+         Projects that bring in Microsoft.Data.SqlClient, directly or through DacFx and SMO, also reference
+         the patched version, until Microsoft.Data.SqlClient carries an updated dependency. -->
+    <PackageReference Update="System.Security.Cryptography.Pkcs" Version="10.0.13" />
   </ItemGroup>
 
   <!-- When updating version of Dependencies in the below section, please also update the version in the following files:
