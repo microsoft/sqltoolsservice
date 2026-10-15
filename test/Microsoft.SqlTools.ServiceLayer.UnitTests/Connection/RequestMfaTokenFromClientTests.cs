@@ -200,7 +200,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
                 .ReturnsAsync(new RequestSecurityTokenResponse { Token = "token-1", ExpiresOn = FarFuture.ToUnixTimeSeconds() })
                 .ReturnsAsync(new RequestSecurityTokenResponse { Token = "token-2", ExpiresOn = FarFuture.ToUnixTimeSeconds() });
 
-            var fetcher = await ConnectAndGetFetcher(serviceHost, "test://test-uri-1", AzureMfaDetails());
+            var fetcher = await ConnectAndGetFetcher(serviceHost.Object, "test://test-uri-1", AzureMfaDetails());
             var (first, _) = await fetcher(resource);
             var (second, _) = await fetcher(resource);
 
@@ -228,8 +228,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
 
             var details2 = AzureMfaDetails();
             details2.AccountId = "different-account-id";
-            var fetcher1 = await ConnectAndGetFetcher(serviceHost, "test://test-uri-1", AzureMfaDetails());
-            var fetcher2 = await ConnectAndGetFetcher(serviceHost, "test://test-uri-2", details2);
+            var fetcher1 = await ConnectAndGetFetcher(serviceHost.Object, "test://test-uri-1", AzureMfaDetails());
+            var fetcher2 = await ConnectAndGetFetcher(serviceHost.Object, "test://test-uri-2", details2);
 
             var (token1, _) = await fetcher1("https://database.windows.net/");
             var (token2, _) = await fetcher2("https://database.windows.net/");
@@ -246,10 +246,82 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         {
             var serviceHost = new Mock<IProtocolEndpoint>();
 
-            var fetcher = await ConnectAndGetFetcher(serviceHost, "test://test-uri-1", AzureMfaDetails());
+            var fetcher = await ConnectAndGetFetcher(serviceHost.Object, "test://test-uri-1", AzureMfaDetails());
 
             Assert.Throws<ArgumentException>(() => fetcher(string.Empty));
             serviceHost.Verify(h => h.SendRequest(SecurityTokenRequest.Type, It.IsAny<RequestSecurityTokenParams>(), It.IsAny<bool>()), Times.Never);
+        }
+
+        private static readonly RequestType<string, string> GetTokenRequest = RequestType<string, string>.Create("test/getToken");
+
+        [Test]
+        public async Task ParallelHandlerGetsTokenThatClientSendsWhileHandlerWaits()
+        {
+            using var connection = new InMemoryProtocolConnection(parallelMessageProcessing: true);
+            Task<string> handlerToken = await SendGetTokenRequest(connection, isParallelProcessingSupported: true);
+
+            Message tokenRequest = await ReadMessageAsync(connection, m => m.Method == SecurityTokenRequest.Type.MethodName);
+            await connection.SendResponseAsync(tokenRequest, new RequestSecurityTokenResponse
+            {
+                Token = "token-from-client",
+                ExpiresOn = FarFuture.ToUnixTimeSeconds(),
+            });
+
+            Assert.That(await handlerToken.WaitAsync(InMemoryProtocolConnection.Timeout), Is.EqualTo("token-from-client"));
+        }
+
+        [Test]
+        public async Task InlineHandlerFailsInsteadOfWaitingForTokenFromClient()
+        {
+            // A handler that isn't run in parallel blocks the message loop, which then can't read the client's response.
+            using var connection = new InMemoryProtocolConnection(parallelMessageProcessing: true);
+            Task<string> handlerToken = await SendGetTokenRequest(connection, isParallelProcessingSupported: false);
+
+            Assert.ThrowsAsync<InvalidOperationException>(() => handlerToken.WaitAsync(InMemoryProtocolConnection.Timeout));
+            Message response = await ReadMessageAsync(connection, m => m.MessageType == MessageType.Response);
+            Assert.That(response.Id, Is.EqualTo(new MessageId(1)), "The handler should respond without requesting a token from the client.");
+        }
+
+        /// <summary>
+        /// Connects in RequestMfaTokenFromClient mode through <paramref name="connection"/>, registers a handler that
+        /// gets a token with the connection's token fetcher, and sends it a request from the client.
+        /// </summary>
+        /// <returns>The token the handler got.</returns>
+        private static async Task<Task<string>> SendGetTokenRequest(InMemoryProtocolConnection connection, bool isParallelProcessingSupported)
+        {
+            var fetcher = await ConnectAndGetFetcher(connection.Endpoint, "test://test-uri-1", AzureMfaDetails());
+            var handlerToken = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
+            connection.Endpoint.SetRequestHandler(GetTokenRequest, async (resource, requestContext) =>
+            {
+                try
+                {
+                    handlerToken.SetResult((await fetcher(resource)).token);
+                }
+                catch (Exception ex)
+                {
+                    handlerToken.SetException(ex);
+                }
+
+                await requestContext.SendResult(null);
+            }, isParallelProcessingSupported);
+
+            await connection.SendRequestAsync(GetTokenRequest, new MessageId(1), "https://database.windows.net/");
+            return handlerToken.Task;
+        }
+
+        /// <summary>
+        /// Reads messages the endpoint sent to the client until one matches <paramref name="predicate"/>.
+        /// </summary>
+        private static async Task<Message> ReadMessageAsync(InMemoryProtocolConnection connection, Func<Message, bool> predicate)
+        {
+            while (true)
+            {
+                Message message = await connection.ReadMessageAsync();
+                if (predicate(message))
+                {
+                    return message;
+                }
+            }
         }
 
         /// <summary>
@@ -257,10 +329,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         /// and returns the token fetcher set on the connection.
         /// </summary>
         private static async Task<Func<string, Task<(string token, DateTimeOffset expiresOn)>>> ConnectAndGetFetcher(
-            Mock<IProtocolEndpoint> serviceHost, string uri, ConnectionDetails details)
+            IProtocolEndpoint serviceHost, string uri, ConnectionDetails details)
         {
             var factory = new CapturingReliableConnectionFactory();
-            var svc = new FastFailConnectionService(factory) { RequestMfaTokenFromClient = true, ServiceHost = serviceHost.Object };
+            var svc = new FastFailConnectionService(factory) { RequestMfaTokenFromClient = true, ServiceHost = serviceHost };
 
             // Pre-register a ConnectionInfo so it stays in the map even after a failed open
             svc.OwnerToConnectionMap[uri] = new ConnectionInfo(factory, uri, details);

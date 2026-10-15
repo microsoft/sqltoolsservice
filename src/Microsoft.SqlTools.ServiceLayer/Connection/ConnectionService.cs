@@ -777,6 +777,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
 
             try
             {
+                // The message loop reads the client's response, so waiting for it on that thread (from a handler
+                // that isn't run in parallel) would hang. Fail instead, so the handler that needs a token can be fixed.
+                if (IsOnMessageLoopThread())
+                {
+                    throw new InvalidOperationException(
+                        "Can't wait for a Microsoft Entra access token from the client on the message loop thread, because the response would never be read. " +
+                        "The request handler that needs the token must support parallel processing.");
+                }
+
                 Logger.Verbose("Requesting Azure access token from client");
                 RequestSecurityTokenResponse response =
                     await ServiceHost.SendRequest(SecurityTokenRequest.Type, request, waitForResponse: true)
@@ -791,6 +800,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 Logger.Error($"Azure access token request to client failed: {ex.Message}");
                 throw;
             }
+        }
+
+        /// <summary>
+        /// Whether the caller runs on the thread that reads messages from the client.
+        /// </summary>
+        private bool IsOnMessageLoopThread()
+        {
+            // The dispatcher's synchronization context is set once its message loop starts.
+            MessageDispatcher dispatcher = (ServiceHost as ProtocolEndpoint)?.MessageDispatcher;
+            return dispatcher?.SynchronizationContext != null && dispatcher.InMessageLoopThread;
         }
 
         /// <summary>
