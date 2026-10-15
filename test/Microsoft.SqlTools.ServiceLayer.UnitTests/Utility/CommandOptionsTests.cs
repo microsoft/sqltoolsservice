@@ -190,6 +190,17 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
             var options = new ServiceLayerCommandOptions([]);
 
             Assert.That(options.RequestMfaTokenFromClient, Is.False);
+            Assert.That(options.ParallelMessageProcessing, Is.False);
+        }
+
+        [Test]
+        public void RequestMfaTokenFromClientFlagEnablesParallelMessageProcessing()
+        {
+            // Without parallel processing, a handler waiting for the client's token response blocks the
+            // message loop that would read it.
+            var options = new ServiceLayerCommandOptions(["--request-mfa-token-from-client"]);
+
+            Assert.That(options.ParallelMessageProcessing, Is.True);
         }
 
         [Test]
