@@ -6,7 +6,6 @@
     <ProjectReference Include="..\Microsoft.SqlTools.Sts2.Abstractions\Microsoft.SqlTools.Sts2.Abstractions.csproj" />
     <ProjectReference Include="..\Microsoft.SqlTools.Sts2.Contracts\Microsoft.SqlTools.Sts2.Contracts.csproj" />
     <PackageReference Include="Microsoft.Data.SqlClient" />
-    <!-- Patched version of a vulnerable Microsoft.Data.SqlClient dependency (CVE-2026-84008), see Packages.props. -->
     <PackageReference Include="System.Security.Cryptography.Pkcs" />
     <PackageReference Include="Microsoft.SqlServer.Types" />
   </ItemGroup>
