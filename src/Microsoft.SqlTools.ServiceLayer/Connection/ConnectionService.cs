@@ -101,16 +101,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         private ConcurrentDictionary<string, IConnectedBindingQueue> connectedQueues = new ConcurrentDictionary<string, IConnectedBindingQueue>();
 
         /// <summary>
-        /// Map of <see cref="ResourceAwareAzureTokenFetcher"/> instances keyed by
-        /// {accountId, tenantId}. Each fetcher internally caches per-resource
-        /// <see cref="CachingTokenFetcher"/> instances so a single SqlConnection can request
-        /// tokens for different resources (e.g. SQL vs Dataverse) without losing the shared
-        /// cache, and so multiple connections for the same account + tenant share state.
-        /// </summary>
-        private readonly ConcurrentDictionary<(string accountId, string tenantId), ResourceAwareAzureTokenFetcher>
-            _azureTokenFetcherCache = new();
-
-        /// <summary>
         /// Map from script URIs to ConnectionInfo objects
         /// This is internal for testing access only
         /// </summary>
@@ -751,39 +741,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         }
 
         /// <summary>
-        /// Returns a delegate that, given a target resource URI, provides a valid Entra access
-        /// token for <paramref name="accountId"/>/<paramref name="tenantId"/>. Multiple
-        /// connections sharing the same account + tenant share the same underlying
-        /// <see cref="ResourceAwareAzureTokenFetcher"/> instance.
+        /// Returns a delegate that, given a target resource URI, requests an Entra access token for
+        /// <paramref name="accountId"/>/<paramref name="tenantId"/> from the client via
+        /// <c>account/securityTokenRequest</c>. Tokens are not cached here: the client owns the
+        /// token cache, so every token request goes to it and a token it refreshes (for example
+        /// after the user clears its token cache) is used by the next connection or operation.
         /// </summary>
         private Func<string, Task<(string token, DateTimeOffset expiresOn)>>
             CreateAzureTokenFetcher(string accountId, string tenantId)
         {
-            var fetcher = _azureTokenFetcherCache.GetOrAdd(
-                (accountId, tenantId),
-                _ => new ResourceAwareAzureTokenFetcher(this, accountId, tenantId));
-
-            return fetcher.GetTokenAsync;
-        }
-
-        /// <summary>
-        /// Token fetcher for a account + tenant tuple that supports per-resource token caching.
-        /// </summary>
-        private sealed class ResourceAwareAzureTokenFetcher
-        {
-            private readonly ConnectionService _service;
-            private readonly string _accountId;
-            private readonly string _tenantId;
-            private readonly ConcurrentDictionary<string, CachingTokenFetcher> _perResource = new();
-
-            internal ResourceAwareAzureTokenFetcher(ConnectionService service, string accountId, string tenantId)
-            {
-                _service = service;
-                _accountId = accountId;
-                _tenantId = tenantId;
-            }
-
-            public Task<(string token, DateTimeOffset expiresOn)> GetTokenAsync(string resource)
+            return resource =>
             {
                 if (string.IsNullOrEmpty(resource))
                 {
@@ -792,24 +759,36 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                         nameof(resource));
                 }
 
-                var fetcher = _perResource.GetOrAdd(resource, r => new CachingTokenFetcher(async () =>
-                {
-                    var request = new RequestSecurityTokenParams
-                    {
-                        Provider = "Azure",
-                        AccountId = _accountId,
-                        TenantId = _tenantId,
-                        Resource = r,
-                    };
+                return RequestAzureTokenFromClientAsync(accountId, tenantId, resource);
+            };
+        }
 
-                    RequestSecurityTokenResponse response =
-                        await _service.ServiceHost.SendRequest(SecurityTokenRequest.Type, request, waitForResponse: true)
-                        .ConfigureAwait(continueOnCapturedContext: false);
+        private async Task<(string token, DateTimeOffset expiresOn)> RequestAzureTokenFromClientAsync(
+            string accountId, string tenantId, string resource)
+        {
+            var request = new RequestSecurityTokenParams
+            {
+                Provider = "Azure",
+                AccountId = accountId,
+                TenantId = tenantId,
+                Resource = resource,
+            };
 
-                    return (response.Token, DateTimeOffset.FromUnixTimeSeconds(response.ExpiresOn));
-                }));
+            try
+            {
+                Logger.Verbose("Requesting Azure access token from client");
+                RequestSecurityTokenResponse response =
+                    await ServiceHost.SendRequest(SecurityTokenRequest.Type, request, waitForResponse: true)
+                    .ConfigureAwait(continueOnCapturedContext: false);
 
-                return fetcher.GetTokenAsync();
+                var expiresOn = DateTimeOffset.FromUnixTimeSeconds(response.ExpiresOn);
+                Logger.Verbose($"Azure access token received from client, expires {expiresOn}");
+                return (response.Token, expiresOn);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Azure access token request to client failed: {ex.Message}");
+                throw;
             }
         }
 
