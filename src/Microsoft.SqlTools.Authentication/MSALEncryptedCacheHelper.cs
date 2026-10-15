@@ -24,7 +24,8 @@ namespace Microsoft.SqlTools.Authentication.Utility
     {
         /// <summary>
         /// Callback delegate to be implemented by Services in Service Host, where authentication is performed. e.g. Connection Service.
-        /// This delegate will be called to retrieve key and IV data if found absent or during instantiation.
+        /// This delegate is called on every cache access to retrieve the current key and IV, because the client generates new ones
+        /// and rewrites the cache file with them when its token cache is cleared.
         /// </summary>
         /// <param name="key">(out) Key used for encryption/decryption</param>
         /// <param name="iv">(out) IV used for encryption/decryption</param>
@@ -39,9 +40,6 @@ namespace Microsoft.SqlTools.Authentication.Utility
         private AuthenticatorConfiguration _config;
         private StorageCreationProperties _storageCreationProperties;
         private IvKeyReadCallback _ivKeyReadCallback;
-
-        private byte[]? _iv;
-        private byte[]? _key;
 
         /// <summary>
         /// Storage that handles the storing of the MSAL cache file on disk.
@@ -66,8 +64,6 @@ namespace Microsoft.SqlTools.Authentication.Utility
             this._cacheStorage = Storage.Create(_storageCreationProperties, Logger.TraceSource);
 
             this._ivKeyReadCallback = callback;
-
-            this.fillIvKeyIfNeeded();
         }
 
         /// <summary>
@@ -93,23 +89,37 @@ namespace Microsoft.SqlTools.Authentication.Utility
 
         #region Private Methods
 
-        private void fillIvKeyIfNeeded()
+        /// <summary>
+        /// Reads the current key and IV through the callback. They aren't kept between cache accesses because the client
+        /// can replace them at any time, and the cache file it writes afterwards can only be read with the new ones.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">When the key or IV hasn't been received yet.</exception>
+        private (byte[] key, byte[] iv) GetIvKey()
         {
-            if (this._key == null || this._iv == null)
+            (string? key, string? iv) = this._ivKeyReadCallback();
+            Logger.Verbose($"Received IV and Key from callback");
+
+            if (string.IsNullOrEmpty(key) || string.IsNullOrEmpty(iv))
             {
-                (string key, string iv) = this._ivKeyReadCallback();
+                throw new InvalidOperationException("The token cache encryption key and IV have not been received.");
+            }
 
-                if (key != null)
-                {
-                    this._key = Encoding.Unicode.GetBytes(key);
-                }
+            return (Encoding.Unicode.GetBytes(key), Encoding.Unicode.GetBytes(iv));
+        }
 
-                if (iv != null)
-                {
-                    this._iv = Encoding.Unicode.GetBytes(iv);
-                }
-
-                Logger.Verbose($"Received IV and Key from callback");
+        /// <summary>
+        /// Removes all accounts and tokens from MSAL's in-memory cache, so it doesn't keep serving tokens that are
+        /// no longer in the cache file.
+        /// </summary>
+        private static void ClearInMemoryCache(TokenCacheNotificationArgs args)
+        {
+            try
+            {
+                args.TokenCache.DeserializeMsalV3(Array.Empty<byte>(), shouldClearExistingCache: true);
+            }
+            catch (Exception e)
+            {
+                Logger.Error($"Could not clear the token cache in memory. {e}");
             }
         }
 
@@ -147,8 +157,8 @@ namespace Microsoft.SqlTools.Authentication.Utility
 
                         try
                         {
-                            fillIvKeyIfNeeded();
-                            var encryptedData = EncryptionUtils.AesEncrypt(data, this._key!, this._iv!);
+                            (byte[] key, byte[] iv) = GetIvKey();
+                            var encryptedData = EncryptionUtils.AesEncrypt(data, key, iv);
                             File.WriteAllText(this._storageCreationProperties.CacheFilePath, Convert.ToBase64String(encryptedData));
                         }
                         catch (Exception e)
@@ -189,25 +199,26 @@ namespace Microsoft.SqlTools.Authentication.Utility
             byte[]? cachedStoreData = null;
             byte[]? decryptedData = null;
 
+            // The cache file is the source of truth, and the client rewrites it with new keys when its token cache is cleared.
+            // If it is missing or can't be read, clear the cache in memory too, so tokens loaded earlier aren't used anymore.
             try
             {
                 var text = File.ReadAllText(this._storageCreationProperties.CacheFilePath);
-                if (text != null)
-                {
-                    cachedStoreData = Convert.FromBase64String(text);
-                    fillIvKeyIfNeeded();
-                    decryptedData = EncryptionUtils.AesDecrypt(cachedStoreData, this._key!, this._iv!);
-                }
-                else
-                {
-                    Logger.Information($"Token cache not received. Ignoring.");
-                }
+                cachedStoreData = Convert.FromBase64String(text);
+                (byte[] key, byte[] iv) = GetIvKey();
+                decryptedData = EncryptionUtils.AesDecrypt(cachedStoreData, key, iv);
+            }
+            catch (Exception ex) when (ex is FileNotFoundException || ex is DirectoryNotFoundException)
+            {
+                Logger.Information($"Token cache file not found, clearing the cache in memory.");
+                ClearInMemoryCache(args);
+                return;
             }
             catch (Exception ex)
             {
-                Logger.Error($"Could not read the token cache. Ignoring. Exception: {ex}");
+                Logger.Error($"Could not read the token cache, clearing the cache in memory. Exception: {ex}");
+                ClearInMemoryCache(args);
                 return;
-
             }
             Logger.Verbose($"Read '{cachedStoreData?.Length}' bytes from storage");
 
@@ -225,7 +236,8 @@ namespace Microsoft.SqlTools.Authentication.Utility
                         Logger.Error($"An exception was encountered while deserializing the {nameof(MsalCacheHelper)} : {e}");
                         Logger.Error($"No data found in the store, clearing the cache in memory.");
 
-                        // Clear the memory cache without taking the lock over again
+                        // MSAL parses the data before clearing the existing cache, so a failure leaves the old tokens in memory.
+                        ClearInMemoryCache(args);
                         this._cacheStorage.Clear(ignoreExceptions: true);
                     }
                 }
