@@ -27,6 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DacFx
         private const string PackageVersion = "1.2.3";
         private const string AnalyzerRelativePath = "analyzers/dotnet/cs/Contoso.SqlRules.dll";
         private const string LibRelativePath = "lib/netstandard2.1/Contoso.SqlRules.dll";
+        private const string LoaderTestRuleId = "Contoso.SR9000";
         private const string NuGetPackagesVariable = "NUGET_PACKAGES";
 
         private string testRoot;
@@ -366,6 +367,33 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DacFx
         }
 
         [Test]
+        public void GetCodeAnalysisRules_TrustedPackageAssembly_LoadsCustomRule()
+        {
+            string originalValue = Environment.GetEnvironmentVariable(NuGetPackagesVariable);
+
+            try
+            {
+                Environment.SetEnvironmentVariable(NuGetPackagesVariable, GetCustomRulePackageRoot());
+                WriteAssetsFileFor(AnalyzerRelativePath);
+
+                GetCodeAnalysisRulesResult result = DacFxService.GetCodeAnalysisRules(
+                    projectFilePath,
+                    allowCustomRuleExecution: true);
+
+                CodeAnalysisRuleInfo customRule = result.Rules.Single(
+                    rule => rule.RuleId == LoaderTestRuleId);
+                Assert.That(customRule.DisplayName, Is.EqualTo("Loader test rule"));
+                Assert.That(customRule.Description, Is.EqualTo("Validates trusted custom rule loading."));
+                Assert.That(customRule.IsBuiltIn, Is.False);
+                Assert.That(result.Warning, Is.Null);
+            }
+            finally
+            {
+                Environment.SetEnvironmentVariable(NuGetPackagesVariable, originalValue);
+            }
+        }
+
+        [Test]
         public void LoadResult_RuleIdContributedTwice_IsKeptOnceAndWarned()
         {
             // Two analyzer packages can declare the same rule ID.
@@ -466,6 +494,29 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DacFx
             Directory.CreateDirectory(Path.GetDirectoryName(destination));
             File.WriteAllText(destination, contents);
             return destination;
+        }
+
+        private static string GetCustomRulePackageRoot()
+        {
+            string testOutputDirectory = TestContext.CurrentContext.TestDirectory;
+            string targetFramework = Path.GetFileName(testOutputDirectory);
+            string configuration = Directory.GetParent(testOutputDirectory).Name;
+            string repositoryRoot = Path.GetFullPath(Path.Combine(
+                testOutputDirectory,
+                "..",
+                "..",
+                "..",
+                "..",
+                ".."));
+
+            return Path.Combine(
+                repositoryRoot,
+                "test",
+                "Microsoft.SqlTools.Test.CustomCodeAnalysisRule",
+                "bin",
+                configuration,
+                targetFramework,
+                "packages");
         }
 
         private sealed record LibraryEntry(string Id, string Type, string[] Files);
