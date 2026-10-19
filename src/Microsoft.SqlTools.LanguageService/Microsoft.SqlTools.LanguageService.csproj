@@ -46,6 +46,7 @@
     <PackageReference Include="Microsoft.SqlServer.Management.SqlParser" />
     <PackageReference Include="Microsoft.SqlServer.TransactSql.ScriptDom" />
     <PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' != '$(SsmsDotNetVersion)'">
     <InternalsVisibleTo Include="Microsoft.SqlTools.LanguageService.UnitTests" />
