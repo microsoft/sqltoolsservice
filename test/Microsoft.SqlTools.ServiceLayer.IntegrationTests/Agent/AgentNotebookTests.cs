@@ -6,7 +6,10 @@
 #nullable disable
 
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Agent;
 using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
@@ -257,38 +260,101 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Agent
             }
         }
 
-        [Test]
-        public async Task TestDeletingUpdatedJob()
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task TestDeletingUpdatedJob(bool replaceTemplate)
         {
             using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
             {
                 var service = new AgentService();
                 var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", queryTempFile.FilePath);
 
-                //seting up a temp notebook job
-                var notebook = AgentTestUtils.SetupNotebookJob(connectionResult).Result;
-                //verifying that the notebook is created
-                Assert.AreEqual(true, AgentTestUtils.VerifyNotebook(connectionResult, notebook));
+                AgentNotebookInfo notebook = await AgentTestUtils.SetupNotebookJob(connectionResult);
+                string originalName = notebook.Name;
+                string replacementTemplatePath = replaceTemplate
+                    ? AgentTestUtils.CreateTemplateNotebookFile()
+                    : null;
 
-                var originalName = notebook.Name;
-                //Changing the notebookName 
-                notebook.Name = "myTestNotebookJob" + Guid.NewGuid().ToString();
+                try
+                {
+                    Assert.AreEqual(true, AgentTestUtils.VerifyNotebook(connectionResult, notebook));
 
-                Assert.AreEqual(false, AgentTestUtils.VerifyNotebook(connectionResult, notebook));
+                    notebook.Name = "myTestNotebookJob" + Guid.NewGuid().ToString();
+                    Assert.AreEqual(false, AgentTestUtils.VerifyNotebook(connectionResult, notebook));
 
-                await AgentNotebookHelper.UpdateNotebook(
-                    service,
-                    connectionResult.ConnectionInfo.OwnerUri,
-                    originalName,
-                    notebook,
-                    null,
-                    ManagementUtils.asRunType(0)
-                );
+                    await AgentNotebookHelper.UpdateNotebook(
+                        service,
+                        connectionResult.ConnectionInfo.OwnerUri,
+                        originalName,
+                        notebook,
+                        replacementTemplatePath,
+                        ManagementUtils.asRunType(0));
 
-                Assert.AreEqual(true, AgentTestUtils.VerifyNotebook(connectionResult, notebook));
+                    Assert.AreEqual(true, AgentTestUtils.VerifyNotebook(connectionResult, notebook));
+                }
+                finally
+                {
+                    if (replacementTemplatePath != null)
+                    {
+                        File.Delete(replacementTemplatePath);
+                    }
+                    await AgentTestUtils.CleanupNotebookJob(connectionResult, notebook);
+                }
+            }
+        }
 
-                //cleaning up the job
-                await AgentTestUtils.CleanupNotebookJob(connectionResult, notebook);
+        [Test]
+        public async Task TestMetadataOnlyUpdateRejectsTamperedTemplate()
+        {
+            using (SelfCleaningTempFile queryTempFile = new SelfCleaningTempFile())
+            {
+                var service = new AgentService();
+                var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync(
+                    "master",
+                    queryTempFile.FilePath);
+                AgentNotebookInfo notebook = await AgentTestUtils.SetupNotebookJob(connectionResult);
+                string replacementTemplatePath = AgentTestUtils.CreateTemplateNotebookFile();
+
+                try
+                {
+                    const string tamperQuery = @"
+                        UPDATE notebooks.nb_template
+                        SET notebook = @notebook
+                        WHERE job_id = @jobId";
+                    List<SqlParameter> parameters = new()
+                    {
+                        new SqlParameter("notebook", "{\"cells\":[]}"),
+                        new SqlParameter("jobId", Guid.Parse(notebook.JobId))
+                    };
+                    await AgentNotebookHelper.ExecuteSqlQueries(
+                        connectionResult.ConnectionInfo,
+                        tamperQuery,
+                        parameters,
+                        notebook.TargetDatabase);
+
+                    InvalidOperationException exception = Assert.ThrowsAsync<InvalidOperationException>(
+                        async () => await AgentNotebookHelper.UpdateNotebook(
+                            service,
+                            connectionResult.ConnectionInfo.OwnerUri,
+                            notebook.Name,
+                            notebook,
+                            null,
+                            ManagementUtils.asRunType(0)));
+                    Assert.That(exception.Message, Does.Contain("does not match"));
+
+                    await AgentNotebookHelper.UpdateNotebook(
+                        service,
+                        connectionResult.ConnectionInfo.OwnerUri,
+                        notebook.Name,
+                        notebook,
+                        replacementTemplatePath,
+                        ManagementUtils.asRunType(0));
+                }
+                finally
+                {
+                    File.Delete(replacementTemplatePath);
+                    await AgentTestUtils.CleanupNotebookJob(connectionResult, notebook);
+                }
             }
         }
     }

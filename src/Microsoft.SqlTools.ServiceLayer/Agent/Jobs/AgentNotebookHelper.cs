@@ -9,20 +9,21 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
-using Microsoft.Data.SqlClient;
-using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
+using Microsoft.SqlServer.Management.Smo.Agent;
 using Microsoft.SqlTools.ServiceLayer.Agent.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
-using Microsoft.SqlServer.Management.Smo.Agent;
-using Microsoft.SqlTools.ServiceLayer.Management;
 using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
+using Microsoft.SqlTools.ServiceLayer.Management;
 
 namespace Microsoft.SqlTools.ServiceLayer.Agent
 {
-    internal class AgentNotebookHelper
+    internal partial class AgentNotebookHelper
     {
         /// <summary>
         /// executes sql queries required by other agent notebook helper functions
@@ -228,9 +229,24 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 throw new FileNotFoundException();
             }
 
-            string templateFileContents = string.IsNullOrEmpty(templatePath)
-                ? await GetTemplateNotebook(connInfo, notebook.JobId, notebook.TargetDatabase)
-                : File.ReadAllText(templatePath);
+            string templateFileContents;
+            if (string.IsNullOrEmpty(templatePath))
+            {
+                (string storedNotebook, string storedExecutionDatabase) = await GetTemplateNotebookInfo(
+                    connInfo,
+                    notebook.JobId,
+                    notebook.TargetDatabase);
+                string expectedNotebookHash = await GetExpectedNotebookHash(
+                    connInfo,
+                    notebook.JobId,
+                    notebook.TargetDatabase);
+                ValidateNotebookHash(storedNotebook, storedExecutionDatabase, expectedNotebookHash);
+                templateFileContents = storedNotebook;
+            }
+            else
+            {
+                templateFileContents = File.ReadAllText(templatePath);
+            }
 
             notebook.JobSteps = CreateNotebookPowerShellStep(
                 notebook.Name,
@@ -329,10 +345,20 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             string jobId,
             string targetDatabase)
         {
+            (string notebook, _) = await GetTemplateNotebookInfo(connInfo, jobId, targetDatabase);
+            return notebook;
+        }
+
+        private static async Task<(string Notebook, string ExecutionDatabase)> GetTemplateNotebookInfo(
+            ConnectionInfo connInfo,
+            string jobId,
+            string targetDatabase)
+        {
             string templateNotebookQueryString =
             @"
             SELECT
-            notebook 
+            notebook,
+            execute_database
             FROM 
             notebooks.nb_template 
             WHERE 
@@ -347,8 +373,52 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 targetDatabase);
             DataTable templateNotebookTable = templateNotebookDataSet.Tables[0];
             DataRow templateNotebookRows = templateNotebookTable.Rows[0];
-            return templateNotebookRows["notebook"] as string;
+            return (
+                templateNotebookRows["notebook"] as string,
+                templateNotebookRows["execute_database"] as string);
         }
+
+        private static async Task<string> GetExpectedNotebookHash(
+            ConnectionInfo connInfo,
+            string jobId,
+            string targetDatabase)
+        {
+            const string jobStepQuery = @"
+                SELECT command
+                FROM msdb.dbo.sysjobsteps
+                WHERE job_id = @jobId AND step_id = 1";
+            List<SqlParameter> queryParameters = new()
+            {
+                new SqlParameter("jobId", jobId)
+            };
+            DataSet jobStepDataSet = await ExecuteSqlQueries(
+                connInfo,
+                jobStepQuery,
+                queryParameters,
+                targetDatabase);
+            DataTable jobStepTable = jobStepDataSet.Tables[0];
+
+            if (jobStepTable.Rows.Count != 1)
+            {
+                throw new InvalidOperationException("The notebook execution job step could not be found.");
+            }
+
+            string command = jobStepTable.Rows[0]["command"] as string;
+            Match hashMatch = ExpectedNotebookHashRegex().Match(command ?? string.Empty);
+
+            if (!hashMatch.Success)
+            {
+                throw new InvalidOperationException(
+                    "The notebook job must be updated with a replacement template before metadata-only changes are allowed.");
+            }
+
+            return hashMatch.Groups["hash"].Value;
+        }
+
+        [GeneratedRegex(
+            @"(?m)^\$ExpectedNotebookHash = '(?<hash>[0-9A-F]{64})'\r?$",
+            RegexOptions.CultureInvariant)]
+        private static partial Regex ExpectedNotebookHashRegex();
 
         public static AgentJobStepInfo[] CreateNotebookPowerShellStep(
             string notebookName,
@@ -363,10 +433,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             {
                 using (StreamReader reader = new StreamReader(scriptStream))
                 {
+                    string encodedStorageDatabase = Convert.ToBase64String(
+                        Encoding.UTF8.GetBytes(storageDatabase));
                     execNotebookScript =
-                    "$TargetDatabase = '" +
-                    EscapePowerShellSingleQuotedString(storageDatabase) +
-                    "'" +
+                    "$TargetDatabase = [System.Text.Encoding]::UTF8.GetString(" +
+                    "[System.Convert]::FromBase64String('" +
+                    encodedStorageDatabase +
+                    "'))" +
                     Environment.NewLine +
                     "$ExpectedNotebookHash = '" +
                     expectedNotebookHash +
@@ -412,9 +485,17 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             return Convert.ToHexString(SHA256.HashData(payload));
         }
 
-        private static string EscapePowerShellSingleQuotedString(string value)
+        internal static void ValidateNotebookHash(
+            string notebook,
+            string executionDatabase,
+            string expectedNotebookHash)
         {
-            return value.Replace("'", "''");
+            string actualNotebookHash = ComputeNotebookHash(notebook, executionDatabase);
+            if (!string.Equals(actualNotebookHash, expectedNotebookHash, StringComparison.Ordinal))
+            {
+                throw new InvalidOperationException(
+                    "The stored notebook content does not match the content authorized by its execution job.");
+            }
         }
 
         public static async Task<string> SetUpNotebookAndGetJobId(

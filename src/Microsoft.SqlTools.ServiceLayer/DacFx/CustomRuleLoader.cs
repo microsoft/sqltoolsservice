@@ -303,7 +303,10 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 packageDirectory,
                 assemblyRelativePath.Replace('/', Path.DirectorySeparatorChar)));
 
-            return IsPathWithinDirectory(assemblyPath, packageDirectory) ? assemblyPath : null;
+            return IsPathWithinDirectory(assemblyPath, packageDirectory) &&
+                !ContainsReparsePoint(packageRoot, assemblyPath)
+                    ? assemblyPath
+                    : null;
         }
 
         private static bool IsPathWithinDirectory(string path, string directory)
@@ -316,6 +319,31 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
             return path.StartsWith(directoryPrefix, comparison);
         }
+
+        private static bool ContainsReparsePoint(string rootDirectory, string path)
+        {
+            string currentPath = rootDirectory;
+            if (IsReparsePoint(currentPath))
+            {
+                return true;
+            }
+
+            string relativePath = Path.GetRelativePath(rootDirectory, path);
+            foreach (string segment in relativePath.Split(Path.DirectorySeparatorChar))
+            {
+                currentPath = Path.Combine(currentPath, segment);
+                if (IsReparsePoint(currentPath))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool IsReparsePoint(string path) =>
+            (File.Exists(path) || Directory.Exists(path)) &&
+            (File.GetAttributes(path) & FileAttributes.ReparsePoint) != 0;
 
         private static bool TryGetObject(JsonElement parent, string propertyName, out JsonElement value) =>
             parent.TryGetProperty(propertyName, out value) && value.ValueKind == JsonValueKind.Object;
