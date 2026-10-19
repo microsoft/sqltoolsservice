@@ -1532,7 +1532,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 BufferFileFactory,
                 executeParams.GetFullColumnSchema,
                 applyExecutionSettings,
-                queryExecutionInfo.ExecutionSelection);
+                queryExecutionInfo.ExecutionSelection,
+                executeParams.IsSqlCmdMode);
 
             if (!ActiveQueries.TryAdd(executeParams.OwnerUri, newQuery))
             {

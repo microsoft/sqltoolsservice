@@ -157,6 +157,56 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             Assert.AreEqual(4, capturedQuery.BatchSelections[0].StartColumn);
         }
 
+        private const string SqlCmdVariableQuery = ":setvar TestVar SqlCmdValue\r\nSELECT '$(TestVar)'";
+
+        [Test]
+        public async Task ExecuteRequestWithSqlCmdModeParsesSqlCmdCommands()
+        {
+            var queryService = GetPrimedServiceWithScriptFile(SqlCmdVariableQuery);
+
+            CapturedQueryInfo capturedQuery = await CaptureCreatedQueryAsync(queryService, CreateSqlCmdQueryParams(isSqlCmdMode: true));
+
+            Assert.AreEqual(1, capturedQuery.BatchTexts.Length);
+            StringAssert.Contains("SELECT 'SqlCmdValue'", capturedQuery.BatchTexts[0]);
+        }
+
+        [Test]
+        public async Task ExecuteRequestWithoutSqlCmdModeUsesQueryExecutionSettings()
+        {
+            var queryService = GetPrimedServiceWithScriptFile(SqlCmdVariableQuery);
+            queryService.ActiveQueryExecutionSettings[Constants.OwnerUri] = new QueryExecutionSettings { IsSqlCmdMode = true };
+
+            CapturedQueryInfo capturedQuery = await CaptureCreatedQueryAsync(queryService, CreateSqlCmdQueryParams(isSqlCmdMode: null));
+
+            StringAssert.Contains("SELECT 'SqlCmdValue'", capturedQuery.BatchTexts[0]);
+        }
+
+        [Test]
+        public async Task ExecuteRequestSqlCmdModeOverridesQueryExecutionSettings()
+        {
+            var queryService = GetPrimedServiceWithScriptFile(SqlCmdVariableQuery);
+            queryService.ActiveQueryExecutionSettings[Constants.OwnerUri] = new QueryExecutionSettings { IsSqlCmdMode = true };
+
+            CapturedQueryInfo capturedQuery = await CaptureCreatedQueryAsync(queryService, CreateSqlCmdQueryParams(isSqlCmdMode: false));
+
+            StringAssert.DoesNotContain("SELECT 'SqlCmdValue'", string.Join(Environment.NewLine, capturedQuery.BatchTexts));
+        }
+
+        private static QueryExecutionService GetPrimedServiceWithScriptFile(string query)
+        {
+            return Common.GetPrimedExecutionService(null, true, false, false, GetWorkspaceServiceWithScriptFile(query));
+        }
+
+        private static ExecuteDocumentSelectionParams CreateSqlCmdQueryParams(bool? isSqlCmdMode)
+        {
+            return new ExecuteDocumentSelectionParams
+            {
+                OwnerUri = Constants.OwnerUri,
+                QuerySelection = Common.WholeDocument,
+                IsSqlCmdMode = isSqlCmdMode
+            };
+        }
+
         [Test]
         public void GetSqlTextFromDocumentRequestFull()
         {
@@ -679,7 +729,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
                                 b.Selection.StartColumn,
                                 b.Selection.EndLine,
                                 b.Selection.EndColumn))
-                            .ToArray()
+                            .ToArray(),
+                        BatchTexts = q.Batches.Select(b => b.BatchText).ToArray()
                     };
 
                     return Task.FromResult(false);
@@ -694,6 +745,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         private sealed class CapturedQueryInfo
         {
             public SelectionData[] BatchSelections { get; set; }
+            public string[] BatchTexts { get; set; }
         }
     }
 

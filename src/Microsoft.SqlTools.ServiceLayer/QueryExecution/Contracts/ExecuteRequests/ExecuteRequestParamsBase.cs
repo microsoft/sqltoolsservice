@@ -26,5 +26,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteReques
         /// Flag to get full column schema via additional queries.
         /// </summary>
         public bool GetFullColumnSchema { get; set; }
+
+        /// <summary>
+        /// Whether to parse and execute the query in SQLCMD mode. When omitted, the SQLCMD mode
+        /// from the query execution settings for the owner URI is used.
+        /// </summary>
+        public bool? IsSqlCmdMode { get; set; }
     }
 }

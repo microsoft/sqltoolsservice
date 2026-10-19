@@ -112,6 +112,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="connection">The information of the connection to use to execute the query</param>
         /// <param name="settings">Settings for how to execute the query, from the user</param>
         /// <param name="outputFactory">Factory for creating output files</param>
+        /// <param name="isSqlCmdMode">Overrides <see cref="QueryExecutionSettings.IsSqlCmdMode"/> when specified</param>
         public Query(
             string queryText,
             ConnectionInfo connection,
@@ -119,7 +120,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             IFileStreamFactory outputFactory,
             bool getFullColumnSchema = false,
             bool applyExecutionSettings = false,
-            SelectionData executionSelection = null)
+            SelectionData executionSelection = null,
+            bool? isSqlCmdMode = null)
         {
             // Sanity check for input
             Validate.IsNotNull(nameof(queryText), queryText);
@@ -135,9 +137,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Process the query into batches 
             BatchParserWrapper parser = new BatchParserWrapper();
             ExecutionEngineConditions conditions = null;
-            if (settings.IsSqlCmdMode)
+            if (isSqlCmdMode ?? settings.IsSqlCmdMode)
             {
-                conditions = new ExecutionEngineConditions() { IsSqlCmd = settings.IsSqlCmdMode };
+                conditions = new ExecutionEngineConditions() { IsSqlCmd = true };
             }
             List<BatchDefinition> parserResult = parser.GetBatches(queryText, conditions);
 
