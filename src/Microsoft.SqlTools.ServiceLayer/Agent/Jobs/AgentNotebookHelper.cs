@@ -9,6 +9,8 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
+using System.Security.Cryptography;
+using System.Text;
 using Microsoft.Data.SqlClient;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -147,9 +149,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             AgentNotebookInfo result;
             ConnectionInfo connInfo;
             agentServiceInstance.ConnectionServiceInstance.TryFindConnection(ownerUri, out connInfo);
+            string templateFileContents = File.ReadAllText(templatePath);
 
             // creating notebook job step
-            notebook.JobSteps = CreateNotebookPowerShellStep(notebook.Name, notebook.TargetDatabase);
+            notebook.JobSteps = CreateNotebookPowerShellStep(
+                notebook.Name,
+                notebook.TargetDatabase,
+                ComputeNotebookHash(templateFileContents, notebook.ExecuteDatabase));
 
             // creating sql agent job 
             var jobCreationResult = await agentServiceInstance.ConfigureAgentJob(
@@ -170,7 +176,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 connInfo,
                 notebook.Name,
                 notebook.TargetDatabase,
-                templatePath,
+                templateFileContents,
                 notebook.ExecuteDatabase);
             notebook.JobId = jobId;
             result = notebook;
@@ -222,6 +228,15 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 throw new FileNotFoundException();
             }
 
+            string templateFileContents = string.IsNullOrEmpty(templatePath)
+                ? await GetTemplateNotebook(connInfo, notebook.JobId, notebook.TargetDatabase)
+                : File.ReadAllText(templatePath);
+
+            notebook.JobSteps = CreateNotebookPowerShellStep(
+                notebook.Name,
+                notebook.TargetDatabase,
+                ComputeNotebookHash(templateFileContents, notebook.ExecuteDatabase));
+
             // updating notebook agent job
             var updateJobResult =
             await agentServiceInstance.ConfigureAgentJob(
@@ -237,10 +252,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             }
 
             // update notebook metadata
-            UpdateNotebookInfo(
+            await UpdateNotebookInfo(
                 connInfo,
                 notebook.JobId,
-                templatePath,
+                templateFileContents,
+                !string.IsNullOrEmpty(templatePath),
                 notebook.ExecuteDatabase,
                 notebook.TargetDatabase);
         }
@@ -336,7 +352,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
 
         public static AgentJobStepInfo[] CreateNotebookPowerShellStep(
             string notebookName,
-            string storageDatabase)
+            string storageDatabase,
+            string expectedNotebookHash)
         {
             AgentJobStepInfo[] result;
             var assembly = Assembly.GetAssembly(typeof(AgentService));
@@ -347,9 +364,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 using (StreamReader reader = new StreamReader(scriptStream))
                 {
                     execNotebookScript =
-                    "$TargetDatabase = \"" +
-                    storageDatabase +
-                    "\"" +
+                    "$TargetDatabase = '" +
+                    EscapePowerShellSingleQuotedString(storageDatabase) +
+                    "'" +
+                    Environment.NewLine +
+                    "$ExpectedNotebookHash = '" +
+                    expectedNotebookHash +
+                    "'" +
                     Environment.NewLine +
                     reader.ReadToEnd();
                 }
@@ -385,11 +406,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             return result;
         }
 
+        internal static string ComputeNotebookHash(string notebook, string executionDatabase)
+        {
+            byte[] payload = Encoding.UTF8.GetBytes(executionDatabase + '\0' + notebook);
+            return Convert.ToHexString(SHA256.HashData(payload));
+        }
+
+        private static string EscapePowerShellSingleQuotedString(string value)
+        {
+            return value.Replace("'", "''");
+        }
+
         public static async Task<string> SetUpNotebookAndGetJobId(
             ConnectionInfo connInfo,
             string notebookName,
             string targetDatabase,
-            string templatePath,
+            string templateFileContents,
             string executionDatabase)
         {
             string jobId;
@@ -411,7 +443,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                 job_id UNIQUEIDENTIFIER NOT NULL, 
                 notebook NVARCHAR(MAX),
                 execute_database NVARCHAR(MAX),
-                last_run_notebook_error NVARCHAR(MAX)
+                last_run_notebook_error NVARCHAR(MAX),
+                CONSTRAINT UQ_nb_template_job_id UNIQUE (job_id)
             ) 
             END
 
@@ -449,23 +482,22 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             DataTable jobIdDataTable = jobIdDataSet.Tables[0];
             DataRow jobIdDataRow = jobIdDataTable.Rows[0];
             jobId = ((Guid)jobIdDataRow["job_id"]).ToString();
-            StoreNotebookTemplate(
+            await StoreNotebookTemplate(
                 connInfo,
                 jobId,
-                templatePath,
+                templateFileContents,
                 targetDatabase,
                 executionDatabase);
             return jobId;
         }
 
-        static async void StoreNotebookTemplate(
+        static async Task StoreNotebookTemplate(
             ConnectionInfo connInfo,
             string jobId,
-            string templatePath,
+            string templateFileContents,
             string targetDatabase,
             string executionDatabase)
         {
-            string templateFileContents = File.ReadAllText(templatePath);
             string insertTemplateJsonQuery =
             @"
             INSERT 
@@ -511,16 +543,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
             await ExecuteSqlQueries(connInfo, deleteNotebookRowQuery, deleteNotebookRowQueryParams, targetDatabase);
         }
 
-        public static async void UpdateNotebookInfo(
+        public static async Task UpdateNotebookInfo(
             ConnectionInfo connInfo,
             string jobId,
-            string templatePath,
+            string templateFileContents,
+            bool updateTemplate,
             string executionDatabase,
             string targetDatabase)
         {
-            if (templatePath != null)
+            if (updateTemplate)
             {
-                string templateFileContents = File.ReadAllText(templatePath);
                 string insertTemplateJsonQuery =
                 @"
                 UPDATE notebooks.nb_template 

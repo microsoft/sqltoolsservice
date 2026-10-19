@@ -1,0 +1,47 @@
+//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+#nullable disable
+
+using Microsoft.SqlTools.ServiceLayer.Agent;
+using NUnit.Framework;
+
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Agent
+{
+    [TestFixture]
+    public class AgentNotebookHelperTests
+    {
+        [Test]
+        public void ComputeNotebookHash_BindsNotebookAndExecutionDatabase()
+        {
+            string original = AgentNotebookHelper.ComputeNotebookHash("{\"cells\":[]}", "database1");
+
+            Assert.That(
+                AgentNotebookHelper.ComputeNotebookHash("{\"cells\":[{}]}", "database1"),
+                Is.Not.EqualTo(original));
+            Assert.That(
+                AgentNotebookHelper.ComputeNotebookHash("{\"cells\":[]}", "database2"),
+                Is.Not.EqualTo(original));
+        }
+
+        [Test]
+        public void CreateNotebookPowerShellStep_EnforcesIntegrityAndUsesSafeOutputTypes()
+        {
+            const string expectedHash = "ABCDEF0123456789";
+
+            string command = AgentNotebookHelper.CreateNotebookPowerShellStep(
+                "notebook",
+                "database'name",
+                expectedHash)[0].Command;
+
+            Assert.That(command, Does.Contain("$TargetDatabase = 'database''name'"));
+            Assert.That(command, Does.Contain($"$ExpectedNotebookHash = '{expectedHash}'"));
+            Assert.That(command, Does.Contain("Notebook template integrity validation failed"));
+            Assert.That(command, Does.Contain("$StringOutputData[\"text/plain\"]"));
+            Assert.That(command, Does.Not.Contain("$StringOutputData[\"text/html\"]"));
+            Assert.That(command, Does.Contain("[System.Net.WebUtility]::HtmlEncode"));
+        }
+    }
+}
