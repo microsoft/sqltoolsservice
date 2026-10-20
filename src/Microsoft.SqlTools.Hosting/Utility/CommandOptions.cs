@@ -29,6 +29,7 @@ namespace Microsoft.SqlTools.Utility
             ErrorMessage = string.Empty;
             Locale = string.Empty;
             ApplicationName = string.Empty;
+            HttpProxyStrictSSL = true;
 
             try
             {

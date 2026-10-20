@@ -204,6 +204,24 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Utility
         }
 
         [Test]
+        public void ProxyCertificateValidationDefaultsToStrict()
+        {
+            var options = new ServiceLayerCommandOptions(["--http-proxy-url", "http://localhost:8080"]);
+
+            Assert.That(options.HttpProxyStrictSSL, Is.True);
+        }
+
+        [Test]
+        public void ProxyStrictSslFlagRemainsAccepted()
+        {
+            var options = new ServiceLayerCommandOptions(
+                ["--http-proxy-url", "http://localhost:8080", "--http-proxy-strict-ssl"]);
+
+            Assert.That(options.ShouldExit, Is.False);
+            Assert.That(options.HttpProxyStrictSSL, Is.True);
+        }
+
+        [Test]
         public void StdioFlagIsAcceptedForLanguageClientLaunches()
         {
             var options = new ServiceLayerCommandOptions(["--stdio"]);
