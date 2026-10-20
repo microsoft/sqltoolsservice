@@ -12,8 +12,8 @@ using System.Threading.Tasks;
 namespace Microsoft.SqlTools.LanguageService.LanguageServices
 {
     /// <summary>
-    /// Class that stores the state of a binding queue request item
-    /// </summary>    
+    /// A binding queue request and, once the queue has finished with it, its outcome
+    /// </summary>
     public class QueueItem
     {
         private static long nextId;
@@ -25,7 +25,6 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         {
             this.Id = Interlocked.Increment(ref nextId);
             this.Lifetime = Stopwatch.StartNew();
-            this.ItemProcessed = new ManualResetEvent(initialState: false);
         }
 
         /// <summary>
@@ -41,46 +40,24 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// <summary>
         /// Gets or sets the queue item key
         /// </summary>
-#pragma warning disable IDE0370 // Suppression is unnecessary — null! is required here to satisfy CS8618 for properties set by callers before use
         public string Key { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the bind operation callback method
         /// </summary>
-        public Func<IBindingContext, CancellationToken, object?> BindOperation { get; set; } = null!;
-
-        /// <summary>
-        /// Gets or sets an asynchronous bind operation, used instead of <see cref="BindOperation"/> when set
-        /// </summary>
-        public Func<IBindingContext, CancellationToken, Task<object?>>? BindOperationAsync { get; set; }
+        public Func<IBindingContext, CancellationToken, Task<object?>> BindOperation { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the timeout operation to call if the bind operation doesn't finish within timeout period
         /// </summary>
-#pragma warning restore IDE0370
-        public Func<IBindingContext, object>? TimeoutOperation { get; set; }
+        public Func<IBindingContext, object?>? TimeoutOperation { get; set; }
 
         /// <summary>
         /// Gets or sets the operation to call if the bind operation encounters an unexpected exception.
         /// Supports returning an object in case of the exception occurring since in some cases we need to be
         /// tolerant of error cases and still return some value
         /// </summary>
-#pragma warning disable IDE0370
-        public Func<Exception, object> ErrorHandler { get; set; } = null!;
-#pragma warning restore IDE0370
-
-        /// <summary>
-        /// Gets or sets an event to signal when this queue item has been processed
-        /// </summary>
-        public virtual ManualResetEvent ItemProcessed { get; set; }
-
-        /// <summary>
-        /// Waits for <see cref="ItemProcessed"/> without holding a thread
-        /// </summary>
-        public Task WaitForCompletionAsync(CancellationToken cancellationToken = default)
-        {
-            return this.ItemProcessed.WaitOneAsync(Timeout.Infinite, cancellationToken);
-        }
+        public Func<Exception, object?>? ErrorHandler { get; set; }
 
         /// <summary>
         /// Gets or sets the result of the queued task
@@ -88,13 +65,14 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         public object? Result { get; set; }
 
         /// <summary>
-        /// Gets or sets whether the binding operation started. A false value after
-        /// <see cref="ItemProcessed"/> is signaled means the item was not executed.
+        /// Gets or sets whether the binding operation started. A false value after the item
+        /// completes means the item was not executed.
         /// </summary>
         internal bool WasExecuted { get; set; }
 
         /// <summary>
-        /// Gets or sets whether the item completed through a lock or operation timeout.
+        /// Gets or sets whether the item completed through a lock or operation timeout, or was
+        /// abandoned before it ran.
         /// </summary>
         internal bool TimedOut { get; set; }
 
@@ -119,10 +97,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// </summary>
         public T? GetResultAsT<T>() where T : class
         {
-            //var task = this.ResultsTask;
-            return (this.Result != null)
-                ? this.Result as T
-                : null;
+            return this.Result as T;
         }
     }
 }

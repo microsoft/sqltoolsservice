@@ -397,6 +397,10 @@ ClusteredIndex_LabelPart = Clustered
 
 NonClusteredIndex_LabelPart = Non-Clustered
 
+ClusteredColumnStoreIndex_LabelPart = Clustered Columnstore
+
+NonClusteredColumnStoreIndex_LabelPart = Nonclustered Columnstore
+
 History_LabelPart = History
 
 SystemVersioned_LabelPart = System-Versioned

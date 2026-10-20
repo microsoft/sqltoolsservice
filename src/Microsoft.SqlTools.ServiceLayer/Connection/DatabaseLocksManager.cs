@@ -5,10 +5,11 @@
 
 #nullable disable
 
-using Microsoft.SqlTools.LanguageService.LanguageServices;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.ServiceLayer.Connection
 {
@@ -52,7 +53,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             return resetEvent;
         }
 
-        public bool GainFullAccessToDatabase(string serverName, string databaseName)
+        public async Task<bool> GainFullAccessToDatabaseAsync(string serverName, string databaseName)
         {
             /*
              * TODO: add the lock so not two process can get full access at the same time
@@ -72,15 +73,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 throw new DatabaseFullAccessException($"Waited more than {waitToGetFullAccess} milli seconds for others to release the lock");
             }
             */
-            foreach (IConnectedBindingQueue item in ConnectionService.ConnectedQueues)
-            {
-                item.CloseConnections(serverName, databaseName, DefaultWaitToGetFullAccess);
-            }
+            await Task.WhenAll(ConnectionService.ConnectedQueues.Select(
+                queue => queue.CloseConnectionsAsync(serverName, databaseName, DefaultWaitToGetFullAccess))).ConfigureAwait(false);
             return true;
 
         }
 
-        public bool ReleaseAccess(string serverName, string databaseName)
+        public async Task<bool> ReleaseAccessAsync(string serverName, string databaseName)
         {
             /*
             ManualResetEvent resetEvent = GetResetEvent(serverName, databaseName);
@@ -92,10 +91,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             
             resetEvent.Set();
             */
-            foreach (IConnectedBindingQueue item in ConnectionService.ConnectedQueues)
-            {
-                item.OpenConnections(serverName, databaseName, DefaultWaitToGetFullAccess);
-            }
+            await Task.WhenAll(ConnectionService.ConnectedQueues.Select(
+                queue => queue.OpenConnectionsAsync(serverName, databaseName, DefaultWaitToGetFullAccess))).ConfigureAwait(false);
             return true;
             
         }

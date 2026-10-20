@@ -9,9 +9,14 @@ using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.Utility;
 using System;
+using System.Threading.Tasks;
 
 namespace Microsoft.SqlTools.ServiceLayer.TaskServices
 {
+    /// <summary>
+    /// A task operation that needs full access to its database. Run it with
+    /// <see cref="ExecuteWithFullDbAccessAsync"/>, which holds that access while it executes.
+    /// </summary>
     public abstract class SmoScriptableOperationWithFullDbAccess : SmoScriptableTaskOperation, IFeatureWithFullDbAccess
     {
         private DatabaseLocksManager lockedDatabaseManager;
@@ -52,16 +57,43 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
         public override abstract void Execute();
 
         /// <summary>
-        /// Execute the operation for given execution mode
+        /// Full access to the database is taken asynchronously, so this operation must run through
+        /// <see cref="ExecuteWithFullDbAccessAsync"/>. Running it directly would skip that access.
         /// </summary>
-        /// <param name="mode"></param>
-        public override void Execute(TaskExecutionMode mode)
+        public sealed override void Execute(TaskExecutionMode mode)
         {
-            bool hasAccessToDb = false;
+            throw new InvalidOperationException($"{GetType().Name} needs full access to its database. Run it with {nameof(ExecuteWithFullDbAccessAsync)}.");
+        }
+
+        /// <summary>
+        /// Settles what the operation runs against, such as its target database, before full
+        /// access to that database is taken.
+        /// </summary>
+        protected virtual void PrepareToExecute()
+        {
+        }
+
+        /// <summary>
+        /// Executes the operation for the given mode while full access to its database is held
+        /// </summary>
+        protected virtual void ExecuteWhileHoldingAccess(TaskExecutionMode mode)
+        {
+            base.Execute(mode);
+        }
+
+        /// <summary>
+        /// Prepares the operation, then executes it while holding full access to its database
+        /// </summary>
+        public async Task ExecuteWithFullDbAccessAsync(TaskExecutionMode mode)
+        {
+            // Preparation can change the target database, so it comes first: access must be
+            // taken, and later released, on the database the operation actually uses.
+            PrepareToExecute();
+
             try
             {
-                hasAccessToDb = GainAccessToDatabase();
-                base.Execute(mode);
+                await GainAccessToDatabaseAsync();
+                ExecuteWhileHoldingAccess(mode);
             }
             catch (DatabaseFullAccessException)
             {
@@ -70,37 +102,36 @@ namespace Microsoft.SqlTools.ServiceLayer.TaskServices
             }
             finally
             {
-                if (hasAccessToDb)
-                {
-                    ReleaseAccessToDatabase();
-                }
+                // Released even when taking access failed partway, so connections it already
+                // closed are reopened.
+                await ReleaseAccessToDatabaseAsync();
             }
         }
 
-        public bool GainAccessToDatabase()
+        public async Task<bool> GainAccessToDatabaseAsync()
         {
             bool result = false;
             if (LockedDatabaseManager != null)
             {
-                result = LockedDatabaseManager.GainFullAccessToDatabase(ServerName, DatabaseName);
+                result = await LockedDatabaseManager.GainFullAccessToDatabaseAsync(ServerName, DatabaseName);
             }
             if(result && SourceDatabas != null &&  string.Compare(DatabaseName , SourceDatabas, StringComparison.InvariantCultureIgnoreCase) != 0)
             {
-                result = LockedDatabaseManager.GainFullAccessToDatabase(ServerName, SourceDatabas);
+                result = await LockedDatabaseManager.GainFullAccessToDatabaseAsync(ServerName, SourceDatabas);
             }
             return result;
         }
 
-        public bool ReleaseAccessToDatabase()
+        public async Task<bool> ReleaseAccessToDatabaseAsync()
         {
             bool result = false;
             if (LockedDatabaseManager != null)
             {
-                result = LockedDatabaseManager.ReleaseAccess(ServerName, DatabaseName);
+                result = await LockedDatabaseManager.ReleaseAccessAsync(ServerName, DatabaseName);
             }
             if (result && SourceDatabas != null && string.Compare(DatabaseName, SourceDatabas, StringComparison.InvariantCultureIgnoreCase) != 0)
             {
-                result = LockedDatabaseManager.ReleaseAccess(ServerName, SourceDatabas);
+                result = await LockedDatabaseManager.ReleaseAccessAsync(ServerName, SourceDatabas);
             }
             return result;
         }

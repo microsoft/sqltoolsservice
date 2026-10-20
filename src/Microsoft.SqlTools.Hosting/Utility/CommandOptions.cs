@@ -29,6 +29,7 @@ namespace Microsoft.SqlTools.Utility
             ErrorMessage = string.Empty;
             Locale = string.Empty;
             ApplicationName = string.Empty;
+            HttpProxyStrictSSL = true;
 
             try
             {
@@ -94,6 +95,9 @@ namespace Microsoft.SqlTools.Utility
                                 break;
                             case "-request-mfa-token-from-client":
                                 RequestMfaTokenFromClient = true;
+                                // Handlers wait for the client's token response, which the message loop can only
+                                // read while it isn't running a handler itself.
+                                ParallelMessageProcessing = true;
                                 break;
                             case "-enable-connection-pooling":
                                 EnableGlobalConnectionPooling = true;
@@ -223,7 +227,7 @@ namespace Microsoft.SqlTools.Utility
 
         /// <summary>
         /// When enabled, STS requests Entra tokens from the client via <c>account/securityTokenRequest</c>
-        /// rather than acquiring them via MSAL.
+        /// rather than acquiring them via MSAL. Also enables <see cref="ParallelMessageProcessing"/>.
         /// </summary>
         public bool RequestMfaTokenFromClient { get; private set; } = false;
 

@@ -184,7 +184,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                 connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync(testDb.DatabaseName, queryTempFile.FilePath, ConnectionType.ObjectExplorer);
                 //Opening a connection to db to lock the db
 
-                connectionService.ConnectionQueue.AddConnectionContext(connectionResult.ConnectionInfo, "", true);
+                await connectionService.ConnectionQueue.AddConnectionContextAsync(connectionResult.ConnectionInfo, "", true);
 
                 try
                 {
@@ -647,7 +647,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                             restoreDataObject = service.CreateRestoreDatabaseTaskDataObject(request);
                             Assert.That(response.SessionId, Is.EqualTo(restoreDataObject.SessionId), $"Response {nameof(response.SessionId)} not equal to RestoreObject {nameof(restoreDataObject.SessionId)}");
                             request.RelocateDbFiles = !restoreDataObject.DbFilesLocationAreValid();
-                            restoreDataObject.Execute(Enum.Parse<TaskExecutionMode>(executionMode.ToString()));
+                            await restoreDataObject.ExecuteWithFullDbAccessAsync(Enum.Parse<TaskExecutionMode>(executionMode.ToString()));
 
                             if (executionMode.HasFlag(TaskExecutionModeFlag.Execute))
                             {

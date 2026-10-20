@@ -71,21 +71,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                 It.IsAny<IMetadataDisplayInfoProvider>())).Callback(() => Thread.Sleep(ConnectedBindingQueue.BindingTimeout + 100)).Returns(declarations);
             completionService.SqlParserWrapper = sqlParserWrapper.Object;
 
-            try
-            {
-                AutoCompletionResult result = await completionService.CreateCompletions(connectionInfo, docInfo, useLowerCaseSuggestions);
+            AutoCompletionResult result = await completionService.CreateCompletions(connectionInfo, docInfo, useLowerCaseSuggestions);
 
-                Assert.That(completionService.HardTimeout, Is.EqualTo(2_000));
-                Assert.That(defaultCompletionList, Is.Not.Empty);
-                Assert.NotNull(result);
-                Assert.That(result.CompletionItems, Is.Null,
-                    "Crossing the slow threshold must not select the default timeout result.");
-                Assert.True(connectionInfo.IntellisenseMetrics.Quantile.Any());
-            }
-            finally
-            {
-                bindingQueue.StopQueueProcessor(2_000);
-            }
+            Assert.That(completionService.HardTimeout, Is.EqualTo(2_000));
+            Assert.That(defaultCompletionList, Is.Not.Empty);
+            Assert.NotNull(result);
+            Assert.That(result.CompletionItems, Is.Null,
+                "Crossing the slow threshold must not select the default timeout result.");
+            Assert.True(connectionInfo.IntellisenseMetrics.Quantile.Any());
         }
 
         /// <summary>
@@ -138,7 +131,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             {
                 releaseOperation.Set();
                 Assert.That(operationFinished.WaitOne(TimeSpan.FromSeconds(1)), Is.True);
-                bindingQueue.StopQueueProcessor(2_000);
             }
         }
 
@@ -198,7 +190,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             {
                 releaseOperation.Set();
                 await completionTask;
-                bindingQueue.StopQueueProcessor(2_000);
             }
         }
 

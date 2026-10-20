@@ -9,6 +9,7 @@
 	<ItemGroup>
 		<PackageReference Include="Azure.Identity" />
 		<PackageReference Include="Microsoft.Data.SqlClient" />
+		<PackageReference Include="System.Security.Cryptography.Pkcs" />
 		<PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" />
 		<PackageReference Include="Microsoft.Identity.Client" />
 		<PackageReference Include="System.Configuration.ConfigurationManager" />

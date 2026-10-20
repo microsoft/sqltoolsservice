@@ -374,7 +374,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             };
 
             bindingQueue.BindingContextMap.TryAdd(scriptParseInfo.ConnectionKey, bindingContext);
-            bindingQueue.BindingContextTasks.TryAdd(bindingContext, Task.FromResult(0));
 
             int callingThreadId = Environment.CurrentManagedThreadId;
             int parserThreadId = callingThreadId;
@@ -403,7 +402,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             }
             finally
             {
-                bindingQueue.StopQueueProcessor(1000);
                 bindingQueue.Dispose();
             }
         }
@@ -439,7 +437,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             };
 
             bindingQueue.BindingContextMap.TryAdd(scriptParseInfo.ConnectionKey, bindingContext);
-            bindingQueue.BindingContextTasks.TryAdd(bindingContext, Task.FromResult(0));
 
             bool dedicatedThreadCreated = false;
 
@@ -461,7 +458,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             }
             finally
             {
-                bindingQueue.StopQueueProcessor(1000);
                 bindingQueue.Dispose();
             }
         }
@@ -504,9 +500,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             service.AddOrUpdateScriptParseInfo(scriptFile.ClientUri, scriptParseInfo);
 
             var bindingContext = new ConnectedBindingContext { IsConnected = false };
-            bindingContext.BindingLock.Reset();
+            Assert.That(bindingContext.BindingLock.Wait(0), Is.True, "hold the binding lock so the queued parse cannot run");
+            bool bindingLockHeld = true;
             bindingQueue.BindingContextMap.TryAdd(connectionKey, bindingContext);
-            bindingQueue.BindingContextTasks.TryAdd(bindingContext, Task.CompletedTask);
 
             int incrementalParseCount = 0;
             service.IncrementalParseOverride = (sqlText, previousParseResult, options) =>
@@ -540,7 +536,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
                 Assert.That(scriptParseInfo.ParseResult, Is.SameAs(oldParseResult));
                 Assert.That(scriptParseInfo.ParseResult.Script.Sql, Is.EqualTo(oldSql));
 
-                bindingContext.BindingLock.Set();
+                bindingContext.BindingLock.Release();
+                bindingLockHeld = false;
 
                 await service.GetCompletionItems(
                     position,
@@ -553,8 +550,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             }
             finally
             {
-                bindingContext.BindingLock.Set();
-                bindingQueue.StopQueueProcessor(2_000);
+                if (bindingLockHeld)
+                {
+                    bindingContext.BindingLock.Release();
+                }
                 service.Dispose();
             }
         }

@@ -312,7 +312,7 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 {
                     if (session != null && session.ConnectionInfo != null)
                     {
-                        bindingQueue.RemoveBindigContext(session.ConnectionInfo);
+                        bindingQueue.RemoveConnectionContext(session.ConnectionInfo);
                     }
                 }
                 connectionService.Disconnect(new DisconnectParams()
@@ -470,8 +470,9 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
             try
             {
                 int timeout = (int)TimeSpan.FromSeconds(settings?.ExpandTimeout ?? ObjectExplorerSettings.DefaultExpandTimeout).TotalMilliseconds;
-                QueueItem queueItem = bindingQueue.QueueBindingOperation(
-                       key: bindingQueue.AddConnectionContext(session.ConnectionInfo, connectionName),
+                Logger.Verbose($"Queuing binding operation for {nodePath}");
+                QueueItem queueItem = await bindingQueue.QueueBindingOperationAsync(
+                       key: await bindingQueue.AddConnectionContextAsync(session.ConnectionInfo, connectionName),
                        bindingTimeout: timeout,
                        waitForLockTimeout: timeout,
                        timeoutOperation: (bindingContext) => CreateExpandFailureResponse(
@@ -543,8 +544,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                            }
                            return response;
                        });
-                Logger.Verbose($"Queuing binding operation for {nodePath}");
-                await queueItem.WaitForCompletionAsync();
                 Logger.Verbose($"Done with binding operation for {nodePath}");
 
                 // Every completion path of the queued operation - success, bind error, lock-wait
@@ -631,8 +630,8 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                 }
 
                 int timeout = (int)TimeSpan.FromSeconds(settings?.CreateSessionTimeout ?? ObjectExplorerSettings.DefaultCreateSessionTimeout).TotalMilliseconds;
-                QueueItem queueItem = bindingQueue.QueueBindingOperation(
-                           key: bindingQueue.AddConnectionContext(connectionInfo, connectionName),
+                QueueItem queueItem = await bindingQueue.QueueBindingOperationAsync(
+                           key: await bindingQueue.AddConnectionContextAsync(connectionInfo, connectionName),
                            bindingTimeout: timeout,
                            waitForLockTimeout: timeout,
                            bindOperation: (bindingContext, cancelToken) =>
@@ -647,7 +646,6 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectExplorer
                                return session;
                            });
 
-                await queueItem.WaitForCompletionAsync();
                 if (queueItem.GetResultAsT<ObjectExplorerSession>() != null)
                 {
                     session = queueItem.GetResultAsT<ObjectExplorerSession>();

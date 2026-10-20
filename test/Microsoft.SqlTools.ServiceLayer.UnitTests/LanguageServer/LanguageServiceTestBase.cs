@@ -79,8 +79,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
 
             // setup binding queue mock
             bindingQueue = new Mock<ConnectedBindingQueue>();
-            bindingQueue.Setup(q => q.AddConnectionContext(It.IsAny<ConnectionInfo>(), It.IsAny<string>(), It.IsAny<bool>()))
-                .Returns(this.testConnectionKey);
+            bindingQueue.Setup(q => q.AddConnectionContextAsync(It.IsAny<ConnectionInfo>(), It.IsAny<string>(), It.IsAny<bool>()))
+                .ReturnsAsync(this.testConnectionKey);
 
             langService = new TSqlLanguageService();
             // inject mock instances into the Language Service
@@ -114,7 +114,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             scriptParseInfo = new ScriptParseInfo();
             langService.AddOrUpdateScriptParseInfo(this.testScriptUri, scriptParseInfo);
             scriptParseInfo.BindingContextKind = BindingContextKindEnum.LiveConnection;
-            scriptParseInfo.ConnectionKey = langService.BindingQueue.AddConnectionContext(connectionInfo);
+            scriptParseInfo.ConnectionKey = this.testConnectionKey;
 
             // setup the binding context object
             ConnectedBindingContext bindingContext = new ConnectedBindingContext();

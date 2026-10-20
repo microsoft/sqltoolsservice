@@ -102,6 +102,9 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
         internal const int CompletionExtTimeout = 200;
 
+        // The parser recurses deeply on large scripts, so it runs on a thread with a larger stack.
+        internal const int ParseThreadStackSize = 5 * 1024 * 1024;
+
         // {0} = bracketed object name, e.g. [TableName] or [dbo].[TableName]
         internal const string DuplicateNameWarningFormat =
             "A schema object with the name {0} already exists. Would you like to continue?";
@@ -290,6 +293,17 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         internal Microsoft.SqlTools.LanguageService.Workspace.Workspace CurrentWorkspace
         {
             get { return WorkspaceServiceInstance.Workspace; }
+        }
+
+        /// <summary>
+        /// Gets the files open in the workspace, with their current (possibly unsaved) contents.
+        /// Returns false when no workspace is attached yet.
+        /// </summary>
+        internal bool TryGetOpenedFiles(out ScriptFile[] openedFiles)
+        {
+            Microsoft.SqlTools.LanguageService.Workspace.Workspace workspace = workspaceServiceInstance?.Workspace;
+            openedFiles = workspace?.GetOpenedFiles() ?? Array.Empty<ScriptFile>();
+            return workspace != null;
         }
 
         /// <summary>
@@ -1121,13 +1135,12 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                         {
                             try
                             {
-                                this.BindingQueue.AddConnectionContext(connInfo, featureName: Constants.LanguageServiceFeature, overwrite: true);
+                                await this.BindingQueue.AddConnectionContextAsync(connInfo, featureName: Constants.LanguageServiceFeature, overwrite: true);
                                 RemoveScriptParseInfo(rebuildParams.OwnerUri);
                             }
                             finally
                             {
-                                // A Monitor is owned by the thread that entered it, so it must be
-                                // released before the asynchronous metadata rebuild can change threads.
+                                // Released before the metadata rebuild below, which takes the document's lock itself.
                                 scriptInfo.BuildingMetadataLock.Exit();
                             }
 
@@ -1386,10 +1399,10 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                         }
                         else
                         {
-                            QueueItem queueItem = this.BindingQueue.QueueBindingOperationAsync(
+                            QueueItem queueItem = await this.BindingQueue.QueueBindingOperationAsync(
                                 key: parseInfo.ConnectionKey,
                                 bindingTimeout: ConnectedBindingQueue.BindingTimeout,
-                                bindOperation: async (bindingContext, cancelToken) =>
+                                bindOperationAsync: async (bindingContext, cancelToken) =>
                                 {
                                     try
                                     {
@@ -1409,8 +1422,11 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                                         parseResults.Add(parseResult);
                                         if ((bindingContext.IsConnected || (bindingContext is ConnectedBindingContext cbc2 && cbc2.IsProjectContext)) && bindingContext.Binder != null)
                                         {
-                                            string dbName = connInfo?.ConnectionDetails?.DatabaseName
-                                                            ?? parseInfo.ProjectDatabaseName;
+                                            // A project's binder only knows the project's database, even when the file is
+                                            // also connected to a server
+                                            string dbName = bindingContext is ConnectedBindingContext { IsProjectContext: true }
+                                                ? parseInfo.ProjectDatabaseName
+                                                : connInfo?.ConnectionDetails?.DatabaseName ?? parseInfo.ProjectDatabaseName;
                                             bindingContext.Binder.Bind(
                                                 parseResults,
                                                 dbName,
@@ -1436,7 +1452,6 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                                     return null;
                                 });
 
-                            await queueItem.WaitForCompletionAsync();
                             if (!queueItem.WasExecuted || queueItem.TimedOut)
                             {
                                 Logger.Verbose($"ParseAndBind: binding queue did not complete the parse for '{scriptFile.ClientUri}'");
@@ -1519,7 +1534,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
         internal virtual Thread CreateParseThread(ThreadStart threadStart)
         {
-            Thread thread = new Thread(threadStart, ConnectedBindingQueue.QueueThreadStackSize);
+            Thread thread = new Thread(threadStart, ParseThreadStackSize);
             thread.IsBackground = true;
             return thread;
         }
@@ -1634,27 +1649,37 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// <param name="info"></param>
         public async Task UpdateLanguageServiceOnConnection(ConnectionInfoBase info)
         {
+            // Clients show "Updating IntelliSense" for a connection until they receive intelliSense/ready for it,
+            // so every path through this method sends it, including the ones that skip IntelliSense setup.
+
+            // Project files always retain their Project context — a server connection must not
+            // overwrite it and redirect the file to the SMO binder. Checked first so this also holds
+            // for dedicated admin connections.
+            if (GetScriptParseInfo(info.OwnerUri, createIfNotExists: false)?.IsProject == true)
+            {
+                Logger.Information($"UpdateLanguageServiceOnConnection: skipping '{info.OwnerUri}' - file already has a SQL project binding context");
+
+                // The file's IntelliSense comes from its project, which is ready: files are only stamped
+                // with the project context once the project's model is published.
+                await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = info.OwnerUri });
+                return;
+            }
+
             if (ConnectionStringHelper.IsDedicatedAdminConnection(info.ConnectionDetails, ConnectionServiceInstance.EnableSqlAuthenticationProvider, !ConnectionServiceInstance.EnableGlobalConnectionPooling))
             {
                 // Intellisense cannot be run on these connections as only 1 SqlConnection can be opened on them at a time
                 Logger.Information($"UpdateLanguageServiceOnConnection: skipping '{info.OwnerUri}' - IntelliSense is not supported on dedicated admin connections");
+                await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = info.OwnerUri });
                 return;
             }
-            ScriptParseInfo scriptInfo = GetScriptParseInfo(info.OwnerUri, createIfNotExists: true);
 
-            // Project files always retain their Project context — a server connection must not
-            // overwrite it and redirect the file to the SMO binder.
-            if (scriptInfo.IsProject)
-            {
-                Logger.Information($"UpdateLanguageServiceOnConnection: skipping '{info.OwnerUri}' - file already has a SQL project binding context");
-                return;
-            }
+            ScriptParseInfo scriptInfo = GetScriptParseInfo(info.OwnerUri, createIfNotExists: true);
 
             if (await scriptInfo.BuildingMetadataLock.TryEnterAsync(TSqlLanguageService.OnConnectionWaitTimeout))
             {
                 try
                 {
-                    scriptInfo.ConnectionKey = this.BindingQueue.AddConnectionContext(info, Constants.LanguageServiceFeature);
+                    scriptInfo.ConnectionKey = await this.BindingQueue.AddConnectionContextAsync(info, Constants.LanguageServiceFeature);
                     scriptInfo.BindingContextKind = this.BindingQueue.IsBindingContextConnected(scriptInfo.ConnectionKey)
                         ? BindingContextKindEnum.LiveConnection
                         : BindingContextKindEnum.None;
@@ -1681,7 +1706,11 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// <summary>
         /// Registers an offline binding context for a SQL project (no server connection required).
         /// </summary>
-        public async Task UpdateLanguageServiceOnProjectOpen(
+        /// <returns>
+        /// True when the binding context is registered and the .sqlproj and every project file are stamped.
+        /// A failure to send the ready notification is logged but doesn't count as a failure.
+        /// </returns>
+        public async Task<bool> UpdateLanguageServiceOnProjectOpen(
             string projectUri,
             Microsoft.SqlServer.Management.SqlParser.MetadataProvider.IMetadataProvider metadataProvider,
             Microsoft.SqlServer.Management.SqlParser.Parser.ParseOptions parseOptions,
@@ -1699,33 +1728,47 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
 
                 // Stamp the .sqlproj URI itself
                 ScriptParseInfo scriptInfo = GetScriptParseInfo(projectUri, createIfNotExists: true);
-                if (await scriptInfo.BuildingMetadataLock.TryEnterAsync(TSqlLanguageService.OnConnectionWaitTimeout))
+                if (!await scriptInfo.BuildingMetadataLock.TryEnterAsync(TSqlLanguageService.OnConnectionWaitTimeout))
                 {
-                    try
-                    {
-                        scriptInfo.ConnectionKey = contextKey;
-                        scriptInfo.BindingContextKind = BindingContextKindEnum.Project;
-                        scriptInfo.ProjectDatabaseName = databaseName;
-                    }
-                    finally
-                    {
-                        scriptInfo.BuildingMetadataLock.Exit();
-                    }
+                    Logger.Error($"Timed out stamping {projectUri} with its project context");
+                    return false;
+                }
+
+                try
+                {
+                    scriptInfo.ConnectionKey = contextKey;
+                    scriptInfo.BindingContextKind = BindingContextKindEnum.Project;
+                    scriptInfo.ProjectDatabaseName = databaseName;
+                }
+                finally
+                {
+                    scriptInfo.BuildingMetadataLock.Exit();
                 }
 
                 // Stamp all .sql files with project context (IsProject == true)
-                if (fileUris != null)
+                if (fileUris != null && !InitializeProjectFileContexts(fileUris, contextKey, databaseName))
                 {
-                    InitializeProjectFileContexts(fileUris, contextKey, databaseName);
+                    Logger.Error($"Timed out stamping one or more files with the project context for {projectUri}");
+                    return false;
                 }
-
-                await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = projectUri });
-                Logger.Information($"UpdateLanguageServiceOnProjectOpen: offline IntelliSense ready for project '{projectUri}' (database: '{databaseName}')");
             }
             catch (Exception ex)
             {
                 Logger.Error($"Failed to set up project IntelliSense for {projectUri}: {ex}");
+                return false;
             }
+
+            try
+            {
+                await ServiceHostInstance.SendEvent(IntelliSenseReadyNotification.Type, new IntelliSenseReadyParams() { OwnerUri = projectUri });
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Failed to send IntelliSense ready notification for {projectUri}: {ex}");
+            }
+
+            Logger.Information($"UpdateLanguageServiceOnProjectOpen: offline IntelliSense ready for project '{projectUri}' (database: '{databaseName}')");
+            return true;
         }
 
         /// <summary>
@@ -1733,8 +1776,10 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         /// Must only be called AFTER AddProjectContext has registered the binding context, so that
         /// any request that arrives immediately after stamping finds a ready context with MetadataProvider set.
         /// </summary>
-        public void InitializeProjectFileContexts(IEnumerable<string> fileUris, string contextKey, string databaseName)
+        /// <returns>True when every file was stamped; false when a file's lock timed out and it was skipped.</returns>
+        public bool InitializeProjectFileContexts(IEnumerable<string> fileUris, string contextKey, string databaseName)
         {
+            bool allStamped = true;
             foreach (string fileUri in fileUris)
             {
                 ScriptParseInfo scriptInfo = GetScriptParseInfo(fileUri, createIfNotExists: true);
@@ -1751,7 +1796,12 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                         scriptInfo.BuildingMetadataLock.Exit();
                     }
                 }
+                else
+                {
+                    allStamped = false;
+                }
             }
+            return allStamped;
         }
 
         /// <summary>
@@ -1802,7 +1852,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                     {
                         try
                         {
-                            QueueItem queueItem = bindingQueue.QueueBindingOperation(
+                            await bindingQueue.QueueBindingOperationAsync(
                                 key: scriptInfo.ConnectionKey,
                                 bindingTimeout: PrepopulateBindTimeout,
                                 waitForLockTimeout: PrepopulateBindTimeout,
@@ -1850,8 +1900,6 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                                     }
                                     return null;
                                 });
-
-                            await queueItem.WaitForCompletionAsync();
                         }
                         catch (Exception ex)
                         {
@@ -1928,7 +1976,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 {
                     try
                     {
-                        QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
+                        await this.BindingQueue.QueueBindingOperationAsync(
                             key: scriptParseInfo.ConnectionKey,
                             bindingTimeout: ConnectedBindingQueue.BindingTimeout,
                             bindOperation: (bindingContext, cancelToken) =>
@@ -1944,8 +1992,6 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                                 }
                                 return completionItem;
                             });
-
-                        await queueItem.WaitForCompletionAsync();
                     }
                     catch (Exception ex)
                     {
@@ -1979,7 +2025,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                                             ConnectionInfoBase connInfo, ScriptFile scriptFile, string tokenText)
         {
             // Queue the task with the binding queue
-            QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
+            QueueItem queueItem = await this.BindingQueue.QueueBindingOperationAsync(
                 key: scriptParseInfo.ConnectionKey,
                 bindingTimeout: TSqlLanguageService.PeekDefinitionTimeout,
                 bindOperation: (bindingContext, cancelToken) =>
@@ -2030,8 +2076,6 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                     };
                 });
 
-            // wait for the queue item
-            await queueItem.WaitForCompletionAsync();
             var result = queueItem.GetResultAsT<DefinitionResult>();
             return result;
         }
@@ -2729,7 +2773,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
             int parserLine = textDocumentPosition.Position.Line + 1;
             int parserColumn = textDocumentPosition.Position.Character + 1;
 
-            QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
+            QueueItem queueItem = await this.BindingQueue.QueueBindingOperationAsync(
                 key: scriptParseInfo.ConnectionKey,
                 bindingTimeout: TSqlLanguageService.PeekDefinitionTimeout,
                 bindOperation: (bindingContext, cancelToken) =>
@@ -2810,7 +2854,6 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                     Locations = null
                 });
 
-            await queueItem.WaitForCompletionAsync();
             return queueItem.GetResultAsT<DefinitionResult>();
         }
 
@@ -2956,7 +2999,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 {
                     try
                     {
-                        QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
+                        QueueItem queueItem = await this.BindingQueue.QueueBindingOperationAsync(
                             key: scriptParseInfo.ConnectionKey,
                             bindingTimeout: TSqlLanguageService.HoverTimeout,
                             bindOperation: (bindingContext, cancelToken) =>
@@ -2976,7 +3019,6 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                                         endColumn);
                             });
 
-                        await queueItem.WaitForCompletionAsync();
                         return queueItem.GetResultAsT<Hover>();
                     }
                     finally
@@ -3029,7 +3071,7 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                 {
                     try
                     {
-                        QueueItem queueItem = this.BindingQueue.QueueBindingOperation(
+                        QueueItem queueItem = await this.BindingQueue.QueueBindingOperationAsync(
                             key: scriptParseInfo.ConnectionKey,
                             bindingTimeout: ConnectedBindingQueue.BindingTimeout,
                             bindOperation: (bindingContext, cancelToken) =>
@@ -3061,7 +3103,6 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
                                     return null;
                                 }
                             });
-                        await queueItem.WaitForCompletionAsync();
                         Logger.Verbose($"GetSignatureHelp - Got result {queueItem.Result}");
                         return queueItem.GetResultAsT<SignatureHelp>();
                     }

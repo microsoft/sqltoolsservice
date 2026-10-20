@@ -203,7 +203,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.DisasterRecovery
                             restoreDataObject = service.CreateRestoreDatabaseTaskDataObject(request);
                             Assert.AreEqual(response.SessionId, restoreDataObject.SessionId);
                             request.RelocateDbFiles = !restoreDataObject.DbFilesLocationAreValid();
-                            restoreDataObject.Execute(Enum.Parse<TaskExecutionMode>(executionMode.ToString()));
+                            await restoreDataObject.ExecuteWithFullDbAccessAsync(Enum.Parse<TaskExecutionMode>(executionMode.ToString()));
 
                             if (executionMode.HasFlag(TaskExecutionModeFlag.Execute))
                             {

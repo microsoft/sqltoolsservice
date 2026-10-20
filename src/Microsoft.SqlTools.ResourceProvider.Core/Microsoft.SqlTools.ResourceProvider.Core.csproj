@@ -14,6 +14,7 @@
 	<ItemGroup>
 		<PackageReference Include="Azure.Identity" />
 		<PackageReference Include="Microsoft.Data.SqlClient" />
+		<PackageReference Include="System.Security.Cryptography.Pkcs" />
 		<PackageReference Include="Microsoft.Extensions.DependencyModel" />
 		<PackageReference Include="System.Composition" />
 		<PackageReference Include="System.Configuration.ConfigurationManager" />

@@ -201,7 +201,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
 
                 ScriptParseInfo scriptInfo = new ScriptParseInfo { BindingContextKind = BindingContextKindEnum.LiveConnection };
                 await autoCompleteService.ParseAndBind(result.ScriptFile, result.ConnectionInfo);
-                scriptInfo.ConnectionKey = autoCompleteService.BindingQueue.AddConnectionContext(result.ConnectionInfo);
+                scriptInfo.ConnectionKey = await autoCompleteService.BindingQueue.AddConnectionContextAsync(result.ConnectionInfo);
 
                 //Invoke auto completion with extension enabled
                 var completions = autoCompleteService.GetCompletionItems(
@@ -314,12 +314,12 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
         /// Test overwriting the binding queue context
         /// </summary>
         [Test]
-        public void OverwriteBindingContext()
+        public async Task OverwriteBindingContext()
         {
             var result = LiveConnectionHelper.InitLiveConnectionInfo();
 
             // add a new connection context
-            var connectionKey = TSqlLanguageService.Instance.BindingQueue.AddConnectionContext(result.ConnectionInfo, overwrite: true);
+            var connectionKey = await TSqlLanguageService.Instance.BindingQueue.AddConnectionContextAsync(result.ConnectionInfo, overwrite: true);
             Assert.True(TSqlLanguageService.Instance.BindingQueue.BindingContextMap.ContainsKey(connectionKey));
 
             // cache the server connection
@@ -327,7 +327,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.LanguageServer
             Assert.NotNull(orgServerConnection);
 
             // add a new connection context
-            connectionKey = TSqlLanguageService.Instance.BindingQueue.AddConnectionContext(result.ConnectionInfo, overwrite: true);
+            connectionKey = await TSqlLanguageService.Instance.BindingQueue.AddConnectionContextAsync(result.ConnectionInfo, overwrite: true);
             Assert.True(TSqlLanguageService.Instance.BindingQueue.BindingContextMap.ContainsKey(connectionKey));
             Assert.False(object.ReferenceEquals(TSqlLanguageService.Instance.BindingQueue.BindingContextMap[connectionKey].ServerConnection, orgServerConnection));
         }

@@ -60,7 +60,6 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             connectedBindingContext.ServerConnection = new ServerConnection(new SqlConnection(fakeConnectionString));
             connectedBindingQueue = new ConnectedBindingQueue(false);
             connectedBindingQueue.BindingContextMap.TryAdd($"{details.ServerName}_{details.DatabaseName}_{details.UserName}_NULL_persistSecurityInfo:true", connectedBindingContext);
-            connectedBindingQueue.BindingContextTasks.TryAdd(connectedBindingContext, Task.Run(() => null));
             mockConnectionOpener = new Mock<SqlConnectionOpener>();
             connectedBindingQueue.SetConnectionOpener(mockConnectionOpener.Object);
             service.ConnectedBindingQueue = connectedBindingQueue;
@@ -360,7 +359,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         public async Task ExpandReportsAnErrorWhenTheBindingOperationProducesNoResult()
         {
             var session = await CreateSession();
-            UseBindingQueue(item => null);
+            UseBindingQueue(item => Task.FromResult<object>(null));
 
             ExpandResponse response = await ExpandRootNode(session);
 
@@ -379,7 +378,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             UseBindingQueue(item =>
             {
                 Assert.That(item.TimeoutOperation, Is.Not.Null, "The expand request should supply a timeout handler");
-                return item.TimeoutOperation(null);
+                return Task.FromResult(item.TimeoutOperation(null));
             });
 
             ExpandResponse response = await ExpandRootNode(session);
@@ -398,7 +397,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
             UseBindingQueue(item =>
             {
                 Assert.That(item.ErrorHandler, Is.Not.Null, "The expand request should supply an error handler");
-                return item.ErrorHandler(new InvalidOperationException(expectedMessage));
+                return Task.FromResult(item.ErrorHandler(new InvalidOperationException(expectedMessage)));
             });
 
             ExpandResponse response = await ExpandRootNode(session);
@@ -427,7 +426,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         /// immediately, using <paramref name="resultFactory"/> to decide what the queue reports back.
         /// Must be called after <see cref="CreateSession"/>, which uses the queue itself.
         /// </summary>
-        private void UseBindingQueue(Func<QueueItem, object> resultFactory)
+        private void UseBindingQueue(Func<QueueItem, Task<object>> resultFactory)
         {
             service.ConnectedBindingQueue = new StubConnectedBindingQueue(resultFactory);
         }
@@ -455,22 +454,22 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
         /// </summary>
         private sealed class StubConnectedBindingQueue : ConnectedBindingQueue
         {
-            private readonly Func<QueueItem, object> resultFactory;
+            private readonly Func<QueueItem, Task<object>> resultFactory;
 
-            public StubConnectedBindingQueue(Func<QueueItem, object> resultFactory)
+            public StubConnectedBindingQueue(Func<QueueItem, Task<object>> resultFactory)
                 : base(needsMetadata: false)
             {
                 this.resultFactory = resultFactory;
             }
 
-            public override string AddConnectionContext(LanguageService.LanguageServices.ConnectionInfoBase connInfo, string featureName = null, bool overwrite = false)
+            public override Task<string> AddConnectionContextAsync(LanguageService.LanguageServices.ConnectionInfoBase connInfo, string featureName = null, bool overwrite = false)
             {
-                return "stub-connection-key";
+                return Task.FromResult("stub-connection-key");
             }
 
-            public override QueueItem QueueBindingOperation(
+            public override async Task<QueueItem> QueueBindingOperationAsync(
                 string key,
-                Func<IBindingContext, CancellationToken, object> bindOperation,
+                Func<IBindingContext, CancellationToken, Task<object>> bindOperationAsync,
                 Func<IBindingContext, object> timeoutOperation = null,
                 Func<Exception, object> errorHandler = null,
                 int? bindingTimeout = null,
@@ -480,7 +479,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                 QueueItem queueItem = new QueueItem()
                 {
                     Key = key,
-                    BindOperation = bindOperation,
+                    BindOperation = bindOperationAsync,
                     TimeoutOperation = timeoutOperation,
                     ErrorHandler = errorHandler,
                     BindingTimeout = bindingTimeout,
@@ -488,8 +487,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.ObjectExplorer
                     HardTimeout = hardTimeout
                 };
 
-                queueItem.Result = resultFactory(queueItem);
-                queueItem.ItemProcessed.Set();
+                queueItem.Result = await resultFactory(queueItem);
                 return queueItem;
             }
         }

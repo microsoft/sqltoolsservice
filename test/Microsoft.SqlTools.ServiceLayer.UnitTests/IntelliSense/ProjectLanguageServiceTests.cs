@@ -24,6 +24,7 @@ using Microsoft.SqlTools.LanguageService.LanguageServices.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.SqlProjects;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.SqlProjects;
+using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using Microsoft.SqlTools.LanguageService.Workspace;
 using Microsoft.SqlTools.LanguageService.Workspace.Contracts;
 using Microsoft.SqlTools.Hosting.Protocol;
@@ -288,7 +289,7 @@ END
             _langService.InitializeProjectFileContexts(uris, _contextKey, "LanguageServiceTestProject");
 
             // A binding queue that accepts items but does not process them until told to.
-            var queuedItems = new ConcurrentQueue<QueueItem>();
+            var queuedItems = new ConcurrentQueue<TaskCompletionSource<QueueItem>>();
             var itemQueued = new SemaphoreSlim(0);
             var stalledQueue = new Mock<ConnectedBindingQueue>();
             stalledQueue
@@ -302,10 +303,10 @@ END
                     It.IsAny<int?>()))
                 .Returns(() =>
                 {
-                    var item = new QueueItem();
-                    queuedItems.Enqueue(item);
+                    var pending = new TaskCompletionSource<QueueItem>(TaskCreationOptions.RunContinuationsAsynchronously);
+                    queuedItems.Enqueue(pending);
                     itemQueued.Release();
-                    return item;
+                    return pending.Task;
                 });
             ConnectedBindingQueue realQueue = _langService.BindingQueue;
             _langService.BindingQueue = stalledQueue.Object;
@@ -330,9 +331,9 @@ END
                 });
 
                 supersede.Cancel();
-                foreach (QueueItem item in queuedItems)
+                foreach (TaskCompletionSource<QueueItem> pending in queuedItems)
                 {
-                    item.ItemProcessed.Set();
+                    pending.TrySetResult(new QueueItem());
                 }
 
                 Assert.That(await Task.WhenAny(refresh, Task.Delay(10_000)), Is.SameAs(refresh),
@@ -342,9 +343,9 @@ END
             }
             finally
             {
-                foreach (QueueItem item in queuedItems)
+                foreach (TaskCompletionSource<QueueItem> pending in queuedItems)
                 {
-                    item.ItemProcessed.Set();
+                    pending.TrySetResult(new QueueItem());
                 }
                 _langService.BindingQueue = realQueue;
             }
@@ -407,7 +408,7 @@ END
             }
             _langService.InitializeProjectFileContexts(uris, _contextKey, "LanguageServiceTestProject");
 
-            var queuedItems = new ConcurrentQueue<QueueItem>();
+            var queuedItems = new ConcurrentQueue<TaskCompletionSource<QueueItem>>();
             var stalledQueue = new Mock<ConnectedBindingQueue>();
             stalledQueue
                 .Setup(q => q.QueueBindingOperationAsync(
@@ -420,9 +421,9 @@ END
                     It.IsAny<int?>()))
                 .Returns(() =>
                 {
-                    var item = new QueueItem();
-                    queuedItems.Enqueue(item);
-                    return item;
+                    var pending = new TaskCompletionSource<QueueItem>(TaskCreationOptions.RunContinuationsAsynchronously);
+                    queuedItems.Enqueue(pending);
+                    return pending.Task;
                 });
             ConnectedBindingQueue realQueue = _langService.BindingQueue;
             _langService.BindingQueue = stalledQueue.Object;
@@ -435,18 +436,18 @@ END
                 Assert.That(SpinWait.SpinUntil(() => queuedItems.Count == callCount, 10_000), Is.True,
                     "every call reaches the queue without needing a thread of its own");
 
-                foreach (QueueItem item in queuedItems)
+                foreach (TaskCompletionSource<QueueItem> pending in queuedItems)
                 {
-                    item.ItemProcessed.Set();
+                    pending.TrySetResult(new QueueItem());
                 }
                 Assert.That(((IAsyncResult)Task.WhenAll(calls)).AsyncWaitHandle.WaitOne(30_000), Is.True,
                     "the calls complete once the queue processes their items");
             }
             finally
             {
-                foreach (QueueItem item in queuedItems)
+                foreach (TaskCompletionSource<QueueItem> pending in queuedItems)
                 {
-                    item.ItemProcessed.Set();
+                    pending.TrySetResult(new QueueItem());
                 }
                 ThreadPool.SetMaxThreads(maxWorkerThreads, maxIoThreads);
                 _langService.BindingQueue = realQueue;
@@ -827,12 +828,97 @@ END
             // We pass a real ConnectionInfo pointing at the project URI so the guard can read OwnerUri.
             var fakeDetails = new ConnectionDetails { ServerName = "fakeserver", DatabaseName = "fakedb" };
             var fakeConn = new ConnectionInfo(factory: null, ownerUri: _projectUri, details: fakeDetails);
+            List<string> readyUris = CaptureIntelliSenseReady();
+
             _langService.UpdateLanguageServiceOnConnection(fakeConn).GetAwaiter().GetResult();
 
             // Assert: key must still be the project key
             var parseInfoAfter = _langService.GetScriptParseInfo(_projectUri);
             Assert.AreEqual(originalKey, parseInfoAfter.ConnectionKey,
                 "Project context key must not be overwritten by a server connection");
+
+            // The client shows "Updating IntelliSense" for the connection until it hears it's ready
+            CollectionAssert.AreEqual(new[] { _projectUri }, readyUris,
+                "IntelliSense ready must still be sent for the connected project file");
+        }
+
+        /// <summary>
+        /// A project file on a dedicated admin connection keeps its project context, and the client is still
+        /// told IntelliSense is ready so it stops showing "Updating IntelliSense".
+        /// </summary>
+        [Test]
+        public async Task DedicatedAdminConnection_OnProjectFile_KeepsProjectContextAndSendsReady()
+        {
+            string originalKey = _langService.GetScriptParseInfo(_projectUri).ConnectionKey;
+            List<string> readyUris = CaptureIntelliSenseReady();
+
+            await _langService.UpdateLanguageServiceOnConnection(CreateDedicatedAdminConnection(_projectUri));
+
+            Assert.AreEqual(originalKey, _langService.GetScriptParseInfo(_projectUri).ConnectionKey,
+                "Project context key must not change on a dedicated admin connection");
+            CollectionAssert.AreEqual(new[] { _projectUri }, readyUris,
+                "IntelliSense ready must be sent for a project file on a dedicated admin connection");
+        }
+
+        /// <summary>
+        /// IntelliSense isn't supported on dedicated admin connections, but the client still needs
+        /// intelliSense/ready to stop showing "Updating IntelliSense".
+        /// </summary>
+        [Test]
+        public async Task DedicatedAdminConnection_SendsReady()
+        {
+            string queryUri = "file:///test_dedicated_admin_connection.sql";
+            List<string> readyUris = CaptureIntelliSenseReady();
+
+            await _langService.UpdateLanguageServiceOnConnection(CreateDedicatedAdminConnection(queryUri));
+
+            CollectionAssert.AreEqual(new[] { queryUri }, readyUris,
+                "IntelliSense ready must be sent for a dedicated admin connection");
+        }
+
+        private List<string> CaptureIntelliSenseReady()
+        {
+            var readyUris = new List<string>();
+            var serviceHost = new Mock<ILanguageServiceHost>();
+            serviceHost
+                .Setup(host => host.SendEvent(It.IsAny<EventType<IntelliSenseReadyParams>>(), It.IsAny<IntelliSenseReadyParams>()))
+                .Callback((EventType<IntelliSenseReadyParams> _, IntelliSenseReadyParams ready) => readyUris.Add(ready.OwnerUri))
+                .Returns(Task.CompletedTask);
+            _langService.ServiceHostInstance = serviceHost.Object;
+            return readyUris;
+        }
+
+        private static ConnectionInfo CreateDedicatedAdminConnection(string ownerUri)
+        {
+            ConnectionDetails details = TestObjects.GetTestConnectionParams().Connection;
+            details.ServerName = "ADMIN:fakeserver";
+            return new ConnectionInfo(factory: null, ownerUri: ownerUri, details: details);
+        }
+
+        /// <summary>
+        /// Regression: a project file that's also connected to a server must bind against the project's
+        /// database. Binding with the connection's database name made the binder throw
+        /// NullReferenceException, because the project's metadata doesn't contain that database.
+        /// </summary>
+        [Test]
+        public async Task ConnectedProjectFile_BindsAgainstProjectDatabase()
+        {
+            string queryUri = "file:///test_connected_project_file.sql";
+            var scriptFile = _workspaceService.Workspace.GetFileBuffer(queryUri, "SELECT * FROM dbo.Customers");
+            _langService.InitializeProjectFileContexts(new[] { queryUri }, _contextKey, "LanguageServiceTestProject");
+
+            var details = new ConnectionDetails { ServerName = "fakeserver", DatabaseName = "SomeOtherDatabase" };
+            var connInfo = new ConnectionInfo(factory: null, ownerUri: queryUri, details: details);
+            await _langService.ParseAndBind(scriptFile, connInfo);
+
+            var hover = await _langService.GetHoverItem(new TextDocumentPosition
+            {
+                TextDocument = new TextDocumentIdentifier { Uri = queryUri },
+                Position = new Position { Line = 0, Character = 22 } // inside "Customers"
+            }, scriptFile);
+
+            Assert.IsNotNull(hover?.Contents, "A connected project file should still bind and produce hover info");
+            StringAssert.Contains("Customers", hover.Contents.Value, "Hover should resolve the project's table");
         }
 
         /// <summary>

@@ -21,5 +21,6 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
         public const string ObjectExplorer = "ObjectExplorer";
         public const string Dashboard = "Dashboard";
         public const string GeneralConnection = "GeneralConnection";
+        public const string LiveQueryStatistics = "LiveQueryStatistics";
     }
 }

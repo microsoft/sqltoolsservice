@@ -9,17 +9,31 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution;
 using Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts;
 using Microsoft.SqlTools.ServiceLayer.SqlContext;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using NUnit.Framework;
+using ReliableSqlConnection = Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection.ReliableSqlConnection;
 
 namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
 {
     public class QueryTests
     {
+        [Test]
+        public void InactiveConnectionClearsTheReportedServerSessionId()
+        {
+            using var query = new Query(Constants.StandardQuery, Common.CreateTestConnectionInfo(null, false, false),
+                new QueryExecutionSettings(), MemoryFileSystem.GetFileStreamFactory());
+            typeof(Query).GetProperty(nameof(Query.ServerConnectionId)).SetValue(query, "57");
+            using var connection = new ReliableSqlConnection(new SqlConnection(), null, null);
+
+            query.UpdateServerConnectionId(connection);
+
+            Assert.That(query.ServerConnectionId, Is.Null);
+        }
 
         [Test]
         public void QueryCreationCorrect()

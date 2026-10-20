@@ -46,9 +46,10 @@ namespace Microsoft.SqlTools.LanguageService.LanguageServices
         IBinder Binder { get; set; }
 
         /// <summary>
-        /// Gets the binding lock object
+        /// Gets the lock that gives one operation at a time use of this context. Wait on it
+        /// asynchronously; it is not reentrant and can be released from any thread.
         /// </summary>
-        ManualResetEvent BindingLock { get; }
+        SemaphoreSlim BindingLock { get; }
 
         /// <summary>
         /// Gets or sets the binding operation timeout in milliseconds
