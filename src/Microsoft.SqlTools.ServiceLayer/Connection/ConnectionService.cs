@@ -675,6 +675,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     ServerVersion = serverInfo.ServerVersion,
                     ServerLevel = serverInfo.ServerLevel,
                     ServerEdition = MapServerEdition(serverInfo),
+                    DatabaseServiceTier = serverInfo.DatabaseServiceTier,
+                    DatabaseServiceObjective = serverInfo.DatabaseServiceObjective,
                     IsCloud = serverInfo.IsCloud,
                     AzureVersion = serverInfo.AzureVersion,
                     OsVersion = serverInfo.OsVersion,
@@ -1810,6 +1812,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     IConnectionSummary summary = info.ConnectionDetails;
                     parameters.Connection = summary.Clone();
                     parameters.OwnerUri = ownerUri;
+                    var metadata = GetConnectionCompleteParams(ConnectionType.Default, info);
+                    parameters.ServerInfo = metadata.ServerInfo;
+                    if (!string.IsNullOrEmpty(metadata.ErrorMessage))
+                    {
+                        Logger.Warning("Unable to refresh server metadata after changing database context: " + metadata.ErrorMessage);
+                    }
                     ServiceHost.SendEvent(ConnectionChangedNotification.Type, parameters);
                     return true;
                 }

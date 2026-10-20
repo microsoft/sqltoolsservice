@@ -663,6 +663,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
             public string ServerVersion;
             public string ServerLevel;
             public string ServerEdition;
+            public string DatabaseServiceTier;
+            public string DatabaseServiceObjective;
             public bool IsCloud;
             public int AzureVersion;
 
@@ -846,6 +848,12 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
                     {
                         // Detect the presence of SXI
                         serverInfo.IsSelectiveXmlIndexMetadataPresent = reader.GetInt32(6) == 1;
+                    }
+
+                    if (reader.FieldCount > 8)
+                    {
+                        serverInfo.DatabaseServiceTier = reader.IsDBNull(7) ? null : reader.GetString(7);
+                        serverInfo.DatabaseServiceObjective = reader.IsDBNull(8) ? null : reader.GetString(8);
                     }
 
                     // The 'ProductVersion' server property is of the form ##.#[#].####.#,
