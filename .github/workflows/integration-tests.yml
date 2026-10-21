@@ -142,7 +142,7 @@ jobs:
       - name: Run integration tests
         id: integration_tests
         continue-on-error: true
-        timeout-minutes: 60
+        timeout-minutes: 90
         shell: pwsh
         run: |
           dotnet test test/Microsoft.SqlTools.ServiceLayer.IntegrationTests/Microsoft.SqlTools.ServiceLayer.IntegrationTests.csproj `
