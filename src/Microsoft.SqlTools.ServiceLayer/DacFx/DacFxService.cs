@@ -396,7 +396,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// </summary>
         public async Task HandleGetCodeAnalysisRulesRequest(GetCodeAnalysisRulesParams parameters, RequestContext<GetCodeAnalysisRulesResult> requestContext)
         {
-            await BaseService.RunWithErrorHandling(() => GetCodeAnalysisRules(parameters?.ProjectUri), requestContext);
+            await BaseService.RunWithErrorHandling(
+                () => GetCodeAnalysisRules(parameters?.ProjectUri, parameters?.AllowCustomRuleExecution == true),
+                requestContext);
         }
 
         /// <summary>
@@ -407,7 +409,9 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// Creates a minimal TSqlModel to enumerate rules from the DacFx CodeAnalysisService;
         /// the rules are static and do not depend on model content or SQL Server version.
         /// </summary>
-        internal static GetCodeAnalysisRulesResult GetCodeAnalysisRules(string? projectFilePath)
+        internal static GetCodeAnalysisRulesResult GetCodeAnalysisRules(
+            string? projectFilePath,
+            bool allowCustomRuleExecution = false)
         {
             // Version doesn't affect the rules returned; a model is only needed to obtain a CodeAnalysisService instance.
             using var model = new TSqlModel(SqlServerVersion.Sql170, new TSqlModelOptions());
@@ -432,7 +436,7 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
 
             string? warning = null;
 
-            if (!string.IsNullOrWhiteSpace(projectFilePath))
+            if (allowCustomRuleExecution && !string.IsNullOrWhiteSpace(projectFilePath))
             {
                 CustomRuleLoader.LoadResult customRules = CustomRuleLoader.LoadFromProject(projectFilePath);
 

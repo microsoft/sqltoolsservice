@@ -9,6 +9,10 @@ $SqlInstance = '{0}\{1}' -f "$(ESCAPE_SQUOTE(MACH))", "$(ESCAPE_SQUOTE(INST))"
      "Invoke-SqlCmd:ServerInstance" = $SqlInstance
 }
 $sqlResult = Invoke-Sqlcmd -Query $JSONTable -Database $TargetDatabase -MaxCharLength 2147483647
+if (@($sqlResult).Count -ne 1) {
+    throw "Expected exactly one notebook template for job $JobId."
+}
+
 $FirstNotebookError = ""
 function ParseTableToNotebookOutput {
     param (
@@ -23,7 +27,7 @@ function ParseTableToNotebookOutput {
     $TableHTMLText += "<tr>"
     foreach ($ColumnName in $DataTable.Columns) {
         $TableSchemaFeilds += @(@{name = $ColumnName.toString() })
-        $TableHTMLText += "<th>" + $ColumnName.toString() + "</th>"
+        $TableHTMLText += "<th>" + [System.Net.WebUtility]::HtmlEncode($ColumnName.toString()) + "</th>"
     }
     $TableHTMLText += "</tr>"
     $TableSchema = @{ }
@@ -36,7 +40,7 @@ function ParseTableToNotebookOutput {
         $i = 0
         foreach ($Cell in $Row.ItemArray) {
             $TableDataRow[$i.ToString()] = $Cell.toString()
-            $TableHTMLText += "<td>" + $Cell.toString() + "</td>"
+            $TableHTMLText += "<td>" + [System.Net.WebUtility]::HtmlEncode($Cell.toString()) + "</td>"
             $i++
         }
         $TableHTMLText += "</tr>"
@@ -79,7 +83,7 @@ function ParseStringToNotebookOutput {
         $InputString
     )
     $StringOutputData = @{ }
-    $StringOutputData["text/html"] = $InputString
+    $StringOutputData["text/plain"] = $InputString
     $StringOutput = @{ }
     $StringOutput["output_type"] = "display_data"
     $StringOutput["data"] = $StringOutputData
@@ -89,6 +93,20 @@ function ParseStringToNotebookOutput {
 
 $TemplateNotebook = $sqlResult.notebook
 $executeDatabase = $sqlResult.execute_database
+$IntegrityPayload = $executeDatabase + [char]0 + $TemplateNotebook
+$Sha256 = [System.Security.Cryptography.SHA256]::Create()
+try {
+    $ActualNotebookHash = [System.BitConverter]::ToString(
+        $Sha256.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($IntegrityPayload))).Replace("-", "")
+}
+finally {
+    $Sha256.Dispose()
+}
+
+if ($ActualNotebookHash -cne $ExpectedNotebookHash) {
+    throw "Notebook template integrity validation failed for job $JobId."
+}
+
 try {
     $TemplateNotebookJsonObject = ConvertFrom-Json -InputObject $TemplateNotebook
 }

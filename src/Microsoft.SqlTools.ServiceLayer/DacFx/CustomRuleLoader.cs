@@ -122,7 +122,24 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
             using JsonDocument document = JsonDocument.Parse(File.ReadAllText(assetsFilePath));
             JsonElement root = document.RootElement;
 
-            IReadOnlyList<string> packageFolders = ReadPackageFolders(root);
+            IReadOnlyList<string> packageFolders = GetTrustedPackageFolders();
+            return ResolveAnalyzerAssemblyPaths(root, packageFolders, result);
+        }
+
+        internal static List<string> ResolveAnalyzerAssemblyPaths(
+            string assetsFilePath,
+            IReadOnlyList<string> packageFolders,
+            LoadResult result)
+        {
+            using JsonDocument document = JsonDocument.Parse(File.ReadAllText(assetsFilePath));
+            return ResolveAnalyzerAssemblyPaths(document.RootElement, packageFolders, result);
+        }
+
+        private static List<string> ResolveAnalyzerAssemblyPaths(
+            JsonElement root,
+            IReadOnlyList<string> packageFolders,
+            LoadResult result)
+        {
             HashSet<string> directDependencies = ReadDirectDependencies(root);
             List<string> assemblyPaths = new();
 
@@ -144,20 +161,23 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
                 {
                     string packageRelativePath = file.ValueKind == JsonValueKind.String ? file.GetString()! : string.Empty;
 
-                    if (!IsCandidateAssembly(packageRelativePath))
+                    if (!IsCandidateAssembly(packageRelativePath) ||
+                        !IsSafePathSegment(packageName) ||
+                        !IsSafePathSegment(version))
                     {
                         continue;
                     }
 
-                    // Packages are laid out as <packageFolder>/<lowercase id>/<version>/<file>.
+                    string packageRelativeFolder = Path.Combine(packageName.ToLowerInvariant(), version);
                     string folderRelativePath = Path.Combine(
-                        packageName.ToLowerInvariant(),
-                        version,
+                        packageRelativeFolder,
                         packageRelativePath.Replace('/', Path.DirectorySeparatorChar));
-
                     string? resolvedPath = packageFolders
-                        .Select(packageFolder => Path.Combine(packageFolder, folderRelativePath))
-                        .FirstOrDefault(File.Exists);
+                        .Select(packageFolder => ResolveContainedAssemblyPath(
+                            packageFolder,
+                            packageRelativeFolder,
+                            packageRelativePath))
+                        .FirstOrDefault(path => path != null && File.Exists(path));
 
                     if (resolvedPath != null)
                     {
@@ -174,29 +194,16 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         }
 
         /// <summary>
-        /// Reads the NuGet package folders recorded in the assets file. Taking them from the file
-        /// covers custom NUGET_PACKAGES locations and shared caches without probing the environment.
+        /// Gets the NuGet package folder from process configuration rather than trusting the
+        /// workspace-controlled assets file to select an arbitrary assembly root.
         /// </summary>
-        private static IReadOnlyList<string> ReadPackageFolders(JsonElement root)
+        private static IReadOnlyList<string> GetTrustedPackageFolders()
         {
-            List<string> packageFolders = new();
+            string packageFolder =
+                Environment.GetEnvironmentVariable("NUGET_PACKAGES")
+                ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".nuget", "packages");
 
-            if (TryGetObject(root, "packageFolders", out JsonElement packageFoldersElement))
-            {
-                packageFolders.AddRange(packageFoldersElement
-                    .EnumerateObject()
-                    .Select(packageFolder => packageFolder.Name.TrimEnd('\\', '/'))
-                    .Where(packageFolder => !string.IsNullOrEmpty(packageFolder)));
-            }
-
-            if (packageFolders.Count == 0)
-            {
-                packageFolders.Add(
-                    Environment.GetEnvironmentVariable("NUGET_PACKAGES")
-                    ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".nuget", "packages"));
-            }
-
-            return packageFolders;
+            return new[] { Path.GetFullPath(packageFolder) };
         }
 
         /// <summary>
@@ -263,9 +270,80 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx
         /// the code analysis build task. Rules shipped anywhere else in a package, <c>lib/</c>
         /// included, never run during a build, so listing them here would be misleading.
         /// </summary>
-        private static bool IsCandidateAssembly(string packageRelativePath) =>
-            packageRelativePath.EndsWith(AssemblyExtension, StringComparison.OrdinalIgnoreCase) &&
-            packageRelativePath.StartsWith(AnalyzerPathPrefix, StringComparison.OrdinalIgnoreCase);
+        private static bool IsCandidateAssembly(string packageRelativePath)
+        {
+            string normalizedPath = packageRelativePath.Replace('\\', '/');
+            return normalizedPath.EndsWith(AssemblyExtension, StringComparison.OrdinalIgnoreCase) &&
+                normalizedPath.StartsWith(AnalyzerPathPrefix, StringComparison.OrdinalIgnoreCase) &&
+                normalizedPath.Split('/').All(IsSafePathSegment);
+        }
+
+        private static bool IsSafePathSegment(string value) =>
+            !string.IsNullOrWhiteSpace(value) &&
+            value != "." &&
+            value != ".." &&
+            !Path.IsPathRooted(value) &&
+            !value.Contains('/') &&
+            !value.Contains('\\');
+
+        private static string? ResolveContainedAssemblyPath(
+            string packageFolder,
+            string packageRelativeFolder,
+            string assemblyRelativePath)
+        {
+            string packageRoot = Path.GetFullPath(packageFolder);
+            string packageDirectory = Path.GetFullPath(Path.Combine(packageRoot, packageRelativeFolder));
+
+            if (!IsPathWithinDirectory(packageDirectory, packageRoot))
+            {
+                return null;
+            }
+
+            string assemblyPath = Path.GetFullPath(Path.Combine(
+                packageDirectory,
+                assemblyRelativePath.Replace('/', Path.DirectorySeparatorChar)));
+
+            return IsPathWithinDirectory(assemblyPath, packageDirectory) &&
+                !ContainsReparsePoint(packageRoot, assemblyPath)
+                    ? assemblyPath
+                    : null;
+        }
+
+        private static bool IsPathWithinDirectory(string path, string directory)
+        {
+            string directoryPrefix = directory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                + Path.DirectorySeparatorChar;
+            StringComparison comparison = OperatingSystem.IsWindows()
+                ? StringComparison.OrdinalIgnoreCase
+                : StringComparison.Ordinal;
+
+            return path.StartsWith(directoryPrefix, comparison);
+        }
+
+        private static bool ContainsReparsePoint(string rootDirectory, string path)
+        {
+            string currentPath = rootDirectory;
+            if (IsReparsePoint(currentPath))
+            {
+                return true;
+            }
+
+            string relativePath = Path.GetRelativePath(rootDirectory, path);
+            foreach (string segment in relativePath.Split(Path.DirectorySeparatorChar))
+            {
+                currentPath = Path.Combine(currentPath, segment);
+                if (IsReparsePoint(currentPath))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool IsReparsePoint(string path) =>
+            (File.Exists(path) || Directory.Exists(path)) &&
+            (File.GetAttributes(path) & FileAttributes.ReparsePoint) != 0;
 
         private static bool TryGetObject(JsonElement parent, string propertyName, out JsonElement value) =>
             parent.TryGetProperty(propertyName, out value) && value.ValueKind == JsonValueKind.Object;

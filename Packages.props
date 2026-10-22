@@ -75,6 +75,7 @@
          10.0.9 pins the vulnerable SQLitePCLRaw.lib.e_sqlite3 2.1.11 native library. Pin the
          patched native library until Microsoft.Data.Sqlite carries an updated dependency. -->
     <PackageReference Update="SQLitePCLRaw.lib.e_sqlite3" Version="3.50.3" />
+    <PackageReference Update="System.Security.Cryptography.Pkcs" Version="10.0.13" />
   </ItemGroup>
 
   <!-- When updating version of Dependencies in the below section, please also update the version in the following files:
@@ -103,6 +104,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Microsoft.Data.SqlClient 6.1.5 depends on vulnerable versions of
+         System.Security.Cryptography.Pkcs (GHSA-846f-f764-76mx). Pin the patched
+         servicing versions until Microsoft.Data.SqlClient carries an updated dependency. -->
+    <GlobalPackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.13"
+                            Condition="'$(TargetFramework)' == '$(SqlToolsServiceDotNetVersion)'" />
+    <GlobalPackageReference Include="System.Security.Cryptography.Pkcs" Version="8.0.2"
+                            Condition="'$(TargetFramework)' != '$(SqlToolsServiceDotNetVersion)'" />
     <GlobalPackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" />
   </ItemGroup>
 </Project>

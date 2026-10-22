@@ -27,6 +27,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DacFx
         private const string PackageVersion = "1.2.3";
         private const string AnalyzerRelativePath = "analyzers/dotnet/cs/Contoso.SqlRules.dll";
         private const string LibRelativePath = "lib/netstandard2.1/Contoso.SqlRules.dll";
+        private const string LoaderTestRuleId = "Contoso.SR9000";
         private const string NuGetPackagesVariable = "NUGET_PACKAGES";
 
         private string testRoot;
@@ -203,7 +204,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DacFx
             string assetsFilePath = WriteAssetsFileFor(AnalyzerRelativePath);
 
             CustomRuleLoader.LoadResult result = new();
-            List<string> assemblyPaths = CustomRuleLoader.ResolveAnalyzerAssemblyPaths(assetsFilePath, result);
+            List<string> assemblyPaths = ResolveAnalyzerAssemblyPaths(assetsFilePath, result);
 
             Assert.That(assemblyPaths, Is.EqualTo(new[] { expectedPath }));
             Assert.That(result.Warnings, Is.Empty);
@@ -222,7 +223,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DacFx
                 "tools/Contoso.SqlRules.dll");               // tools/
 
             CustomRuleLoader.LoadResult result = new();
-            List<string> assemblyPaths = CustomRuleLoader.ResolveAnalyzerAssemblyPaths(assetsFilePath, result);
+            List<string> assemblyPaths = ResolveAnalyzerAssemblyPaths(assetsFilePath, result);
 
             Assert.That(assemblyPaths, Is.Empty);
             Assert.That(result.Warnings, Is.Empty, "Ignored files should not be reported as missing assemblies");
@@ -245,7 +246,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DacFx
                 }));
 
             CustomRuleLoader.LoadResult result = new();
-            List<string> assemblyPaths = CustomRuleLoader.ResolveAnalyzerAssemblyPaths(assetsFilePath, result);
+            List<string> assemblyPaths = ResolveAnalyzerAssemblyPaths(assetsFilePath, result);
 
             Assert.That(assemblyPaths, Is.Empty);
         }
@@ -257,7 +258,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DacFx
             string assetsFilePath = WriteAssetsFileFor(AnalyzerRelativePath);
 
             CustomRuleLoader.LoadResult result = new();
-            List<string> assemblyPaths = CustomRuleLoader.ResolveAnalyzerAssemblyPaths(assetsFilePath, result);
+            List<string> assemblyPaths = ResolveAnalyzerAssemblyPaths(assetsFilePath, result);
 
             Assert.That(assemblyPaths, Is.Empty);
             Assert.That(result.Warnings, Has.Count.EqualTo(1));
@@ -288,6 +289,85 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DacFx
             {
                 Environment.SetEnvironmentVariable(NuGetPackagesVariable, originalValue);
             }
+        }
+
+        [Test]
+        public void ResolveAnalyzerAssemblyPaths_AssetsFileCannotSelectAnUntrustedPackageFolder()
+        {
+            string originalValue = Environment.GetEnvironmentVariable(NuGetPackagesVariable);
+
+            try
+            {
+                Environment.SetEnvironmentVariable(NuGetPackagesVariable, emptyPackagesDirectory);
+                WriteFileIntoPackage(AnalyzerRelativePath);
+                string assetsFilePath = WriteAssetsFileFor(AnalyzerRelativePath);
+
+                CustomRuleLoader.LoadResult result = new();
+                List<string> assemblyPaths = CustomRuleLoader.ResolveAnalyzerAssemblyPaths(assetsFilePath, result);
+
+                Assert.That(assemblyPaths, Is.Empty);
+                Assert.That(result.Warnings, Has.Count.EqualTo(1));
+            }
+            finally
+            {
+                Environment.SetEnvironmentVariable(NuGetPackagesVariable, originalValue);
+            }
+        }
+
+        [Test]
+        public void ResolveAnalyzerAssemblyPaths_TraversalInAnalyzerPath_IsIgnored()
+        {
+            string assetsFilePath = WriteAssetsFileFor("analyzers/dotnet/cs/../../outside.dll");
+
+            CustomRuleLoader.LoadResult result = new();
+            List<string> assemblyPaths = ResolveAnalyzerAssemblyPaths(assetsFilePath, result);
+
+            Assert.That(assemblyPaths, Is.Empty);
+            Assert.That(result.Warnings, Is.Empty);
+        }
+
+        [Test]
+        public void ResolveAnalyzerAssemblyPaths_LinkedAssembly_IsRejected()
+        {
+            string outsideAssembly = Path.Combine(testRoot, "outside", "Contoso.SqlRules.dll");
+            Directory.CreateDirectory(Path.GetDirectoryName(outsideAssembly));
+            File.WriteAllText(outsideAssembly, string.Empty);
+
+            string linkedAssembly = GetPackageFilePath(AnalyzerRelativePath);
+            Directory.CreateDirectory(Path.GetDirectoryName(linkedAssembly));
+            File.CreateSymbolicLink(linkedAssembly, outsideAssembly);
+            string assetsFilePath = WriteAssetsFileFor(AnalyzerRelativePath);
+
+            CustomRuleLoader.LoadResult result = new();
+            List<string> assemblyPaths = ResolveAnalyzerAssemblyPaths(assetsFilePath, result);
+
+            Assert.That(assemblyPaths, Is.Empty);
+            Assert.That(result.Warnings, Has.Count.EqualTo(1));
+        }
+
+        [Test]
+        public void ResolveAnalyzerAssemblyPaths_LinkedPackageDirectory_IsRejected()
+        {
+            string outsidePackage = Path.Combine(testRoot, "outside-package");
+            string outsideAssembly = Path.Combine(
+                outsidePackage,
+                AnalyzerRelativePath.Replace('/', Path.DirectorySeparatorChar));
+            Directory.CreateDirectory(Path.GetDirectoryName(outsideAssembly));
+            File.WriteAllText(outsideAssembly, string.Empty);
+
+            string linkedPackage = Path.Combine(
+                packagesDirectory,
+                PackageId.ToLowerInvariant(),
+                PackageVersion);
+            Directory.CreateDirectory(Path.GetDirectoryName(linkedPackage));
+            Directory.CreateSymbolicLink(linkedPackage, outsidePackage);
+            string assetsFilePath = WriteAssetsFileFor(AnalyzerRelativePath);
+
+            CustomRuleLoader.LoadResult result = new();
+            List<string> assemblyPaths = ResolveAnalyzerAssemblyPaths(assetsFilePath, result);
+
+            Assert.That(assemblyPaths, Is.Empty);
+            Assert.That(result.Warnings, Has.Count.EqualTo(1));
         }
 
         #endregion
@@ -331,6 +411,33 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DacFx
         }
 
         [Test]
+        public void GetCodeAnalysisRules_TrustedPackageAssembly_LoadsCustomRule()
+        {
+            string originalValue = Environment.GetEnvironmentVariable(NuGetPackagesVariable);
+
+            try
+            {
+                Environment.SetEnvironmentVariable(NuGetPackagesVariable, GetCustomRulePackageRoot());
+                WriteAssetsFileFor(AnalyzerRelativePath);
+
+                GetCodeAnalysisRulesResult result = DacFxService.GetCodeAnalysisRules(
+                    projectFilePath,
+                    allowCustomRuleExecution: true);
+
+                CodeAnalysisRuleInfo customRule = result.Rules.Single(
+                    rule => rule.RuleId == LoaderTestRuleId);
+                Assert.That(customRule.DisplayName, Is.EqualTo("Loader test rule"));
+                Assert.That(customRule.Description, Is.EqualTo("Validates trusted custom rule loading."));
+                Assert.That(customRule.IsBuiltIn, Is.False);
+                Assert.That(result.Warning, Is.Null);
+            }
+            finally
+            {
+                Environment.SetEnvironmentVariable(NuGetPackagesVariable, originalValue);
+            }
+        }
+
+        [Test]
         public void LoadResult_RuleIdContributedTwice_IsKeptOnceAndWarned()
         {
             // Two analyzer packages can declare the same rule ID.
@@ -361,10 +468,27 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DacFx
         [Test]
         public void GetCodeAnalysisRules_UnrestoredProject_StillReturnsBuiltInRulesWithAWarning()
         {
-            GetCodeAnalysisRulesResult result = DacFxService.GetCodeAnalysisRules(projectFilePath);
+            GetCodeAnalysisRulesResult result = DacFxService.GetCodeAnalysisRules(
+                projectFilePath,
+                allowCustomRuleExecution: true);
 
             Assert.That(result.Rules, Is.Not.Empty, "Built-in rules must still be returned when custom rules are unavailable");
             Assert.That(result.Warning, Is.EqualTo(SR.CustomRulesRestoreRequired));
+        }
+
+        [Test]
+        public void GetCodeAnalysisRules_UntrustedWorkspace_DoesNotLoadCustomRules()
+        {
+            WriteFileIntoPackage(AnalyzerRelativePath, contents: "not a real assembly");
+            WriteAssetsFileFor(AnalyzerRelativePath);
+
+            GetCodeAnalysisRulesResult result = DacFxService.GetCodeAnalysisRules(
+                projectFilePath,
+                allowCustomRuleExecution: false);
+
+            Assert.That(result.Rules, Is.Not.Empty);
+            Assert.That(result.Rules.Select(rule => rule.IsBuiltIn), Is.All.True);
+            Assert.That(result.Warning, Is.Null);
         }
 
         #endregion
@@ -391,21 +515,55 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.DacFx
             return assetsFilePath;
         }
 
+        private List<string> ResolveAnalyzerAssemblyPaths(
+            string assetsFilePath,
+            CustomRuleLoader.LoadResult result) =>
+            CustomRuleLoader.ResolveAnalyzerAssemblyPaths(
+                assetsFilePath,
+                new[] { emptyPackagesDirectory, packagesDirectory },
+                result);
+
         /// <summary>
         /// Places a file in the fake package cache, laid out the way NuGet does:
         /// &lt;packageFolder&gt;/&lt;lowercase id&gt;/&lt;version&gt;/&lt;file&gt;.
         /// </summary>
         private string WriteFileIntoPackage(string packageRelativePath, string packageId = PackageId, string contents = "")
         {
-            string destination = Path.Combine(
+            string destination = GetPackageFilePath(packageRelativePath, packageId);
+
+            Directory.CreateDirectory(Path.GetDirectoryName(destination));
+            File.WriteAllText(destination, contents);
+            return destination;
+        }
+
+        private string GetPackageFilePath(string packageRelativePath, string packageId = PackageId) =>
+            Path.Combine(
                 packagesDirectory,
                 packageId.ToLowerInvariant(),
                 PackageVersion,
                 packageRelativePath.Replace('/', Path.DirectorySeparatorChar));
 
-            Directory.CreateDirectory(Path.GetDirectoryName(destination));
-            File.WriteAllText(destination, contents);
-            return destination;
+        private static string GetCustomRulePackageRoot()
+        {
+            string testOutputDirectory = TestContext.CurrentContext.TestDirectory;
+            string targetFramework = Path.GetFileName(testOutputDirectory);
+            string configuration = Directory.GetParent(testOutputDirectory).Name;
+            string repositoryRoot = Path.GetFullPath(Path.Combine(
+                testOutputDirectory,
+                "..",
+                "..",
+                "..",
+                "..",
+                ".."));
+
+            return Path.Combine(
+                repositoryRoot,
+                "test",
+                "Microsoft.SqlTools.Test.CustomCodeAnalysisRule",
+                "bin",
+                configuration,
+                targetFramework,
+                "packages");
         }
 
         private sealed record LibraryEntry(string Id, string Type, string[] Files);

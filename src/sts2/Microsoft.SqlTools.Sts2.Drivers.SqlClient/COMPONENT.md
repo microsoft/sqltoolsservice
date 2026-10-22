@@ -2,7 +2,7 @@
 
 **Role:** Production driver adapter over Microsoft.Data.SqlClient.
 
-**Allowed dependencies:** Abstractions, Contracts, Microsoft.Data.SqlClient, Microsoft.SqlServer.Types
+**Allowed dependencies:** Abstractions, Contracts, Microsoft.Data.SqlClient, Microsoft.SqlServer.Types, System.Security.Cryptography.Pkcs
 
 **Forbidden:** Core, Runtime, Hosting, legacy namespaces
 

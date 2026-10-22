@@ -36,7 +36,7 @@ Pure deterministic reducer: state machine, command/event/effect DTOs.
 Production driver adapter over Microsoft.Data.SqlClient.
 
 - Project references: Microsoft.SqlTools.Sts2.Abstractions, Microsoft.SqlTools.Sts2.Contracts
-- Package references: Microsoft.Data.SqlClient, Microsoft.SqlServer.Types
+- Package references: Microsoft.Data.SqlClient, Microsoft.SqlServer.Types, System.Security.Cryptography.Pkcs
 
 ## Microsoft.SqlTools.Sts2.Drivers.Sqlite
 

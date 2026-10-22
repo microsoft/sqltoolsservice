@@ -10,22 +10,14 @@ using Microsoft.SqlServer.Management.Common;
 namespace Microsoft.SqlTools.SqlCore.Connection
 {
     /// <summary>
-    /// An <see cref="IRenewableToken"/> implementation that fetches and caches Azure access tokens
-    /// via an async callback.  Used when the client host provides tokens via
+    /// An <see cref="IRenewableToken"/> implementation that fetches Azure access tokens via an
+    /// async callback.  Used when the client host provides tokens via
     /// <c>account/securityTokenRequest</c> (RequestMfaTokenFromClient mode) rather than MSAL.
+    /// Tokens are not cached here: the client owns the token cache, so each request goes to it.
     /// </summary>
     public class CallbackAzureAccessToken : IRenewableToken
     {
-        /// <summary>
-        /// How far before a token's expiry timestamp a refresh is triggered.
-        /// Used to make sure a token doesn't expire in the middle of an operation.
-        /// </summary>
-        public static readonly TimeSpan EarlyRefreshWindow = TimeSpan.FromMinutes(2);
-
         private readonly Func<Task<(string token, DateTimeOffset expiresOn)>> _tokenFetcher;
-        private string _cachedToken;
-        private DateTimeOffset _expiresOn;
-        private readonly object _lock = new object();
 
         // IRenewableToken props; not used in the callback path.
         public DateTimeOffset TokenExpiry { get; set; }
@@ -37,26 +29,11 @@ namespace Microsoft.SqlTools.SqlCore.Connection
         public CallbackAzureAccessToken(Func<Task<(string token, DateTimeOffset expiresOn)>> tokenFetcher)
         {
             _tokenFetcher = tokenFetcher ?? throw new ArgumentNullException(nameof(tokenFetcher));
-            _expiresOn = DateTimeOffset.MinValue;
         }
 
         /// <summary>
-        /// Returns a valid access token, fetching a fresh one via the callback when the cached
-        /// token is absent or within <see cref="EarlyRefreshWindow"/> of expiry.
+        /// Returns an access token fetched via the callback.
         /// </summary>
-        public string GetAccessToken()
-        {
-            lock (_lock)
-            {
-                if (_cachedToken == null || DateTimeOffset.UtcNow >= _expiresOn - EarlyRefreshWindow)
-                {
-                    var (token, expiresOn) = _tokenFetcher().GetAwaiter().GetResult();
-                    _cachedToken = token;
-                    _expiresOn = expiresOn;
-                }
-
-                return _cachedToken;
-            }
-        }
+        public string GetAccessToken() => _tokenFetcher().GetAwaiter().GetResult().token;
     }
 }

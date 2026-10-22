@@ -33,7 +33,7 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Architecture
             ["Microsoft.SqlTools.Sts2.Multiplexer"] = ([], []),
             ["Microsoft.SqlTools.Sts2.Drivers.SqlClient"] =
                 (["Microsoft.SqlTools.Sts2.Abstractions", "Microsoft.SqlTools.Sts2.Contracts"],
-                 ["Microsoft.Data.SqlClient", "Microsoft.SqlServer.Types"]),
+                 ["Microsoft.Data.SqlClient", "Microsoft.SqlServer.Types", "System.Security.Cryptography.Pkcs"]),
             ["Microsoft.SqlTools.Sts2.Drivers.Sqlite"] =
                 (["Microsoft.SqlTools.Sts2.Abstractions", "Microsoft.SqlTools.Sts2.Contracts"], ["Microsoft.Data.Sqlite", "SQLitePCLRaw.lib.e_sqlite3"]),
             ["Microsoft.SqlTools.Sts2.Hosting"] =
