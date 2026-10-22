@@ -9,6 +9,9 @@
     <ProjectReference Include="..\Microsoft.SqlTools.Sts2.Contracts\Microsoft.SqlTools.Sts2.Contracts.csproj" />
     <ProjectReference Include="..\Microsoft.SqlTools.Sts2.Abstractions\Microsoft.SqlTools.Sts2.Abstractions.csproj" />
     <PackageReference Include="StreamJsonRpc" />
+    <!-- Force the patched MessagePack over the vulnerable 2.5.302 that StreamJsonRpc depends on
+         (CVE-2026-92707). This override propagates to every consumer. Version in Packages.props. -->
+    <PackageReference Include="MessagePack" />
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Microsoft.SqlTools.Sts2.UnitTests" />
