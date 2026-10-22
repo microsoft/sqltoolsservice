@@ -1374,6 +1374,83 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
                 "ProjectGuid should match the value written by SetProjectProperties");
         }
 
+        /// <summary>
+        /// Verifies that loading a project without a ProjectGuid, such as a Fabric Warehouse synced from git,
+        /// leaves the .sqlproj unchanged and reports an empty GUID (microsoft/vscode-mssql#22905).
+        /// </summary>
+        [Test]
+        public async Task TestLoadingProjectWithoutProjectGuidDoesNotModifyFile()
+        {
+            string projectUri = WriteProjectWithoutProjectGuid();
+            byte[] originalContents = await File.ReadAllBytesAsync(projectUri);
+            SqlProjectsService service = new();
+            SqlProjectParams projectParams = new() { ProjectUri = projectUri };
+
+            // Send the requests the extension makes when it loads a project
+            await OpenProject(service, projectUri);
+
+            MockRequest<GetProjectPropertiesResult> propertiesMock = new();
+            await service.HandleGetProjectPropertiesRequest(projectParams, propertiesMock.Object);
+            propertiesMock.AssertSuccess(nameof(service.HandleGetProjectPropertiesRequest));
+
+            MockRequest<GetProjectModelResult> modelMock = new();
+            await service.HandleGetProjectModelRequest(projectParams, modelMock.Object);
+            modelMock.AssertSuccess(nameof(service.HandleGetProjectModelRequest));
+
+            MockRequest<GetDatabaseReferencesResult> referencesMock = new();
+            await service.HandleGetDatabaseReferencesRequest(projectParams, referencesMock.Object);
+            referencesMock.AssertSuccess(nameof(service.HandleGetDatabaseReferencesRequest));
+
+            MockRequest<GetSqlCmdVariablesResult> sqlCmdMock = new();
+            await service.HandleGetSqlCmdVariablesRequest(projectParams, sqlCmdMock.Object);
+            sqlCmdMock.AssertSuccess(nameof(service.HandleGetSqlCmdVariablesRequest));
+
+            MockRequest<GetCrossPlatformCompatibilityResult> crossPlatformMock = new();
+            await service.HandleGetCrossPlatformCompatibilityRequest(projectParams, crossPlatformMock.Object);
+            crossPlatformMock.AssertSuccess(nameof(service.HandleGetCrossPlatformCompatibilityRequest));
+
+            await CloseProject(service, projectUri);
+
+            Assert.AreEqual(Guid.Empty, Guid.Parse(propertiesMock.Result.ProjectGuid), "getProjectProperties should report an empty ProjectGuid");
+            Assert.AreEqual(Guid.Empty, Guid.Parse(modelMock.Result.Properties.ProjectGuid), "getProjectModel should report an empty ProjectGuid");
+            CollectionAssert.AreEqual(originalContents, await File.ReadAllBytesAsync(projectUri), "Loading the project should not modify the .sqlproj");
+        }
+
+        /// <summary>
+        /// Verifies that editing a project without a ProjectGuid saves the edit without adding a ProjectGuid
+        /// (microsoft/vscode-mssql#22905).
+        /// </summary>
+        [Test]
+        public async Task TestEditingProjectWithoutProjectGuidDoesNotAddProjectGuid()
+        {
+            string projectUri = WriteProjectWithoutProjectGuid();
+            SqlProjectsService service = new();
+
+            MockRequest<ResultStatus> addSqlCmdMock = new();
+            await service.HandleAddSqlCmdVariableRequest(new AddSqlCmdVariableParams()
+            {
+                ProjectUri = projectUri,
+                Name = "OtherDb",
+                DefaultValue = "OtherDbDefaultValue"
+            }, addSqlCmdMock.Object);
+            addSqlCmdMock.AssertSuccess(nameof(service.HandleAddSqlCmdVariableRequest));
+
+            MockRequest<ResultStatus> setSourceMock = new();
+            await service.HandleSetDatabaseSourceRequest(new SetDatabaseSourceParams()
+            {
+                ProjectUri = projectUri,
+                DatabaseSource = "TestSource"
+            }, setSourceMock.Object);
+            setSourceMock.AssertSuccess(nameof(service.HandleSetDatabaseSourceRequest));
+
+            await CloseProject(service, projectUri);
+
+            XDocument projectXml = XDocument.Load(projectUri);
+            Assert.IsTrue(projectXml.Descendants().Any(element => element.Name.LocalName == "SqlCmdVariable"), "The SQLCMD variable should be saved to the .sqlproj");
+            Assert.IsTrue(projectXml.Descendants().Any(element => element.Name.LocalName == "DatabaseSource"), "The database source should be saved to the .sqlproj");
+            Assert.IsFalse(projectXml.Descendants().Any(element => element.Name.LocalName == "ProjectGuid"), "Editing the project should not add a ProjectGuid");
+        }
+
         [Test]
         public async Task TestGetProjectModel()
         {
@@ -1877,6 +1954,24 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             MockRequest<ResultStatus> openMock = new();
             await service.HandleOpenSqlProjectRequest(new SqlProjectParams() { ProjectUri = projectUri }, openMock.Object);
             openMock.AssertSuccess(nameof(service.HandleOpenSqlProjectRequest));
+        }
+
+        /// <summary>
+        /// Writes an SDK-style Fabric Warehouse project without a ProjectGuid, as Fabric git integration saves it.
+        /// </summary>
+        private static string WriteProjectWithoutProjectGuid()
+        {
+            string projectUri = TestContext.CurrentContext.GetTestProjectPath();
+            Directory.CreateDirectory(Path.GetDirectoryName(projectUri)!);
+            File.WriteAllText(projectUri, @"<Project DefaultTargets=""Build"">
+  <Sdk Name=""Microsoft.Build.Sql"" Version=""0.1.19-preview"" />
+  <PropertyGroup>
+    <Name>Warehouse</Name>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.SqlDwUnifiedDatabaseSchemaProvider</DSP>
+  </PropertyGroup>
+</Project>");
+
+            return projectUri;
         }
 
         private static async Task<GetProjectModelResult> GetProjectModel(SqlProjectsService service, string projectUri)
