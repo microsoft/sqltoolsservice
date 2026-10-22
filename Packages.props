@@ -11,8 +11,8 @@
     <!-- Deprecated: TODO Migrate to Azure.Core -->
     <PackageReference Update="Microsoft.Rest.ClientRuntime.Azure" Version="3.3.19" />
 
-    <PackageReference Update="Microsoft.Identity.Client" Version="4.82.0" />
-    <PackageReference Update="Microsoft.Identity.Client.Extensions.Msal" Version="4.82.0" />
+    <PackageReference Update="Microsoft.Identity.Client" Version="4.84.2" />
+    <PackageReference Update="Microsoft.Identity.Client.Extensions.Msal" Version="4.84.2" />
 
     <!-- Deprecated: TODO Migrate to Azure.ResourceManager -->
     <PackageReference Update="Microsoft.Azure.Management.ResourceManager" Version="3.7.1-preview" />
@@ -82,7 +82,7 @@
 		packages\Microsoft.SqlTools.ManagedBatchParser\Microsoft.SqlTools.ManagedBatchParser.nuspec-->
   <ItemGroup>
     <PackageReference Update="Azure.Identity" version="1.17.1" />
-    <PackageReference Update="Microsoft.Data.SqlClient" Version="6.1.5" />
+    <PackageReference Update="Microsoft.Data.SqlClient" Version="6.1.6" />
     <PackageReference Update="Microsoft.SqlServer.Types" Version="170.1000.7" />
     <PackageReference Update="Microsoft.SqlServer.SqlManagementObjects" Version="181.44.0" />
     <PackageReference Update="Newtonsoft.Json" Version="13.0.3" />
@@ -104,7 +104,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Microsoft.Data.SqlClient 6.1.5 depends on vulnerable versions of
+    <!-- Microsoft.Data.SqlClient 6.1.6 depends on vulnerable versions of
          System.Security.Cryptography.Pkcs (GHSA-846f-f764-76mx). Pin the patched
          servicing versions until Microsoft.Data.SqlClient carries an updated dependency. -->
     <GlobalPackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.13"
