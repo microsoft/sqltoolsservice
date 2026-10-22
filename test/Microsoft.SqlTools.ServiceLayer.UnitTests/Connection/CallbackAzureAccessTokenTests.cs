@@ -17,13 +17,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
     {
         private static DateTimeOffset UnexpiredTimestamp => DateTimeOffset.UtcNow.AddHours(1);
 
-        private static Func<Task<(string token, DateTimeOffset expiresOn)>> SingleTokenFetcher(string token = "test-token")
-        {
-            return () => Task.FromResult((token, UnexpiredTimestamp));
-        }
-
         [Test]
-        public void GetAccessTokenFetchesOnFirstCall()
+        public void GetAccessTokenReturnsFetchedToken()
         {
             int callCount = 0;
             var callbackToken = new CallbackAzureAccessToken(() =>
@@ -39,58 +34,34 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         }
 
         [Test]
-        public void GetAccessTokenReturnsCachedTokenBeforeNearExpiry()
+        public void GetAccessTokenFetchesOnEveryCallEvenWhenTokenIsUnexpired()
         {
             int callCount = 0;
-            // Token expires well in the future; cache should remain valid
-            var expiresOn = DateTimeOffset.UtcNow.AddMinutes(10);
             var callbackToken = new CallbackAzureAccessToken(() =>
             {
                 callCount++;
-                return Task.FromResult(("cached-tok", expiresOn));
+                return Task.FromResult(($"tok{callCount}", UnexpiredTimestamp));
             });
 
-            callbackToken.GetAccessToken(); // fills cache
+            string first = callbackToken.GetAccessToken();
             string second = callbackToken.GetAccessToken();
 
-            Assert.That(second, Is.EqualTo("cached-tok"));
-            Assert.That(callCount, Is.EqualTo(1), "fetcher should only be called once when cache is still valid");
+            Assert.Multiple(() =>
+            {
+                Assert.That(first, Is.EqualTo("tok1"));
+                Assert.That(second, Is.EqualTo("tok2"),
+                    "a token the client refreshed (e.g. after its token cache was cleared) should be used right away");
+                Assert.That(callCount, Is.EqualTo(2), "tokens should not be cached; the client owns the token cache");
+            });
         }
 
         [Test]
-        public void GetAccessTokenRefetchesTokenWhenWithinTwoMinutesOfExpiry()
+        public void GetAccessTokenPropagatesFetchFailure()
         {
-            int callCount = 0;
-            // First call returns a token that is 90 seconds from expiry (inside the 2-minute threshold)
-            var nearExpiry = DateTimeOffset.UtcNow.AddSeconds(90);
-            var callbackToken = new CallbackAzureAccessToken(() =>
-            {
-                callCount++;
-                return Task.FromResult(("near-expiry-tok", nearExpiry));
-            });
+            var callbackToken = new CallbackAzureAccessToken(
+                () => Task.FromException<(string, DateTimeOffset)>(new InvalidOperationException("fetch failed")));
 
-            callbackToken.GetAccessToken(); // first call: fetches and caches
-            callbackToken.GetAccessToken(); // second call: cache is near-expiry so should re-fetch
-
-            Assert.That(callCount, Is.EqualTo(2), "fetcher should be called again when cache is within 2 minutes of expiry");
-        }
-
-        [Test]
-        public void GetAccessTokenRefetchesTokenWhenExpired()
-        {
-            int callCount = 0;
-            // Token expired in the past
-            var pastExpiry = DateTimeOffset.UtcNow.AddSeconds(-30);
-            var callbackToken = new CallbackAzureAccessToken(() =>
-            {
-                callCount++;
-                return Task.FromResult(("expired-tok", pastExpiry));
-            });
-
-            callbackToken.GetAccessToken(); // first call: fetches and caches (with past expiry)
-            callbackToken.GetAccessToken(); // second call: cache is expired so should re-fetch
-
-            Assert.That(callCount, Is.EqualTo(2), "fetcher should be called again when cached token is expired");
+            Assert.Throws<InvalidOperationException>(() => callbackToken.GetAccessToken());
         }
     }
 }

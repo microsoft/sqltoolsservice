@@ -64,7 +64,36 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
                 }
             }
 
-            return new ProjectAssets(CustomRuleLoader.ReadPackageFolders(root), packageVersions);
+            return new ProjectAssets(ReadPackageFolders(root), packageVersions);
+        }
+
+        /// <summary>
+        /// Reads the NuGet package folders recorded in the assets file. Taking them from the file
+        /// covers custom NUGET_PACKAGES locations and shared caches without probing the environment.
+        /// Only dacpacs are read from these folders. Code analysis assemblies, which run, are loaded
+        /// from the configured package folder instead (see <see cref="CustomRuleLoader"/>).
+        /// </summary>
+        private static IReadOnlyList<string> ReadPackageFolders(JsonElement root)
+        {
+            List<string> packageFolders = new();
+
+            if (root.TryGetProperty("packageFolders", out JsonElement packageFoldersElement) &&
+                packageFoldersElement.ValueKind == JsonValueKind.Object)
+            {
+                packageFolders.AddRange(packageFoldersElement
+                    .EnumerateObject()
+                    .Select(packageFolder => packageFolder.Name.TrimEnd('\\', '/'))
+                    .Where(packageFolder => !string.IsNullOrEmpty(packageFolder)));
+            }
+
+            if (packageFolders.Count == 0)
+            {
+                packageFolders.Add(
+                    Environment.GetEnvironmentVariable("NUGET_PACKAGES")
+                    ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".nuget", "packages"));
+            }
+
+            return packageFolders;
         }
 
         /// <summary>Ids of the restored packages.</summary>

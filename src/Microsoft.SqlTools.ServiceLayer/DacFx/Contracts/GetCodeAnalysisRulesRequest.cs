@@ -20,6 +20,12 @@ namespace Microsoft.SqlTools.ServiceLayer.DacFx.Contracts
         /// When absent, only built-in DacFx rules are returned (backward-compatible).
         /// </summary>
         public string ProjectUri { get; set; }
+
+        /// <summary>
+        /// Whether the client has established that the workspace is trusted and permits loading
+        /// custom analyzer assemblies. Defaults to false.
+        /// </summary>
+        public bool AllowCustomRuleExecution { get; set; }
     }
 
     /// <summary>

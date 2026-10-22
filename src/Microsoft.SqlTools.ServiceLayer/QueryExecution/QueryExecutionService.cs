@@ -1597,7 +1597,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 BatchEventParams eventParams = new BatchEventParams
                 {
                     BatchSummary = b.Summary,
-                    OwnerUri = ownerUri
+                    OwnerUri = ownerUri,
+                    ServerConnectionId = query.ServerConnectionId
                 };
 
                 Logger.Information($"Batch:'{b.Summary}' on Query:'{ownerUri}' started");
