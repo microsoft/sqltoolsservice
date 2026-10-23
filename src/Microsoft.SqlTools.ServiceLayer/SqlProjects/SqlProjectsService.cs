@@ -18,8 +18,11 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.LanguageService.LanguageServices;
 using Microsoft.SqlTools.ServiceLayer.Hosting;
 using Microsoft.SqlTools.SqlCore.IntelliSense;
+using Microsoft.SqlTools.SqlCore.SchemaCompare;
 using Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts;
+using Microsoft.SqlTools.ServiceLayer.SqlProjects.References;
 using Microsoft.SqlTools.ServiceLayer.Utility;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 {
@@ -62,6 +65,16 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         /// The host for a project, if the service has one. For tests.
         /// </summary>
         internal ProjectHost? GetHost(string projectUri) => hosts.TryGetValue(projectUri, out ProjectHost? host) ? host : null;
+
+        /// <summary>
+        /// Resolves project database references to dacpacs and referenced projects, using the system dacpacs shipped with STS.
+        /// </summary>
+        internal ProjectReferenceResolver ReferenceResolver { get; set; } = new ProjectReferenceResolver(ProjectReferenceResolver.DefaultSystemDacpacsRoot);
+
+        /// <summary>
+        /// Resolved references per project file.
+        /// </summary>
+        private readonly ProjectReferenceCache referenceCache = new();
 
         /// <summary>
         /// Initializes the service instance
@@ -172,6 +185,68 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     // Already closed
                 }
             }, requestContext);
+        }
+
+        /// <summary>
+        /// Returns the project's resolved database references, from the cache when none of the files they depend on changed.
+        /// Reads files only; call on a background thread.
+        /// </summary>
+        internal ResolvedProjectReferences ResolveProjectReferences(string projectFilePath)
+        {
+            // Open a separate instance: the shared project objects are not safe to use from background threads.
+            return referenceCache.GetOrResolve(
+                projectFilePath,
+                () => ReferenceResolver.Resolve(SqlProject.OpenProject(projectFilePath, onlyLoadProperties: true), projectFilePath));
+        }
+
+        /// <summary>
+        /// Returns the database references of <paramref name="project"/>, already loaded from <paramref name="projectFilePath"/>,
+        /// from the cache when none of the files they depend on changed. Doesn't read the .sqlproj again, so it's safe to call
+        /// while requests may be writing it, as long as nothing else uses <paramref name="project"/> at the same time.
+        /// </summary>
+        internal ResolvedProjectReferences ResolveProjectReferences(SqlProject project, string projectFilePath)
+        {
+            return referenceCache.GetOrResolve(projectFilePath, () => ReferenceResolver.Resolve(project, projectFilePath));
+        }
+
+        /// <summary>
+        /// Called after the project's database references or SQLCMD variables change: drops the cached resolution and
+        /// reloads the references into the project's IntelliSense model in the background.
+        /// </summary>
+        private void OnDatabaseReferencesChanged(string projectUri)
+        {
+            referenceCache.Invalidate(ProjectHost.ToLocalPath(projectUri));
+            if (hosts.TryGetValue(projectUri, out ProjectHost? host))
+            {
+                // Logs its own failures
+                _ = host.ReloadReferencesAsync();
+            }
+        }
+
+        /// <summary>
+        /// Returns the database references and SQLCMD variable values of the project at <paramref name="projectFilePath"/>
+        /// for a Schema Compare project endpoint.
+        /// </summary>
+        /// <returns>The references, or null when the project could not be read, in which case the comparison runs without them.</returns>
+        internal SchemaCompareProjectReferences? GetSchemaCompareProjectReferences(string projectFilePath)
+        {
+            ResolvedProjectReferences resolved;
+            try
+            {
+                resolved = ResolveProjectReferences(projectFilePath);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Failed to resolve database references of {projectFilePath} for Schema Compare: {ex}");
+                return null;
+            }
+
+            foreach (ResolvedDatabaseReference reference in resolved.References.Where(reference => reference.ModelReference == null))
+            {
+                Logger.Warning($"Database reference not loaded for Schema Compare in {projectFilePath}: {reference.Name}: {reference.Message}");
+            }
+
+            return new SchemaCompareProjectReferences(resolved.ModelReferences, resolved.SqlCmdVariables);
         }
 
         internal async Task HandleCreateSqlProjectRequest(Contracts.CreateSqlProjectParams requestParams, RequestContext<ResultStatus> requestContext)
@@ -620,6 +695,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                     requestParams.DatabaseLiteral,
                     requestParams.ReferenceType)),
                 requestContext);
+            OnDatabaseReferencesChanged(requestParams.ProjectUri);
         }
 
         internal async Task HandleAddDacpacReferenceRequest(AddDacpacReferenceParams requestParams, RequestContext<ResultStatus> requestContext)
@@ -653,6 +729,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
                 project.DatabaseReferences.Add(reference);
             }, requestContext);
+            OnDatabaseReferencesChanged(requestParams.ProjectUri);
         }
 
         internal async Task HandleAddSqlProjectReferenceRequest(AddSqlProjectReferenceParams requestParams, RequestContext<ResultStatus> requestContext)
@@ -690,6 +767,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
                 project.DatabaseReferences.Add(reference);
             }, requestContext);
+            OnDatabaseReferencesChanged(requestParams.ProjectUri);
         }
 
         internal async Task HandleAddNugetPackageReferenceRequest(AddNugetPackageReferenceParams requestParams, RequestContext<ResultStatus> requestContext)
@@ -725,12 +803,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
                 project.DatabaseReferences.Add(reference);
             }, requestContext);
+            OnDatabaseReferencesChanged(requestParams.ProjectUri);
         }
 
 
         internal async Task HandleDeleteDatabaseReferenceRequest(DeleteDatabaseReferenceParams requestParams, RequestContext<ResultStatus> requestContext)
         {
             await RunWithProject(requestParams.ProjectUri, host => host.GetProject(onlyLoadProperties: true).DatabaseReferences.Delete(requestParams.Name), requestContext);
+            OnDatabaseReferencesChanged(requestParams.ProjectUri);
         }
 
         #endregion
@@ -753,11 +833,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         internal async Task HandleAddSqlCmdVariableRequest(AddSqlCmdVariableParams requestParams, RequestContext<ResultStatus> requestContext)
         {
             await RunWithProject(requestParams.ProjectUri, host => host.GetProject(onlyLoadProperties: true).SqlCmdVariables.Add(new SqlCmdVariable(requestParams.Name, requestParams.DefaultValue)), requestContext);
+            OnDatabaseReferencesChanged(requestParams.ProjectUri);
         }
 
         internal async Task HandleDeleteSqlCmdVariableRequest(DeleteSqlCmdVariableParams requestParams, RequestContext<ResultStatus> requestContext)
         {
             await RunWithProject(requestParams.ProjectUri, host => host.GetProject(onlyLoadProperties: true).SqlCmdVariables.Delete(requestParams.Name!), requestContext);
+            OnDatabaseReferencesChanged(requestParams.ProjectUri);
         }
 
         internal async Task HandleUpdateSqlCmdVariableRequest(AddSqlCmdVariableParams requestParams, RequestContext<ResultStatus> requestContext)
@@ -767,6 +849,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 SqlProject project = host.GetProject(onlyLoadProperties: true);
                 project.SqlCmdVariables.Update(requestParams.Name, requestParams.DefaultValue); // won't throw if doesn't exist
             }, requestContext);
+            OnDatabaseReferencesChanged(requestParams.ProjectUri);
         }
 
         #endregion
@@ -783,7 +866,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         {
             while (true)
             {
-                ProjectHost host = hosts.GetOrAdd(projectUri, uri => new ProjectHost(uri, snapshot => IntelliSenseModelBuilder(snapshot)));
+                ProjectHost host = hosts.GetOrAdd(projectUri, uri => new ProjectHost(
+                    uri,
+                    snapshot => IntelliSenseModelBuilder(snapshot),
+                    (project, projectFilePath) => ResolveProjectReferences(project, projectFilePath)));
                 try
                 {
                     return await host.RunAsync(() => operation(host)).ConfigureAwait(false);

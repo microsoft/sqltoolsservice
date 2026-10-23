@@ -20,15 +20,15 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
     /// Lazy <see cref="ISchema"/> wrapper backed by <see cref="TSqlModel"/>.
     /// Each collection (Tables, Views, etc.) is populated on first access only.
     /// <para>
-    /// Object collections query both UserDefined and BuiltIn scopes separately, so each object
-    /// wrapper (TSqlModelTable, etc.) knows its true scope regardless of which scope the schema
-    /// was originally created in. This correctly handles schemas like 'dbo' that exist in both scopes.
+    /// Object collections get their objects from the owning <see cref="TSqlModelDatabase"/>, which reports
+    /// whether each one is user defined, so each object wrapper (TSqlModelTable, etc.) knows its true scope
+    /// regardless of which scope the schema was originally created in. This correctly handles schemas like
+    /// 'dbo' that exist in several scopes, including the project's database references.
     /// </para>
     /// </summary>
     internal sealed class TSqlModelSchema : ISchema
     {
         private readonly TSqlModelDatabase _database;
-        private readonly TSqlModel _model;
         private readonly string _name;
         private readonly DacQueryScopes _scope;
 
@@ -42,46 +42,47 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         private readonly IncrementalObjectCollection<IUserDefinedDataType>   _userDefinedDataTypes;
         private readonly IncrementalObjectCollection<IUserDefinedTableType>  _userDefinedTableTypes;
 
-        public TSqlModelSchema(TSqlModelDatabase database, TSqlModel model, string schemaName,
+        public TSqlModelSchema(TSqlModelDatabase database, string schemaName,
             DacQueryScopes scope = DacQueryScopes.UserDefined)
         {
             _database = database;
-            _model    = model;
             _name     = schemaName;
             _scope    = scope;
 
             // Capture 'this' — safe because LazyCollection doesn't call back until enumerated.
-            // Query UserDefined and BuiltIn separately so each object knows its true scope.
+            // The database reports each object's scope so each object knows whether it is user defined.
             _tables = new IncrementalTableCollection(
                 this,
-                model,
                 schemaName,
                 (schema, obj, isUserDefined) => new TSqlModelTable(schema, obj, isUserDefined));
 
             _views = new IncrementalObjectCollection<IView>(
-                this, model, schemaName, ModelSchema.View,
+                this, schemaName, ModelSchema.View,
                 (schema, obj, isUserDefined) => new TSqlModelView(schema, obj, isUserDefined));
 
             _storedProcedures = new IncrementalObjectCollection<IStoredProcedure>(
-                this, model, schemaName, ModelSchema.Procedure,
+                this, schemaName, ModelSchema.Procedure,
                 (schema, obj, isUserDefined) => new TSqlModelStoredProcedure(schema, obj, isUserDefined));
 
             _scalarValuedFunctions = new IncrementalObjectCollection<IScalarValuedFunction>(
-                this, model, schemaName, ModelSchema.ScalarFunction,
+                this, schemaName, ModelSchema.ScalarFunction,
                 (schema, obj, isUserDefined) => new TSqlModelScalarFunction(schema, obj, isUserDefined));
 
             _tableValuedFunctions = new IncrementalObjectCollection<ITableValuedFunction>(
-                this, model, schemaName, ModelSchema.TableValuedFunction,
+                this, schemaName, ModelSchema.TableValuedFunction,
                 (schema, obj, isUserDefined) => new TSqlModelTableValuedFunction(schema, obj, isUserDefined));
 
             _userDefinedDataTypes = new IncrementalObjectCollection<IUserDefinedDataType>(
-                this, model, schemaName, ModelSchema.DataType,
+                this, schemaName, ModelSchema.DataType,
                 (schema, obj, isUserDefined) => new TSqlModelUserDefinedDataType(schema, ObjectName(obj), isUserDefined));
 
             _userDefinedTableTypes = new IncrementalObjectCollection<IUserDefinedTableType>(
-                this, model, schemaName, ModelSchema.TableType,
+                this, schemaName, ModelSchema.TableType,
                 (schema, obj, isUserDefined) => new TSqlModelUserDefinedTableType(schema, ObjectName(obj), isUserDefined));
         }
+
+        /// <summary>The database this schema belongs to, which supplies its objects.</summary>
+        internal TSqlModelDatabase OwnerDatabase => _database;
 
         public string Name => _name;
         public bool IsSystemObject => _scope == DacQueryScopes.BuiltIn;
@@ -171,17 +172,14 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         /// </summary>
         internal TSqlModelTable? CreateTableFromModel(string tableName)
         {
-            // Try UserDefined first, then BuiltIn
-            foreach (var scope in new[] { DacQueryScopes.UserDefined, DacQueryScopes.BuiltIn })
+            // The database returns objects in precedence order (user defined first).
+            foreach (var (obj, isUserDefined) in _database.GetObjects(ModelSchema.Table))
             {
-                foreach (var obj in _model.GetObjects(scope, ModelSchema.Table))
+                if (obj.Name.Parts.Count >= 2 &&
+                    string.Equals(obj.Name.Parts[0], _name, StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(obj.Name.Parts[obj.Name.Parts.Count - 1], tableName, StringComparison.OrdinalIgnoreCase))
                 {
-                    if (obj.Name.Parts.Count >= 2 &&
-                        string.Equals(obj.Name.Parts[0], _name, StringComparison.OrdinalIgnoreCase) &&
-                        string.Equals(obj.Name.Parts[obj.Name.Parts.Count - 1], tableName, StringComparison.OrdinalIgnoreCase))
-                    {
-                        return new TSqlModelTable(this, obj, scope == DacQueryScopes.UserDefined);
-                    }
+                    return new TSqlModelTable(this, obj, isUserDefined);
                 }
             }
             return null;
@@ -197,7 +195,6 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         internal sealed class IncrementalTableCollection : IMetadataCollection<ITable>
         {
             private readonly TSqlModelSchema _schema;
-            private readonly TSqlModel _model;
             private readonly string _schemaName;
             private readonly Func<TSqlModelSchema, TSqlObject, bool, TSqlModelTable> _tableFactory;
 
@@ -207,12 +204,10 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
 
             public IncrementalTableCollection(
                 TSqlModelSchema schema,
-                TSqlModel model,
                 string schemaName,
                 Func<TSqlModelSchema, TSqlObject, bool, TSqlModelTable> tableFactory)
             {
                 _schema      = schema;
-                _model       = model;
                 _schemaName  = schemaName;
                 _tableFactory = tableFactory;
             }
@@ -227,29 +222,22 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
                     var map = new Dictionary<string, ResettableLazy<TSqlModelTable>>(
                         StringComparer.OrdinalIgnoreCase);
 
-                    // Scan both scopes once; UserDefined first so it wins on name collision.
-                    foreach (var (scope, isUserDefined) in new[]
+                    // Scan once in precedence order; the first object with a name wins on collision.
+                    foreach (var (obj, isUserDefined) in _schema.OwnerDatabase.GetObjects(ModelSchema.Table))
                     {
-                        (DacQueryScopes.UserDefined, true),
-                        (DacQueryScopes.BuiltIn,     false)
-                    })
-                    {
-                        foreach (var obj in _model.GetObjects(scope, ModelSchema.Table))
-                        {
-                            if (obj.Name.Parts.Count < 2) continue;
-                            if (!string.Equals(obj.Name.Parts[0], _schemaName,
-                                    StringComparison.OrdinalIgnoreCase)) continue;
+                        if (obj.Name.Parts.Count < 2) continue;
+                        if (!string.Equals(obj.Name.Parts[0], _schemaName,
+                                StringComparison.OrdinalIgnoreCase)) continue;
 
-                            string tableName = obj.Name.Parts[obj.Name.Parts.Count - 1];
-                            if (map.ContainsKey(tableName)) continue; // UserDefined wins
+                        string tableName = obj.Name.Parts[obj.Name.Parts.Count - 1];
+                        if (map.ContainsKey(tableName)) continue; // UserDefined wins
 
-                            // Seed the lazy with the already-fetched object; only after
-                            // ResetTable will the factory switch to a fresh model query.
-                            var captured = obj;
-                            var capturedIsUserDefined = isUserDefined;
-                            map[tableName] = new ResettableLazy<TSqlModelTable>(
-                                () => _tableFactory(_schema, captured, capturedIsUserDefined));
-                        }
+                        // Seed the lazy with the already-fetched object; only after
+                        // ResetTable will the factory switch to a fresh model query.
+                        var captured = obj;
+                        var capturedIsUserDefined = isUserDefined;
+                        map[tableName] = new ResettableLazy<TSqlModelTable>(
+                            () => _tableFactory(_schema, captured, capturedIsUserDefined));
                     }
 
                     _map = map;
@@ -354,7 +342,6 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
             where TInterface : class, IMetadataObject
         {
             private readonly TSqlModelSchema _schema;
-            private readonly TSqlModel _model;
             private readonly string _schemaName;
             private readonly ModelTypeClass _objectType;
             private readonly Func<TSqlModelSchema, TSqlObject, bool, TInterface> _objectFactory;
@@ -364,13 +351,11 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
 
             public IncrementalObjectCollection(
                 TSqlModelSchema schema,
-                TSqlModel model,
                 string schemaName,
                 ModelTypeClass objectType,
                 Func<TSqlModelSchema, TSqlObject, bool, TInterface> objectFactory)
             {
                 _schema        = schema;
-                _model         = model;
                 _schemaName    = schemaName;
                 _objectType    = objectType;
                 _objectFactory = objectFactory;
@@ -385,27 +370,20 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
 
                     var map = new Dictionary<string, ResettableLazy<TInterface>>(StringComparer.OrdinalIgnoreCase);
 
-                    foreach (var (scope, isUserDefined) in new[]
+                    foreach (var (obj, isUserDefined) in _schema.OwnerDatabase.GetObjects(_objectType))
                     {
-                        (DacQueryScopes.UserDefined, true),
-                        (DacQueryScopes.BuiltIn,     false)
-                    })
-                    {
-                        foreach (var obj in _model.GetObjects(scope, _objectType))
-                        {
-                            if (obj.Name.Parts.Count < 2) continue;
-                            if (!string.Equals(obj.Name.Parts[0], _schemaName,
-                                    StringComparison.OrdinalIgnoreCase)) continue;
+                        if (obj.Name.Parts.Count < 2) continue;
+                        if (!string.Equals(obj.Name.Parts[0], _schemaName,
+                                StringComparison.OrdinalIgnoreCase)) continue;
 
-                            string objName = obj.Name.Parts[obj.Name.Parts.Count - 1];
-                            if (map.ContainsKey(objName)) continue; // UserDefined wins
+                        string objName = obj.Name.Parts[obj.Name.Parts.Count - 1];
+                        if (map.ContainsKey(objName)) continue; // UserDefined wins
 
-                            // Seed with already-fetched object; Reset switches to FetchFromModel.
-                            var captured = obj;
-                            var capturedIsUserDefined = isUserDefined;
-                            map[objName] = new ResettableLazy<TInterface>(
-                                () => _objectFactory(_schema, captured, capturedIsUserDefined));
-                        }
+                        // Seed with already-fetched object; Reset switches to FetchFromModel.
+                        var captured = obj;
+                        var capturedIsUserDefined = isUserDefined;
+                        map[objName] = new ResettableLazy<TInterface>(
+                            () => _objectFactory(_schema, captured, capturedIsUserDefined));
                     }
 
                     _map = map;
@@ -415,16 +393,13 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
 
             private TInterface? FetchFromModel(string objectName)
             {
-                foreach (var scope in new[] { DacQueryScopes.UserDefined, DacQueryScopes.BuiltIn })
+                foreach (var (obj, isUserDefined) in _schema.OwnerDatabase.GetObjects(_objectType))
                 {
-                    foreach (var obj in _model.GetObjects(scope, _objectType))
+                    if (obj.Name.Parts.Count >= 2 &&
+                        string.Equals(obj.Name.Parts[0], _schemaName, StringComparison.OrdinalIgnoreCase) &&
+                        string.Equals(obj.Name.Parts[obj.Name.Parts.Count - 1], objectName, StringComparison.OrdinalIgnoreCase))
                     {
-                        if (obj.Name.Parts.Count >= 2 &&
-                            string.Equals(obj.Name.Parts[0], _schemaName, StringComparison.OrdinalIgnoreCase) &&
-                            string.Equals(obj.Name.Parts[obj.Name.Parts.Count - 1], objectName, StringComparison.OrdinalIgnoreCase))
-                        {
-                            return _objectFactory(_schema, obj, scope == DacQueryScopes.UserDefined);
-                        }
+                        return _objectFactory(_schema, obj, isUserDefined);
                     }
                 }
                 return null;
