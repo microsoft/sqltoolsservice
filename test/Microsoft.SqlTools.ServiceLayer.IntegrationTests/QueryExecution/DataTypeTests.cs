@@ -173,7 +173,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.QueryExecution
         [Test]
         public async Task UniqueIdentifierTest()
         {
-            await ExecuteAndVerifyResult("SELECT CAST('fbf31d5b-bda2-4907-a50c-5458e95248ae' AS UNIQUEIDENTIFIER)", "fbf31d5b-bda2-4907-a50c-5458e95248ae");
+            // uniqueidentifier values are displayed in uppercase by default
+            await ExecuteAndVerifyResult("SELECT CAST('fbf31d5b-bda2-4907-a50c-5458e95248ae' AS UNIQUEIDENTIFIER)", "FBF31D5B-BDA2-4907-A50C-5458E95248AE");
         }
 
         [Test]

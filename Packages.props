@@ -67,6 +67,7 @@
 
     <!-- STS2 architecture and public-surface enforcement. -->
     <PackageReference Update="StreamJsonRpc" Version="2.25.28" />
+    <PackageReference Update="MessagePack" Version="2.5.303" />
     <PackageReference Update="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="4.14.0" />
     <PackageReference Update="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="4.14.0" />
     <PackageReference Update="YamlDotNet" Version="18.0.0" />
@@ -75,7 +76,6 @@
          10.0.9 pins the vulnerable SQLitePCLRaw.lib.e_sqlite3 2.1.11 native library. Pin the
          patched native library until Microsoft.Data.Sqlite carries an updated dependency. -->
     <PackageReference Update="SQLitePCLRaw.lib.e_sqlite3" Version="3.50.3" />
-    <PackageReference Update="System.Security.Cryptography.Pkcs" Version="10.0.13" />
   </ItemGroup>
 
   <!-- When updating version of Dependencies in the below section, please also update the version in the following files:

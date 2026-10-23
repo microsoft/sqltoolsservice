@@ -36,7 +36,7 @@ Pure deterministic reducer: state machine, command/event/effect DTOs.
 Production driver adapter over Microsoft.Data.SqlClient.
 
 - Project references: Microsoft.SqlTools.Sts2.Abstractions, Microsoft.SqlTools.Sts2.Contracts
-- Package references: Microsoft.Data.SqlClient, Microsoft.SqlServer.Types, System.Security.Cryptography.Pkcs
+- Package references: Microsoft.Data.SqlClient, Microsoft.SqlServer.Types
 
 ## Microsoft.SqlTools.Sts2.Drivers.Sqlite
 
@@ -50,7 +50,7 @@ Non-production real-I/O test driver adapter over Microsoft.Data.Sqlite.
 StreamJsonRpc gateway; translates v2 JSON-RPC methods to sanitized envelopes and back.
 
 - Project references: Microsoft.SqlTools.Sts2.Abstractions, Microsoft.SqlTools.Sts2.Contracts, Microsoft.SqlTools.Sts2.Core, Microsoft.SqlTools.Sts2.Runtime
-- Package references: StreamJsonRpc
+- Package references: MessagePack, StreamJsonRpc
 
 ## Microsoft.SqlTools.Sts2.Multiplexer
 

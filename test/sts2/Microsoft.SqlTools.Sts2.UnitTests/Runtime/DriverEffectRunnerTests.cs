@@ -37,7 +37,9 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Runtime
             Assert.Equal(0, runner.OpensInFlightCount);
             Assert.Equal(0, runner.ActiveQueryPumpCount);
             Assert.Equal(0, runner.OpenSessionCount);
-            Assert.Equal(0, runner.BackgroundTaskCount);
+            // The open task has finished, but the continuation that untracks it can run after
+            // teardown returns, so wait for the count as the query-pump half does below.
+            await WaitUntilAsync(() => runner.BackgroundTaskCount == 0);
 
             // A second runner proves the query-pump path, including its CTS/semaphore
             // finally cleanup, independently from the canceled open above.

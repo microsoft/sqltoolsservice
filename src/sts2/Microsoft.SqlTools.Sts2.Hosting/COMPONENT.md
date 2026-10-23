@@ -2,7 +2,7 @@
 
 **Role:** StreamJsonRpc gateway; translates v2 JSON-RPC methods to sanitized envelopes and back.
 
-**Allowed dependencies:** Runtime, Core, Contracts, Abstractions, StreamJsonRpc
+**Allowed dependencies:** Runtime, Core, Contracts, Abstractions, StreamJsonRpc, MessagePack
 
 **Forbidden:** drivers, legacy namespaces
 
