@@ -266,6 +266,24 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlProjects
         }
 
         [Test]
+        public void DacpacPath_WithNestedMsBuildProperties_IsExpanded()
+        {
+            string dacpacPath = CreateDacpac(Path.Combine("Main", "refs", "Shared.dacpac"), "CREATE TABLE [dbo].[SharedTable] ([Id] INT NOT NULL);");
+            string projectPath = CreateProject("Main");
+            AddProperties(projectPath, ("ReferenceDir", @"$(MSBuildProjectDirectory)\refs"), ("Cycle", @"$(Loop)\a"), ("Loop", @"$(Cycle)\b"));
+            SqlProject project = SqlProject.OpenProject(projectPath);
+            project.DatabaseReferences.Add(new DacpacReference(@"$(ReferenceDir)\Shared.dacpac", suppressMissingDependencies: false));
+            project.DatabaseReferences.Add(new DacpacReference(@"$(Cycle)\Other.dacpac", suppressMissingDependencies: false));
+
+            ResolvedProjectReferences resolved = Resolve(projectPath);
+
+            ResolvedDatabaseReference shared = resolved.References.Single(reference => reference.Name.Contains("Shared.dacpac"));
+            Assert.AreEqual(Path.GetFullPath(dacpacPath), shared.ResolvedPath, "A property whose value uses another property is expanded. " + shared.Message);
+            ResolvedDatabaseReference cyclic = resolved.References.Single(reference => reference.Name.Contains("Other.dacpac"));
+            Assert.AreEqual(DatabaseReferenceResolution.NotFound, cyclic.Resolution, "A property that uses itself is undefined.");
+        }
+
+        [Test]
         public void ProjectPath_WithMsBuildProperties_IsExpanded()
         {
             string referencedPath = CreateProject("Referenced");
@@ -538,6 +556,15 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlProjects
             Directory.CreateDirectory(Path.GetDirectoryName(projectPath)!);
             _ = SqlProject.CreateProjectAsync(projectPath).GetAwaiter().GetResult();
             return projectPath;
+        }
+
+        /// <summary>Adds a property group with <paramref name="properties"/> to the .sqlproj.</summary>
+        private static void AddProperties(string projectPath, params (string Name, string Value)[] properties)
+        {
+            string group = "  <PropertyGroup>\n" + string.Concat(properties.Select(p => $"    <{p.Name}>{p.Value}</{p.Name}>\n")) + "  </PropertyGroup>\n";
+            string xml = File.ReadAllText(projectPath);
+            int end = xml.LastIndexOf("</Project>", StringComparison.Ordinal);
+            File.WriteAllText(projectPath, xml.Insert(end, group));
         }
 
         private string CreateDacpac(string relativePath, string script)

@@ -456,7 +456,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
                 ? projectDirectory
                 : projectDirectory + Path.DirectorySeparatorChar;
 
-            string expanded = MsBuildPropertyPattern().Replace(path, match =>
+            // The project properties being expanded, so a property that uses itself, directly or not, is reported as undefined
+            var expanding = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            string Expand(string text) => MsBuildPropertyPattern().Replace(text, match =>
             {
                 // MSBuild property names are case-insensitive
                 string name = match.Groups["name"].Value;
@@ -465,7 +468,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
                     : IsProperty(name, "MSBuildThisFileDirectory", "ProjectDir") ? projectDirectoryWithSeparator
                     // The SDK's system dacpacs live under <location>\SystemDacpacs; STS ships the same layout.
                     : IsProperty(name, "SystemDacpacsLocation", "NETCoreTargetsPath", "DacPacRootPath") ? Path.GetDirectoryName(systemDacpacsRoot)
-                    : project.Properties.GetProperty(name);
+                    : ExpandProjectProperty(name);
 
                 if (value == null)
                 {
@@ -476,6 +479,27 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
                 return value;
             });
 
+            // The project returns a property's value as written, which can use other properties,
+            // as in <ReferenceDir>$(MSBuildProjectDirectory)\refs</ReferenceDir>
+            string? ExpandProjectProperty(string name)
+            {
+                string? value = project.Properties.GetProperty(name);
+                if (value == null || !expanding.Add(name))
+                {
+                    return null;
+                }
+
+                try
+                {
+                    return Expand(value);
+                }
+                finally
+                {
+                    expanding.Remove(name);
+                }
+            }
+
+            string expanded = Expand(path);
             undefinedProperty = missing;
             return missing == null ? expanded : null;
         }
