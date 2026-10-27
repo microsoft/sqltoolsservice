@@ -190,6 +190,21 @@ namespace Microsoft.SqlTools.SqlCore.SchemaCompare
             {
                 case SchemaCompareEndpointType.Project:
                     {
+                        // When the host can resolve the project's references, load them and substitute its SQLCMD variables,
+                        // so referenced objects resolve and [$(OtherDb)] compares equal to the variable's value.
+                        SchemaCompareProjectReferences references =
+                            (connectionProvider as ISchemaCompareProjectReferenceProvider)?.GetProjectReferences(endpointInfo.ProjectFilePath);
+                        if (references != null && (references.DatabaseReferences.Length > 0 || references.SqlCmdVariables.Count > 0))
+                        {
+                            return new SchemaCompareProjectEndpoint(
+                                endpointInfo.ProjectFilePath,
+                                endpointInfo.TargetScripts,
+                                endpointInfo.DataSchemaProvider,
+                                references.DatabaseReferences,
+                                references.SqlCmdVariables.ToDictionary(v => v.Key, v => v.Value, StringComparer.OrdinalIgnoreCase),
+                                endpointInfo.ExtractTarget ?? DacExtractTarget.SchemaObjectType);
+                        }
+
                         return endpointInfo?.ExtractTarget != null
                             ? new SchemaCompareProjectEndpoint(endpointInfo.ProjectFilePath, endpointInfo.TargetScripts, endpointInfo.DataSchemaProvider, (DacExtractTarget)endpointInfo?.ExtractTarget)
                             : new SchemaCompareProjectEndpoint(endpointInfo.ProjectFilePath, endpointInfo.TargetScripts, endpointInfo.DataSchemaProvider);

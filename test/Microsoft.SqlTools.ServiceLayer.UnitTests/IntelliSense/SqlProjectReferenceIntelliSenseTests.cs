@@ -1,0 +1,296 @@
+//
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+//
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using Microsoft.Data.Tools.Schema.SchemaModel;
+using Microsoft.SqlServer.Dac.Model;
+using Microsoft.SqlServer.Dac.Projects;
+using Microsoft.SqlServer.Management.SqlParser.Binder;
+using Microsoft.SqlServer.Management.SqlParser.Metadata;
+using Microsoft.SqlServer.Management.SqlParser.Parser;
+using Microsoft.SqlTools.ServiceLayer.SqlProjects.References;
+using Microsoft.SqlTools.ServiceLayer.UnitTests.SqlProjects;
+using Microsoft.SqlTools.SqlCore.IntelliSense;
+using NUnit.Framework;
+
+namespace Microsoft.SqlTools.ServiceLayer.UnitTests.IntelliSense
+{
+    /// <summary>
+    /// Tests for project IntelliSense with database references: same-database, other-database (literal and SQLCMD variable),
+    /// project references and master.
+    /// </summary>
+    public class SqlProjectReferenceIntelliSenseTests
+    {
+        private string workingDirectory = string.Empty;
+
+        [SetUp]
+        public void SetUp()
+        {
+            workingDirectory = Path.Combine(Path.GetTempPath(), "SqlProjectReferenceIntelliSenseTests", Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(workingDirectory);
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            try
+            {
+                Directory.Delete(workingDirectory, recursive: true);
+            }
+            catch (IOException)
+            {
+                // Best effort; the folder is under the temp directory.
+            }
+        }
+
+        /// <summary>
+        /// microsoft/vscode-mssql#22890: a project reference with a database SQLCMD variable is available as a database
+        /// under both [$(Variable)] and the variable's value.
+        /// </summary>
+        [Test]
+        public void ProjectReferenceWithDatabaseVariable_IsADatabaseUnderTheVariableAndItsValue()
+        {
+            string referencedPath = CreateProject("ProjectB");
+            SqlProject referenced = SqlProject.OpenProject(referencedPath);
+            referenced.SqlObjectScripts.Add(new SqlObjectScript("SomeTable.sql"), "CREATE TABLE [dbo].[SomeTable] ([Id] INT NOT NULL, [Name] NVARCHAR(50) NULL);");
+
+            string projectPath = CreateProject("ProjectA");
+            SqlProject project = SqlProject.OpenProject(projectPath);
+            project.SqlCmdVariables.Add(new SqlCmdVariable("ProjectB", "ProjectB"));
+            project.SqlObjectScripts.Add(new SqlObjectScript("LocalTable.sql"), "CREATE TABLE [dbo].[LocalTable] ([Id] INT NOT NULL);");
+            project.DatabaseReferences.Add(new SqlProjectReference(RelativeTo(projectPath, referencedPath), projectGuid: null, suppressMissingDependencies: false, project.SqlCmdVariables.Get("ProjectB")));
+
+            using TSqlModel model = TSqlModelBuilder.LoadModel(SqlProject.OpenProject(projectPath));
+            var provider = new TSqlModelMetadataProvider(model, "ProjectA");
+
+            IReadOnlyList<string> failures = ProjectReferenceLoader.ApplyReferences(model, provider, Resolve(projectPath));
+
+            Assert.IsEmpty(failures);
+            foreach (string databaseName in new[] { "$(ProjectB)", "ProjectB" })
+            {
+                IDatabase database = provider.Server.Databases[databaseName];
+                Assert.IsNotNull(database, $"Database {databaseName} should be available. Databases: {DatabaseNames(provider)}");
+                ITable table = database.Schemas["dbo"].Tables["SomeTable"];
+                Assert.IsNotNull(table);
+                CollectionAssert.AreEquivalent(new[] { "Id", "Name" }, table.Columns.Select(c => c.Name).ToArray());
+                Assert.IsFalse(table.IsSystemObject);
+            }
+
+            Assert.IsNotNull(provider.Server.Databases["ProjectA"].Schemas["dbo"].Tables["LocalTable"], "The project's own objects are unchanged.");
+            Assert.IsNull(provider.Server.Databases["ProjectA"].Schemas["dbo"].Tables["SomeTable"], "Objects of another database are not in the project database.");
+
+            AssertBinds(provider, "ProjectA", "SELECT [Id], [Name] FROM [$(ProjectB)].[dbo].[SomeTable];");
+            AssertBinds(provider, "ProjectA", "SELECT [Id] FROM [ProjectB].[dbo].[SomeTable];");
+            CollectionAssert.IsNotEmpty(BindErrors(provider, "ProjectA", "SELECT [Id] FROM [ProjectB].[dbo].[MissingTable];"),
+                "A table the reference doesn't have is reported");
+        }
+
+        [Test]
+        public void SameDatabaseReference_ObjectsJoinTheProjectDatabaseAndProjectObjectsWin()
+        {
+            string dacpacPath = Path.Combine(workingDirectory, "Shared.dacpac");
+            ProjectReferenceResolverTests.SaveDacpac(dacpacPath,
+                "CREATE TABLE [dbo].[SharedTable] ([Id] INT NOT NULL);\r\nGO\r\nCREATE TABLE [dbo].[Overlap] ([FromReference] INT NOT NULL);\r\nGO\r\nCREATE SCHEMA [shared];\r\nGO\r\nCREATE TABLE [shared].[InOwnSchema] ([Id] INT NOT NULL);");
+            string projectPath = CreateProject("Main");
+            SqlProject project = SqlProject.OpenProject(projectPath);
+            project.SqlObjectScripts.Add(new SqlObjectScript("Overlap.sql"), "CREATE TABLE [dbo].[Overlap] ([FromProject] INT NOT NULL);");
+            project.DatabaseReferences.Add(new DacpacReference(RelativeTo(projectPath, dacpacPath), suppressMissingDependencies: true));
+
+            using TSqlModel model = TSqlModelBuilder.LoadModel(SqlProject.OpenProject(projectPath));
+            var provider = new TSqlModelMetadataProvider(model, "Main");
+            ProjectReferenceLoader.ApplyReferences(model, provider, Resolve(projectPath));
+
+            IDatabase database = provider.Server.Databases["Main"];
+            ITable shared = database.Schemas["dbo"].Tables["SharedTable"];
+            Assert.IsNotNull(shared);
+            Assert.IsFalse(shared.IsSystemObject, "Objects of a same-database reference are user objects.");
+            CollectionAssert.AreEqual(new[] { "Id" }, shared.Columns.Select(c => c.Name).ToArray());
+            Assert.IsNotNull(database.Schemas["shared"]?.Tables["InOwnSchema"], "Schemas that only the reference uses are added.");
+            CollectionAssert.AreEqual(new[] { "FromProject" }, database.Schemas["dbo"].Tables["Overlap"].Columns.Select(c => c.Name).ToArray(),
+                "The project's own definition wins over the reference's.");
+            Assert.AreEqual(1, provider.Server.Databases.Count, "A same-database reference adds no database.");
+            AssertBinds(provider, "Main", "SELECT [Id] FROM [dbo].[SharedTable];");
+        }
+
+        [Test]
+        public void ReferencedTables_HaveTheirKeysAndForeignKeysToThemBind()
+        {
+            const string keyedTable = "CREATE TABLE [dbo].[Keyed] ([Id] INT NOT NULL PRIMARY KEY, [Code] INT NOT NULL UNIQUE);";
+            string sameDbDacpac = Path.Combine(workingDirectory, "Shared.dacpac");
+            string otherDbDacpac = Path.Combine(workingDirectory, "Other.dacpac");
+            ProjectReferenceResolverTests.SaveDacpac(sameDbDacpac, keyedTable);
+            ProjectReferenceResolverTests.SaveDacpac(otherDbDacpac, keyedTable);
+            string projectPath = CreateProject("Main");
+            SqlProject project = SqlProject.OpenProject(projectPath);
+            project.DatabaseReferences.Add(new DacpacReference(RelativeTo(projectPath, sameDbDacpac), suppressMissingDependencies: false));
+            project.DatabaseReferences.Add(new DacpacReference(RelativeTo(projectPath, otherDbDacpac), suppressMissingDependencies: false, "OtherDb"));
+
+            using TSqlModel model = TSqlModelBuilder.LoadModel(SqlProject.OpenProject(projectPath));
+            var provider = new TSqlModelMetadataProvider(model, "Main");
+            Assert.IsEmpty(ProjectReferenceLoader.ApplyReferences(model, provider, Resolve(projectPath)));
+
+            foreach (string databaseName in new[] { "Main", "OtherDb" })
+            {
+                ITable table = provider.Server.Databases[databaseName].Schemas["dbo"].Tables["Keyed"];
+                Assert.AreEqual(2, table.Indexes.Count, $"{databaseName}: the primary key and unique key of a referenced table");
+                Assert.IsTrue(table.Columns["Id"].InPrimaryKey, $"{databaseName}: [Id] is in the primary key");
+                Assert.IsFalse(table.Columns["Code"].InPrimaryKey, $"{databaseName}: [Code] isn't in the primary key");
+            }
+
+            AssertBinds(provider, "Main",
+                "CREATE TABLE [dbo].[Local] ([KeyedId] INT NOT NULL FOREIGN KEY REFERENCES [dbo].[Keyed] ([Id]), [KeyedCode] INT NOT NULL FOREIGN KEY REFERENCES [dbo].[Keyed] ([Code]));");
+        }
+
+        [Test]
+        public void MasterReference_AddsSystemViewsAndAMasterDatabase()
+        {
+            string projectPath = CreateProject("Main");
+            SqlProject project = SqlProject.OpenProject(projectPath);
+            project.Properties.TargetSqlPlatform = SqlPlatforms.Sql160;
+            project.DatabaseReferences.Add(new SystemDatabaseReference(SystemDatabase.Master, suppressMissingDependencies: false, "master"));
+
+            using TSqlModel model = TSqlModelBuilder.LoadModel(SqlProject.OpenProject(projectPath));
+            var provider = new TSqlModelMetadataProvider(model, "Main");
+            Assert.IsNull(provider.Server.Databases["Main"].Schemas["sys"]?.Views["tables"], "Without master there is no sys.tables.");
+
+            IReadOnlyList<string> failures = ProjectReferenceLoader.ApplyReferences(model, provider, Resolve(projectPath));
+
+            Assert.IsEmpty(failures);
+            IView sysTables = provider.Server.Databases["Main"].Schemas["sys"].Views["tables"];
+            Assert.IsNotNull(sysTables, "sys.tables comes from the master reference.");
+            Assert.IsTrue(sysTables.IsSystemObject);
+            CollectionAssert.Contains(sysTables.Columns.Select(c => c.Name).ToArray(), "object_id", "System view columns are available.");
+            Assert.IsNotNull(provider.Server.Databases["master"]?.Schemas["sys"]?.Views["databases"], "master.sys.databases resolves by three-part name.");
+            ISchema masterSys = provider.Server.Databases["master"].Schemas["sys"];
+            Assert.IsTrue(masterSys.IsSystemObject, "master's sys schema is a system schema.");
+            Assert.IsTrue(masterSys.Views["databases"].IsSystemObject, "Objects of the master database are system objects.");
+            Assert.IsTrue(masterSys.Views["tables"].IsSystemObject, "master.sys.tables is a system object, as sys.tables is in the project database.");
+            AssertBinds(provider, "Main", "SELECT [name] FROM [sys].[tables];");
+        }
+
+        [Test]
+        public void SameDatabaseReference_ObjectHiddenByAProjectObjectReturnsWhenThatObjectIsDeleted()
+        {
+            string dacpacPath = Path.Combine(workingDirectory, "Shared.dacpac");
+            ProjectReferenceResolverTests.SaveDacpac(dacpacPath,
+                "CREATE TABLE [dbo].[Overlap] ([FromReference] INT NOT NULL);\r\nGO\r\nCREATE VIEW [dbo].[OverlapView] AS SELECT 1 AS [FromReference];");
+            string source = Path.Combine(workingDirectory, "Overlap.sql");
+            using var model = new TSqlModel(SqlServerVersion.Sql160, new TSqlModelOptions());
+            model.AddOrUpdateObjects(
+                "CREATE TABLE [dbo].[Overlap] ([FromProject] INT NOT NULL);\r\nGO\r\nCREATE VIEW [dbo].[OverlapView] AS SELECT 1 AS [FromProject];",
+                source,
+                new TSqlObjectOptions());
+            var provider = new TSqlModelMetadataProvider(model, "Main");
+            ProjectReferenceLoader.ApplyReferences(model, provider, new ResolvedProjectReferences(
+                Path.Combine(workingDirectory, "Main.sqlproj"),
+                new[]
+                {
+                    new ResolvedDatabaseReference
+                    {
+                        Name = "Shared.dacpac",
+                        Kind = DatabaseReferenceKind.Dacpac,
+                        Resolution = DatabaseReferenceResolution.Resolved,
+                        ResolvedPath = dacpacPath,
+                        ModelReference = new TSqlModelReference(dacpacPath, suppressMissingDependenciesErrors: true),
+                    },
+                },
+                new Dictionary<string, string>()));
+
+            ISchema dbo = provider.Server.Databases["Main"].Schemas["dbo"];
+            CollectionAssert.AreEqual(new[] { "FromProject" }, dbo.Tables["Overlap"].Columns.Select(c => c.Name).ToArray(), "Setup: the project's table hides the reference's");
+            CollectionAssert.AreEqual(new[] { "FromProject" }, dbo.Views["OverlapView"].Columns.Select(c => c.Name).ToArray(), "Setup: the project's view hides the reference's");
+
+            model.DeleteObjects(source);
+            provider.UpdateForFileChange(source, deleted: true);
+
+            CollectionAssert.AreEqual(new[] { "FromReference" }, dbo.Tables["Overlap"]?.Columns.Select(c => c.Name).ToArray(),
+                "Deleting the project's table brings back the reference's");
+            CollectionAssert.AreEqual(new[] { "FromReference" }, dbo.Views["OverlapView"]?.Columns.Select(c => c.Name).ToArray(),
+                "Deleting the project's view brings back the reference's");
+            Assert.IsFalse(dbo.Tables["Overlap"].IsSystemObject);
+        }
+
+        [Test]
+        public void ApplyReferences_ReplacesPreviouslyLoadedReferences()
+        {
+            string firstDacpac = Path.Combine(workingDirectory, "First.dacpac");
+            string secondDacpac = Path.Combine(workingDirectory, "Second.dacpac");
+            ProjectReferenceResolverTests.SaveDacpac(firstDacpac, "CREATE TABLE [dbo].[FirstTable] ([Id] INT NOT NULL);");
+            ProjectReferenceResolverTests.SaveDacpac(secondDacpac, "CREATE TABLE [dbo].[SecondTable] ([Id] INT NOT NULL);");
+            string projectPath = CreateProject("Main");
+            SqlProject project = SqlProject.OpenProject(projectPath);
+            project.DatabaseReferences.Add(new DacpacReference(RelativeTo(projectPath, firstDacpac), suppressMissingDependencies: false, "FirstDb"));
+
+            using TSqlModel model = TSqlModelBuilder.LoadModel(SqlProject.OpenProject(projectPath));
+            var provider = new TSqlModelMetadataProvider(model, "Main");
+            ProjectReferenceLoader.ApplyReferences(model, provider, Resolve(projectPath));
+            Assert.IsNotNull(provider.Server.Databases["FirstDb"]);
+
+            project = SqlProject.OpenProject(projectPath);
+            project.DatabaseReferences.Delete(project.DatabaseReferences.Single().Name);
+            project.DatabaseReferences.Add(new DacpacReference(RelativeTo(projectPath, secondDacpac), suppressMissingDependencies: false, "SecondDb"));
+            ProjectReferenceLoader.ApplyReferences(model, provider, Resolve(projectPath));
+
+            Assert.IsNull(provider.Server.Databases["FirstDb"], "The removed reference's database is gone.");
+            Assert.IsNotNull(provider.Server.Databases["SecondDb"]?.Schemas["dbo"]?.Tables["SecondTable"]);
+            Assert.AreEqual(1, model.References.Count);
+        }
+
+        [Test]
+        public void UnresolvedReference_IsReportedAndDoesNotBlockOtherReferences()
+        {
+            string dacpacPath = Path.Combine(workingDirectory, "Good.dacpac");
+            ProjectReferenceResolverTests.SaveDacpac(dacpacPath, "CREATE TABLE [dbo].[GoodTable] ([Id] INT NOT NULL);");
+            string projectPath = CreateProject("Main");
+            SqlProject project = SqlProject.OpenProject(projectPath);
+            project.DatabaseReferences.Add(new DacpacReference(RelativeTo(projectPath, Path.Combine(workingDirectory, "Missing.dacpac")), suppressMissingDependencies: false, "MissingDb"));
+            project.DatabaseReferences.Add(new DacpacReference(RelativeTo(projectPath, dacpacPath), suppressMissingDependencies: false, "GoodDb"));
+
+            using TSqlModel model = TSqlModelBuilder.LoadModel(SqlProject.OpenProject(projectPath));
+            var provider = new TSqlModelMetadataProvider(model, "Main");
+            IReadOnlyList<string> failures = ProjectReferenceLoader.ApplyReferences(model, provider, Resolve(projectPath));
+
+            Assert.AreEqual(1, failures.Count);
+            StringAssert.Contains("Missing.dacpac", failures[0]);
+            Assert.IsNotNull(provider.Server.Databases["GoodDb"]?.Schemas["dbo"]?.Tables["GoodTable"]);
+        }
+
+        private string CreateProject(string name)
+        {
+            string projectPath = Path.Combine(workingDirectory, name, name + ".sqlproj");
+            Directory.CreateDirectory(Path.GetDirectoryName(projectPath)!);
+            _ = SqlProject.CreateProjectAsync(projectPath).GetAwaiter().GetResult();
+            return projectPath;
+        }
+
+        private static string RelativeTo(string projectPath, string path) => ProjectReferenceResolverTests.RelativeTo(projectPath, path);
+
+        private static ResolvedProjectReferences Resolve(string projectPath) =>
+            new ProjectReferenceResolver(ProjectReferenceResolver.DefaultSystemDacpacsRoot)
+                .Resolve(SqlProject.OpenProject(projectPath, onlyLoadProperties: true), projectPath);
+
+        private static string DatabaseNames(TSqlModelMetadataProvider provider) =>
+            string.Join(", ", provider.Server.Databases.Select(d => d.Name));
+
+        /// <summary>Asserts that <paramref name="query"/> binds against the project metadata without errors.</summary>
+        private static void AssertBinds(TSqlModelMetadataProvider provider, string databaseName, string query) =>
+            CollectionAssert.IsEmpty(BindErrors(provider, databaseName, query), query);
+
+        /// <summary>
+        /// Binds <paramref name="query"/> against the project metadata the way the language service does and returns the
+        /// errors it reports. Binding reports names that don't resolve as errors on the parse result rather than throwing.
+        /// </summary>
+        private static string[] BindErrors(TSqlModelMetadataProvider provider, string databaseName, string query)
+        {
+            ParseResult parseResult = Parser.Parse(query);
+            IBinder binder = BinderProvider.CreateBinder(provider);
+            binder.Bind(new[] { parseResult }, databaseName, BindMode.Batch);
+            return parseResult.Errors.Select(error => error.Message).ToArray();
+        }
+    }
+}
