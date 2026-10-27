@@ -108,8 +108,9 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         {
             var keys = new List<(TSqlObject Constraint, ConstraintType Type, ModelRelationshipClass Columns, bool IsClustered)>();
 
+            // External scopes also reach the keys of tables in the project's references, which foreign keys bind against
             keys.AddRange(
-                _tableObj.GetReferencing(PrimaryKeyConstraint.Host, DacQueryScopes.UserDefined)
+                _tableObj.GetReferencing(PrimaryKeyConstraint.Host, DacExternalQueryScopes.All)
                          .Select(constraint => (
                              constraint,
                              ConstraintType.PrimaryKey,
@@ -117,7 +118,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
                              constraint.GetProperty<bool>(PrimaryKeyConstraint.Clustered))));
 
             keys.AddRange(
-                _tableObj.GetReferencing(UniqueConstraint.Host, DacQueryScopes.UserDefined)
+                _tableObj.GetReferencing(UniqueConstraint.Host, DacExternalQueryScopes.All)
                          .Select(constraint => (
                              constraint,
                              ConstraintType.Unique,
@@ -540,7 +541,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
                 : null;
         // Walk the relationship backwards: find any PrimaryKeyConstraint that lists this column.
         public bool InPrimaryKey =>
-            _colObj.GetReferencing(PrimaryKeyConstraint.Columns, DacQueryScopes.UserDefined).Any();
+            _colObj.GetReferencing(PrimaryKeyConstraint.Columns, DacExternalQueryScopes.All).Any();
         public bool IsColumnSet => false;
         public bool IsGeneratedAlwaysAsRowEnd => false;
         public bool IsGeneratedAlwaysAsRowStart => false;
@@ -694,9 +695,9 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
             new TSqlModelRelationalIndex(
                 parent,
                 Name,
-                () => _constraintObj.GetReferenced(_columnsRelationship, DacQueryScopes.UserDefined)
+                () => _constraintObj.GetReferenced(_columnsRelationship, DacExternalQueryScopes.All)
                                     .Select((col, i) => (IOrderedColumn)new TSqlModelOrderedColumn(new TSqlModelColumn(parent, col), i)),
-                () => _constraintObj.GetReferenced(_columnsRelationship, DacQueryScopes.UserDefined)
+                () => _constraintObj.GetReferenced(_columnsRelationship, DacExternalQueryScopes.All)
                                     .Select(col => (IIndexedColumn)new TSqlModelIndexedColumn(new TSqlModelColumn(parent, col))),
                 Type,
                 IsClustered,

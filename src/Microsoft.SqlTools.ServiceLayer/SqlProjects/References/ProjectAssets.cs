@@ -23,10 +23,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
         // Package id (case-insensitive) to the restored version.
         private readonly Dictionary<string, string> packageVersions;
 
-        private ProjectAssets(IReadOnlyList<string> packageFolders, Dictionary<string, string> packageVersions)
+        private ProjectAssets(IReadOnlyList<string> packageFolders, Dictionary<string, string> packageVersions, IReadOnlyCollection<string>? directPackageIds)
         {
             this.packageFolders = packageFolders;
             this.packageVersions = packageVersions;
+            DirectPackageIds = directPackageIds;
         }
 
         /// <summary>
@@ -80,7 +81,33 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
                 }
             }
 
-            return new ProjectAssets(ReadPackageFolders(root), packageVersions);
+            return new ProjectAssets(ReadPackageFolders(root), packageVersions, ReadDirectPackageIds(root));
+        }
+
+        /// <summary>
+        /// Reads the ids of the packages the project references itself, from project.frameworks.*.dependencies.
+        /// Returns null when the assets file doesn't record them.
+        /// </summary>
+        private static HashSet<string>? ReadDirectPackageIds(JsonElement root)
+        {
+            if (!root.TryGetProperty("project", out JsonElement project) || project.ValueKind != JsonValueKind.Object ||
+                !project.TryGetProperty("frameworks", out JsonElement frameworks) || frameworks.ValueKind != JsonValueKind.Object)
+            {
+                return null;
+            }
+
+            var packageIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (JsonProperty framework in frameworks.EnumerateObject())
+            {
+                if (framework.Value.ValueKind == JsonValueKind.Object &&
+                    framework.Value.TryGetProperty("dependencies", out JsonElement dependencies) &&
+                    dependencies.ValueKind == JsonValueKind.Object)
+                {
+                    packageIds.UnionWith(dependencies.EnumerateObject().Select(dependency => dependency.Name));
+                }
+            }
+
+            return packageIds;
         }
 
         /// <summary>
@@ -112,8 +139,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
             return packageFolders;
         }
 
-        /// <summary>Ids of the restored packages.</summary>
+        /// <summary>Ids of the restored packages, including those only other packages depend on.</summary>
         internal IEnumerable<string> PackageIds => packageVersions.Keys;
+
+        /// <summary>
+        /// Ids of the packages the project references itself, or null when the assets file doesn't record them.
+        /// </summary>
+        internal IReadOnlyCollection<string>? DirectPackageIds { get; }
 
         /// <summary>
         /// Returns the folder a restored package was extracted to, or null if the package was not restored.

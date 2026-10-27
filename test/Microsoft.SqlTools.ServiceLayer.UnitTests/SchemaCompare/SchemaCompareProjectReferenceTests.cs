@@ -10,6 +10,7 @@ using Microsoft.SqlServer.Dac;
 using Microsoft.SqlServer.Dac.Model;
 using Microsoft.SqlServer.Dac.Projects;
 using Microsoft.SqlTools.ServiceLayer.SchemaCompare;
+using Microsoft.SqlTools.ServiceLayer.UnitTests.SqlProjects;
 using Microsoft.SqlTools.SqlCore.SchemaCompare;
 using Microsoft.SqlTools.SqlCore.SchemaCompare.Contracts;
 using NUnit.Framework;
@@ -55,14 +56,14 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SchemaCompare
             // The target names the other database directly.
             string targetPath = CreateProject("Target");
             SqlProject.OpenProject(targetPath).DatabaseReferences.Add(
-                new DacpacReference(otherDbDacpac, suppressMissingDependencies: false, "OtherDb"));
+                new DacpacReference(ProjectReferenceResolverTests.RelativeTo(targetPath, otherDbDacpac), suppressMissingDependencies: false, "OtherDb"));
             string targetViewPath = WriteScript(targetPath, "CrossDatabaseView.sql",
                 "CREATE VIEW [dbo].[CrossDatabaseView] AS SELECT [Id] FROM [OtherDb].[dbo].[OtherTable];");
 
             string projectPath = CreateProject("Project");
             SqlProject project = SqlProject.OpenProject(projectPath);
             project.SqlCmdVariables.Add(new SqlCmdVariable("OtherDatabase", "OtherDb"));
-            project.DatabaseReferences.Add(new DacpacReference(otherDbDacpac, suppressMissingDependencies: false, project.SqlCmdVariables.Get("OtherDatabase")));
+            project.DatabaseReferences.Add(new DacpacReference(ProjectReferenceResolverTests.RelativeTo(projectPath, otherDbDacpac), suppressMissingDependencies: false, project.SqlCmdVariables.Get("OtherDatabase")));
             string viewPath = WriteScript(projectPath, "CrossDatabaseView.sql",
                 "CREATE VIEW [dbo].[CrossDatabaseView] AS SELECT [Id] FROM [$(OtherDatabase)].[dbo].[OtherTable];");
 
@@ -95,12 +96,12 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SchemaCompare
             SaveDacpac(referencedDacpac, tableScript);
             string targetPath = CreateProject("Target");
             SqlProject.OpenProject(targetPath).DatabaseReferences.Add(
-                new DacpacReference(referencedDacpac, suppressMissingDependencies: false));
+                new DacpacReference(ProjectReferenceResolverTests.RelativeTo(targetPath, referencedDacpac), suppressMissingDependencies: false));
             string targetViewPath = WriteScript(targetPath, "ReferencingView.sql", viewScript);
 
             string projectPath = CreateProject("Project");
             SqlProject.OpenProject(projectPath).DatabaseReferences.Add(
-                new SqlProjectReference(referencedPath, projectGuid: null, suppressMissingDependencies: false));
+                new SqlProjectReference(ProjectReferenceResolverTests.RelativeTo(projectPath, referencedPath), projectGuid: null, suppressMissingDependencies: false));
             string viewPath = WriteScript(projectPath, "ReferencingView.sql", viewScript);
 
             using var operation = new SchemaCompareOperation(

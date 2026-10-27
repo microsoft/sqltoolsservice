@@ -118,6 +118,35 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.IntelliSense
         }
 
         [Test]
+        public void ReferencedTables_HaveTheirKeysAndForeignKeysToThemBind()
+        {
+            const string keyedTable = "CREATE TABLE [dbo].[Keyed] ([Id] INT NOT NULL PRIMARY KEY, [Code] INT NOT NULL UNIQUE);";
+            string sameDbDacpac = Path.Combine(workingDirectory, "Shared.dacpac");
+            string otherDbDacpac = Path.Combine(workingDirectory, "Other.dacpac");
+            ProjectReferenceResolverTests.SaveDacpac(sameDbDacpac, keyedTable);
+            ProjectReferenceResolverTests.SaveDacpac(otherDbDacpac, keyedTable);
+            string projectPath = CreateProject("Main");
+            SqlProject project = SqlProject.OpenProject(projectPath);
+            project.DatabaseReferences.Add(new DacpacReference(RelativeTo(projectPath, sameDbDacpac), suppressMissingDependencies: false));
+            project.DatabaseReferences.Add(new DacpacReference(RelativeTo(projectPath, otherDbDacpac), suppressMissingDependencies: false, "OtherDb"));
+
+            using TSqlModel model = TSqlModelBuilder.LoadModel(SqlProject.OpenProject(projectPath));
+            var provider = new TSqlModelMetadataProvider(model, "Main");
+            Assert.IsEmpty(ProjectReferenceLoader.ApplyReferences(model, provider, Resolve(projectPath)));
+
+            foreach (string databaseName in new[] { "Main", "OtherDb" })
+            {
+                ITable table = provider.Server.Databases[databaseName].Schemas["dbo"].Tables["Keyed"];
+                Assert.AreEqual(2, table.Indexes.Count, $"{databaseName}: the primary key and unique key of a referenced table");
+                Assert.IsTrue(table.Columns["Id"].InPrimaryKey, $"{databaseName}: [Id] is in the primary key");
+                Assert.IsFalse(table.Columns["Code"].InPrimaryKey, $"{databaseName}: [Code] isn't in the primary key");
+            }
+
+            AssertBinds(provider, "Main",
+                "CREATE TABLE [dbo].[Local] ([KeyedId] INT NOT NULL FOREIGN KEY REFERENCES [dbo].[Keyed] ([Id]), [KeyedCode] INT NOT NULL FOREIGN KEY REFERENCES [dbo].[Keyed] ([Code]));");
+        }
+
+        [Test]
         public void MasterReference_AddsSystemViewsAndAMasterDatabase()
         {
             string projectPath = CreateProject("Main");

@@ -251,12 +251,71 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlProjects
             SqlProject project = SqlProject.OpenProject(projectPath);
             project.DatabaseReferences.Add(new DacpacReference(@"$(MSBuildProjectDirectory)\lib\Lib.dacpac", suppressMissingDependencies: false));
             project.DatabaseReferences.Add(new DacpacReference(@"$(UndefinedRoot)\Other.dacpac", suppressMissingDependencies: false));
+            string lowerCaseDacpacPath = CreateDacpac(Path.Combine("Main", "lib", "Lower.dacpac"), "CREATE TABLE [dbo].[LowerTable] ([Id] INT NOT NULL);");
+            project.DatabaseReferences.Add(new DacpacReference(@"$(msbuildprojectdirectory)\lib\Lower.dacpac", suppressMissingDependencies: false));
 
             ResolvedProjectReferences resolved = Resolve(projectPath);
 
-            Assert.AreEqual(Path.GetFullPath(dacpacPath), resolved.References[0].ResolvedPath, resolved.References[0].Message);
-            Assert.AreEqual(DatabaseReferenceResolution.NotFound, resolved.References[1].Resolution);
-            StringAssert.Contains("UndefinedRoot", resolved.References[1].Message);
+            ResolvedDatabaseReference lib = resolved.References.Single(reference => reference.Name.Contains("Lib.dacpac"));
+            Assert.AreEqual(Path.GetFullPath(dacpacPath), lib.ResolvedPath, lib.Message);
+            ResolvedDatabaseReference undefined = resolved.References.Single(reference => reference.Name.Contains("Other.dacpac"));
+            Assert.AreEqual(DatabaseReferenceResolution.NotFound, undefined.Resolution);
+            StringAssert.Contains("UndefinedRoot", undefined.Message);
+            ResolvedDatabaseReference lowerCase = resolved.References.Single(reference => reference.Name.Contains("Lower.dacpac"));
+            Assert.AreEqual(Path.GetFullPath(lowerCaseDacpacPath), lowerCase.ResolvedPath, "MSBuild property names are case-insensitive. " + lowerCase.Message);
+        }
+
+        [Test]
+        public void ProjectPath_WithMsBuildProperties_IsExpanded()
+        {
+            string referencedPath = CreateProject("Referenced");
+            string projectPath = CreateProject("Main");
+            SqlProject project = SqlProject.OpenProject(projectPath);
+            project.DatabaseReferences.Add(new SqlProjectReference(
+                @"$(MSBuildProjectDirectory)\..\Referenced\Referenced.sqlproj",
+                projectGuid: null,
+                suppressMissingDependencies: false,
+                "ReferencedDb"));
+
+            ResolvedDatabaseReference reference = Resolve(projectPath).References.Single();
+
+            Assert.AreEqual(DatabaseReferenceResolution.Resolved, reference.Resolution, reference.Message);
+            Assert.AreEqual(Path.GetFullPath(referencedPath), reference.ResolvedPath);
+        }
+
+        [Test]
+        public void SystemDatabase_PackageReference_UsesTheProjectsOwnPackage()
+        {
+            string systemRoot = CreateSystemDacpacsRoot(out _, "160");
+            string projectPath = CreateProject("Main");
+            SqlProject project = SqlProject.OpenProject(projectPath);
+            project.Properties.TargetSqlPlatform = SqlPlatforms.Sql160;
+            project.DatabaseReferences.Add(new SystemDatabaseReference(SystemDatabase.Master, suppressMissingDependencies: false, referenceType: ReferenceType.PackageReference));
+
+            // Another package brings in Azure's master package, which the assets file lists first
+            string packagesFolder = Path.Combine(workingDirectory, "packages");
+            string azureDacpac = Path.Combine(packagesFolder, "microsoft.sqlserver.dacpacs.azure.master", "170.0.0", "tools", "master.dacpac");
+            string masterDacpac = Path.Combine(packagesFolder, "microsoft.sqlserver.dacpacs.master", "160.2.1", "tools", "master.dacpac");
+            foreach (string packageDacpac in new[] { azureDacpac, masterDacpac })
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(packageDacpac)!);
+                File.Copy(Path.Combine(systemRoot, "160", "master.dacpac"), packageDacpac);
+            }
+
+            WriteAssetsFile(projectPath, packagesFolder, new[] { "Microsoft.SqlServer.Dacpacs.Master" },
+                ("Microsoft.SqlServer.Dacpacs.Azure.Master", "170.0.0"), ("Microsoft.SqlServer.Dacpacs.Master", "160.2.1"));
+            ResolvedDatabaseReference reference = new ProjectReferenceResolver(systemRoot)
+                .Resolve(SqlProject.OpenProject(projectPath, onlyLoadProperties: true), projectPath)
+                .References.Single();
+            Assert.AreEqual(masterDacpac, reference.ResolvedPath, "The project's own master package is used.");
+
+            // Only the other platform's package is restored: the bundled dacpac for the project's platform is used instead
+            WriteAssetsFile(projectPath, packagesFolder, new[] { "Microsoft.SqlServer.Dacpacs.Master" },
+                ("Microsoft.SqlServer.Dacpacs.Azure.Master", "170.0.0"));
+            reference = new ProjectReferenceResolver(systemRoot)
+                .Resolve(SqlProject.OpenProject(projectPath, onlyLoadProperties: true), projectPath)
+                .References.Single();
+            Assert.AreEqual(Path.Combine(systemRoot, "160", "master.dacpac"), reference.ResolvedPath, "Another platform's master package isn't used.");
         }
 
         [TestCase("Microsoft.Data.Tools.Schema.Sql.Sql160DatabaseSchemaProvider", "160")]
@@ -512,11 +571,18 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlProjects
             return root;
         }
 
-        private static void WriteAssetsFile(string projectPath, string packagesFolder, params (string Id, string Version)[] packages)
+        private static void WriteAssetsFile(string projectPath, string packagesFolder, params (string Id, string Version)[] packages) =>
+            WriteAssetsFile(projectPath, packagesFolder, directPackageIds: null, packages);
+
+        /// <param name="directPackageIds">The packages the project references itself, or null to leave them out of the file.</param>
+        private static void WriteAssetsFile(string projectPath, string packagesFolder, string[]? directPackageIds, params (string Id, string Version)[] packages)
         {
             string libraries = string.Join(",", packages.Select(p =>
                 $"\"{p.Id}/{p.Version}\": {{ \"type\": \"package\", \"path\": \"{p.Id.ToLowerInvariant()}/{p.Version}\" }}"));
-            string json = $"{{ \"version\": 3, \"libraries\": {{ {libraries} }}, \"packageFolders\": {{ \"{packagesFolder.Replace("\\", "\\\\")}\": {{}} }} }}";
+            string project = directPackageIds == null
+                ? string.Empty
+                : $", \"project\": {{ \"frameworks\": {{ \"netstandard2.1\": {{ \"dependencies\": {{ {string.Join(",", directPackageIds.Select(id => $"\"{id}\": {{ \"target\": \"Package\" }}"))} }} }} }} }}";
+            string json = $"{{ \"version\": 3, \"libraries\": {{ {libraries} }}, \"packageFolders\": {{ \"{packagesFolder.Replace("\\", "\\\\")}\": {{}} }}{project} }}";
             string assetsPath = ProjectAssets.GetAssetsFilePath(Path.GetDirectoryName(projectPath)!);
             Directory.CreateDirectory(Path.GetDirectoryName(assetsPath)!);
             File.WriteAllText(assetsPath, json);

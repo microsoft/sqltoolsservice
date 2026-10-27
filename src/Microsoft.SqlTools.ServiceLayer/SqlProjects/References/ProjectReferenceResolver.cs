@@ -89,7 +89,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
                     {
                         SystemDatabaseReference systemReference => ResolveSystemDatabase(systemReference, project.Properties.DatabaseSchemaProvider, assets, dependencies),
                         DacpacReference dacpacReference => ResolveDacpac(dacpacReference, project, projectDirectory, sqlCmdVariables, dependencies),
-                        SqlProjectReference projectReference => ResolveProject(projectReference, projectDirectory, sqlCmdVariables, projectsBeingResolved, depth, dependencies),
+                        SqlProjectReference projectReference => ResolveProject(projectReference, project, projectDirectory, sqlCmdVariables, projectsBeingResolved, depth, dependencies),
                         NugetPackageReference packageReference => ResolvePackage(packageReference, assets, sqlCmdVariables, dependencies),
                         _ => Unresolved(reference.Name, DatabaseReferenceKind.Dacpac, DatabaseReferenceResolution.Failed, SR.DatabaseReferenceNotSupported(reference.Name)),
                     });
@@ -218,13 +218,21 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
 
         private ResolvedDatabaseReference ResolveProject(
             SqlProjectReference reference,
+            SqlProject project,
             string projectDirectory,
             IReadOnlyDictionary<string, string> sqlCmdVariables,
             HashSet<string> projectsBeingResolved,
             int depth,
             Dictionary<string, DateTime> dependencies)
         {
-            string referencedProjectPath = ToFullPath(projectDirectory, reference.ProjectPath);
+            string? expandedPath = ExpandMsBuildProperties(reference.ProjectPath, project, projectDirectory, out string? undefinedProperty);
+            if (expandedPath == null)
+            {
+                return Unresolved(reference.Name, DatabaseReferenceKind.SqlProject, DatabaseReferenceResolution.NotFound,
+                    SR.DatabaseReferenceUndefinedProperty(reference.ProjectPath, undefinedProperty ?? string.Empty));
+            }
+
+            string referencedProjectPath = ToFullPath(projectDirectory, expandedPath);
             AddDependency(dependencies, referencedProjectPath);
             if (!File.Exists(referencedProjectPath))
             {
@@ -374,7 +382,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
 
         /// <summary>
         /// Finds the restored Microsoft.SqlServer.Dacpacs.* package for a system database and returns its dacpac.
-        /// Fabric packages (DbFabric, FabricDw) only provide master.
+        /// Fabric packages (DbFabric, FabricDw) only provide master. Only the packages the project references itself are
+        /// considered when the assets file lists them: the restore graph also has packages that other packages depend on,
+        /// such as another platform's master package.
         /// </summary>
         private static string? FindSystemDacpacInPackages(ProjectAssets? assets, string databaseName, Dictionary<string, DateTime> dependencies)
         {
@@ -383,7 +393,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
                 return null;
             }
 
-            foreach (string packageId in assets.PackageIds.Where(id => id.StartsWith(SystemDacpacPackagePrefix, StringComparison.OrdinalIgnoreCase)))
+            IEnumerable<string> packageIds = assets.DirectPackageIds ?? assets.PackageIds;
+            foreach (string packageId in packageIds.Where(id => id.StartsWith(SystemDacpacPackagePrefix, StringComparison.OrdinalIgnoreCase)))
             {
                 bool isMsdbPackage = packageId.EndsWith(".Msdb", StringComparison.OrdinalIgnoreCase);
                 if (isMsdbPackage != (databaseName == "msdb"))
@@ -447,15 +458,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
 
             string expanded = MsBuildPropertyPattern().Replace(path, match =>
             {
+                // MSBuild property names are case-insensitive
                 string name = match.Groups["name"].Value;
-                string? value = name switch
-                {
-                    "MSBuildProjectDirectory" => projectDirectory,
-                    "MSBuildThisFileDirectory" or "ProjectDir" => projectDirectoryWithSeparator,
+                string? value =
+                    IsProperty(name, "MSBuildProjectDirectory") ? projectDirectory
+                    : IsProperty(name, "MSBuildThisFileDirectory", "ProjectDir") ? projectDirectoryWithSeparator
                     // The SDK's system dacpacs live under <location>\SystemDacpacs; STS ships the same layout.
-                    "SystemDacpacsLocation" or "NETCoreTargetsPath" or "DacPacRootPath" => Path.GetDirectoryName(systemDacpacsRoot),
-                    _ => project.Properties.GetProperty(name),
-                };
+                    : IsProperty(name, "SystemDacpacsLocation", "NETCoreTargetsPath", "DacPacRootPath") ? Path.GetDirectoryName(systemDacpacsRoot)
+                    : project.Properties.GetProperty(name);
 
                 if (value == null)
                 {
@@ -469,6 +479,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
             undefinedProperty = missing;
             return missing == null ? expanded : null;
         }
+
+        private static bool IsProperty(string name, params string[] propertyNames) =>
+            propertyNames.Any(propertyName => string.Equals(name, propertyName, StringComparison.OrdinalIgnoreCase));
 
         private static string ToFullPath(string baseDirectory, string path)
         {
