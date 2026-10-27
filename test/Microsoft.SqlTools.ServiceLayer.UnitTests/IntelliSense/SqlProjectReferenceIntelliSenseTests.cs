@@ -86,6 +86,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.IntelliSense
 
             AssertBinds(provider, "ProjectA", "SELECT [Id], [Name] FROM [$(ProjectB)].[dbo].[SomeTable];");
             AssertBinds(provider, "ProjectA", "SELECT [Id] FROM [ProjectB].[dbo].[SomeTable];");
+            CollectionAssert.IsNotEmpty(BindErrors(provider, "ProjectA", "SELECT [Id] FROM [ProjectB].[dbo].[MissingTable];"),
+                "A table the reference doesn't have is reported");
         }
 
         [Test]
@@ -198,12 +200,20 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.IntelliSense
         private static string DatabaseNames(TSqlModelMetadataProvider provider) =>
             string.Join(", ", provider.Server.Databases.Select(d => d.Name));
 
-        /// <summary>Binds <paramref name="query"/> against the project metadata the way the language service does.</summary>
-        private static void AssertBinds(TSqlModelMetadataProvider provider, string databaseName, string query)
+        /// <summary>Asserts that <paramref name="query"/> binds against the project metadata without errors.</summary>
+        private static void AssertBinds(TSqlModelMetadataProvider provider, string databaseName, string query) =>
+            CollectionAssert.IsEmpty(BindErrors(provider, databaseName, query), query);
+
+        /// <summary>
+        /// Binds <paramref name="query"/> against the project metadata the way the language service does and returns the
+        /// errors it reports. Binding reports names that don't resolve as errors on the parse result rather than throwing.
+        /// </summary>
+        private static string[] BindErrors(TSqlModelMetadataProvider provider, string databaseName, string query)
         {
             ParseResult parseResult = Parser.Parse(query);
             IBinder binder = BinderProvider.CreateBinder(provider);
-            Assert.DoesNotThrow(() => binder.Bind(new[] { parseResult }, databaseName, BindMode.Batch), query);
+            binder.Bind(new[] { parseResult }, databaseName, BindMode.Batch);
+            return parseResult.Errors.Select(error => error.Message).ToArray();
         }
     }
 }

@@ -18,9 +18,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
     /// <remarks>
     /// Safe to use from any thread. Concurrent requests for the same project share one resolution, and requests
     /// for different projects never wait for each other. An entry is resolved again once any file it depends on
-    /// changes: the .sqlproj, the restore output, a referenced dacpac or a referenced project's .sqlproj. Changes to
-    /// a referenced project's scripts do not invalidate an entry, because a project reference is built from its
-    /// scripts each time it is loaded. Resolution only reads files, so callers run it on a background thread.
+    /// is created, changed or deleted: the .sqlproj and restore output of the project and of every project it
+    /// references, and every dacpac or project a reference points to, including ones that were missing (see
+    /// <see cref="ResolvedProjectReferences.Dependencies"/>). Changes to a referenced project's scripts do not
+    /// invalidate an entry, because a project reference is built from its scripts each time it is loaded.
+    /// Resolution only reads files, so callers run it on a background thread.
     /// </remarks>
     internal sealed class ProjectReferenceCache
     {
@@ -88,7 +90,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
                     Record(snapshot, ProjectAssets.GetAssetsFilePath(projectDirectory));
 
                     ResolvedProjectReferences resolved = resolve();
-                    foreach (string path in resolved.References.Select(reference => reference.ResolvedPath).OfType<string>())
+                    foreach (string path in resolved.Dependencies)
                     {
                         Record(snapshot, path);
                     }

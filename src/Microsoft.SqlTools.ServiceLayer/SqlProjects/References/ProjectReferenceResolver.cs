@@ -71,8 +71,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
         {
             string projectDirectory = Path.GetDirectoryName(projectFilePath) ?? string.Empty;
             IReadOnlyDictionary<string, string> sqlCmdVariables = GetSqlCmdVariableValues(project);
+            string assetsFilePath = ProjectAssets.GetAssetsFilePath(projectDirectory);
             ProjectAssets? assets = ProjectAssets.TryLoad(projectDirectory);
 
+            // Every file the result depends on, recorded whether it exists or not, so creating a missing one is noticed too
+            var dependencies = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { projectFilePath, assetsFilePath };
             var references = new List<ResolvedDatabaseReference>();
             foreach (DatabaseReference reference in project.DatabaseReferences)
             {
@@ -80,10 +83,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
                 {
                     references.Add(reference switch
                     {
-                        SystemDatabaseReference systemReference => ResolveSystemDatabase(systemReference, project.Properties.DatabaseSchemaProvider, assets),
-                        DacpacReference dacpacReference => ResolveDacpac(dacpacReference, project, projectDirectory, sqlCmdVariables),
-                        SqlProjectReference projectReference => ResolveProject(projectReference, projectDirectory, sqlCmdVariables, projectsBeingResolved, depth),
-                        NugetPackageReference packageReference => ResolvePackage(packageReference, assets, sqlCmdVariables),
+                        SystemDatabaseReference systemReference => ResolveSystemDatabase(systemReference, project.Properties.DatabaseSchemaProvider, assets, dependencies),
+                        DacpacReference dacpacReference => ResolveDacpac(dacpacReference, project, projectDirectory, sqlCmdVariables, dependencies),
+                        SqlProjectReference projectReference => ResolveProject(projectReference, projectDirectory, sqlCmdVariables, projectsBeingResolved, depth, dependencies),
+                        NugetPackageReference packageReference => ResolvePackage(packageReference, assets, sqlCmdVariables, dependencies),
                         _ => Unresolved(reference.Name, DatabaseReferenceKind.Dacpac, DatabaseReferenceResolution.Failed, SR.DatabaseReferenceNotSupported(reference.Name)),
                     });
                 }
@@ -93,7 +96,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
                 }
             }
 
-            return new ResolvedProjectReferences(projectFilePath, references, sqlCmdVariables);
+            return new ResolvedProjectReferences(projectFilePath, references, sqlCmdVariables, dependencies);
         }
 
         /// <summary>
@@ -117,7 +120,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
             return values;
         }
 
-        private ResolvedDatabaseReference ResolveSystemDatabase(SystemDatabaseReference reference, string databaseSchemaProvider, ProjectAssets? assets)
+        private ResolvedDatabaseReference ResolveSystemDatabase(
+            SystemDatabaseReference reference,
+            string databaseSchemaProvider,
+            ProjectAssets? assets,
+            HashSet<string> dependencies)
         {
             string databaseName = reference.SystemDb == SystemDatabase.MSDB ? "msdb" : "master";
             string? dacpacPath = null;
@@ -125,7 +132,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
 
             if (reference.ReferenceType == ReferenceType.PackageReference)
             {
-                dacpacPath = FindSystemDacpacInPackages(assets, databaseName);
+                dacpacPath = FindSystemDacpacInPackages(assets, databaseName, dependencies);
                 if (dacpacPath == null)
                 {
                     message = SR.SystemDatabasePackageNotRestored(databaseName);
@@ -136,6 +143,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
             {
                 string? platformFolder = GetSystemDacpacFolderName(databaseSchemaProvider);
                 string? bundledPath = platformFolder == null ? null : Path.Combine(systemDacpacsRoot, platformFolder, databaseName + DacpacExtension);
+                if (bundledPath != null)
+                {
+                    dependencies.Add(bundledPath);
+                }
+
                 if (bundledPath == null || !File.Exists(bundledPath))
                 {
                     return Unresolved(reference.Name, DatabaseReferenceKind.SystemDatabase, DatabaseReferenceResolution.NotFound,
@@ -170,7 +182,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
             DacpacReference reference,
             SqlProject project,
             string projectDirectory,
-            IReadOnlyDictionary<string, string> sqlCmdVariables)
+            IReadOnlyDictionary<string, string> sqlCmdVariables,
+            HashSet<string> dependencies)
         {
             string? expandedPath = ExpandMsBuildProperties(reference.DacpacPath, project, projectDirectory, out string? undefinedProperty);
             if (expandedPath == null)
@@ -180,6 +193,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
             }
 
             string dacpacPath = ToFullPath(projectDirectory, expandedPath);
+            dependencies.Add(dacpacPath);
             if (!File.Exists(dacpacPath))
             {
                 return Unresolved(reference.Name, DatabaseReferenceKind.Dacpac, DatabaseReferenceResolution.NotFound,
@@ -203,9 +217,11 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
             string projectDirectory,
             IReadOnlyDictionary<string, string> sqlCmdVariables,
             HashSet<string> projectsBeingResolved,
-            int depth)
+            int depth,
+            HashSet<string> dependencies)
         {
             string referencedProjectPath = ToFullPath(projectDirectory, reference.ProjectPath);
+            dependencies.Add(referencedProjectPath);
             if (!File.Exists(referencedProjectPath))
             {
                 return Unresolved(reference.Name, DatabaseReferenceKind.SqlProject, DatabaseReferenceResolution.NotFound,
@@ -241,6 +257,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
                 projectsBeingResolved.Remove(referencedProjectPath);
             }
 
+            dependencies.UnionWith(nestedReferences.Dependencies);
             (string? server, string? database, string? literal, IReadOnlyList<string> names) = GetBinding(reference, sqlCmdVariables);
             return new ResolvedDatabaseReference
             {
@@ -264,7 +281,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
         private static ResolvedDatabaseReference ResolvePackage(
             NugetPackageReference reference,
             ProjectAssets? assets,
-            IReadOnlyDictionary<string, string> sqlCmdVariables)
+            IReadOnlyDictionary<string, string> sqlCmdVariables,
+            HashSet<string> dependencies)
         {
             string? packageDirectory = assets?.GetPackageDirectory(reference.PackageName);
             if (packageDirectory == null)
@@ -276,6 +294,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
             // Like the SQL projects SDK, look for tools/<package id>.dacpac, falling back to the package's only dacpac.
             string toolsDirectory = Path.Combine(packageDirectory, "tools");
             string dacpacPath = Path.Combine(toolsDirectory, reference.PackageName + DacpacExtension);
+            dependencies.Add(dacpacPath);
             if (!File.Exists(dacpacPath))
             {
                 string[] dacpacs = Directory.Exists(toolsDirectory)
@@ -288,6 +307,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
                 }
 
                 dacpacPath = dacpacs[0];
+                dependencies.Add(dacpacPath);
             }
 
             (string? server, string? database, string? literal, IReadOnlyList<string> names) = GetBinding(reference, sqlCmdVariables);
@@ -338,7 +358,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
         /// Finds the restored Microsoft.SqlServer.Dacpacs.* package for a system database and returns its dacpac.
         /// Fabric packages (DbFabric, FabricDw) only provide master.
         /// </summary>
-        private static string? FindSystemDacpacInPackages(ProjectAssets? assets, string databaseName)
+        private static string? FindSystemDacpacInPackages(ProjectAssets? assets, string databaseName, HashSet<string> dependencies)
         {
             if (assets == null)
             {
@@ -354,8 +374,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
                 }
 
                 string? packageDirectory = assets.GetPackageDirectory(packageId);
-                string? dacpacPath = packageDirectory == null ? null : Path.Combine(packageDirectory, "tools", databaseName + DacpacExtension);
-                if (dacpacPath != null && File.Exists(dacpacPath))
+                if (packageDirectory == null)
+                {
+                    continue;
+                }
+
+                string dacpacPath = Path.Combine(packageDirectory, "tools", databaseName + DacpacExtension);
+                dependencies.Add(dacpacPath);
+                if (File.Exists(dacpacPath))
                 {
                     return dacpacPath;
                 }

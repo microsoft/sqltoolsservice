@@ -200,13 +200,14 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
         }
 
         /// <summary>
-        /// Returns the database references of <paramref name="project"/>, already loaded from <paramref name="projectFilePath"/>,
-        /// from the cache when none of the files they depend on changed. Doesn't read the .sqlproj again, so it's safe to call
-        /// while requests may be writing it, as long as nothing else uses <paramref name="project"/> at the same time.
+        /// Resolves the database references of <paramref name="project"/>, already loaded from <paramref name="projectFilePath"/>.
+        /// Doesn't read the .sqlproj again, so it's safe to call while requests may be writing it, as long as nothing else uses
+        /// <paramref name="project"/> at the same time. Doesn't use the cache: the project can be older than the .sqlproj, as a
+        /// build's snapshot is after a reference edit, and the cache would keep its references as those of the current file.
         /// </summary>
         internal ResolvedProjectReferences ResolveProjectReferences(SqlProject project, string projectFilePath)
         {
-            return referenceCache.GetOrResolve(projectFilePath, () => ReferenceResolver.Resolve(project, projectFilePath));
+            return ReferenceResolver.Resolve(project, projectFilePath);
         }
 
         /// <summary>
@@ -705,26 +706,27 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 requestParams.Validate();
 
                 SqlProject project = host.GetProject(onlyLoadProperties: true);
+                string dacpacPath = ToProjectRelativeReferencePath(requestParams.ProjectUri, requestParams.DacpacPath);
                 DacpacReference reference;
 
                 if (!string.IsNullOrWhiteSpace(requestParams.DatabaseLiteral)) // same server, different database via database name literal
                 {
                     reference = new DacpacReference(
-                        requestParams.DacpacPath,
+                        dacpacPath,
                         requestParams.SuppressMissingDependencies,
                         requestParams.DatabaseLiteral);
                 }
                 else if (!string.IsNullOrWhiteSpace(requestParams.DatabaseVariable)) // different database, possibly different server via sqlcmdvar
                 {
                     reference = new DacpacReference(
-                        requestParams.DacpacPath,
+                        dacpacPath,
                         requestParams.SuppressMissingDependencies,
                         project.SqlCmdVariables.Get(requestParams.DatabaseVariable),
                         requestParams.ServerVariable != null ? project.SqlCmdVariables.Get(requestParams.ServerVariable) : null);
                 }
                 else // same database
                 {
-                    reference = new DacpacReference(requestParams.DacpacPath, requestParams.SuppressMissingDependencies);
+                    reference = new DacpacReference(dacpacPath, requestParams.SuppressMissingDependencies);
                 }
 
                 project.DatabaseReferences.Add(reference);
@@ -739,12 +741,13 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 requestParams.Validate();
 
                 SqlProject project = host.GetProject(onlyLoadProperties: true);
+                string projectPath = ToProjectRelativeReferencePath(requestParams.ProjectUri, requestParams.ProjectPath);
                 SqlProjectReference reference;
 
                 if (!string.IsNullOrWhiteSpace(requestParams.DatabaseLiteral)) // same server, different database via database name literal
                 {
                     reference = new SqlProjectReference(
-                        requestParams.ProjectPath,
+                        projectPath,
                         requestParams.ProjectGuid,
                         requestParams.SuppressMissingDependencies,
                         requestParams.DatabaseLiteral);
@@ -752,7 +755,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 else if (!string.IsNullOrWhiteSpace(requestParams.DatabaseVariable)) // different database, possibly different server via sqlcmdvar
                 {
                     reference = new SqlProjectReference(
-                        requestParams.ProjectPath,
+                        projectPath,
                         requestParams.ProjectGuid, requestParams.SuppressMissingDependencies,
                         project.SqlCmdVariables.Get(requestParams.DatabaseVariable),
                         requestParams.ServerVariable != null ? project.SqlCmdVariables.Get(requestParams.ServerVariable) : null);
@@ -760,7 +763,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 else // same database
                 {
                     reference = new SqlProjectReference(
-                        requestParams.ProjectPath,
+                        projectPath,
                         requestParams.ProjectGuid,
                         requestParams.SuppressMissingDependencies);
                 }
@@ -916,6 +919,22 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                 RunSqlCodeAnalysis = bool.TryParse(project.Properties.GetProperty(RunSqlCodeAnalysisPropertyName), out var runAnalysis) && runAnalysis,
                 SqlCodeAnalysisRules = project.Properties.GetProperty(SqlCodeAnalysisRulesPropertyName)
             };
+        }
+
+        /// <summary>
+        /// Returns a referenced file's path relative to the project when it's absolute, on Linux and macOS. The SQL
+        /// projects library stores a rooted path there without its leading '/', which then resolves relative to the
+        /// project. Other paths, and every path on Windows, are returned unchanged.
+        /// </summary>
+        private static string ToProjectRelativeReferencePath(string projectUri, string referencePath)
+        {
+            if (OperatingSystem.IsWindows() || !Path.IsPathFullyQualified(referencePath))
+            {
+                return referencePath;
+            }
+
+            string projectDirectory = Path.GetDirectoryName(ProjectHost.ToLocalPath(projectUri)) ?? string.Empty;
+            return Path.GetRelativePath(projectDirectory, referencePath);
         }
 
         private static GetDatabaseReferencesResult BuildDatabaseReferencesResult(SqlProject project)

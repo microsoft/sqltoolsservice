@@ -282,22 +282,31 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlProjects
         }
 
         [Test]
-        public void Cache_SharesOneResolutionAndRefreshesWhenTheProjectChanges()
+        public async Task Cache_SharesOneResolutionAndRefreshesWhenTheProjectChanges()
         {
+            const int requestCount = 8;
             string projectPath = CreateProject("Main");
             var cache = new ProjectReferenceCache();
             int resolutions = 0;
+            using var requestsStarted = new CountdownEvent(requestCount);
             Func<ResolvedProjectReferences> resolve = () =>
             {
                 Interlocked.Increment(ref resolutions);
+                // Hold the first resolution until every request has started, so they all overlap it
+                requestsStarted.Wait(TimeSpan.FromSeconds(30));
                 Thread.Sleep(50);
                 return new ProjectReferenceResolver(workingDirectory).Resolve(SqlProject.OpenProject(projectPath, onlyLoadProperties: true), projectPath);
             };
 
-            ResolvedProjectReferences[] results = Enumerable.Range(0, 8)
-                .Select(_ => Task.Run(() => cache.GetOrResolve(projectPath, resolve)))
-                .Select(task => task.Result)
+            // Each request gets its own thread, so none waits for a pool thread held by another request
+            Task<ResolvedProjectReferences>[] requests = Enumerable.Range(0, requestCount)
+                .Select(_ => Task.Factory.StartNew(() =>
+                {
+                    requestsStarted.Signal();
+                    return cache.GetOrResolve(projectPath, resolve);
+                }, TaskCreationOptions.LongRunning))
                 .ToArray();
+            ResolvedProjectReferences[] results = await Task.WhenAll(requests);
 
             Assert.AreEqual(1, resolutions, "Concurrent requests for a project share one resolution.");
             Assert.IsTrue(results.All(result => ReferenceEquals(result, results[0])));
@@ -311,6 +320,79 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlProjects
             cache.GetOrResolve(projectPath, resolve);
             Assert.AreEqual(3, resolutions);
         }
+
+        [Test]
+        public void Cache_RefreshesWhenAMissingDacpacIsCreated()
+        {
+            string projectPath = CreateProject("Main");
+            SqlProject project = SqlProject.OpenProject(projectPath);
+            project.DatabaseReferences.Add(new DacpacReference("Other.dacpac", suppressMissingDependencies: false, "OtherDb"));
+            var cache = new ProjectReferenceCache();
+            Assert.AreEqual(DatabaseReferenceResolution.NotFound, ResolveCached(cache, projectPath).References.Single().Resolution, "Setup");
+
+            CreateDacpac(Path.Combine("Main", "Other.dacpac"), "CREATE TABLE [dbo].[OtherTable] ([Id] INT NOT NULL);");
+
+            Assert.AreEqual(DatabaseReferenceResolution.Resolved, ResolveCached(cache, projectPath).References.Single().Resolution,
+                "Creating the missing dacpac invalidates the cached references.");
+        }
+
+        [Test]
+        public void Cache_RefreshesWhenAReferencedProjectsDependenciesChange()
+        {
+            string referencedPath = CreateProject("Referenced");
+            SqlProject referenced = SqlProject.OpenProject(referencedPath);
+            referenced.DatabaseReferences.Add(new DacpacReference("Nested.dacpac", suppressMissingDependencies: false));
+            referenced.DatabaseReferences.Add(new NugetPackageReference("Contoso.Reference", "1.2.0", suppressMissingDependencies: false, "ContosoDb"));
+            string projectPath = CreateProject("Main");
+            SqlProject project = SqlProject.OpenProject(projectPath);
+            project.DatabaseReferences.Add(new SqlProjectReference(
+                Path.GetRelativePath(Path.GetDirectoryName(projectPath)!, referencedPath),
+                projectGuid: null,
+                suppressMissingDependencies: false,
+                "ReferencedDb"));
+            var cache = new ProjectReferenceCache();
+            Assert.AreEqual(0, NestedReferenceCount(cache, projectPath), "Setup: neither of the referenced project's references resolves");
+
+            CreateDacpac(Path.Combine("Referenced", "Nested.dacpac"), "CREATE TABLE [dbo].[NestedTable] ([Id] INT NOT NULL);");
+            Assert.AreEqual(1, NestedReferenceCount(cache, projectPath), "Creating the referenced project's missing dacpac invalidates the cached references.");
+
+            string packagesFolder = Path.Combine(workingDirectory, "packages");
+            CreateDacpac(Path.Combine("packages", "contoso.reference", "1.2.0", "tools", "Contoso.Reference.dacpac"), "CREATE TABLE [dbo].[ContosoTable] ([Id] INT NOT NULL);");
+            WriteAssetsFile(referencedPath, packagesFolder, ("Contoso.Reference", "1.2.0"));
+            Assert.AreEqual(2, NestedReferenceCount(cache, projectPath), "Restoring the referenced project's packages invalidates the cached references.");
+        }
+
+        [TestCase("{ \"libraries\": [ not json", TestName = "UnreadableAssetsFile_Malformed")]
+        [TestCase("{ \"libraries\": { \"Contoso.Reference/1.2.0\": 42 } }", TestName = "UnreadableAssetsFile_UnexpectedType")]
+        public void UnreadableAssetsFile_PackagesAreNotRestoredAndOtherReferencesResolve(string assetsJson)
+        {
+            string dacpacPath = CreateDacpac("Other.dacpac", "CREATE TABLE [dbo].[OtherTable] ([Id] INT NOT NULL);");
+            string projectPath = CreateProject("Main");
+            SqlProject project = SqlProject.OpenProject(projectPath);
+            project.SqlCmdVariables.Add(new SqlCmdVariable("OtherDb", "OtherDbValue"));
+            project.DatabaseReferences.Add(new DacpacReference(
+                Path.GetRelativePath(Path.GetDirectoryName(projectPath)!, dacpacPath),
+                suppressMissingDependencies: false,
+                project.SqlCmdVariables.Get("OtherDb")));
+            project.DatabaseReferences.Add(new NugetPackageReference("Contoso.Reference", "1.2.0", suppressMissingDependencies: false, "ContosoDb"));
+            string assetsPath = ProjectAssets.GetAssetsFilePath(Path.GetDirectoryName(projectPath)!);
+            Directory.CreateDirectory(Path.GetDirectoryName(assetsPath)!);
+            File.WriteAllText(assetsPath, assetsJson);
+
+            ResolvedProjectReferences resolved = Resolve(projectPath);
+
+            ResolvedDatabaseReference dacpac = resolved.References.Single(reference => reference.Kind == DatabaseReferenceKind.Dacpac);
+            Assert.AreEqual(DatabaseReferenceResolution.Resolved, dacpac.Resolution, dacpac.Message);
+            Assert.AreEqual(DatabaseReferenceResolution.NotRestored, resolved.References.Single(reference => reference.Kind == DatabaseReferenceKind.NuGetPackage).Resolution);
+            Assert.AreEqual("OtherDbValue", resolved.SqlCmdVariables["OtherDb"]);
+        }
+
+        private ResolvedProjectReferences ResolveCached(ProjectReferenceCache cache, string projectPath) =>
+            cache.GetOrResolve(projectPath, () => Resolve(projectPath));
+
+        /// <summary>Resolves through the cache and counts the references of the project's only (project) reference that resolved.</summary>
+        private int NestedReferenceCount(ProjectReferenceCache cache, string projectPath) =>
+            ResolveCached(cache, projectPath).References.Single().ModelReference!.DatabaseReferences.Count;
 
         private ResolvedProjectReferences Resolve(string projectPath) =>
             new ProjectReferenceResolver(ProjectReferenceResolver.DefaultSystemDacpacsRoot)

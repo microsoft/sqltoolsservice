@@ -78,16 +78,24 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
         public ResolvedProjectReferences(
             string projectFilePath,
             IReadOnlyList<ResolvedDatabaseReference> references,
-            IReadOnlyDictionary<string, string> sqlCmdVariables)
+            IReadOnlyDictionary<string, string> sqlCmdVariables,
+            IReadOnlyCollection<string>? dependencies = null)
         {
             ProjectFilePath = projectFilePath;
             References = references;
             SqlCmdVariables = sqlCmdVariables;
+            Dependencies = dependencies ?? Array.Empty<string>();
         }
 
         public string ProjectFilePath { get; }
 
         public IReadOnlyList<ResolvedDatabaseReference> References { get; }
+
+        /// <summary>
+        /// Full paths of the files the resolution read or looked for, including missing ones and those of referenced
+        /// projects: creating, changing or deleting any of them can change the result.
+        /// </summary>
+        public IReadOnlyCollection<string> Dependencies { get; }
 
         /// <summary>
         /// SQLCMD variables that have a value, keyed by name without $(). Variables without a value are left out,

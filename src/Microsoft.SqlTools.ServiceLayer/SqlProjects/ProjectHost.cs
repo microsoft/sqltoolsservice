@@ -309,9 +309,19 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
             {
                 // Take a private snapshot through the queue, so it matches the project as of this point.
                 // Nothing else references the snapshot, so later edits can't change what the build reads;
-                // they're collected in changesDuringBuild instead.
-                SqlProject? snapshot = await RunAsync(() => Task.FromResult(
-                    id == buildId ? SqlProject.OpenProject(ProjectUri) : null)).ConfigureAwait(false);
+                // they're collected in changesDuringBuild instead. Read the references version with it: a reference
+                // edit the snapshot misses bumps the version after this, so the build reloads once it publishes.
+                int snapshotReferencesVersion = 0;
+                SqlProject? snapshot = await RunAsync(() =>
+                {
+                    if (id != buildId)
+                    {
+                        return Task.FromResult<SqlProject?>(null);
+                    }
+
+                    snapshotReferencesVersion = Volatile.Read(ref referencesVersion);
+                    return Task.FromResult<SqlProject?>(SqlProject.OpenProject(ProjectUri));
+                }).ConfigureAwait(false);
                 if (snapshot == null)
                 {
                     return;
@@ -322,7 +332,6 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
 
                 // Load the database references while the model is still private, so loading them never holds up
                 // the queue and the first completions and diagnostics already include the referenced objects.
-                int loadedReferencesVersion = Volatile.Read(ref referencesVersion);
                 ResolvedProjectReferences? references = TryResolveReferences(snapshot);
                 if (references != null)
                 {
@@ -336,7 +345,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects
                         return false;
                     }
 
-                    appliedReferencesVersion = loadedReferencesVersion;
+                    appliedReferencesVersion = snapshotReferencesVersion;
 
                     List<IntelliSenseChange> changes = changesDuringBuild ?? new List<IntelliSenseChange>();
                     changesDuringBuild = null;

@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using Microsoft.SqlTools.ServiceLayer.DacFx;
+using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
 {
@@ -35,7 +36,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
             Path.Combine(projectDirectory, "obj", "project.assets.json");
 
         /// <summary>
-        /// Reads the project's assets file. Returns null when the project has not been restored.
+        /// Reads the project's assets file. Returns null when the project has not been restored, or when the assets file
+        /// can't be read, which is logged: references that don't need restored packages still resolve.
         /// </summary>
         internal static ProjectAssets? TryLoad(string projectDirectory)
         {
@@ -45,6 +47,20 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
                 return null;
             }
 
+            try
+            {
+                return Load(assetsFilePath);
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or JsonException or InvalidOperationException)
+            {
+                // InvalidOperationException: an element has an unexpected JSON type
+                Logger.Warning($"Could not read the restore output {assetsFilePath}, so the project's packages are treated as not restored: {ex.Message}");
+                return null;
+            }
+        }
+
+        private static ProjectAssets Load(string assetsFilePath)
+        {
             using JsonDocument document = JsonDocument.Parse(File.ReadAllText(assetsFilePath));
             JsonElement root = document.RootElement;
 
