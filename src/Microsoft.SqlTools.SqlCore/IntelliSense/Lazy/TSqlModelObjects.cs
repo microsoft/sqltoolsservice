@@ -66,10 +66,11 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
             _keyDefinitions = new Lazy<IReadOnlyList<TSqlModelKeyDefinition>>(CreateKeyDefinitions);
         }
 
-        // Lazy columns — only loaded when accessed
+        // Lazy columns — only loaded when accessed. DacExternalQueryScopes also reaches objects in other-database
+        // references, which DacQueryScopes leaves out.
         public IMetadataOrderedCollection<IColumn> Columns =>
             _columns ??= new LazyOrderedCollection<IColumn>(
-                () => _tableObj.GetReferenced(Table.Columns, DacQueryScopes.All)
+                () => _tableObj.GetReferenced(Table.Columns, DacExternalQueryScopes.All)
                                .Select(c => new TSqlModelColumn(this, c))
                                .Cast<IColumn>());
 
@@ -179,7 +180,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         // Lazy columns — populated on first access
         public IMetadataOrderedCollection<IColumn> Columns =>
             _columns ??= new LazyOrderedCollection<IColumn>(
-                () => _viewObj.GetReferenced(View.Columns, DacQueryScopes.All)
+                () => _viewObj.GetReferenced(View.Columns, DacExternalQueryScopes.All)
                               .Select(c => new TSqlModelColumn(this, c))
                               .Cast<IColumn>());
 
@@ -225,7 +226,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         public IMetadataOrderedCollection<IParameter> Parameters =>
             _parameters ??= new LazyOrderedCollection<IParameter>(() =>
                 _procObj
-                    .GetReferenced(Procedure.Parameters, DacQueryScopes.All)
+                    .GetReferenced(Procedure.Parameters, DacExternalQueryScopes.All)
                     .Select(p => (IParameter)new TSqlModelParameter(
                         p.Name.Parts[p.Name.Parts.Count - 1],
                         p.GetProperty<bool>(Parameter.IsOutput))));
@@ -267,7 +268,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         public IMetadataOrderedCollection<IParameter> Parameters =>
             _parameters ??= new LazyOrderedCollection<IParameter>(() =>
                 _fnObj
-                    .GetReferenced(ScalarFunction.Parameters, DacQueryScopes.All)
+                    .GetReferenced(ScalarFunction.Parameters, DacExternalQueryScopes.All)
                     .Select(p => (IParameter)new TSqlModelParameter(
                         p.Name.Parts[p.Name.Parts.Count - 1],
                         p.GetProperty<bool>(Parameter.IsOutput))));
@@ -318,7 +319,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         // ITabular / IDatabaseTable — lazy columns, populated on first access
         public IMetadataOrderedCollection<IColumn> Columns =>
             _columns ??= new LazyOrderedCollection<IColumn>(
-                () => _fnObj.GetReferenced(TableValuedFunction.Columns, DacQueryScopes.All)
+                () => _fnObj.GetReferenced(TableValuedFunction.Columns, DacExternalQueryScopes.All)
                             .Select(c => new TSqlModelColumn(this, c))
                             .Cast<IColumn>());
 
@@ -337,7 +338,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         public IMetadataOrderedCollection<IParameter> Parameters =>
             _parameters ??= new LazyOrderedCollection<IParameter>(() =>
                 _fnObj
-                    .GetReferenced(TableValuedFunction.Parameters, DacQueryScopes.All)
+                    .GetReferenced(TableValuedFunction.Parameters, DacExternalQueryScopes.All)
                     .Select(p => (IParameter)new TSqlModelParameter(
                         p.Name.Parts[p.Name.Parts.Count - 1],
                         p.GetProperty<bool>(Parameter.IsOutput))));
@@ -487,7 +488,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         {
             get
             {
-                TSqlObject? typeObj = _colObj.GetReferenced(Column.DataType, DacQueryScopes.All).FirstOrDefault();
+                TSqlObject? typeObj = _colObj.GetReferenced(Column.DataType, DacExternalQueryScopes.All).FirstOrDefault();
                 if (typeObj == null) return null;
 
                 // Primary: use the last Name part (e.g. "nvarchar", "int")
