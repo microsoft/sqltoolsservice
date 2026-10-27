@@ -23,17 +23,22 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         /// or its SQLCMD variable written as $(Variable) together with the variable's value.
         /// </param>
         /// <param name="objects">Top level objects loaded from the reference.</param>
-        public ProjectReferencedDatabase(IEnumerable<string> names, IEnumerable<TSqlObject> objects)
+        /// <param name="isSystemDatabase">True for a reference to a system database such as master, whose objects are system objects.</param>
+        public ProjectReferencedDatabase(IEnumerable<string> names, IEnumerable<TSqlObject> objects, bool isSystemDatabase = false)
         {
             Names = (names ?? throw new ArgumentNullException(nameof(names)))
                 .Where(name => !string.IsNullOrEmpty(name))
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToArray();
             Objects = (objects ?? throw new ArgumentNullException(nameof(objects))).ToArray();
+            IsSystemDatabase = isSystemDatabase;
         }
 
         public IReadOnlyList<string> Names { get; }
 
         public IReadOnlyList<TSqlObject> Objects { get; }
+
+        /// <summary>True for a reference to a system database such as master, whose objects are system objects.</summary>
+        public bool IsSystemDatabase { get; }
     }
 }

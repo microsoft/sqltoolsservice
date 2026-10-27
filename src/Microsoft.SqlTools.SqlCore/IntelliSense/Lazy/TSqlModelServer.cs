@@ -57,10 +57,11 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         /// Replaces the databases exposed for the project's other-database references. Every name of a
         /// referenced database becomes a database, so both [$(OtherDb)] and the variable's value resolve.
         /// Names that match the project database are ignored, and references that share a name are merged.
+        /// Objects of a system database reference, such as master, are system objects.
         /// </summary>
         internal void SetReferencedDatabases(IEnumerable<ProjectReferencedDatabase> referencedDatabases)
         {
-            var objectsByName = new Dictionary<string, List<TSqlObject>>(StringComparer.OrdinalIgnoreCase);
+            var objectsByName = new Dictionary<string, List<(TSqlObject Obj, bool IsUserDefined)>>(StringComparer.OrdinalIgnoreCase);
             foreach (ProjectReferencedDatabase referencedDatabase in referencedDatabases)
             {
                 foreach (string name in referencedDatabase.Names)
@@ -70,18 +71,19 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
                         continue;
                     }
 
-                    if (!objectsByName.TryGetValue(name, out List<TSqlObject>? objects))
+                    if (!objectsByName.TryGetValue(name, out List<(TSqlObject Obj, bool IsUserDefined)>? objects))
                     {
-                        objects = new List<TSqlObject>();
+                        objects = new List<(TSqlObject Obj, bool IsUserDefined)>();
                         objectsByName[name] = objects;
                     }
 
-                    objects.AddRange(referencedDatabase.Objects);
+                    bool isUserDefined = !referencedDatabase.IsSystemDatabase;
+                    objects.AddRange(referencedDatabase.Objects.Select(obj => (obj, isUserDefined)));
                 }
             }
 
             var databases = new List<IDatabase>(objectsByName.Count + 1) { _database };
-            foreach (KeyValuePair<string, List<TSqlObject>> entry in objectsByName)
+            foreach (KeyValuePair<string, List<(TSqlObject Obj, bool IsUserDefined)>> entry in objectsByName)
             {
                 databases.Add(new TSqlModelDatabase(this, _model, entry.Key, entry.Value));
             }
@@ -120,8 +122,8 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         private readonly TSqlModel _model;
         private readonly string _name;
 
-        // Objects of an other-database reference; null for the project database.
-        private readonly IReadOnlyList<TSqlObject>? _referencedObjects;
+        // Objects of an other-database reference, with whether each is user defined; null for the project database.
+        private readonly IReadOnlyList<(TSqlObject Obj, bool IsUserDefined)>? _referencedObjects;
 
         // Mutable schema map — supports EnsureSchema for incremental adds without rebuilding.
         private Dictionary<string, TSqlModelSchema>? _schemaMap;
@@ -137,7 +139,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         /// <summary>
         /// Creates a database for an other-database reference, backed by the objects loaded from that reference.
         /// </summary>
-        internal TSqlModelDatabase(TSqlModelServer server, TSqlModel model, string name, IReadOnlyList<TSqlObject>? referencedObjects)
+        internal TSqlModelDatabase(TSqlModelServer server, TSqlModel model, string name, IReadOnlyList<(TSqlObject Obj, bool IsUserDefined)>? referencedObjects)
         {
             _server = server;
             _model = model;
@@ -154,11 +156,15 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         {
             if (_referencedObjects != null)
             {
-                foreach (TSqlObject obj in _referencedObjects)
+                // User-defined objects first, as in the project database, for references merged under one name
+                foreach (bool userDefined in new[] { true, false })
                 {
-                    if (obj.ObjectType == type)
+                    foreach ((TSqlObject obj, bool isUserDefined) in _referencedObjects)
                     {
-                        yield return (obj, true);
+                        if (isUserDefined == userDefined && obj.ObjectType == type)
+                        {
+                            yield return (obj, isUserDefined);
+                        }
                     }
                 }
 
@@ -244,14 +250,15 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
 
             if (_referencedObjects != null)
             {
-                foreach (TSqlObject obj in _referencedObjects)
+                // A schema with any user-defined object is user defined; the others, such as master's sys, are built in
+                foreach ((TSqlObject obj, bool isUserDefined) in _referencedObjects.OrderByDescending(entry => entry.IsUserDefined))
                 {
                     // Schema objects are named by their schema; everything else is [schema].[name].
                     string? schemaName = obj.ObjectType == ModelSchema.Schema
                         ? obj.Name.Parts.FirstOrDefault()
                         : obj.Name.Parts.Count >= 2 ? obj.Name.Parts[0] : null;
                     if (schemaName != null && !map.ContainsKey(schemaName))
-                        map[schemaName] = new TSqlModelSchema(this, schemaName, DacQueryScopes.UserDefined);
+                        map[schemaName] = new TSqlModelSchema(this, schemaName, isUserDefined ? DacQueryScopes.UserDefined : DacQueryScopes.BuiltIn);
                 }
 
                 return map;

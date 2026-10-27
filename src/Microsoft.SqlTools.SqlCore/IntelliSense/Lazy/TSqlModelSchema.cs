@@ -318,7 +318,8 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
             }
 
             /// <summary>
-            /// Removes the wrapper entry for a table that was deleted from the model.
+            /// Removes the wrapper entry for a table that was deleted from the model, or switches it to the next table
+            /// with that name, such as one from a same-database reference that the deleted table hid.
             /// No-op if map is not yet initialized.
             /// </summary>
             internal void RemoveTable(string tableName)
@@ -331,7 +332,11 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
                     if (map == null) return;
                     var newMap = new Dictionary<string, ResettableLazy<TSqlModelTable>>(
                         map, StringComparer.OrdinalIgnoreCase);
-                    newMap.Remove(tableName);
+                    TSqlModelTable? next = _schema.CreateTableFromModel(tableName);
+                    if (next != null)
+                        newMap[tableName] = new ResettableLazy<TSqlModelTable>(() => next);
+                    else
+                        newMap.Remove(tableName);
                     _map = newMap;
                 }
             }
@@ -461,6 +466,10 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
                 }
             }
 
+            /// <summary>
+            /// Removes the entry for an object that was deleted from the model, or switches it to the next object with
+            /// that name, such as one from a same-database reference that the deleted object hid.
+            /// </summary>
             internal void Remove(string objectName)
             {
                 var map = _map;
@@ -470,7 +479,11 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
                     map = _map;
                     if (map == null) return;
                     var newMap = new Dictionary<string, ResettableLazy<TInterface>>(map, StringComparer.OrdinalIgnoreCase);
-                    newMap.Remove(objectName);
+                    TInterface? next = FetchFromModel(objectName);
+                    if (next != null)
+                        newMap[objectName] = new ResettableLazy<TInterface>(() => next);
+                    else
+                        newMap.Remove(objectName);
                     _map = newMap;
                 }
             }

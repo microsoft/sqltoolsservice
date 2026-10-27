@@ -75,7 +75,8 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
                 {
                     referencedDatabases.Add(new ProjectReferencedDatabase(
                         reference.DatabaseNames,
-                        model.GetReferencedObjects(reference.ModelReference, OtherDatabaseObjectTypes)));
+                        model.GetReferencedObjects(reference.ModelReference, OtherDatabaseObjectTypes),
+                        isSystemDatabase: reference.Kind == DatabaseReferenceKind.SystemDatabase));
                 }
             }
 

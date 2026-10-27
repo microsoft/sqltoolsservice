@@ -20,9 +20,9 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
     /// for different projects never wait for each other. An entry is resolved again once any file it depends on
     /// is created, changed or deleted: the .sqlproj and restore output of the project and of every project it
     /// references, and every dacpac or project a reference points to, including ones that were missing (see
-    /// <see cref="ResolvedProjectReferences.Dependencies"/>). Changes to a referenced project's scripts do not
-    /// invalidate an entry, because a project reference is built from its scripts each time it is loaded.
-    /// Resolution only reads files, so callers run it on a background thread.
+    /// <see cref="ResolvedProjectReferences.Dependencies"/>). Adding, deleting or renaming a script in a referenced
+    /// project's folders invalidates an entry too, but editing one doesn't, because a project reference is built
+    /// from its scripts each time it is loaded. Resolution only reads files, so callers run it on a background thread.
     /// </remarks>
     internal sealed class ProjectReferenceCache
     {
@@ -76,7 +76,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
         {
             private readonly Lazy<ResolvedProjectReferences> value;
 
-            // Last write time of every file the resolution depends on; DateTime.MinValue for a missing file.
+            // Last write time of every file and folder the resolution depends on; DateTime.MinValue for a missing one.
             private IReadOnlyDictionary<string, DateTime> dependencies = new Dictionary<string, DateTime>();
 
             public Entry(string projectFilePath, Func<ResolvedProjectReferences> resolve)
@@ -90,9 +90,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
                     Record(snapshot, ProjectAssets.GetAssetsFilePath(projectDirectory));
 
                     ResolvedProjectReferences resolved = resolve();
-                    foreach (string path in resolved.Dependencies)
+                    foreach ((string path, DateTime timestamp) in resolved.Dependencies)
                     {
-                        Record(snapshot, path);
+                        // The resolver recorded each one before reading it
+                        snapshot.TryAdd(path, timestamp);
                     }
 
                     dependencies = snapshot;
@@ -103,18 +104,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
             public ResolvedProjectReferences Value => value.Value;
 
             public bool IsStale() =>
-                dependencies.Any(dependency => GetLastWriteTime(dependency.Key) != dependency.Value);
+                dependencies.Any(dependency => ResolvedProjectReferences.GetDependencyTimestamp(dependency.Key) != dependency.Value);
 
-            private static void Record(Dictionary<string, DateTime> snapshot, string path)
-            {
-                if (!snapshot.ContainsKey(path))
-                {
-                    snapshot[path] = GetLastWriteTime(path);
-                }
-            }
-
-            private static DateTime GetLastWriteTime(string path) =>
-                File.Exists(path) ? File.GetLastWriteTimeUtc(path) : DateTime.MinValue;
+            private static void Record(Dictionary<string, DateTime> snapshot, string path) =>
+                snapshot.TryAdd(path, ResolvedProjectReferences.GetDependencyTimestamp(path));
         }
     }
 }

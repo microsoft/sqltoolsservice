@@ -63,7 +63,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.IntelliSense
             SqlProject project = SqlProject.OpenProject(projectPath);
             project.SqlCmdVariables.Add(new SqlCmdVariable("ProjectB", "ProjectB"));
             project.SqlObjectScripts.Add(new SqlObjectScript("LocalTable.sql"), "CREATE TABLE [dbo].[LocalTable] ([Id] INT NOT NULL);");
-            project.DatabaseReferences.Add(new SqlProjectReference(referencedPath, projectGuid: null, suppressMissingDependencies: false, project.SqlCmdVariables.Get("ProjectB")));
+            project.DatabaseReferences.Add(new SqlProjectReference(RelativeTo(projectPath, referencedPath), projectGuid: null, suppressMissingDependencies: false, project.SqlCmdVariables.Get("ProjectB")));
 
             using TSqlModel model = TSqlModelBuilder.LoadModel(SqlProject.OpenProject(projectPath));
             var provider = new TSqlModelMetadataProvider(model, "ProjectA");
@@ -99,7 +99,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.IntelliSense
             string projectPath = CreateProject("Main");
             SqlProject project = SqlProject.OpenProject(projectPath);
             project.SqlObjectScripts.Add(new SqlObjectScript("Overlap.sql"), "CREATE TABLE [dbo].[Overlap] ([FromProject] INT NOT NULL);");
-            project.DatabaseReferences.Add(new DacpacReference(dacpacPath, suppressMissingDependencies: true));
+            project.DatabaseReferences.Add(new DacpacReference(RelativeTo(projectPath, dacpacPath), suppressMissingDependencies: true));
 
             using TSqlModel model = TSqlModelBuilder.LoadModel(SqlProject.OpenProject(projectPath));
             var provider = new TSqlModelMetadataProvider(model, "Main");
@@ -137,7 +137,53 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.IntelliSense
             Assert.IsTrue(sysTables.IsSystemObject);
             CollectionAssert.Contains(sysTables.Columns.Select(c => c.Name).ToArray(), "object_id", "System view columns are available.");
             Assert.IsNotNull(provider.Server.Databases["master"]?.Schemas["sys"]?.Views["databases"], "master.sys.databases resolves by three-part name.");
+            ISchema masterSys = provider.Server.Databases["master"].Schemas["sys"];
+            Assert.IsTrue(masterSys.IsSystemObject, "master's sys schema is a system schema.");
+            Assert.IsTrue(masterSys.Views["databases"].IsSystemObject, "Objects of the master database are system objects.");
+            Assert.IsTrue(masterSys.Views["tables"].IsSystemObject, "master.sys.tables is a system object, as sys.tables is in the project database.");
             AssertBinds(provider, "Main", "SELECT [name] FROM [sys].[tables];");
+        }
+
+        [Test]
+        public void SameDatabaseReference_ObjectHiddenByAProjectObjectReturnsWhenThatObjectIsDeleted()
+        {
+            string dacpacPath = Path.Combine(workingDirectory, "Shared.dacpac");
+            ProjectReferenceResolverTests.SaveDacpac(dacpacPath,
+                "CREATE TABLE [dbo].[Overlap] ([FromReference] INT NOT NULL);\r\nGO\r\nCREATE VIEW [dbo].[OverlapView] AS SELECT 1 AS [FromReference];");
+            string source = Path.Combine(workingDirectory, "Overlap.sql");
+            using var model = new TSqlModel(SqlServerVersion.Sql160, new TSqlModelOptions());
+            model.AddOrUpdateObjects(
+                "CREATE TABLE [dbo].[Overlap] ([FromProject] INT NOT NULL);\r\nGO\r\nCREATE VIEW [dbo].[OverlapView] AS SELECT 1 AS [FromProject];",
+                source,
+                new TSqlObjectOptions());
+            var provider = new TSqlModelMetadataProvider(model, "Main");
+            ProjectReferenceLoader.ApplyReferences(model, provider, new ResolvedProjectReferences(
+                Path.Combine(workingDirectory, "Main.sqlproj"),
+                new[]
+                {
+                    new ResolvedDatabaseReference
+                    {
+                        Name = "Shared.dacpac",
+                        Kind = DatabaseReferenceKind.Dacpac,
+                        Resolution = DatabaseReferenceResolution.Resolved,
+                        ResolvedPath = dacpacPath,
+                        ModelReference = new TSqlModelReference(dacpacPath, suppressMissingDependenciesErrors: true),
+                    },
+                },
+                new Dictionary<string, string>()));
+
+            ISchema dbo = provider.Server.Databases["Main"].Schemas["dbo"];
+            CollectionAssert.AreEqual(new[] { "FromProject" }, dbo.Tables["Overlap"].Columns.Select(c => c.Name).ToArray(), "Setup: the project's table hides the reference's");
+            CollectionAssert.AreEqual(new[] { "FromProject" }, dbo.Views["OverlapView"].Columns.Select(c => c.Name).ToArray(), "Setup: the project's view hides the reference's");
+
+            model.DeleteObjects(source);
+            provider.UpdateForFileChange(source, deleted: true);
+
+            CollectionAssert.AreEqual(new[] { "FromReference" }, dbo.Tables["Overlap"]?.Columns.Select(c => c.Name).ToArray(),
+                "Deleting the project's table brings back the reference's");
+            CollectionAssert.AreEqual(new[] { "FromReference" }, dbo.Views["OverlapView"]?.Columns.Select(c => c.Name).ToArray(),
+                "Deleting the project's view brings back the reference's");
+            Assert.IsFalse(dbo.Tables["Overlap"].IsSystemObject);
         }
 
         [Test]
@@ -149,7 +195,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.IntelliSense
             ProjectReferenceResolverTests.SaveDacpac(secondDacpac, "CREATE TABLE [dbo].[SecondTable] ([Id] INT NOT NULL);");
             string projectPath = CreateProject("Main");
             SqlProject project = SqlProject.OpenProject(projectPath);
-            project.DatabaseReferences.Add(new DacpacReference(firstDacpac, suppressMissingDependencies: false, "FirstDb"));
+            project.DatabaseReferences.Add(new DacpacReference(RelativeTo(projectPath, firstDacpac), suppressMissingDependencies: false, "FirstDb"));
 
             using TSqlModel model = TSqlModelBuilder.LoadModel(SqlProject.OpenProject(projectPath));
             var provider = new TSqlModelMetadataProvider(model, "Main");
@@ -158,7 +204,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.IntelliSense
 
             project = SqlProject.OpenProject(projectPath);
             project.DatabaseReferences.Delete(project.DatabaseReferences.Single().Name);
-            project.DatabaseReferences.Add(new DacpacReference(secondDacpac, suppressMissingDependencies: false, "SecondDb"));
+            project.DatabaseReferences.Add(new DacpacReference(RelativeTo(projectPath, secondDacpac), suppressMissingDependencies: false, "SecondDb"));
             ProjectReferenceLoader.ApplyReferences(model, provider, Resolve(projectPath));
 
             Assert.IsNull(provider.Server.Databases["FirstDb"], "The removed reference's database is gone.");
@@ -173,8 +219,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.IntelliSense
             ProjectReferenceResolverTests.SaveDacpac(dacpacPath, "CREATE TABLE [dbo].[GoodTable] ([Id] INT NOT NULL);");
             string projectPath = CreateProject("Main");
             SqlProject project = SqlProject.OpenProject(projectPath);
-            project.DatabaseReferences.Add(new DacpacReference(Path.Combine(workingDirectory, "Missing.dacpac"), suppressMissingDependencies: false, "MissingDb"));
-            project.DatabaseReferences.Add(new DacpacReference(dacpacPath, suppressMissingDependencies: false, "GoodDb"));
+            project.DatabaseReferences.Add(new DacpacReference(RelativeTo(projectPath, Path.Combine(workingDirectory, "Missing.dacpac")), suppressMissingDependencies: false, "MissingDb"));
+            project.DatabaseReferences.Add(new DacpacReference(RelativeTo(projectPath, dacpacPath), suppressMissingDependencies: false, "GoodDb"));
 
             using TSqlModel model = TSqlModelBuilder.LoadModel(SqlProject.OpenProject(projectPath));
             var provider = new TSqlModelMetadataProvider(model, "Main");
@@ -192,6 +238,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.IntelliSense
             _ = SqlProject.CreateProjectAsync(projectPath).GetAwaiter().GetResult();
             return projectPath;
         }
+
+        private static string RelativeTo(string projectPath, string path) => ProjectReferenceResolverTests.RelativeTo(projectPath, path);
 
         private static ResolvedProjectReferences Resolve(string projectPath) =>
             new ProjectReferenceResolver(ProjectReferenceResolver.DefaultSystemDacpacsRoot)

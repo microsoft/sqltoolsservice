@@ -71,11 +71,15 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
         {
             string projectDirectory = Path.GetDirectoryName(projectFilePath) ?? string.Empty;
             IReadOnlyDictionary<string, string> sqlCmdVariables = GetSqlCmdVariableValues(project);
-            string assetsFilePath = ProjectAssets.GetAssetsFilePath(projectDirectory);
+
+            // Every file the result depends on, recorded whether it exists or not, so creating a missing one is noticed too.
+            // Each is recorded before it's read, so a change made while resolving is noticed next time. The caller read the
+            // .sqlproj already: the cache, or the referencing project's resolution, records it before that.
+            var dependencies = new Dictionary<string, DateTime>(StringComparer.OrdinalIgnoreCase);
+            AddDependency(dependencies, projectFilePath);
+            AddDependency(dependencies, ProjectAssets.GetAssetsFilePath(projectDirectory));
             ProjectAssets? assets = ProjectAssets.TryLoad(projectDirectory);
 
-            // Every file the result depends on, recorded whether it exists or not, so creating a missing one is noticed too
-            var dependencies = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { projectFilePath, assetsFilePath };
             var references = new List<ResolvedDatabaseReference>();
             foreach (DatabaseReference reference in project.DatabaseReferences)
             {
@@ -124,7 +128,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
             SystemDatabaseReference reference,
             string databaseSchemaProvider,
             ProjectAssets? assets,
-            HashSet<string> dependencies)
+            Dictionary<string, DateTime> dependencies)
         {
             string databaseName = reference.SystemDb == SystemDatabase.MSDB ? "msdb" : "master";
             string? dacpacPath = null;
@@ -145,7 +149,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
                 string? bundledPath = platformFolder == null ? null : Path.Combine(systemDacpacsRoot, platformFolder, databaseName + DacpacExtension);
                 if (bundledPath != null)
                 {
-                    dependencies.Add(bundledPath);
+                    AddDependency(dependencies, bundledPath);
                 }
 
                 if (bundledPath == null || !File.Exists(bundledPath))
@@ -183,7 +187,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
             SqlProject project,
             string projectDirectory,
             IReadOnlyDictionary<string, string> sqlCmdVariables,
-            HashSet<string> dependencies)
+            Dictionary<string, DateTime> dependencies)
         {
             string? expandedPath = ExpandMsBuildProperties(reference.DacpacPath, project, projectDirectory, out string? undefinedProperty);
             if (expandedPath == null)
@@ -193,7 +197,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
             }
 
             string dacpacPath = ToFullPath(projectDirectory, expandedPath);
-            dependencies.Add(dacpacPath);
+            AddDependency(dependencies, dacpacPath);
             if (!File.Exists(dacpacPath))
             {
                 return Unresolved(reference.Name, DatabaseReferenceKind.Dacpac, DatabaseReferenceResolution.NotFound,
@@ -218,10 +222,10 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
             IReadOnlyDictionary<string, string> sqlCmdVariables,
             HashSet<string> projectsBeingResolved,
             int depth,
-            HashSet<string> dependencies)
+            Dictionary<string, DateTime> dependencies)
         {
             string referencedProjectPath = ToFullPath(projectDirectory, reference.ProjectPath);
-            dependencies.Add(referencedProjectPath);
+            AddDependency(dependencies, referencedProjectPath);
             if (!File.Exists(referencedProjectPath))
             {
                 return Unresolved(reference.Name, DatabaseReferenceKind.SqlProject, DatabaseReferenceResolution.NotFound,
@@ -240,11 +244,20 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
                     SR.DatabaseReferenceTooDeep(referencedProjectPath));
             }
 
-            SqlProject referencedProject = openProject(referencedProjectPath);
+            // Record the folders before opening the project, which lists its scripts: an SDK-style project includes every
+            // .sql file under its folder, so adding, deleting or renaming one changes the scripts without changing the .sqlproj
             string referencedDirectory = Path.GetDirectoryName(referencedProjectPath) ?? string.Empty;
+            AddProjectFolderDependencies(dependencies, referencedDirectory);
+
+            SqlProject referencedProject = openProject(referencedProjectPath);
             List<string> scripts = referencedProject.SqlObjectScripts
                 .Select(script => ToFullPath(referencedDirectory, script.Path))
                 .ToList();
+            foreach (string script in scripts)
+            {
+                // Scripts the project includes from outside its folder
+                AddDependency(dependencies, Path.GetDirectoryName(script) ?? referencedDirectory);
+            }
 
             projectsBeingResolved.Add(referencedProjectPath);
             ResolvedProjectReferences nestedReferences;
@@ -257,7 +270,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
                 projectsBeingResolved.Remove(referencedProjectPath);
             }
 
-            dependencies.UnionWith(nestedReferences.Dependencies);
+            foreach ((string path, DateTime timestamp) in nestedReferences.Dependencies)
+            {
+                // Keep the timestamps recorded here, before the referenced project was read
+                dependencies.TryAdd(path, timestamp);
+            }
+
             (string? server, string? database, string? literal, IReadOnlyList<string> names) = GetBinding(reference, sqlCmdVariables);
             return new ResolvedDatabaseReference
             {
@@ -282,7 +300,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
             NugetPackageReference reference,
             ProjectAssets? assets,
             IReadOnlyDictionary<string, string> sqlCmdVariables,
-            HashSet<string> dependencies)
+            Dictionary<string, DateTime> dependencies)
         {
             string? packageDirectory = assets?.GetPackageDirectory(reference.PackageName);
             if (packageDirectory == null)
@@ -294,7 +312,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
             // Like the SQL projects SDK, look for tools/<package id>.dacpac, falling back to the package's only dacpac.
             string toolsDirectory = Path.Combine(packageDirectory, "tools");
             string dacpacPath = Path.Combine(toolsDirectory, reference.PackageName + DacpacExtension);
-            dependencies.Add(dacpacPath);
+            AddDependency(dependencies, dacpacPath);
             if (!File.Exists(dacpacPath))
             {
                 string[] dacpacs = Directory.Exists(toolsDirectory)
@@ -307,7 +325,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
                 }
 
                 dacpacPath = dacpacs[0];
-                dependencies.Add(dacpacPath);
+                AddDependency(dependencies, dacpacPath);
             }
 
             (string? server, string? database, string? literal, IReadOnlyList<string> names) = GetBinding(reference, sqlCmdVariables);
@@ -358,7 +376,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
         /// Finds the restored Microsoft.SqlServer.Dacpacs.* package for a system database and returns its dacpac.
         /// Fabric packages (DbFabric, FabricDw) only provide master.
         /// </summary>
-        private static string? FindSystemDacpacInPackages(ProjectAssets? assets, string databaseName, HashSet<string> dependencies)
+        private static string? FindSystemDacpacInPackages(ProjectAssets? assets, string databaseName, Dictionary<string, DateTime> dependencies)
         {
             if (assets == null)
             {
@@ -380,7 +398,7 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
                 }
 
                 string dacpacPath = Path.Combine(packageDirectory, "tools", databaseName + DacpacExtension);
-                dependencies.Add(dacpacPath);
+                AddDependency(dependencies, dacpacPath);
                 if (File.Exists(dacpacPath))
                 {
                     return dacpacPath;
@@ -457,6 +475,53 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
             // Paths in a .sqlproj use Windows separators, which are not separators on macOS and Linux.
             string normalized = path.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar);
             return Path.GetFullPath(Path.IsPathRooted(normalized) ? normalized : Path.Combine(baseDirectory, normalized));
+        }
+
+        /// <summary>Records a file or folder the result depends on, with its timestamp as of now, unless it's recorded already.</summary>
+        private static void AddDependency(Dictionary<string, DateTime> dependencies, string path) =>
+            dependencies.TryAdd(path, ResolvedProjectReferences.GetDependencyTimestamp(path));
+
+        /// <summary>Folders below a project's folder, without following links, which could loop.</summary>
+        private static readonly EnumerationOptions SubfolderOptions = new()
+        {
+            AttributesToSkip = FileAttributes.ReparsePoint,
+            IgnoreInaccessible = true,
+        };
+
+        /// <summary>
+        /// Records a project's folder and the folders below it that an SDK-style project's default .sql glob searches:
+        /// all except bin and obj at the top, and hidden folders such as .git.
+        /// </summary>
+        private static void AddProjectFolderDependencies(Dictionary<string, DateTime> dependencies, string projectDirectory)
+        {
+            var folders = new Stack<string>();
+            folders.Push(projectDirectory);
+            while (folders.Count > 0)
+            {
+                string folder = folders.Pop();
+                AddDependency(dependencies, folder);
+
+                List<string> subfolders;
+                try
+                {
+                    subfolders = Directory.EnumerateDirectories(folder, "*", SubfolderOptions).ToList();
+                }
+                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+                {
+                    continue; // deleted meanwhile, or not readable
+                }
+
+                foreach (string subfolder in subfolders)
+                {
+                    string name = Path.GetFileName(subfolder);
+                    bool isBuildOutput = folder == projectDirectory &&
+                        (name.Equals("bin", StringComparison.OrdinalIgnoreCase) || name.Equals("obj", StringComparison.OrdinalIgnoreCase));
+                    if (!isBuildOutput && !name.StartsWith('.'))
+                    {
+                        folders.Push(subfolder);
+                    }
+                }
+            }
         }
 
         private static string? NullIfEmpty(string? value) => string.IsNullOrWhiteSpace(value) ? null : value;

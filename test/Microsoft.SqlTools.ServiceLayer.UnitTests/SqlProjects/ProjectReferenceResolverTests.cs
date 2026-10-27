@@ -77,8 +77,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlProjects
             string literalPath = CreateDacpac("Literal.dacpac", "CREATE TABLE [dbo].[LiteralTable] ([Id] INT NOT NULL);");
             string projectPath = CreateProject("Main");
             SqlProject project = SqlProject.OpenProject(projectPath);
-            project.DatabaseReferences.Add(new DacpacReference(sameDbPath, suppressMissingDependencies: true));
-            project.DatabaseReferences.Add(new DacpacReference(literalPath, suppressMissingDependencies: false, "LiteralDb"));
+            project.DatabaseReferences.Add(new DacpacReference(RelativeTo(projectPath, sameDbPath), suppressMissingDependencies: true));
+            project.DatabaseReferences.Add(new DacpacReference(RelativeTo(projectPath, literalPath), suppressMissingDependencies: false, "LiteralDb"));
 
             ResolvedProjectReferences resolved = Resolve(projectPath);
 
@@ -114,7 +114,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlProjects
             SqlProject referenced = SqlProject.OpenProject(referencedPath);
             referenced.SqlObjectScripts.Add(new SqlObjectScript(Path.Combine("Views", "ReferencedView.sql")),
                 "CREATE VIEW [dbo].[ReferencedView] AS SELECT [Id] FROM [dbo].[NestedTable];");
-            referenced.DatabaseReferences.Add(new DacpacReference(nestedDacpac, suppressMissingDependencies: false));
+            referenced.DatabaseReferences.Add(new DacpacReference(RelativeTo(referencedPath, nestedDacpac), suppressMissingDependencies: false));
 
             string projectPath = CreateProject("Main");
             SqlProject project = SqlProject.OpenProject(projectPath);
@@ -145,8 +145,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlProjects
             string secondPath = CreateProject("Second");
             SqlProject first = SqlProject.OpenProject(firstPath);
             SqlProject second = SqlProject.OpenProject(secondPath);
-            first.DatabaseReferences.Add(new SqlProjectReference(secondPath, projectGuid: null, suppressMissingDependencies: false));
-            second.DatabaseReferences.Add(new SqlProjectReference(firstPath, projectGuid: null, suppressMissingDependencies: false));
+            first.DatabaseReferences.Add(new SqlProjectReference(RelativeTo(firstPath, secondPath), projectGuid: null, suppressMissingDependencies: false));
+            second.DatabaseReferences.Add(new SqlProjectReference(RelativeTo(secondPath, firstPath), projectGuid: null, suppressMissingDependencies: false));
 
             ResolvedDatabaseReference reference = Resolve(firstPath).References.Single();
 
@@ -362,6 +362,70 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlProjects
             Assert.AreEqual(2, NestedReferenceCount(cache, projectPath), "Restoring the referenced project's packages invalidates the cached references.");
         }
 
+        [Test]
+        public void Cache_RefreshesWhenAReferencedProjectChangesAfterItIsRead()
+        {
+            string referencedPath = CreateProject("Referenced");
+            string projectPath = CreateProject("Main");
+            SqlProject project = SqlProject.OpenProject(projectPath);
+            project.DatabaseReferences.Add(new SqlProjectReference(
+                Path.GetRelativePath(Path.GetDirectoryName(projectPath)!, referencedPath),
+                projectGuid: null,
+                suppressMissingDependencies: false,
+                "ReferencedDb"));
+
+            // The referenced project is edited right after the first resolution reads it
+            bool edited = false;
+            var resolver = new ProjectReferenceResolver(ProjectReferenceResolver.DefaultSystemDacpacsRoot, path =>
+            {
+                SqlProject opened = SqlProject.OpenProject(path, onlyLoadProperties: false);
+                if (!edited)
+                {
+                    edited = true;
+                    File.SetLastWriteTimeUtc(path, DateTime.UtcNow.AddMinutes(1));
+                }
+
+                return opened;
+            });
+            var cache = new ProjectReferenceCache();
+            int resolutions = 0;
+            Func<ResolvedProjectReferences> resolve = () =>
+            {
+                resolutions++;
+                return resolver.Resolve(SqlProject.OpenProject(projectPath, onlyLoadProperties: true), projectPath);
+            };
+
+            cache.GetOrResolve(projectPath, resolve);
+            cache.GetOrResolve(projectPath, resolve);
+            Assert.AreEqual(2, resolutions, "The edit made after the referenced project was read invalidates the cached references.");
+            cache.GetOrResolve(projectPath, resolve);
+            Assert.AreEqual(2, resolutions, "Without further edits the references stay cached.");
+        }
+
+        [Test]
+        public void Cache_RefreshesWhenScriptsAreAddedToOrDeletedFromAReferencedProject()
+        {
+            string referencedPath = CreateProject("Referenced");
+            string referencedDirectory = Path.GetDirectoryName(referencedPath)!;
+            File.WriteAllText(Path.Combine(referencedDirectory, "First.sql"), "CREATE TABLE [dbo].[First] ([Id] INT NOT NULL);");
+            string projectPath = CreateProject("Main");
+            SqlProject project = SqlProject.OpenProject(projectPath);
+            project.DatabaseReferences.Add(new SqlProjectReference(
+                Path.GetRelativePath(Path.GetDirectoryName(projectPath)!, referencedPath),
+                projectGuid: null,
+                suppressMissingDependencies: false,
+                "ReferencedDb"));
+            var cache = new ProjectReferenceCache();
+            Assert.AreEqual(1, ReferencedScriptCount(cache, projectPath), "Setup: the SDK-style project includes the .sql file in its folder");
+
+            Directory.CreateDirectory(Path.Combine(referencedDirectory, "Views"));
+            File.WriteAllText(Path.Combine(referencedDirectory, "Views", "Second.sql"), "CREATE VIEW [dbo].[Second] AS SELECT [Id] FROM [dbo].[First];");
+            Assert.AreEqual(2, ReferencedScriptCount(cache, projectPath), "Adding a script, even in a new folder, invalidates the cached references.");
+
+            File.Delete(Path.Combine(referencedDirectory, "First.sql"));
+            Assert.AreEqual(1, ReferencedScriptCount(cache, projectPath), "Deleting a script invalidates the cached references.");
+        }
+
         [TestCase("{ \"libraries\": [ not json", TestName = "UnreadableAssetsFile_Malformed")]
         [TestCase("{ \"libraries\": { \"Contoso.Reference/1.2.0\": 42 } }", TestName = "UnreadableAssetsFile_UnexpectedType")]
         public void UnreadableAssetsFile_PackagesAreNotRestoredAndOtherReferencesResolve(string assetsJson)
@@ -387,12 +451,23 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlProjects
             Assert.AreEqual("OtherDbValue", resolved.SqlCmdVariables["OtherDb"]);
         }
 
+        /// <summary>
+        /// Returns <paramref name="path"/> relative to the project, as clients add references: on Linux and macOS the SQL
+        /// projects library stores an absolute path without its leading '/'.
+        /// </summary>
+        internal static string RelativeTo(string projectPath, string path) =>
+            Path.GetRelativePath(Path.GetDirectoryName(projectPath)!, path);
+
         private ResolvedProjectReferences ResolveCached(ProjectReferenceCache cache, string projectPath) =>
             cache.GetOrResolve(projectPath, () => Resolve(projectPath));
 
         /// <summary>Resolves through the cache and counts the references of the project's only (project) reference that resolved.</summary>
         private int NestedReferenceCount(ProjectReferenceCache cache, string projectPath) =>
             ResolveCached(cache, projectPath).References.Single().ModelReference!.DatabaseReferences.Count;
+
+        /// <summary>Resolves through the cache and counts the scripts of the project's only (project) reference.</summary>
+        private int ReferencedScriptCount(ProjectReferenceCache cache, string projectPath) =>
+            ResolveCached(cache, projectPath).References.Single().ModelReference!.TargetScripts.Count;
 
         private ResolvedProjectReferences Resolve(string projectPath) =>
             new ProjectReferenceResolver(ProjectReferenceResolver.DefaultSystemDacpacsRoot)

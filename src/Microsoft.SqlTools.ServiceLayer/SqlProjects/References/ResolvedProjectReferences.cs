@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Microsoft.SqlServer.Dac.Model;
 
@@ -79,12 +80,12 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
             string projectFilePath,
             IReadOnlyList<ResolvedDatabaseReference> references,
             IReadOnlyDictionary<string, string> sqlCmdVariables,
-            IReadOnlyCollection<string>? dependencies = null)
+            IReadOnlyDictionary<string, DateTime>? dependencies = null)
         {
             ProjectFilePath = projectFilePath;
             References = references;
             SqlCmdVariables = sqlCmdVariables;
-            Dependencies = dependencies ?? Array.Empty<string>();
+            Dependencies = dependencies ?? new Dictionary<string, DateTime>();
         }
 
         public string ProjectFilePath { get; }
@@ -92,10 +93,20 @@ namespace Microsoft.SqlTools.ServiceLayer.SqlProjects.References
         public IReadOnlyList<ResolvedDatabaseReference> References { get; }
 
         /// <summary>
-        /// Full paths of the files the resolution read or looked for, including missing ones and those of referenced
-        /// projects: creating, changing or deleting any of them can change the result.
+        /// The files and folders the resolution read or looked for, including missing ones and those of referenced
+        /// projects, each with its <see cref="GetDependencyTimestamp"/> from before it was read. Creating, changing or
+        /// deleting a file, or adding, deleting or renaming a script in a folder, can change the result.
         /// </summary>
-        public IReadOnlyCollection<string> Dependencies { get; }
+        public IReadOnlyDictionary<string, DateTime> Dependencies { get; }
+
+        /// <summary>
+        /// Returns the last write time of a file or folder, or <see cref="DateTime.MinValue"/> when it doesn't exist.
+        /// A folder's last write time changes when a file in it is added, deleted or renamed.
+        /// </summary>
+        internal static DateTime GetDependencyTimestamp(string path) =>
+            File.Exists(path) ? File.GetLastWriteTimeUtc(path)
+            : Directory.Exists(path) ? Directory.GetLastWriteTimeUtc(path)
+            : DateTime.MinValue;
 
         /// <summary>
         /// SQLCMD variables that have a value, keyed by name without $(). Variables without a value are left out,
