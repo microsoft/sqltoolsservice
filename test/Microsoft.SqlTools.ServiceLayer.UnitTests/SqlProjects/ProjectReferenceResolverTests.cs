@@ -493,14 +493,29 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.SqlProjects
                 suppressMissingDependencies: false,
                 "ReferencedDb"));
             var cache = new ProjectReferenceCache();
+            string viewsDirectory = Path.Combine(referencedDirectory, "Views");
+
+            // File times have a coarse resolution, so a change right after a resolution can leave a folder's time unchanged.
+            // Date the folders back before each resolution, so the change that follows always gives them a new time.
+            BackdateFolders(referencedDirectory);
             Assert.AreEqual(1, ReferencedScriptCount(cache, projectPath), "Setup: the SDK-style project includes the .sql file in its folder");
 
-            Directory.CreateDirectory(Path.Combine(referencedDirectory, "Views"));
-            File.WriteAllText(Path.Combine(referencedDirectory, "Views", "Second.sql"), "CREATE VIEW [dbo].[Second] AS SELECT [Id] FROM [dbo].[First];");
+            Directory.CreateDirectory(viewsDirectory);
+            File.WriteAllText(Path.Combine(viewsDirectory, "Second.sql"), "CREATE VIEW [dbo].[Second] AS SELECT [Id] FROM [dbo].[First];");
             Assert.AreEqual(2, ReferencedScriptCount(cache, projectPath), "Adding a script, even in a new folder, invalidates the cached references.");
 
+            BackdateFolders(referencedDirectory, viewsDirectory);
+            Assert.AreEqual(2, ReferencedScriptCount(cache, projectPath), "Setup: the scripts are unchanged");
             File.Delete(Path.Combine(referencedDirectory, "First.sql"));
             Assert.AreEqual(1, ReferencedScriptCount(cache, projectPath), "Deleting a script invalidates the cached references.");
+        }
+
+        private static void BackdateFolders(params string[] folders)
+        {
+            foreach (string folder in folders)
+            {
+                Directory.SetLastWriteTimeUtc(folder, DateTime.UtcNow.AddMinutes(-1));
+            }
         }
 
         [TestCase("{ \"libraries\": [ not json", TestName = "UnreadableAssetsFile_Malformed")]
