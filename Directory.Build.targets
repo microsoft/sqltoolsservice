@@ -13,4 +13,15 @@
 			<ResolvedCompileFileDefinitions Remove="@(ResolvedCompileFileDefinitions)" Condition="'%(Filename)%(Extension)' == 'pvk2pfx.exe'" />
 		</ItemGroup>
 	</Target>
+
+	<!-- Microsoft.Data.SqlClient depends on Microsoft.Identity.Client.Broker, whose NativeInterop package ships the
+	     MSAL runtime for every platform. SqlClient turns on the broker (WAM) only on Windows, so the macOS and Linux
+	     runtimes, about 54 MB, are never loaded. Leave them out of the output, and out of the deps file, which is
+	     generated from these items. Keep the Windows runtimes, which SqlClient's Entra ID provider uses. -->
+	<Target Name="RemoveNonWindowsMsalRuntime" AfterTargets="ResolvePackageAssets">
+		<ItemGroup>
+			<RuntimeTargetsCopyLocalItems Remove="@(RuntimeTargetsCopyLocalItems)" Condition="'%(NuGetPackageId)' == 'Microsoft.Identity.Client.NativeInterop' and !$([System.String]::Copy('%(RuntimeIdentifier)').StartsWith('win'))" />
+			<NativeCopyLocalItems Remove="@(NativeCopyLocalItems)" Condition="'%(NuGetPackageId)' == 'Microsoft.Identity.Client.NativeInterop' and !$(RuntimeIdentifier.StartsWith('win'))" />
+		</ItemGroup>
+	</Target>
 </Project>
