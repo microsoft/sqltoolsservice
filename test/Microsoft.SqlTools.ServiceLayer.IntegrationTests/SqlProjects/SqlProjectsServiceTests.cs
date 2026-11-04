@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Microsoft.Data.Tools.Schema.SchemaModel;
@@ -14,6 +15,7 @@ using Microsoft.SqlServer.Dac.Projects;
 using Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility;
 using Microsoft.SqlTools.ServiceLayer.SqlProjects;
 using Microsoft.SqlTools.ServiceLayer.SqlProjects.Contracts;
+using Microsoft.SqlTools.ServiceLayer.SqlProjects.References;
 using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.Test.Common.RequestContextMocking;
 using Microsoft.SqlTools.ServiceLayer.Utility;
@@ -590,8 +592,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
 
             requestMock.AssertSuccess(nameof(service.HandleAddDacpacReferenceRequest), "same server");
             Assert.AreEqual(1, service.Projects[projectUri].DatabaseReferences.Count, "Database references after adding dacpac reference (same server)");
-            DacpacReference dacpacRef = (DacpacReference)service.Projects[projectUri].DatabaseReferences.Get(FileUtils.NormalizePath(mockReferencePath, PlatformID.Win32NT));
-            Assert.AreEqual(FileUtils.NormalizePath(mockReferencePath, PlatformID.Win32NT), dacpacRef.DacpacPath, "Referenced dacpac");
+            DacpacReference dacpacRef = (DacpacReference)service.Projects[projectUri].DatabaseReferences.Get(StoredReferencePath(projectUri, mockReferencePath));
+            Assert.AreEqual(StoredReferencePath(projectUri, mockReferencePath), dacpacRef.DacpacPath, "Referenced dacpac");
             Assert.IsFalse(dacpacRef.SuppressMissingDependencies, nameof(dacpacRef.SuppressMissingDependencies));
             Assert.IsNull(dacpacRef.DatabaseVariableLiteralName, nameof(dacpacRef.DatabaseVariableLiteralName));
             Assert.IsNull(dacpacRef.DatabaseVariable, nameof(dacpacRef.DatabaseVariable));
@@ -611,8 +613,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
 
             requestMock.AssertSuccess(nameof(service.HandleAddDacpacReferenceRequest), "sqlcmdvar");
             Assert.AreEqual(2, service.Projects[projectUri].DatabaseReferences.Count, "Database references after adding dacpac reference (sqlcmdvar)");
-            dacpacRef = (DacpacReference)service.Projects[projectUri].DatabaseReferences.Get(FileUtils.NormalizePath(mockReferencePath, PlatformID.Win32NT));
-            Assert.AreEqual(FileUtils.NormalizePath(mockReferencePath, PlatformID.Win32NT), dacpacRef.DacpacPath, "Referenced dacpac");
+            dacpacRef = (DacpacReference)service.Projects[projectUri].DatabaseReferences.Get(StoredReferencePath(projectUri, mockReferencePath));
+            Assert.AreEqual(StoredReferencePath(projectUri, mockReferencePath), dacpacRef.DacpacPath, "Referenced dacpac");
             Assert.AreEqual(databaseVar.Name, dacpacRef.DatabaseVariable!.VarName);
             Assert.AreEqual(serverVar.Name, dacpacRef.ServerVariable!.VarName);
             Assert.IsFalse(dacpacRef.SuppressMissingDependencies, nameof(dacpacRef.SuppressMissingDependencies));
@@ -631,8 +633,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
 
             requestMock.AssertSuccess(nameof(service.HandleAddDacpacReferenceRequest), "db literal");
             Assert.AreEqual(3, service.Projects[projectUri].DatabaseReferences.Count, "Database references after adding dacpac reference (db literal)");
-            dacpacRef = (DacpacReference)service.Projects[projectUri].DatabaseReferences.Get(FileUtils.NormalizePath(mockReferencePath, PlatformID.Win32NT));
-            Assert.AreEqual(FileUtils.NormalizePath(mockReferencePath, PlatformID.Win32NT), dacpacRef.DacpacPath, "Referenced dacpac");
+            dacpacRef = (DacpacReference)service.Projects[projectUri].DatabaseReferences.Get(StoredReferencePath(projectUri, mockReferencePath));
+            Assert.AreEqual(StoredReferencePath(projectUri, mockReferencePath), dacpacRef.DacpacPath, "Referenced dacpac");
             Assert.AreEqual("DacpacLiteral", dacpacRef.DatabaseVariableLiteralName, nameof(dacpacRef.DatabaseVariableLiteralName));
             Assert.IsFalse(dacpacRef.SuppressMissingDependencies, nameof(dacpacRef.SuppressMissingDependencies));
 
@@ -651,8 +653,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
 
             requestMock.AssertSuccess(nameof(service.HandleAddDacpacReferenceRequest), "db literal");
             Assert.AreEqual(4, service.Projects[projectUri].DatabaseReferences.Count, "Database references after adding dacpac reference with an empty string passed in for database variable(db literal)");
-            dacpacRef = (DacpacReference)service.Projects[projectUri].DatabaseReferences.Get(FileUtils.NormalizePath(mockReferencePath, PlatformID.Win32NT));
-            Assert.AreEqual(FileUtils.NormalizePath(mockReferencePath, PlatformID.Win32NT), dacpacRef.DacpacPath, "Referenced dacpac");
+            dacpacRef = (DacpacReference)service.Projects[projectUri].DatabaseReferences.Get(StoredReferencePath(projectUri, mockReferencePath));
+            Assert.AreEqual(StoredReferencePath(projectUri, mockReferencePath), dacpacRef.DacpacPath, "Referenced dacpac");
             Assert.AreEqual("DacpacLiteral2", dacpacRef.DatabaseVariableLiteralName, nameof(dacpacRef.DatabaseVariableLiteralName));
             Assert.IsFalse(dacpacRef.SuppressMissingDependencies, nameof(dacpacRef.SuppressMissingDependencies));
             Assert.AreEqual(null, dacpacRef.DatabaseVariable, nameof(dacpacRef.DatabaseVariable));
@@ -676,8 +678,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
 
             requestMock.AssertSuccess(nameof(service.HandleAddSqlProjectReferenceRequest), "same server");
             Assert.AreEqual(1, service.Projects[projectUri].DatabaseReferences.Count, "Database references after adding SQL project reference (same server)");
-            SqlProjectReference projectRef = (SqlProjectReference)service.Projects[projectUri].DatabaseReferences.Get(FileUtils.NormalizePath(mockReferencePath, PlatformID.Win32NT));
-            Assert.AreEqual(FileUtils.NormalizePath(mockReferencePath, PlatformID.Win32NT), projectRef.ProjectPath, "Referenced project");
+            SqlProjectReference projectRef = (SqlProjectReference)service.Projects[projectUri].DatabaseReferences.Get(StoredReferencePath(projectUri, mockReferencePath));
+            Assert.AreEqual(StoredReferencePath(projectUri, mockReferencePath), projectRef.ProjectPath, "Referenced project");
             Assert.IsFalse(projectRef.SuppressMissingDependencies, nameof(projectRef.SuppressMissingDependencies));
             Assert.IsNull(projectRef.DatabaseVariableLiteralName, nameof(projectRef.DatabaseVariableLiteralName));
             Assert.IsNull(projectRef.DatabaseVariable, nameof(projectRef.DatabaseVariable));
@@ -698,8 +700,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
 
             requestMock.AssertSuccess(nameof(service.HandleAddSqlProjectReferenceRequest));
             Assert.AreEqual(2, service.Projects[projectUri].DatabaseReferences.Count, "Database references after adding SQL project reference (sqlcmdvar)");
-            projectRef = (SqlProjectReference)service.Projects[projectUri].DatabaseReferences.Get(FileUtils.NormalizePath(mockReferencePath, PlatformID.Win32NT));
-            Assert.AreEqual(FileUtils.NormalizePath(mockReferencePath, PlatformID.Win32NT), projectRef.ProjectPath, "Referenced project");
+            projectRef = (SqlProjectReference)service.Projects[projectUri].DatabaseReferences.Get(StoredReferencePath(projectUri, mockReferencePath));
+            Assert.AreEqual(StoredReferencePath(projectUri, mockReferencePath), projectRef.ProjectPath, "Referenced project");
             Assert.AreEqual(TEST_GUID, projectRef.ProjectGuid, "Referenced project GUID");
             Assert.AreEqual(databaseVar.Name, projectRef.DatabaseVariable!.VarName);
             Assert.AreEqual(serverVar.Name, projectRef.ServerVariable!.VarName);
@@ -720,8 +722,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
 
             requestMock.AssertSuccess(nameof(service.HandleAddSqlProjectReferenceRequest));
             Assert.AreEqual(3, service.Projects[projectUri].DatabaseReferences.Count, "Database references after adding SQL project reference (db literal)");
-            projectRef = (SqlProjectReference)service.Projects[projectUri].DatabaseReferences.Get(FileUtils.NormalizePath(mockReferencePath, PlatformID.Win32NT));
-            Assert.AreEqual(FileUtils.NormalizePath(mockReferencePath, PlatformID.Win32NT), projectRef.ProjectPath, "Referenced project");
+            projectRef = (SqlProjectReference)service.Projects[projectUri].DatabaseReferences.Get(StoredReferencePath(projectUri, mockReferencePath));
+            Assert.AreEqual(StoredReferencePath(projectUri, mockReferencePath), projectRef.ProjectPath, "Referenced project");
             Assert.AreEqual(TEST_GUID, projectRef.ProjectGuid, "Referenced project GUID");
             Assert.AreEqual("ProjectLiteral", projectRef.DatabaseVariableLiteralName);
             Assert.IsFalse(projectRef.SuppressMissingDependencies, nameof(projectRef.SuppressMissingDependencies));
@@ -1372,6 +1374,83 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
                 "ProjectGuid should match the value written by SetProjectProperties");
         }
 
+        /// <summary>
+        /// Verifies that loading a project without a ProjectGuid, such as a Fabric Warehouse synced from git,
+        /// leaves the .sqlproj unchanged and reports an empty GUID (microsoft/vscode-mssql#22905).
+        /// </summary>
+        [Test]
+        public async Task TestLoadingProjectWithoutProjectGuidDoesNotModifyFile()
+        {
+            string projectUri = WriteProjectWithoutProjectGuid();
+            byte[] originalContents = await File.ReadAllBytesAsync(projectUri);
+            SqlProjectsService service = new();
+            SqlProjectParams projectParams = new() { ProjectUri = projectUri };
+
+            // Send the requests the extension makes when it loads a project
+            await OpenProject(service, projectUri);
+
+            MockRequest<GetProjectPropertiesResult> propertiesMock = new();
+            await service.HandleGetProjectPropertiesRequest(projectParams, propertiesMock.Object);
+            propertiesMock.AssertSuccess(nameof(service.HandleGetProjectPropertiesRequest));
+
+            MockRequest<GetProjectModelResult> modelMock = new();
+            await service.HandleGetProjectModelRequest(projectParams, modelMock.Object);
+            modelMock.AssertSuccess(nameof(service.HandleGetProjectModelRequest));
+
+            MockRequest<GetDatabaseReferencesResult> referencesMock = new();
+            await service.HandleGetDatabaseReferencesRequest(projectParams, referencesMock.Object);
+            referencesMock.AssertSuccess(nameof(service.HandleGetDatabaseReferencesRequest));
+
+            MockRequest<GetSqlCmdVariablesResult> sqlCmdMock = new();
+            await service.HandleGetSqlCmdVariablesRequest(projectParams, sqlCmdMock.Object);
+            sqlCmdMock.AssertSuccess(nameof(service.HandleGetSqlCmdVariablesRequest));
+
+            MockRequest<GetCrossPlatformCompatibilityResult> crossPlatformMock = new();
+            await service.HandleGetCrossPlatformCompatibilityRequest(projectParams, crossPlatformMock.Object);
+            crossPlatformMock.AssertSuccess(nameof(service.HandleGetCrossPlatformCompatibilityRequest));
+
+            await CloseProject(service, projectUri);
+
+            Assert.AreEqual(Guid.Empty, Guid.Parse(propertiesMock.Result.ProjectGuid), "getProjectProperties should report an empty ProjectGuid");
+            Assert.AreEqual(Guid.Empty, Guid.Parse(modelMock.Result.Properties.ProjectGuid), "getProjectModel should report an empty ProjectGuid");
+            CollectionAssert.AreEqual(originalContents, await File.ReadAllBytesAsync(projectUri), "Loading the project should not modify the .sqlproj");
+        }
+
+        /// <summary>
+        /// Verifies that editing a project without a ProjectGuid saves the edit without adding a ProjectGuid
+        /// (microsoft/vscode-mssql#22905).
+        /// </summary>
+        [Test]
+        public async Task TestEditingProjectWithoutProjectGuidDoesNotAddProjectGuid()
+        {
+            string projectUri = WriteProjectWithoutProjectGuid();
+            SqlProjectsService service = new();
+
+            MockRequest<ResultStatus> addSqlCmdMock = new();
+            await service.HandleAddSqlCmdVariableRequest(new AddSqlCmdVariableParams()
+            {
+                ProjectUri = projectUri,
+                Name = "OtherDb",
+                DefaultValue = "OtherDbDefaultValue"
+            }, addSqlCmdMock.Object);
+            addSqlCmdMock.AssertSuccess(nameof(service.HandleAddSqlCmdVariableRequest));
+
+            MockRequest<ResultStatus> setSourceMock = new();
+            await service.HandleSetDatabaseSourceRequest(new SetDatabaseSourceParams()
+            {
+                ProjectUri = projectUri,
+                DatabaseSource = "TestSource"
+            }, setSourceMock.Object);
+            setSourceMock.AssertSuccess(nameof(service.HandleSetDatabaseSourceRequest));
+
+            await CloseProject(service, projectUri);
+
+            XDocument projectXml = XDocument.Load(projectUri);
+            Assert.IsTrue(projectXml.Descendants().Any(element => element.Name.LocalName == "SqlCmdVariable"), "The SQLCMD variable should be saved to the .sqlproj");
+            Assert.IsTrue(projectXml.Descendants().Any(element => element.Name.LocalName == "DatabaseSource"), "The database source should be saved to the .sqlproj");
+            Assert.IsFalse(projectXml.Descendants().Any(element => element.Name.LocalName == "ProjectGuid"), "Editing the project should not add a ProjectGuid");
+        }
+
         [Test]
         public async Task TestGetProjectModel()
         {
@@ -1592,6 +1671,160 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
         }
 
         [Test]
+        public async Task TestIntelliSenseIncludesDatabaseReferences()
+        {
+            SqlProjectsService service = new();
+            string projectUri = await service.CreateSqlProject();
+            string otherDbDacpac = Path.Join(Path.GetDirectoryName(projectUri), "OtherDb.dacpac");
+            SaveDacpac(otherDbDacpac, "CREATE TABLE [dbo].[OtherTable] ([Id] INT NOT NULL)");
+            await AddDacpacReference(service, projectUri, otherDbDacpac, databaseLiteral: "OtherDb");
+
+            try
+            {
+                await OpenProject(service, projectUri);
+                await service.GetHost(projectUri)!.IntelliSenseBuild!.WaitAsync(TimeSpan.FromSeconds(60));
+
+                Assert.IsTrue(service.TryGetProvider(projectUri, out TSqlModelMetadataProvider? provider), "Open publishes an IntelliSense model");
+                Assert.IsNotNull(provider!.Server.Databases["OtherDb"]?.Schemas["dbo"]?.Tables["OtherTable"],
+                    "The project's references are in the model when it's published");
+            }
+            finally
+            {
+                await CloseProject(service, projectUri);
+            }
+        }
+
+        [Test]
+        public async Task TestDatabaseReferenceChangeReachesPublishedModel()
+        {
+            SqlProjectsService service = new();
+            string projectUri = await service.CreateSqlProject();
+            string otherDbDacpac = Path.Join(Path.GetDirectoryName(projectUri), "OtherDb.dacpac");
+            SaveDacpac(otherDbDacpac, "CREATE TABLE [dbo].[OtherTable] ([Id] INT NOT NULL)");
+
+            try
+            {
+                await OpenProject(service, projectUri);
+                ProjectHost host = service.GetHost(projectUri)!;
+                await host.IntelliSenseBuild!.WaitAsync(TimeSpan.FromSeconds(60));
+                Assert.IsTrue(service.TryGetProvider(projectUri, out TSqlModelMetadataProvider? provider), "Open publishes an IntelliSense model");
+                Assert.IsNull(provider!.Server.Databases["OtherDb"], "Setup: no reference yet");
+
+                await AddDacpacReference(service, projectUri, otherDbDacpac, databaseLiteral: "OtherDb");
+                await host.ReferencesReload!.WaitAsync(TimeSpan.FromSeconds(60));
+                Assert.IsNotNull(provider.Server.Databases["OtherDb"]?.Schemas["dbo"]?.Tables["OtherTable"],
+                    "A reference added after open reaches the published model");
+
+                MockRequest<ResultStatus> deleteMock = new();
+                await service.HandleDeleteDatabaseReferenceRequest(new DeleteDatabaseReferenceParams()
+                {
+                    ProjectUri = projectUri,
+                    Name = service.Projects[projectUri].DatabaseReferences.Single().Name
+                }, deleteMock.Object);
+                deleteMock.AssertSuccess(nameof(service.HandleDeleteDatabaseReferenceRequest));
+                await host.ReferencesReload!.WaitAsync(TimeSpan.FromSeconds(60));
+                Assert.IsNull(provider.Server.Databases["OtherDb"], "A deleted reference leaves the published model");
+            }
+            finally
+            {
+                await CloseProject(service, projectUri);
+            }
+        }
+
+        [Test]
+        public async Task TestDatabaseReferenceChangeDuringIntelliSenseBuildReachesModel()
+        {
+            SqlProjectsService service = new();
+            string projectUri = await service.CreateSqlProject();
+            string otherDbDacpac = Path.Join(Path.GetDirectoryName(projectUri), "OtherDb.dacpac");
+            SaveDacpac(otherDbDacpac, "CREATE TABLE [dbo].[OtherTable] ([Id] INT NOT NULL)");
+            await CloseProject(service, projectUri);
+
+            // The build resolves the references before the change; every later resolution sees it
+            var buildResolving = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            var changeMade = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            int resolutions = 0;
+            ProjectHost host = new(projectUri, TSqlModelBuilder.LoadModel, (project, path) =>
+            {
+                if (Interlocked.Increment(ref resolutions) == 1)
+                {
+                    buildResolving.TrySetResult();
+                    changeMade.Task.Wait(TimeSpan.FromSeconds(30));
+                    return NoReferences(path);
+                }
+
+                return OtherDbReference(path, otherDbDacpac);
+            });
+
+            try
+            {
+                await host.RunAsync(() =>
+                {
+                    host.EnsureIntelliSense();
+                    return Task.FromResult(true);
+                });
+                Task build = host.IntelliSenseBuild!;
+                await buildResolving.Task.WaitAsync(TimeSpan.FromSeconds(30));
+
+                // The change arrives while the model is private, so its reload has no published model to update
+                await host.ReloadReferencesAsync().WaitAsync(TimeSpan.FromSeconds(30));
+                Assert.IsNull(host.IntelliSense, "Setup: the model isn't published yet");
+
+                changeMade.TrySetResult();
+                await build.WaitAsync(TimeSpan.FromSeconds(60));
+                await host.ReferencesReload!.WaitAsync(TimeSpan.FromSeconds(60));
+
+                Assert.IsNotNull(host.IntelliSense?.Provider.Server.Databases["OtherDb"]?.Schemas["dbo"]?.Tables["OtherTable"],
+                    "A reference change made while the model was building reaches it after it's published");
+            }
+            finally
+            {
+                await host.RunAsync(() =>
+                {
+                    host.Close();
+                    return Task.FromResult(true);
+                });
+            }
+        }
+
+        [Test]
+        public async Task TestDatabaseReferenceAddedWhileModelBuildsReachesModel()
+        {
+            SqlProjectsService service = new();
+            string projectUri = await service.CreateSqlProject();
+            string otherDbDacpac = Path.Join(Path.GetDirectoryName(projectUri), "OtherDb.dacpac");
+            SaveDacpac(otherDbDacpac, "CREATE TABLE [dbo].[OtherTable] ([Id] INT NOT NULL)");
+            PausedModelBuilder builder = new(service);
+
+            try
+            {
+                await OpenProject(service, projectUri);
+                ProjectHost host = service.GetHost(projectUri)!;
+                Task build = host.IntelliSenseBuild!;
+                await builder.Started;
+
+                // The build has taken its snapshot, without the reference, and the reference's reload has no published model to update
+                await AddDacpacReference(service, projectUri, otherDbDacpac, databaseLiteral: "OtherDb");
+                await host.ReferencesReload!.WaitAsync(TimeSpan.FromSeconds(60));
+                Assert.IsNull(host.IntelliSense, "Setup: the model isn't published yet");
+
+                builder.Release();
+                await build.WaitAsync(TimeSpan.FromSeconds(60));
+                await host.ReferencesReload!.WaitAsync(TimeSpan.FromSeconds(60));
+
+                Assert.IsNotNull(host.IntelliSense?.Provider.Server.Databases["OtherDb"]?.Schemas["dbo"]?.Tables["OtherTable"],
+                    "A reference added while the model was building reaches it after it's published");
+                Assert.AreEqual(1, service.GetSchemaCompareProjectReferences(projectUri)!.DatabaseReferences.Length,
+                    "The build's older snapshot doesn't leave its references in the cache");
+            }
+            finally
+            {
+                builder.Release();
+                await CloseProject(service, projectUri);
+            }
+        }
+
+        [Test]
         public async Task TestClosedHostIsReplaced()
         {
             SqlProjectsService service = new();
@@ -1709,6 +1942,52 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             public void Release() => released.TrySetResult();
         }
 
+        private static void SaveDacpac(string dacpacPath, string script)
+        {
+            using var model = new Microsoft.SqlServer.Dac.Model.TSqlModel(Microsoft.SqlServer.Dac.Model.SqlServerVersion.Sql160, new Microsoft.SqlServer.Dac.Model.TSqlModelOptions());
+            model.AddObjects(script);
+            Microsoft.SqlServer.Dac.DacPackageExtensions.BuildPackage(dacpacPath, model, new Microsoft.SqlServer.Dac.PackageMetadata());
+        }
+
+        /// <summary>
+        /// The path a project stores for a reference added by absolute path, with Windows separators: the path itself on
+        /// Windows, and the path relative to the project on Linux and macOS, where the service makes it relative.
+        /// </summary>
+        private static string StoredReferencePath(string projectUri, string absolutePath) =>
+            FileUtils.NormalizePath(
+                OperatingSystem.IsWindows() ? absolutePath : Path.GetRelativePath(Path.GetDirectoryName(projectUri)!, absolutePath),
+                PlatformID.Win32NT);
+
+        private static async Task AddDacpacReference(SqlProjectsService service, string projectUri, string dacpacPath, string databaseLiteral)
+        {
+            MockRequest<ResultStatus> addMock = new();
+            await service.HandleAddDacpacReferenceRequest(new AddDacpacReferenceParams()
+            {
+                ProjectUri = projectUri,
+                DacpacPath = dacpacPath,
+                SuppressMissingDependencies = false,
+                DatabaseLiteral = databaseLiteral
+            }, addMock.Object);
+            addMock.AssertSuccess(nameof(service.HandleAddDacpacReferenceRequest));
+        }
+
+        private static ResolvedProjectReferences NoReferences(string projectPath) =>
+            new(projectPath, Array.Empty<ResolvedDatabaseReference>(), new Dictionary<string, string>());
+
+        private static ResolvedProjectReferences OtherDbReference(string projectPath, string dacpacPath) =>
+            new(projectPath, new[]
+            {
+                new ResolvedDatabaseReference
+                {
+                    Name = dacpacPath,
+                    Kind = DatabaseReferenceKind.Dacpac,
+                    Resolution = DatabaseReferenceResolution.Resolved,
+                    ResolvedPath = dacpacPath,
+                    ModelReference = new Microsoft.SqlServer.Dac.Model.TSqlModelReference(dacpacPath, databaseVariableLiteralValue: "OtherDb"),
+                    DatabaseNames = new[] { "OtherDb" },
+                }
+            }, new Dictionary<string, string>());
+
         private static async Task CloseProject(SqlProjectsService service, string projectUri)
         {
             MockRequest<ResultStatus> closeMock = new();
@@ -1721,6 +2000,24 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.SqlProjects
             MockRequest<ResultStatus> openMock = new();
             await service.HandleOpenSqlProjectRequest(new SqlProjectParams() { ProjectUri = projectUri }, openMock.Object);
             openMock.AssertSuccess(nameof(service.HandleOpenSqlProjectRequest));
+        }
+
+        /// <summary>
+        /// Writes an SDK-style Fabric Warehouse project without a ProjectGuid, as Fabric git integration saves it.
+        /// </summary>
+        private static string WriteProjectWithoutProjectGuid()
+        {
+            string projectUri = TestContext.CurrentContext.GetTestProjectPath();
+            Directory.CreateDirectory(Path.GetDirectoryName(projectUri)!);
+            File.WriteAllText(projectUri, @"<Project DefaultTargets=""Build"">
+  <Sdk Name=""Microsoft.Build.Sql"" Version=""0.1.19-preview"" />
+  <PropertyGroup>
+    <Name>Warehouse</Name>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.SqlDwUnifiedDatabaseSchemaProvider</DSP>
+  </PropertyGroup>
+</Project>");
+
+            return projectUri;
         }
 
         private static async Task<GetProjectModelResult> GetProjectModel(SqlProjectsService service, string projectUri)

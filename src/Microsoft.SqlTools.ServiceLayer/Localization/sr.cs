@@ -10912,6 +10912,46 @@ namespace Microsoft.SqlTools.ServiceLayer
             return Keys.GetString(Keys.CustomRuleDuplicateId, ruleId);
         }
 
+        public static string DatabaseReferenceNotSupported(string referenceName)
+        {
+            return Keys.GetString(Keys.DatabaseReferenceNotSupported, referenceName);
+        }
+
+        public static string SystemDatabasePackageNotRestored(string databaseName)
+        {
+            return Keys.GetString(Keys.SystemDatabasePackageNotRestored, databaseName);
+        }
+
+        public static string SystemDatabaseDacpacNotFound(string databaseName, string platform)
+        {
+            return Keys.GetString(Keys.SystemDatabaseDacpacNotFound, databaseName, platform);
+        }
+
+        public static string DatabaseReferenceUndefinedProperty(string referencePath, string propertyName)
+        {
+            return Keys.GetString(Keys.DatabaseReferenceUndefinedProperty, referencePath, propertyName);
+        }
+
+        public static string DatabaseReferenceFileNotFound(string path)
+        {
+            return Keys.GetString(Keys.DatabaseReferenceFileNotFound, path);
+        }
+
+        public static string DatabaseReferenceCircular(string projectPath)
+        {
+            return Keys.GetString(Keys.DatabaseReferenceCircular, projectPath);
+        }
+
+        public static string DatabaseReferenceTooDeep(string projectPath)
+        {
+            return Keys.GetString(Keys.DatabaseReferenceTooDeep, projectPath);
+        }
+
+        public static string DatabaseReferencePackageNotRestored(string packageName)
+        {
+            return Keys.GetString(Keys.DatabaseReferencePackageNotRestored, packageName);
+        }
+
         public static string SqlAssessmentUnsuppoertedEdition(int editionCode)
         {
             return Keys.GetString(Keys.SqlAssessmentUnsuppoertedEdition, editionCode);
@@ -11715,6 +11755,30 @@ namespace Microsoft.SqlTools.ServiceLayer
 
 
             public const string CustomRuleDuplicateId = "CustomRuleDuplicateId";
+
+
+            public const string DatabaseReferenceNotSupported = "DatabaseReferenceNotSupported";
+
+
+            public const string SystemDatabasePackageNotRestored = "SystemDatabasePackageNotRestored";
+
+
+            public const string SystemDatabaseDacpacNotFound = "SystemDatabaseDacpacNotFound";
+
+
+            public const string DatabaseReferenceUndefinedProperty = "DatabaseReferenceUndefinedProperty";
+
+
+            public const string DatabaseReferenceFileNotFound = "DatabaseReferenceFileNotFound";
+
+
+            public const string DatabaseReferenceCircular = "DatabaseReferenceCircular";
+
+
+            public const string DatabaseReferenceTooDeep = "DatabaseReferenceTooDeep";
+
+
+            public const string DatabaseReferencePackageNotRestored = "DatabaseReferencePackageNotRestored";
 
 
             public const string PublishChangesTaskName = "PublishChangesTaskName";

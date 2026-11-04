@@ -66,10 +66,11 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
             _keyDefinitions = new Lazy<IReadOnlyList<TSqlModelKeyDefinition>>(CreateKeyDefinitions);
         }
 
-        // Lazy columns — only loaded when accessed
+        // Lazy columns — only loaded when accessed. DacExternalQueryScopes also reaches objects in other-database
+        // references, which DacQueryScopes leaves out.
         public IMetadataOrderedCollection<IColumn> Columns =>
             _columns ??= new LazyOrderedCollection<IColumn>(
-                () => _tableObj.GetReferenced(Table.Columns)
+                () => _tableObj.GetReferenced(Table.Columns, DacExternalQueryScopes.All)
                                .Select(c => new TSqlModelColumn(this, c))
                                .Cast<IColumn>());
 
@@ -107,8 +108,9 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         {
             var keys = new List<(TSqlObject Constraint, ConstraintType Type, ModelRelationshipClass Columns, bool IsClustered)>();
 
+            // External scopes also reach the keys of tables in the project's references, which foreign keys bind against
             keys.AddRange(
-                _tableObj.GetReferencing(PrimaryKeyConstraint.Host, DacQueryScopes.UserDefined)
+                _tableObj.GetReferencing(PrimaryKeyConstraint.Host, DacExternalQueryScopes.All)
                          .Select(constraint => (
                              constraint,
                              ConstraintType.PrimaryKey,
@@ -116,7 +118,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
                              constraint.GetProperty<bool>(PrimaryKeyConstraint.Clustered))));
 
             keys.AddRange(
-                _tableObj.GetReferencing(UniqueConstraint.Host, DacQueryScopes.UserDefined)
+                _tableObj.GetReferencing(UniqueConstraint.Host, DacExternalQueryScopes.All)
                          .Select(constraint => (
                              constraint,
                              ConstraintType.Unique,
@@ -179,7 +181,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         // Lazy columns — populated on first access
         public IMetadataOrderedCollection<IColumn> Columns =>
             _columns ??= new LazyOrderedCollection<IColumn>(
-                () => _viewObj.GetReferenced(View.Columns)
+                () => _viewObj.GetReferenced(View.Columns, DacExternalQueryScopes.All)
                               .Select(c => new TSqlModelColumn(this, c))
                               .Cast<IColumn>());
 
@@ -225,7 +227,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         public IMetadataOrderedCollection<IParameter> Parameters =>
             _parameters ??= new LazyOrderedCollection<IParameter>(() =>
                 _procObj
-                    .GetReferenced(Procedure.Parameters)
+                    .GetReferenced(Procedure.Parameters, DacExternalQueryScopes.All)
                     .Select(p => (IParameter)new TSqlModelParameter(
                         p.Name.Parts[p.Name.Parts.Count - 1],
                         p.GetProperty<bool>(Parameter.IsOutput))));
@@ -267,7 +269,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         public IMetadataOrderedCollection<IParameter> Parameters =>
             _parameters ??= new LazyOrderedCollection<IParameter>(() =>
                 _fnObj
-                    .GetReferenced(ScalarFunction.Parameters)
+                    .GetReferenced(ScalarFunction.Parameters, DacExternalQueryScopes.All)
                     .Select(p => (IParameter)new TSqlModelParameter(
                         p.Name.Parts[p.Name.Parts.Count - 1],
                         p.GetProperty<bool>(Parameter.IsOutput))));
@@ -318,7 +320,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         // ITabular / IDatabaseTable — lazy columns, populated on first access
         public IMetadataOrderedCollection<IColumn> Columns =>
             _columns ??= new LazyOrderedCollection<IColumn>(
-                () => _fnObj.GetReferenced(TableValuedFunction.Columns)
+                () => _fnObj.GetReferenced(TableValuedFunction.Columns, DacExternalQueryScopes.All)
                             .Select(c => new TSqlModelColumn(this, c))
                             .Cast<IColumn>());
 
@@ -337,7 +339,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         public IMetadataOrderedCollection<IParameter> Parameters =>
             _parameters ??= new LazyOrderedCollection<IParameter>(() =>
                 _fnObj
-                    .GetReferenced(TableValuedFunction.Parameters)
+                    .GetReferenced(TableValuedFunction.Parameters, DacExternalQueryScopes.All)
                     .Select(p => (IParameter)new TSqlModelParameter(
                         p.Name.Parts[p.Name.Parts.Count - 1],
                         p.GetProperty<bool>(Parameter.IsOutput))));
@@ -487,7 +489,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
         {
             get
             {
-                TSqlObject? typeObj = _colObj.GetReferenced(Column.DataType).FirstOrDefault();
+                TSqlObject? typeObj = _colObj.GetReferenced(Column.DataType, DacExternalQueryScopes.All).FirstOrDefault();
                 if (typeObj == null) return null;
 
                 // Primary: use the last Name part (e.g. "nvarchar", "int")
@@ -539,7 +541,7 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
                 : null;
         // Walk the relationship backwards: find any PrimaryKeyConstraint that lists this column.
         public bool InPrimaryKey =>
-            _colObj.GetReferencing(PrimaryKeyConstraint.Columns, DacQueryScopes.UserDefined).Any();
+            _colObj.GetReferencing(PrimaryKeyConstraint.Columns, DacExternalQueryScopes.All).Any();
         public bool IsColumnSet => false;
         public bool IsGeneratedAlwaysAsRowEnd => false;
         public bool IsGeneratedAlwaysAsRowStart => false;
@@ -693,9 +695,9 @@ namespace Microsoft.SqlTools.SqlCore.IntelliSense
             new TSqlModelRelationalIndex(
                 parent,
                 Name,
-                () => _constraintObj.GetReferenced(_columnsRelationship, DacQueryScopes.UserDefined)
+                () => _constraintObj.GetReferenced(_columnsRelationship, DacExternalQueryScopes.All)
                                     .Select((col, i) => (IOrderedColumn)new TSqlModelOrderedColumn(new TSqlModelColumn(parent, col), i)),
-                () => _constraintObj.GetReferenced(_columnsRelationship, DacQueryScopes.UserDefined)
+                () => _constraintObj.GetReferenced(_columnsRelationship, DacExternalQueryScopes.All)
                                     .Select(col => (IIndexedColumn)new TSqlModelIndexedColumn(new TSqlModelColumn(parent, col))),
                 Type,
                 IsClustered,

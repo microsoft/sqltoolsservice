@@ -4,4 +4,13 @@
 		<DebugType>full</DebugType>
 		<DebugSymbols>true</DebugSymbols>
 	</PropertyGroup>
+
+	<!-- Microsoft.SqlServer.Migration.Tde ships the native pvk2pfx.exe in lib/, so NuGet passes it to the
+	     compiler as a reference and the build warns that it has no metadata (MSB3246). Keep copying it to
+	     the output, but don't reference it. -->
+	<Target Name="RemoveNativeCompileReferences" AfterTargets="ResolvePackageAssets">
+		<ItemGroup>
+			<ResolvedCompileFileDefinitions Remove="@(ResolvedCompileFileDefinitions)" Condition="'%(Filename)%(Extension)' == 'pvk2pfx.exe'" />
+		</ItemGroup>
+	</Target>
 </Project>

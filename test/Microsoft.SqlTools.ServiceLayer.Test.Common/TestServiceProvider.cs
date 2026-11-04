@@ -196,7 +196,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
 
                 // Initialize the ServiceHost, using a MemoryStream for the output stream so that we don't fill up the logs
                 // with a bunch of outgoing messages (which aren't used for anything during tests)
-                ServiceHost serviceHost = HostLoader.CreateAndStartServiceHost(sqlToolsContext, null, null, new MemoryStream());
+                ServiceHost serviceHost = HostLoader.CreateAndStartServiceHost(sqlToolsContext, null, new NeverEndingInputStream(), new MemoryStream());
 
                 // Set up our logger to write to Console for tests to help debug issues
                 Logger.Initialize(autoFlush: true);
@@ -205,5 +205,49 @@ namespace Microsoft.SqlTools.ServiceLayer.Test.Common
             }
         }
 
+        /// <summary>
+        /// Input for the test service host that has no messages and never ends. The host's message loop
+        /// stops at the end of its input, and events sent from other threads are written by that loop.
+        /// Reading stdin, the loop stopped right away when the test host's stdin was closed (as on Linux CI),
+        /// and awaiting any of those events, such as intelliSense/ready, hung the test.
+        /// </summary>
+        private sealed class NeverEndingInputStream : Stream
+        {
+            public override bool CanRead => true;
+
+            public override bool CanSeek => false;
+
+            public override bool CanWrite => false;
+
+            public override long Length => throw new NotSupportedException();
+
+            public override long Position
+            {
+                get => throw new NotSupportedException();
+                set => throw new NotSupportedException();
+            }
+
+            public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
+            {
+                await Task.Delay(Timeout.Infinite, cancellationToken).ConfigureAwait(false);
+                return 0;
+            }
+
+            public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+                => ReadAsync(buffer.AsMemory(offset, count), cancellationToken).AsTask();
+
+            public override int Read(byte[] buffer, int offset, int count)
+                => ReadAsync(buffer, offset, count, CancellationToken.None).GetAwaiter().GetResult();
+
+            public override void Flush()
+            {
+            }
+
+            public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+
+            public override void SetLength(long value) => throw new NotSupportedException();
+
+            public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+        }
     }
 }
