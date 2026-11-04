@@ -26,6 +26,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
 
         /// <summary>
         /// Updated server and database service metadata after the context change.
+        /// Null when the default connection is inactive or the metadata refresh is unavailable.
         /// </summary>
         public ServerInfo ServerInfo { get; set; }
     }

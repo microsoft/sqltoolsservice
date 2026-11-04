@@ -655,26 +655,8 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     response.ServerConnectionId = serverConnId.ToString();
                 }
 
-                ReliableConnectionHelper.ServerInfo serverInfo = ReliableConnectionHelper.GetServerVersion(underlyingConnection);
-                response.ServerInfo = new ServerInfo
-                {
-                    ServerMajorVersion = serverInfo.ServerMajorVersion,
-                    ServerMinorVersion = serverInfo.ServerMinorVersion,
-                    ServerReleaseVersion = serverInfo.ServerReleaseVersion,
-                    EngineEditionId = serverInfo.EngineEditionId,
-                    ServerVersion = serverInfo.ServerVersion,
-                    ServerLevel = serverInfo.ServerLevel,
-                    ServerEdition = MapServerEdition(serverInfo),
-                    DatabaseServiceTier = serverInfo.DatabaseServiceTier,
-                    DatabaseServiceObjective = serverInfo.DatabaseServiceObjective,
-                    IsCloud = serverInfo.IsCloud,
-                    AzureVersion = serverInfo.AzureVersion,
-                    OsVersion = serverInfo.OsVersion,
-                    MachineName = serverInfo.MachineName,
-                    CpuCount = serverInfo.CpuCount,
-                    PhysicalMemoryInMB = serverInfo.PhysicalMemoryInMB,
-                    Options = serverInfo.Options
-                };
+                ServerInfo serverInfo = ReadServerInfo(underlyingConnection);
+                response.ServerInfo = serverInfo;
                 connectionInfo.IsCloud = serverInfo.IsCloud;
                 connectionInfo.MajorVersion = serverInfo.ServerMajorVersion;
                 connectionInfo.IsSqlDb = serverInfo.EngineEditionId == (int)DatabaseEngineEdition.SqlDatabase;
@@ -692,6 +674,33 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
             }
 
             return response;
+        }
+
+        /// <summary>
+        /// Reads server and database metadata from an open connection.
+        /// </summary>
+        internal virtual ServerInfo ReadServerInfo(DbConnection connection)
+        {
+            ReliableConnectionHelper.ServerInfo serverInfo = ReliableConnectionHelper.GetServerVersion(connection);
+            return new ServerInfo
+            {
+                ServerMajorVersion = serverInfo.ServerMajorVersion,
+                ServerMinorVersion = serverInfo.ServerMinorVersion,
+                ServerReleaseVersion = serverInfo.ServerReleaseVersion,
+                EngineEditionId = serverInfo.EngineEditionId,
+                ServerVersion = serverInfo.ServerVersion,
+                ServerLevel = serverInfo.ServerLevel,
+                ServerEdition = MapServerEdition(serverInfo),
+                DatabaseServiceTier = serverInfo.DatabaseServiceTier,
+                DatabaseServiceObjective = serverInfo.DatabaseServiceObjective,
+                IsCloud = serverInfo.IsCloud,
+                AzureVersion = serverInfo.AzureVersion,
+                OsVersion = serverInfo.OsVersion,
+                MachineName = serverInfo.MachineName,
+                CpuCount = serverInfo.CpuCount,
+                PhysicalMemoryInMB = serverInfo.PhysicalMemoryInMB,
+                Options = serverInfo.Options
+            };
         }
 
         private string MapServerEdition(ReliableConnectionHelper.ServerInfo serverInfo)
@@ -1810,12 +1819,7 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                     IConnectionSummary summary = info.ConnectionDetails;
                     parameters.Connection = summary.Clone();
                     parameters.OwnerUri = ownerUri;
-                    var metadata = GetConnectionCompleteParams(ConnectionType.Default, info);
-                    parameters.ServerInfo = metadata.ServerInfo;
-                    if (!string.IsNullOrEmpty(metadata.ErrorMessage))
-                    {
-                        Logger.Warning("Unable to refresh server metadata after changing database context: " + metadata.ErrorMessage);
-                    }
+                    parameters.ServerInfo = GetDatabaseContextServerInfo(info);
                     ServiceHost.SendEvent(ConnectionChangedNotification.Type, parameters);
                     return true;
                 }
@@ -1831,6 +1835,44 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection
                 }
             }
             return false;
+        }
+
+        private ServerInfo GetDatabaseContextServerInfo(ConnectionInfo info)
+        {
+            if (!info.TryGetConnection(ConnectionType.Default, out DbConnection defaultConnection)
+                || defaultConnection.State != ConnectionState.Open)
+            {
+                return null;
+            }
+
+            try
+            {
+                ConnectionDetails details = info.ConnectionDetails.Clone();
+                if (IsDedicatedAdminConnection(details))
+                {
+                    Logger.Warning("Skipping database metadata refresh because a dedicated administrator connection cannot open another session.");
+                    return null;
+                }
+
+                if (info.AzureTokenFetcher != null)
+                {
+                    details.AzureAccountToken = info.AzureTokenFetcher(info.AzureResourceUri).GetAwaiter().GetResult().token;
+                }
+
+                var builder = CreateConnectionStringBuilder(details);
+                // Metadata must not enlist in an ambient transaction or use the user's query session.
+                builder.Enlist = false;
+                using (DbConnection connection = info.Factory.CreateSqlConnection(builder.ConnectionString, details.AzureAccountToken))
+                {
+                    connection.Open();
+                    return ReadServerInfo(connection);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Warning("Unable to refresh server metadata after changing database context: " + ex.Message);
+                return null;
+            }
         }
 
         /// <summary>

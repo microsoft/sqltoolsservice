@@ -813,6 +813,49 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
         }
 
         /// <summary>
+        /// Reads the server version and current database service properties from the metadata result.
+        /// </summary>
+        internal static ServerInfo ReadServerInfo(IDataReader reader)
+        {
+            reader.Read();
+            int engineEditionId = Int32.Parse(reader[0].ToString(), CultureInfo.InvariantCulture);
+            var serverInfo = new ServerInfo
+            {
+                EngineEditionId = engineEditionId,
+                IsCloud = IsCloudEngineId(engineEditionId),
+                ServerVersion = reader[1].ToString(),
+                ServerLevel = reader[2].ToString(),
+                ServerEdition = reader[3].ToString(),
+                MachineName = reader[4].ToString(),
+                ServerName = reader[5].ToString()
+            };
+
+            if (reader.FieldCount > 6)
+            {
+                // Detect the presence of SXI
+                serverInfo.IsSelectiveXmlIndexMetadataPresent = reader.GetInt32(6) == 1;
+            }
+
+            if (reader.FieldCount > 8)
+            {
+                serverInfo.DatabaseServiceTier = reader.IsDBNull(7) ? null : reader.GetString(7);
+                serverInfo.DatabaseServiceObjective = reader.IsDBNull(8) ? null : reader.GetString(8);
+            }
+
+            // The 'ProductVersion' server property is of the form ##.#[#].####.#.
+            Version serverVersion = new Version(serverInfo.ServerVersion);
+            serverInfo.ServerMajorVersion = serverVersion.Major;
+            serverInfo.ServerMinorVersion = serverVersion.Minor;
+            serverInfo.ServerReleaseVersion = serverVersion.Build;
+            if (serverInfo.IsCloud)
+            {
+                serverInfo.AzureVersion = serverVersion.Major > 11 ? 2 : 1;
+            }
+
+            return serverInfo;
+        }
+
+        /// <summary>
         /// Returns the version of the server.  This routine will throw if an exception is encountered.
         /// </summary>
         public static ServerInfo GetServerVersion(IDbConnection connection)
@@ -825,49 +868,13 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection
 
             Func<string, ServerInfo> getServerInfo = commandText =>
             {
-                ServerInfo serverInfo = new ServerInfo();
+                ServerInfo serverInfo = null;
                 ExecuteReader(
                 connection,
                 commandText,
                 delegate (IDataReader reader)
                 {
-                    reader.Read();
-
-                    int engineEditionId = Int32.Parse(reader[0].ToString(), CultureInfo.InvariantCulture);
-
-                    serverInfo.EngineEditionId = engineEditionId;
-                    serverInfo.IsCloud = IsCloudEngineId(engineEditionId);
-
-                    serverInfo.ServerVersion = reader[1].ToString();
-                    serverInfo.ServerLevel = reader[2].ToString();
-                    serverInfo.ServerEdition = reader[3].ToString();
-                    serverInfo.MachineName = reader[4].ToString();
-                    serverInfo.ServerName = reader[5].ToString();
-
-                    if (reader.FieldCount > 6)
-                    {
-                        // Detect the presence of SXI
-                        serverInfo.IsSelectiveXmlIndexMetadataPresent = reader.GetInt32(6) == 1;
-                    }
-
-                    if (reader.FieldCount > 8)
-                    {
-                        serverInfo.DatabaseServiceTier = reader.IsDBNull(7) ? null : reader.GetString(7);
-                        serverInfo.DatabaseServiceObjective = reader.IsDBNull(8) ? null : reader.GetString(8);
-                    }
-
-                    // The 'ProductVersion' server property is of the form ##.#[#].####.#,
-                    Version serverVersion = new Version(serverInfo.ServerVersion);
-
-                    // The server version is of the form ##.##.####,
-                    serverInfo.ServerMajorVersion = serverVersion.Major;
-                    serverInfo.ServerMinorVersion = serverVersion.Minor;
-                    serverInfo.ServerReleaseVersion = serverVersion.Build;
-
-                    if (serverInfo.IsCloud)
-                    {
-                        serverInfo.AzureVersion = serverVersion.Major > 11 ? 2 : 1;
-                    }
+                    serverInfo = ReadServerInfo(reader);
 
                     try
                     {
