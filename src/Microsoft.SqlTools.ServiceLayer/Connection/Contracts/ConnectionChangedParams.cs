@@ -23,5 +23,11 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         /// Contains the high-level properties about the connection, for display to the user.
         /// </summary>
         public ConnectionSummary Connection { get; set; }
+
+        /// <summary>
+        /// Updated server and database service metadata after the context change.
+        /// Null when the default connection is inactive or the metadata refresh is unavailable.
+        /// </summary>
+        public ServerInfo ServerInfo { get; set; }
     }
 }

@@ -659,6 +659,11 @@ Serialize a connection string.
 
 Connection changed notification.
 
+When the default connection is open, server metadata is refreshed on a separate connection to the
+new database without changing the query session's transaction state. `ServerInfo` is null for inactive
+default connections, dedicated administrator connections, or when the optional refresh fails.
+`DatabaseServiceTier` and `DatabaseServiceObjective` in `ServerInfo` are null when unsupported by the engine.
+
 #### Request
 
 ```csharp
@@ -673,6 +678,11 @@ Connection changed notification.
         /// Contains the high-level properties about the connection, for display to the user.
         /// </summary>
         public ConnectionSummary Connection { get; set; }
+
+        /// <summary>
+        /// Updated server and database service metadata, or null when unavailable.
+        /// </summary>
+        public ServerInfo ServerInfo { get; set; }
     }
 ```
 
