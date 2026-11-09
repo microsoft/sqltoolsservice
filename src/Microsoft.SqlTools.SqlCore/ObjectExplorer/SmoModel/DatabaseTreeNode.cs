@@ -17,8 +17,6 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 {
     public partial class DatabaseTreeNode
     {
-        private const long SqlDbDevEditionId = -978196525;
-
         public DatabaseTreeNode(ServerNode serverNode, string databaseName) : this()
         {
             Parent = serverNode;
@@ -109,15 +107,7 @@ namespace Microsoft.SqlTools.SqlCore.ObjectExplorer.SmoModel
 
             try
             {
-                // SERVERPROPERTY returns sql_variant, so cast to bigint for predictable conversion.
-                object? result = db.Parent.ConnectionContext.ExecuteScalar("SELECT CAST(SERVERPROPERTY('EditionID') AS bigint) AS EditionID;");
-                if (result == null)
-                {
-                    return false;
-                }
-
-                long editionId = Convert.ToInt64(result, CultureInfo.InvariantCulture);
-                return editionId == SqlDbDevEditionId;
+                return Utility.DatabaseUtils.IsAzureSqlDatabaseContainer(db.Parent);
             }
             catch (Exception ex)
             {

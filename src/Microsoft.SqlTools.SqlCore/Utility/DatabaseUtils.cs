@@ -4,12 +4,24 @@
 //
 
 using System;
+using System.Globalization;
+using Microsoft.SqlServer.Management.Smo;
 
 
 namespace Microsoft.SqlTools.SqlCore.Utility
 {
     public static class DatabaseUtils
     {
+        /// <summary>
+        /// Identifies Azure SQL developer containers by their server edition ID.
+        /// </summary>
+        public static bool IsAzureSqlDatabaseContainer(Server server)
+        {
+            object result = server.ConnectionContext.ExecuteScalar("SELECT CAST(SERVERPROPERTY('EditionID') AS bigint) AS EditionID;");
+            return result != null && result != DBNull.Value &&
+                Convert.ToInt64(result, CultureInfo.InvariantCulture) == -978196525;
+        }
+
         /// <summary>
         /// Check if the database is a system database
         /// </summary>
