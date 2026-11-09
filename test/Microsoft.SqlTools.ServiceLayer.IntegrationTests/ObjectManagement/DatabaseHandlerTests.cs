@@ -41,6 +41,86 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             await RunDatabaseCreateAndUpdateTest(TestServerType.OnPrem);
         }
 
+        [TestCase(false, CompatibilityLevel.Version150, TestName = "DatabaseCreateTest_AzureSqlContainer", Explicit = true,
+            Reason = "Requires a local Azure SQL container profile named sqlAzureContainer.")]
+        [TestCase(true, CompatibilityLevel.Version160, TestName = "DatabaseCreateTest_AzureSqlContainer_Ledger", Explicit = true,
+            Reason = "Requires a local Azure SQL container profile named sqlAzureContainer.")]
+        public async Task DatabaseCreateTest_AzureSqlContainer(bool isLedger, CompatibilityLevel compatibilityLevel)
+        {
+            var connectionResult = await LiveConnectionHelper.InitLiveConnectionInfoAsync("master", versionKey: "sqlAzureContainer");
+            using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connectionResult.ConnectionInfo))
+            {
+                var server = new Server(new ServerConnection(sqlConn));
+                Assert.That(SqlCore.Utility.DatabaseUtils.IsAzureSqlDatabaseContainer(server), Is.True);
+                var testDatabase = new DatabaseInfo
+                {
+                    Name = ObjectManagementTestUtils.GetTestDatabaseInfo().Name + "]quoted",
+                    CollationName = "Latin1_General_100_CS_AS_SC",
+                    CompatibilityLevel = compatibilityLevel == CompatibilityLevel.Version150 ? SR.compatibilityLevel_sqlv150 : SR.compatibilityLevel_sqlv160,
+                    IsLedgerDatabase = isLedger,
+                    AzureEdition = GetAzureEditionDisplayName(AzureEdition.GeneralPurpose),
+                    AzureServiceLevelObjective = GetDefaultServiceObjective(AzureEdition.GeneralPurpose),
+                    AzureMaxSize = GetDatabaseDefaultSize(AzureEdition.GeneralPurpose).ToString()
+                };
+                var createParams = ObjectManagementTestUtils.GetInitializeViewRequestParams(
+                    connectionResult.ConnectionInfo.OwnerUri, "master", true, SqlObjectType.Database, "", "");
+                try
+                {
+                    string escapedName = testDatabase.Name.Replace("]", "]]");
+                    string ledgerOption = isLedger ? " WITH LEDGER = ON" : string.Empty;
+                    string expectedScript = string.Join(System.Environment.NewLine, new[]
+                    {
+                        $"CREATE DATABASE [{escapedName}] COLLATE Latin1_General_100_CS_AS_SC{ledgerOption};",
+                        "GO",
+                        $"ALTER DATABASE [{escapedName}] SET COMPATIBILITY_LEVEL = {(int)compatibilityLevel};",
+                        "GO",
+                        string.Empty
+                    });
+                    string script = await ObjectManagementTestUtils.ScriptObject(createParams, testDatabase);
+                    Assert.That(script, Is.EqualTo(expectedScript));
+                    Assert.That(DatabaseExists(testDatabase.Name, server), Is.False);
+
+                    var createResponse = await ObjectManagementTestUtils.SaveObject(createParams, testDatabase);
+                    Assert.That(createResponse.ErrorMessage, Is.Null.Or.Empty);
+                    Assert.That(DatabaseExists(testDatabase.Name, server), Is.True);
+                    var createdDatabase = server.Databases[testDatabase.Name];
+                    Assert.That(createdDatabase.Collation, Is.EqualTo(testDatabase.CollationName));
+                    Assert.That(createdDatabase.CompatibilityLevel, Is.EqualTo(compatibilityLevel));
+                    Assert.That(createdDatabase.IsLedger, Is.EqualTo(isLedger));
+
+                    var handler = new DatabaseHandler(ConnectionService.Instance);
+                    var dropParams = new DropDatabaseRequestParams
+                    {
+                        ConnectionUri = connectionResult.ConnectionInfo.OwnerUri,
+                        Database = testDatabase.Name,
+                        GenerateScript = true
+                    };
+                    foreach (bool dropConnections in new[] { false, true })
+                    {
+                        foreach (bool deleteBackupHistory in new[] { false, true })
+                        {
+                            dropParams.DropConnections = dropConnections;
+                            dropParams.DeleteBackupHistory = deleteBackupHistory;
+                            Assert.That(handler.Drop(dropParams), Is.EqualTo($"DROP DATABASE [{escapedName}];"));
+                            Assert.That(DatabaseExists(testDatabase.Name, server), Is.True);
+                        }
+                    }
+
+                    dropParams.GenerateScript = false;
+                    Assert.That(handler.Drop(dropParams), Is.Empty);
+                    Assert.That(DatabaseExists(testDatabase.Name, server), Is.False);
+                }
+                finally
+                {
+                    server.Databases.Refresh();
+                    if (server.Databases.Contains(testDatabase.Name))
+                    {
+                        server.Databases[testDatabase.Name].Drop();
+                    }
+                }
+            }
+        }
+
         /// <summary>
         /// Test the Create Database method handler functionality against an Azure SQL database.
         /// </summary>
@@ -58,6 +138,7 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.ObjectManagement
             using (SqlConnection sqlConn = ConnectionService.OpenSqlConnection(connectionResult.ConnectionInfo))
             {
                 var server = new Server(new ServerConnection(sqlConn));
+                Assert.That(SqlCore.Utility.DatabaseUtils.IsAzureSqlDatabaseContainer(server), Is.False);
 
                 var testDatabase = ObjectManagementTestUtils.GetTestDatabaseInfo();
                 var objUrn = ObjectManagementTestUtils.GetDatabaseURN(testDatabase.Name);

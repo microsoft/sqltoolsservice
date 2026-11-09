@@ -54,7 +54,8 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility
             => InitLiveConnectionInfoAsync(databaseName, ownerUri, ServiceLayer.Connection.ConnectionType.Default).ConfigureAwait(false).GetAwaiter().GetResult();
 
         public static async Task<TestConnectionResult> InitLiveConnectionInfoAsync(string databaseName = "master", string ownerUri = null,
-            string connectionType = ServiceLayer.Connection.ConnectionType.Default, TestServerType serverType = TestServerType.OnPrem)
+            string connectionType = ServiceLayer.Connection.ConnectionType.Default, TestServerType serverType = TestServerType.OnPrem,
+            string versionKey = null)
         {
             ScriptFile scriptFile = null;
             if (string.IsNullOrEmpty(ownerUri))
@@ -67,7 +68,9 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Utility
             {
                 databaseName = "master";
             }
-            ConnectParams connectParams = TestServiceProvider.Instance.ConnectionProfileService.GetConnectionParameters(serverType, databaseName);
+            ConnectParams connectParams = versionKey == null
+                ? TestServiceProvider.Instance.ConnectionProfileService.GetConnectionParameters(serverType, databaseName)
+                : TestServiceProvider.Instance.ConnectionProfileService.GetConnectionParameters(versionKey, databaseName);
 
             // try to connect up to 3 times, sleeping in between retries
             const int RetryCount = 3;
