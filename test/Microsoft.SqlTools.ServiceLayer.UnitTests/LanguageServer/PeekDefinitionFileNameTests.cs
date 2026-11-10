@@ -186,13 +186,26 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             Assert.AreEqual("master.dbo.mytable_2.sql", lower);
         }
 
-        [Test]
-        public void CharactersThatAreIllegalInAFileNameAreReplaced()
+        private static IEnumerable<char> InvalidFileNameCharacters => Path.GetInvalidFileNameChars();
+
+        [TestCaseSource(nameof(InvalidFileNameCharacters))]
+        public void CharactersThatAreIllegalInAFileNameAreReplaced(char invalidCharacter)
         {
-            string name = NameFor(ServerA, "master", "dbo", "odd/name:here");
+            string name = NameFor(ServerA, "master", "dbo", $"odd{invalidCharacter}name");
 
             Assert.AreEqual(-1, name.IndexOfAny(Path.GetInvalidFileNameChars()));
-            Assert.AreEqual("master.dbo.odd_name_here.sql", name);
+            Assert.AreEqual("master.dbo.odd_name.sql", name);
+        }
+
+        [Test]
+        public void ColonFollowsTheHostFileNameRules()
+        {
+            string name = NameFor(ServerA, "master", "dbo", "odd:name");
+            string expected = Path.GetInvalidFileNameChars().Contains(':')
+                ? "master.dbo.odd_name.sql"
+                : "master.dbo.odd:name.sql";
+
+            Assert.AreEqual(expected, name);
         }
 
         [TestCase("CON")]
@@ -208,9 +221,9 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
         [Test]
         public void ObjectsThatSanitizeToTheSameNameStayApart()
         {
-            // "a/b" and "a:b" both sanitize to "a_b", so the second still gets its own file
+            // "/" is invalid on every supported platform, so both names become "a_b".
             string first = NameFor(ServerA, "master", "dbo", "a/b");
-            string second = NameFor(ServerA, "master", "dbo", "a:b");
+            string second = NameFor(ServerA, "master", "dbo", "a_b");
 
             Assert.AreEqual("master.dbo.a_b.sql", first);
             Assert.AreEqual("master.dbo.a_b_2.sql", second);
