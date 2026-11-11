@@ -1284,7 +1284,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
             using SqlConnection connection = new SqlConnection(builder.ConnectionString);
             SqlException exception = Assert.Throws<SqlException>(() => connection.Open());
 
-            Assert.AreEqual(11001, exception.Number);
+            Assert.AreEqual((int)System.Net.Sockets.SocketError.HostNotFound, exception.Number);
             Assert.True(RetryPolicyUtils.IsRetryableNetworkConnectivityError(exception.Number));
         }
 
