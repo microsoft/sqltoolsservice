@@ -186,12 +186,22 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.LanguageServer
             Assert.AreEqual("master.dbo.mytable_2.sql", lower);
         }
 
-        private static IEnumerable<char> InvalidFileNameCharacters => Path.GetInvalidFileNameChars();
+        private static IEnumerable<char> InvalidFileNameCharacters =>
+            Path.GetInvalidFileNameChars().Where(character => character != '\0');
 
         [TestCaseSource(nameof(InvalidFileNameCharacters))]
         public void CharactersThatAreIllegalInAFileNameAreReplaced(char invalidCharacter)
         {
             string name = NameFor(ServerA, "master", "dbo", $"odd{invalidCharacter}name");
+
+            Assert.AreEqual(-1, name.IndexOfAny(Path.GetInvalidFileNameChars()));
+            Assert.AreEqual("master.dbo.odd_name.sql", name);
+        }
+
+        [Test]
+        public void NullCharacterIsReplacedInAFileName()
+        {
+            string name = NameFor(ServerA, "master", "dbo", "odd\0name");
 
             Assert.AreEqual(-1, name.IndexOfAny(Path.GetInvalidFileNameChars()));
             Assert.AreEqual("master.dbo.odd_name.sql", name);
