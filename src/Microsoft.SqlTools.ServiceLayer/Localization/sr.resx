@@ -1090,6 +1090,46 @@
     <comment>.
  Parameters: 0 - ruleId (string) </comment>
   </data>
+  <data name="DatabaseReferenceNotSupported" xml:space="preserve">
+    <value>Database reference &apos;{0}&apos; is not a supported reference type.</value>
+    <comment>.
+ Parameters: 0 - referenceName (string) </comment>
+  </data>
+  <data name="SystemDatabasePackageNotRestored" xml:space="preserve">
+    <value>The {0} package has not been restored, so the {0}.dacpac that ships with SQL Tools Service is used instead. Restore the project to use the package&apos;s version.</value>
+    <comment>.
+ Parameters: 0 - databaseName (string) </comment>
+  </data>
+  <data name="SystemDatabaseDacpacNotFound" xml:space="preserve">
+    <value>No {0}.dacpac is available for target platform &apos;{1}&apos;.</value>
+    <comment>.
+ Parameters: 0 - databaseName (string), 1 - platform (string) </comment>
+  </data>
+  <data name="DatabaseReferenceUndefinedProperty" xml:space="preserve">
+    <value>Database reference &apos;{0}&apos; uses the MSBuild property $({1}), which is not defined in the project.</value>
+    <comment>.
+ Parameters: 0 - referencePath (string), 1 - propertyName (string) </comment>
+  </data>
+  <data name="DatabaseReferenceFileNotFound" xml:space="preserve">
+    <value>Referenced file &apos;{0}&apos; was not found.</value>
+    <comment>.
+ Parameters: 0 - path (string) </comment>
+  </data>
+  <data name="DatabaseReferenceCircular" xml:space="preserve">
+    <value>Project reference &apos;{0}&apos; is circular and was not loaded.</value>
+    <comment>.
+ Parameters: 0 - projectPath (string) </comment>
+  </data>
+  <data name="DatabaseReferenceTooDeep" xml:space="preserve">
+    <value>Project reference &apos;{0}&apos; is nested too deeply and was not loaded.</value>
+    <comment>.
+ Parameters: 0 - projectPath (string) </comment>
+  </data>
+  <data name="DatabaseReferencePackageNotRestored" xml:space="preserve">
+    <value>Package &apos;{0}&apos; has not been restored. Restore the project to load its dacpac.</value>
+    <comment>.
+ Parameters: 0 - packageName (string) </comment>
+  </data>
   <data name="PublishChangesTaskName" xml:space="preserve">
     <value>Apply schema compare changes</value>
     <comment></comment>

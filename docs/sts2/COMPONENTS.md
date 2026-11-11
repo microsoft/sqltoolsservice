@@ -50,7 +50,7 @@ Non-production real-I/O test driver adapter over Microsoft.Data.Sqlite.
 StreamJsonRpc gateway; translates v2 JSON-RPC methods to sanitized envelopes and back.
 
 - Project references: Microsoft.SqlTools.Sts2.Abstractions, Microsoft.SqlTools.Sts2.Contracts, Microsoft.SqlTools.Sts2.Core, Microsoft.SqlTools.Sts2.Runtime
-- Package references: StreamJsonRpc
+- Package references: MessagePack, StreamJsonRpc
 
 ## Microsoft.SqlTools.Sts2.Multiplexer
 

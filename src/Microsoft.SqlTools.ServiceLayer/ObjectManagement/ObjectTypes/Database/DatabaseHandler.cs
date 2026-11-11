@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
@@ -765,6 +766,19 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 databaseName: dropParams.Database,
                 connectionDatabaseName: connectionDatabaseName))
             {
+                if (SqlCore.Utility.DatabaseUtils.IsAzureSqlDatabaseContainer(dataContainer.Server))
+                {
+                    sqlScript = $"DROP DATABASE {ToSqlScript.FormatIdentifier(dropParams.Database)};";
+                    if (dropParams.GenerateScript)
+                    {
+                        return sqlScript;
+                    }
+
+                    SqlConnection.ClearPool(dataContainer.ServerConnection.SqlConnectionObject);
+                    dataContainer.ServerConnection.GetDatabaseConnection(CommonConstants.MasterDatabaseName).ExecuteNonQuery(sqlScript);
+                    return string.Empty;
+                }
+
                 var smoDatabase = dataContainer.SqlDialogSubject as Database;
                 if (smoDatabase != null)
                 {
@@ -925,6 +939,25 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                 {
                     DatabasePrototype prototype = taskHelper.Prototype;
                     prototype.Name = database.Name;
+
+                    if (viewParams.IsNewObject && SqlCore.Utility.DatabaseUtils.IsAzureSqlDatabaseContainer(dataContainer.Server))
+                    {
+                        string collationName = string.IsNullOrEmpty(database.CollationName) || database.CollationName == SR.general_default
+                            ? dataContainer.Server.Collation
+                            : database.CollationName;
+                        CompatibilityLevel compatibilityLevel = database.CompatibilityLevel == null
+                            ? prototype.DatabaseCompatibilityLevel
+                            : compatLevelEnums[database.CompatibilityLevel];
+                        string script = CreateAzureSqlContainerDatabaseScript(
+                            database.Name, collationName, database.IsLedgerDatabase == true, compatibilityLevel);
+                        if (runType == RunType.ScriptToWindow)
+                        {
+                            return script;
+                        }
+
+                        dataContainer.ServerConnection.GetDatabaseConnection(CommonConstants.MasterDatabaseName).ExecuteNonQuery(script);
+                        return string.Empty;
+                    }
 
                     // Update database file names now that we have a database name
                     if (viewParams.IsNewObject && !prototype.HideFileSettings)
@@ -1213,6 +1246,24 @@ namespace Microsoft.SqlTools.ServiceLayer.ObjectManagement
                     return sqlScript;
                 }
             }
+        }
+
+        internal static string CreateAzureSqlContainerDatabaseScript(
+            string databaseName, string collationName, bool isLedger, CompatibilityLevel compatibilityLevel)
+        {
+            if (string.IsNullOrEmpty(collationName) || collationName.Any(character => !char.IsAsciiLetterOrDigit(character) && character != '_'))
+            {
+                throw new ArgumentException("Invalid collation name.", nameof(collationName));
+            }
+
+            string escapedName = ToSqlScript.FormatIdentifier(databaseName);
+            string ledgerOption = isLedger ? " WITH LEDGER = ON" : string.Empty;
+            var builder = new StringBuilder();
+            builder.AppendLine($"CREATE DATABASE {escapedName} COLLATE {collationName}{ledgerOption};");
+            builder.AppendLine("GO");
+            builder.AppendLine($"ALTER DATABASE {escapedName} SET COMPATIBILITY_LEVEL = {((int)compatibilityLevel).ToString(CultureInfo.InvariantCulture)};");
+            builder.AppendLine("GO");
+            return builder.ToString();
         }
 
         private Autogrowth GetAutogrowth(DatabasePrototype prototype, DatabaseFile file)

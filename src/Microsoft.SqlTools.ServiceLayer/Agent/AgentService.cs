@@ -918,13 +918,25 @@ namespace Microsoft.SqlTools.ServiceLayer.Agent
                     dataContainer = CDataContainer.CreateDataContainer(connInfo, databaseExists: true);
                 }
 
+                if (configAction == ConfigAction.Update &&
+                    !string.Equals(originalJobName, jobInfo.Name, StringComparison.Ordinal))
+                {
+                    CreateJobData(
+                        ownerUri,
+                        jobInfo.Name,
+                        out dataContainer,
+                        out jobData,
+                        ConfigAction.Update,
+                        jobInfo);
+                }
+
                 // Execute step actions if they exist
                 if (configAction != ConfigAction.Drop && jobInfo.JobSteps != null && jobInfo.JobSteps.Length > 0)
                 {
                     foreach (AgentJobStepInfo step in jobInfo.JobSteps)
                     {
                         configAction = ConfigAction.Create;
-                        foreach (JobStep jobStep in dataContainer.Server.JobServer.Jobs[originalJobName].JobSteps)
+                        foreach (JobStep jobStep in dataContainer.Server.JobServer.Jobs[jobInfo.Name].JobSteps)
                         {
                             // any changes made to step other than name or ordering
                             if ((step.StepName == jobStep.Name && step.Id == jobStep.ID) ||

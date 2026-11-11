@@ -745,7 +745,6 @@ FROM MissingEdgeHubInputStream'";
             // Default options from DeploymentProfile.InitializeFromProfile() plus overrides from sample...
             expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.AllowDropBlockingAssemblies)].Value = true;
             expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.AllowIncompatiblePlatform)].Value = true;
-            expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.DisableIndexesForDataPhase)].Value = false;
             expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.DropObjectsNotInSource)].Value = true;
             expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.DropPermissionsNotInSource)].Value = true;
             expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.DropRoleMembersNotInSource)].Value = true;
@@ -783,7 +782,6 @@ FROM MissingEdgeHubInputStream'";
             // Default options from DeploymentProfile.InitializeFromProfile()
             expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.AllowDropBlockingAssemblies)].Value = true;
             expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.AllowIncompatiblePlatform)].Value = true;
-            expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.DisableIndexesForDataPhase)].Value = false;
             expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.DropObjectsNotInSource)].Value = true;
             expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.DropPermissionsNotInSource)].Value = true;
             expectedResults.BooleanOptionsDictionary[nameof(DacDeployOptions.DropRoleMembersNotInSource)].Value = true;

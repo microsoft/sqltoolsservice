@@ -51,6 +51,16 @@ namespace Microsoft.SqlTools.ServiceLayer.Connection.Contracts
         public string ServerEdition { get; set; }
 
         /// <summary>
+        /// The current database's service tier, or null when not supported by the engine.
+        /// </summary>
+        public string DatabaseServiceTier { get; set; }
+
+        /// <summary>
+        /// The current database's service objective, or null when not supported by the engine.
+        /// </summary>
+        public string DatabaseServiceObjective { get; set; }
+
+        /// <summary>
         /// Whether the SQL Server instance is running in the cloud (Azure) or not.
         /// </summary>
         public bool IsCloud { get; set; }

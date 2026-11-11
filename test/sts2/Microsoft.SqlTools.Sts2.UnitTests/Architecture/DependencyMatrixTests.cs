@@ -38,7 +38,7 @@ namespace Microsoft.SqlTools.Sts2.UnitTests.Architecture
                 (["Microsoft.SqlTools.Sts2.Abstractions", "Microsoft.SqlTools.Sts2.Contracts"], ["Microsoft.Data.Sqlite", "SQLitePCLRaw.lib.e_sqlite3"]),
             ["Microsoft.SqlTools.Sts2.Hosting"] =
                 (["Microsoft.SqlTools.Sts2.Runtime", "Microsoft.SqlTools.Sts2.Core", "Microsoft.SqlTools.Sts2.Contracts", "Microsoft.SqlTools.Sts2.Abstractions"],
-                 ["StreamJsonRpc"]),
+                 ["StreamJsonRpc", "MessagePack"]),
             ["Microsoft.SqlTools.Sts2.Bootstrap"] =
                 (["Microsoft.SqlTools.Sts2.Hosting", "Microsoft.SqlTools.Sts2.Runtime", "Microsoft.SqlTools.Sts2.Multiplexer",
                   "Microsoft.SqlTools.Sts2.Drivers.SqlClient", "Microsoft.SqlTools.Sts2.Drivers.Sqlite", "Microsoft.SqlTools.Sts2.Contracts"], []),

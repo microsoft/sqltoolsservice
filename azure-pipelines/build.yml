@@ -129,9 +129,11 @@ steps:
     testRunTitle: SqlTools.Authentication.UnitTests
     arguments: '--configuration $(buildConfiguration) --collect "XPlat Code Coverage"'
 
+# The file filters leave out source-generated files and the test SDK's generated entry point. Their paths are
+# outside the repo, so publishing the report warned that it skipped untrusted source paths.
 - script: |
     dotnet tool install -g dotnet-reportgenerator-globaltool
-    reportgenerator -reports:$(Agent.TempDirectory)/**/coverage.cobertura.xml -targetdir:$(Agent.TempDirectory)/coverlet/reports -reporttypes:"Cobertura"
+    reportgenerator -reports:$(Agent.TempDirectory)/**/coverage.cobertura.xml -targetdir:$(Agent.TempDirectory)/coverlet/reports -reporttypes:"Cobertura" -filefilters:"-**/*.g.cs;-**/Microsoft.NET.Test.Sdk.Program.cs"
   displayName: Create Code coverage report
 
 
@@ -201,10 +203,10 @@ steps:
 
 - ${{ each project in parameters.projects }}:
   - ${{ each platform in parameters.platforms }}:
-    - task: ArchiveFiles@1
+    - task: ArchiveFiles@2
       displayName: 'Archive ${{ platform.displayName }} ${{ project }} build'
       inputs:
-        rootFolder: '$(Build.SourcesDirectory)/artifacts/publish/${{ project }}/${{ platform.name }}/net10.0'
+        rootFolderOrFile: '$(Build.SourcesDirectory)/artifacts/publish/${{ project }}/${{ platform.name }}/net10.0'
         includeRootFolder: false
         archiveType: ${{ platform.archiveType }}
         archiveFile: '$(Build.SourcesDirectory)/artifacts/package/${{ project }}-${{ platform.archiveName }}-net10.0.${{ platform.archiveFileFormat }}'

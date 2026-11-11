@@ -335,6 +335,28 @@ namespace Microsoft.SqlTools.ServiceLayer.IntegrationTests.Connection
         }
 
         /// <summary>
+        /// Database service metadata matches the current database, including unsupported null values.
+        /// </summary>
+        [Test]
+        public void TestGetServerVersionDatabaseServiceProperties()
+        {
+            using (var connection = CreateTestConnection())
+            {
+                connection.Open();
+                var serverInfo = ReliableConnectionHelper.GetServerVersion(connection);
+                ReliableConnectionHelper.ExecuteReader(
+                    connection,
+                    "SELECT DATABASEPROPERTYEX(DB_NAME(), 'Edition'), DATABASEPROPERTYEX(DB_NAME(), 'ServiceObjective')",
+                    reader =>
+                    {
+                        Assert.True(reader.Read());
+                        Assert.AreEqual(reader.IsDBNull(0) ? null : reader.GetString(0), serverInfo.DatabaseServiceTier);
+                        Assert.AreEqual(reader.IsDBNull(1) ? null : reader.GetString(1), serverInfo.DatabaseServiceObjective);
+                    });
+            }
+        }
+
+        /// <summary>
         /// Tests ReliableConnectionHelper.GetCompleteServerName()
         /// </summary>
         [Test]

@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>$(SqlToolsServiceDotNetVersion)</TargetFramework>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SqlServer.DacFx" />
+  </ItemGroup>
+  <Target Name="CreateTestAnalyzerPackage" AfterTargets="Build">
+    <PropertyGroup>
+      <TestAnalyzerDirectory>$(OutputPath)packages\contoso.sqlrules\1.2.3\analyzers\dotnet\cs</TestAnalyzerDirectory>
+    </PropertyGroup>
+    <MakeDir Directories="$(TestAnalyzerDirectory)" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFiles="$(TestAnalyzerDirectory)\Contoso.SqlRules.dll" />
+  </Target>
+</Project>

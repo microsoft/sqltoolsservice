@@ -4,7 +4,7 @@
 //
 
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -28,8 +28,12 @@ namespace Microsoft.SqlTools.Hosting.Protocol
         private TaskCompletionSource<bool> endpointExitedTask;
         private SynchronizationContext originalSynchronizationContext;
 
-        private Dictionary<MessageId, TaskCompletionSource<Message>> pendingRequests =
-            new Dictionary<MessageId, TaskCompletionSource<Message>>();
+        /// <summary>
+        /// Requests waiting for a response, keyed by request ID. Requests can be sent from any thread
+        /// while the message loop completes them, so this is a concurrent dictionary.
+        /// </summary>
+        private readonly ConcurrentDictionary<MessageId, TaskCompletionSource<Message>> pendingRequests =
+            new ConcurrentDictionary<MessageId, TaskCompletionSource<Message>>();
 
         /// <summary>
         /// When true, SendEvent will ignore exceptions and write them
@@ -177,23 +181,30 @@ namespace Microsoft.SqlTools.Hosting.Protocol
                 throw new InvalidOperationException("SendRequest called when ProtocolChannel was not yet connected");
             }
 
-            this.currentMessageId++;
-            MessageId requestId = new MessageId(this.currentMessageId);
+            // Requests can be sent from several threads at once, so allocate each ID atomically.
+            MessageId requestId = new MessageId(Interlocked.Increment(ref this.currentMessageId));
 
             TaskCompletionSource<Message> responseTask = null;
 
             if (waitForResponse)
             {
                 responseTask = new TaskCompletionSource<Message>();
-                this.pendingRequests.Add(
-                    requestId,
-                    responseTask);
+                this.pendingRequests[requestId] = responseTask;
             }
 
-            await this.protocolChannel.MessageWriter.WriteRequest<TParams, TResult>(
-                requestType,
-                requestParams,
-                requestId);
+            try
+            {
+                await this.protocolChannel.MessageWriter.WriteRequest<TParams, TResult>(
+                    requestType,
+                    requestParams,
+                    requestId);
+            }
+            catch
+            {
+                // No response will arrive for a request that wasn't sent.
+                this.pendingRequests.TryRemove(requestId, out _);
+                throw;
+            }
 
             if (responseTask != null)
             {
@@ -323,12 +334,9 @@ namespace Microsoft.SqlTools.Hosting.Protocol
 
         private void HandleResponse(Message responseMessage)
         {
-            TaskCompletionSource<Message> pendingRequestTask = null;
-
-            if (this.pendingRequests.TryGetValue(responseMessage.Id, out pendingRequestTask))
+            if (this.pendingRequests.TryRemove(responseMessage.Id, out TaskCompletionSource<Message> pendingRequestTask))
             {
                 pendingRequestTask.SetResult(responseMessage);
-                this.pendingRequests.Remove(responseMessage.Id);
             }
         }
 
