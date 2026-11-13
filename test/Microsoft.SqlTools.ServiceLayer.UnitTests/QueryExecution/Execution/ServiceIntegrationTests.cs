@@ -192,18 +192,72 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
             StringAssert.DoesNotContain("SELECT 'SqlCmdValue'", string.Join(Environment.NewLine, capturedQuery.BatchTexts));
         }
 
+        [TestCase(null)]
+        [TestCase(false)]
+        public async Task ExecuteRequestWithAutoDetectEnablesSqlCmdModeForSqlCmdScript(bool? isSqlCmdMode)
+        {
+            var queryService = GetPrimedServiceWithScriptFile(SqlCmdVariableQuery);
+
+            CapturedQueryInfo capturedQuery = await CaptureCreatedQueryAsync(
+                queryService,
+                CreateSqlCmdQueryParams(isSqlCmdMode, autoDetectSqlCmdMode: true));
+
+            Assert.That(capturedQuery.IsSqlCmdMode, Is.True);
+            StringAssert.Contains("SELECT 'SqlCmdValue'", capturedQuery.BatchTexts[0]);
+        }
+
+        [Test]
+        public async Task ExecuteRequestWithAutoDetectKeepsRegularModeForPlainScript()
+        {
+            const string plainQuery = "SELECT '$(TestVar)'";
+            var queryService = GetPrimedServiceWithScriptFile(plainQuery);
+
+            CapturedQueryInfo capturedQuery = await CaptureCreatedQueryAsync(
+                queryService,
+                CreateSqlCmdQueryParams(isSqlCmdMode: null, autoDetectSqlCmdMode: true));
+
+            Assert.That(capturedQuery.IsSqlCmdMode, Is.False);
+            Assert.That(capturedQuery.BatchTexts, Is.EqualTo(new[] { plainQuery }));
+        }
+
+        [Test]
+        public async Task ExecuteRequestWithoutAutoDetectDoesNotEnableSqlCmdMode()
+        {
+            var queryService = GetPrimedServiceWithScriptFile(SqlCmdVariableQuery);
+
+            CapturedQueryInfo capturedQuery = await CaptureCreatedQueryAsync(queryService, CreateSqlCmdQueryParams(isSqlCmdMode: null));
+
+            Assert.That(capturedQuery.IsSqlCmdMode, Is.False);
+        }
+
+        [Test]
+        public async Task ExecuteRequestResultReportsAutoDetectedSqlCmdMode()
+        {
+            var queryService = GetPrimedServiceWithScriptFile(SqlCmdVariableQuery);
+            ExecuteRequestResult result = null;
+            var requestContext = RequestContextMocks.Create<ExecuteRequestResult>(r => result = r);
+
+            await queryService.HandleExecuteRequest(CreateSqlCmdQueryParams(isSqlCmdMode: null, autoDetectSqlCmdMode: true), requestContext.Object);
+            await queryService.WorkTask;
+            await queryService.ActiveQueries[Constants.OwnerUri].ExecutionTask;
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.IsSqlCmdMode, Is.True);
+        }
+
         private static QueryExecutionService GetPrimedServiceWithScriptFile(string query)
         {
             return Common.GetPrimedExecutionService(null, true, false, false, GetWorkspaceServiceWithScriptFile(query));
         }
 
-        private static ExecuteDocumentSelectionParams CreateSqlCmdQueryParams(bool? isSqlCmdMode)
+        private static ExecuteDocumentSelectionParams CreateSqlCmdQueryParams(bool? isSqlCmdMode, bool? autoDetectSqlCmdMode = null)
         {
             return new ExecuteDocumentSelectionParams
             {
                 OwnerUri = Constants.OwnerUri,
                 QuerySelection = Common.WholeDocument,
-                IsSqlCmdMode = isSqlCmdMode
+                IsSqlCmdMode = isSqlCmdMode,
+                AutoDetectSqlCmdMode = autoDetectSqlCmdMode
             };
         }
 
@@ -730,7 +784,8 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
                                 b.Selection.EndLine,
                                 b.Selection.EndColumn))
                             .ToArray(),
-                        BatchTexts = q.Batches.Select(b => b.BatchText).ToArray()
+                        BatchTexts = q.Batches.Select(b => b.BatchText).ToArray(),
+                        IsSqlCmdMode = q.IsSqlCmdMode
                     };
 
                     return Task.FromResult(false);
@@ -746,6 +801,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         {
             public SelectionData[] BatchSelections { get; set; }
             public string[] BatchTexts { get; set; }
+            public bool IsSqlCmdMode { get; set; }
         }
     }
 

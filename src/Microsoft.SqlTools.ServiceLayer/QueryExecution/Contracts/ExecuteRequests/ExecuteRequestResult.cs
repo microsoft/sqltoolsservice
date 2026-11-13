@@ -10,5 +10,10 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteReques
     /// </summary>
     public class ExecuteRequestResult
     {
+        /// <summary>
+        /// Whether the query is executed in SQLCMD mode, either because it was requested, enabled in the
+        /// query execution settings, or auto-detected from the query text
+        /// </summary>
+        public bool IsSqlCmdMode { get; set; }
     }
 }
