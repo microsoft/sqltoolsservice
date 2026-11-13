@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
+using System;
 using System.IO;
 
 namespace Microsoft.SqlTools.ServiceLayer.BatchParser
@@ -20,7 +21,7 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
         /// <param name="script">The script text to inspect</param>
         public static bool ContainsSqlCmdSyntax(string script)
         {
-            if (string.IsNullOrEmpty(script) || (script.IndexOf(':') < 0 && script.IndexOf("$(", System.StringComparison.Ordinal) < 0))
+            if (!MayContainSqlCmdSyntax(script))
             {
                 return false;
             }
@@ -59,6 +60,38 @@ namespace Microsoft.SqlTools.ServiceLayer.BatchParser
                 // parser to report; they don't indicate SQLCMD usage on their own.
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Cheap pre-check that avoids lexing scripts that can't contain SQLCMD syntax. The lexer only recognizes
+        /// commands at a colon that is the first non-whitespace character on a line, and variable references
+        /// always contain <c>$(</c>, so scripts with neither are rejected without a full lex.
+        /// </summary>
+        internal static bool MayContainSqlCmdSyntax(string script)
+        {
+            if (string.IsNullOrEmpty(script))
+            {
+                return false;
+            }
+
+            return HasLineStartColon(script) || script.IndexOf("$(", StringComparison.Ordinal) >= 0;
+        }
+
+        private static bool HasLineStartColon(string script)
+        {
+            for (int i = script.IndexOf(':'); i >= 0; i = script.IndexOf(':', i + 1))
+            {
+                int j = i - 1;
+                while (j >= 0 && (script[j] == ' ' || script[j] == '\t'))
+                {
+                    j--;
+                }
+                if (j < 0 || script[j] == '\n' || script[j] == '\r')
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private static bool IsSqlCmdCommand(LexerTokenType tokenType)

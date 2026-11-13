@@ -51,5 +51,29 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         {
             Assert.That(SqlCmdSyntaxDetector.ContainsSqlCmdSyntax(script), Is.False);
         }
+
+        [TestCase("/* note\n:setvar x 1\n*/\nSELECT 1")]
+        [TestCase("SELECT 'line1\n  :setvar x 1'")]
+        public void LineStartColonInCommentOrStringPassesPreCheckButIsNotDetected(string script)
+        {
+            Assert.That(SqlCmdSyntaxDetector.MayContainSqlCmdSyntax(script), Is.True, "Pre-check should defer to the lexer");
+            Assert.That(SqlCmdSyntaxDetector.ContainsSqlCmdSyntax(script), Is.False);
+        }
+
+        [TestCase("SELECT * FROM ::fn_trace_getinfo(DEFAULT) -- Note: 12:30:00\nSELECT 'HH:mm:ss', geography::Point(1, 2, 4326)")]
+        [TestCase("SELECT 1 AS [label:setvar]\n  SELECT 2 /* :setvar */")]
+        public void MidLineColonsAreRejectedByPreCheck(string script)
+        {
+            Assert.That(SqlCmdSyntaxDetector.MayContainSqlCmdSyntax(script), Is.False);
+            Assert.That(SqlCmdSyntaxDetector.ContainsSqlCmdSyntax(script), Is.False);
+        }
+
+        [TestCase("SELECT 1\r\n\t :setvar x 1", true)]
+        [TestCase("SELECT $(x)", true)]
+        [TestCase("SELECT 1", false)]
+        public void PreCheckDetectsCandidates(string script, bool expected)
+        {
+            Assert.That(SqlCmdSyntaxDetector.MayContainSqlCmdSyntax(script), Is.EqualTo(expected));
+        }
     }
 }
