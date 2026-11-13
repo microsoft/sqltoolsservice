@@ -32,5 +32,12 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution.Contracts.ExecuteReques
         /// from the query execution settings for the owner URI is used.
         /// </summary>
         public bool? IsSqlCmdMode { get; set; }
+
+        /// <summary>
+        /// Whether to inspect the text being executed for SQLCMD syntax and, if found, run this execution in
+        /// SQLCMD mode. Only applies when SQLCMD mode isn't already enabled by <see cref="IsSqlCmdMode"/> or the
+        /// query execution settings.
+        /// </summary>
+        public bool? AutoDetectSqlCmdMode { get; set; }
     }
 }

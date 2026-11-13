@@ -273,7 +273,7 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Setup actions to perform upon successful start and on failure to start
             Func<Query, Task<bool>> queryCreateSuccessAction = async q =>
             {
-                await requestContext.SendResult(new ExecuteRequestResult());
+                await requestContext.SendResult(new ExecuteRequestResult { IsSqlCmdMode = q.IsSqlCmdMode });
                 Logger.Stop($"Response for Query: '{executeParams.OwnerUri} sent. Query Complete!");
                 return true;
             };
@@ -1533,7 +1533,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
                 executeParams.GetFullColumnSchema,
                 applyExecutionSettings,
                 queryExecutionInfo.ExecutionSelection,
-                executeParams.IsSqlCmdMode);
+                executeParams.IsSqlCmdMode,
+                executeParams.AutoDetectSqlCmdMode == true);
 
             if (!ActiveQueries.TryAdd(executeParams.OwnerUri, newQuery))
             {

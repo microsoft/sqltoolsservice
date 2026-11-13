@@ -113,6 +113,9 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// <param name="settings">Settings for how to execute the query, from the user</param>
         /// <param name="outputFactory">Factory for creating output files</param>
         /// <param name="isSqlCmdMode">Overrides <see cref="QueryExecutionSettings.IsSqlCmdMode"/> when specified</param>
+        /// <param name="autoDetectSqlCmdMode">
+        /// When SQLCMD mode is not otherwise enabled, enables it for this query if the query text contains SQLCMD syntax
+        /// </param>
         public Query(
             string queryText,
             ConnectionInfo connection,
@@ -121,7 +124,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             bool getFullColumnSchema = false,
             bool applyExecutionSettings = false,
             SelectionData executionSelection = null,
-            bool? isSqlCmdMode = null)
+            bool? isSqlCmdMode = null,
+            bool autoDetectSqlCmdMode = false)
         {
             // Sanity check for input
             Validate.IsNotNull(nameof(queryText), queryText);
@@ -137,7 +141,8 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             // Process the query into batches 
             BatchParserWrapper parser = new BatchParserWrapper();
             ExecutionEngineConditions conditions = null;
-            if (isSqlCmdMode ?? settings.IsSqlCmdMode)
+            IsSqlCmdMode = ResolveSqlCmdMode(queryText, settings, isSqlCmdMode, autoDetectSqlCmdMode);
+            if (IsSqlCmdMode)
             {
                 conditions = new ExecutionEngineConditions() { IsSqlCmd = true };
             }
@@ -171,6 +176,24 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
             }
 
             this.Settings = settings;
+        }
+
+        /// <summary>
+        /// Determines whether a query runs in SQLCMD mode. An explicit request value takes precedence over the
+        /// settings; if neither enables SQLCMD mode, auto-detection (when requested) inspects the query text.
+        /// </summary>
+        internal static bool ResolveSqlCmdMode(
+            string queryText,
+            QueryExecutionSettings settings,
+            bool? isSqlCmdMode,
+            bool autoDetectSqlCmdMode)
+        {
+            if (isSqlCmdMode ?? settings.IsSqlCmdMode)
+            {
+                return true;
+            }
+
+            return autoDetectSqlCmdMode && SqlCmdSyntaxDetector.ContainsSqlCmdSyntax(queryText);
         }
 
         private static SelectionData TranslateBatchSelectionToDocument(
@@ -256,6 +279,11 @@ namespace Microsoft.SqlTools.ServiceLayer.QueryExecution
         /// The batches underneath this query
         /// </summary>
         internal Batch[] Batches { get; }
+
+        /// <summary>
+        /// Whether this query was parsed and is executed in SQLCMD mode
+        /// </summary>
+        public bool IsSqlCmdMode { get; }
 
         /// <summary>
         /// The batches which should run after the user batches 
