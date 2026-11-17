@@ -132,7 +132,7 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         }
 
         /// <summary>
-        /// Read to End test
+        /// Verifies that all concurrent result reads complete successfully.
         /// </summary>
         /// <param name="testDataSet"></param>
         [Test]
@@ -140,16 +140,10 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.QueryExecution.Execution
         public async Task ReadToEndSuccessSeveralTimes(TestResultSet[] testDataSet)
         {
             const int NumberOfInvocations = 50;
-            List<Task> allTasks = new List<Task>();
-            Parallel.ForEach(Partitioner.Create(0, NumberOfInvocations), (range) =>
+            Task[] allTasks = new Task[NumberOfInvocations];
+            Parallel.For(0, NumberOfInvocations, index =>
             {
-                int start = range.Item1 == 0 ? 1 : range.Item1;
-                Task[] tasks = new Task[range.Item2 - start];
-                for (int i = start; i < range.Item2; i++)
-                {
-                    allTasks.Add(ReadToEndSuccess(testDataSet));
-                }
-
+                allTasks[index] = ReadToEndSuccess(testDataSet);
             });
             await Task.WhenAll(allTasks);
         }

@@ -10,8 +10,8 @@ using Microsoft.SqlTools.Hosting.Protocol;
 using Microsoft.SqlTools.ServiceLayer.Admin.Contracts;
 using Microsoft.SqlTools.ServiceLayer.Connection;
 using Microsoft.SqlTools.ServiceLayer.Connection.Contracts;
+using Microsoft.SqlTools.ServiceLayer.Connection.ReliableConnection;
 using Microsoft.SqlTools.LanguageService.Connection.Contracts;
-using Microsoft.SqlTools.ServiceLayer.Test.Common;
 using Microsoft.SqlTools.ServiceLayer.UnitTests.Utility;
 using static Microsoft.SqlTools.Utility.SqlConstants;
 using Moq;
@@ -1266,35 +1266,26 @@ namespace Microsoft.SqlTools.ServiceLayer.UnitTests.Connection
         }
 
         /// <summary>
-        /// Verify that Linux/OSX SqlExceptions thrown do not contain an error code.
-        /// This is a bug in .NET core (see https://github.com/dotnet/corefx/issues/12472).
-        /// If this test ever fails, it means that this bug has been fixed. When this is
-        /// the case, look at RetryPolicyUtils.cs in IsRetryableNetworkConnectivityError(),
-        /// and remove the code block specific to Linux/OSX.
+        /// Verifies that an unknown host reports its network error code and remains retryable.
         /// </summary>
         [Test]
-        public void TestThatLinuxAndOsxSqlExceptionHasNoErrorCode()
+        public void TestUnknownHostSqlExceptionIsRetryable()
         {
-            RunIfWrapper.RunIfLinuxOrOSX(() =>
+            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder
             {
-                try
-                {
-                    SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder
-                    {
-                        DataSource = "bad-server-name",
-                        UserID = "sa",
-                        Password = "bad password"
-                    };
+                DataSource = "tcp:sqltoolsservice-does-not-exist.invalid",
+                UserID = "sa",
+                Password = "bad password",
+                ConnectTimeout = 5,
+                ConnectRetryCount = 0,
+                Pooling = false
+            };
 
-                    SqlConnection connection = new SqlConnection(builder.ConnectionString);
-                    connection.Open(); // This should fail
-                }
-                catch (SqlException ex)
-                {
-                    // Error code should be 0 due to bug
-                    Assert.AreEqual(0, ex.Number);
-                }
-            });
+            using SqlConnection connection = new SqlConnection(builder.ConnectionString);
+            SqlException exception = Assert.Throws<SqlException>(() => connection.Open());
+
+            Assert.AreEqual((int)System.Net.Sockets.SocketError.HostNotFound, exception.Number);
+            Assert.True(RetryPolicyUtils.IsRetryableNetworkConnectivityError(exception.Number));
         }
 
         /// <summary>
